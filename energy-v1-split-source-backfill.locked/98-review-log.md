@@ -163,3 +163,206 @@ Process:
 
 - Verdict: `NO_MATERIAL_FINDINGS`
 - No further plan text changes were required.
+
+## Fresh Migration Fidelity Check - Sonnet
+
+- Verdict: `MIGRATION_PASS`
+
+## Fresh Adversarial Round 1 - Opus Review
+
+### Findings
+
+- `P2` The importer needed explicit behavior when `scanComplete` never arrives.
+- `P2` `ISSUE-GW-ENERGY-03` still needed a less ambiguous summary so the
+  gateway coherence-measurement read path could not slip out of scope.
+- `P2` The lifetime anchor needed a clearer trust chain because the coherence
+  proof is only month-scoped.
+- `P3` The gateway chunk needed to restate that the per-minute cap is derived at
+  current values and must be recalculated if changed.
+- `P3` The same-day latency gate needed to be phrased at the gateway surface,
+  not as an HA visibility guarantee.
+
+### Changes Applied
+
+- Added a configurable `scanComplete` patience window with explicit diagnostic
+  behavior and no implicit partial import.
+- Extended `EnergyHistoryDailyStatus` with progress counters.
+- Clarified the lifetime-anchor trust chain and tightened the base bound to
+  `0 <= base <= live_total_now`.
+- Rewrote the pacing note so the current equality and future recalculation rule
+  are explicit.
+- Reframed same-day latency to the gateway `energyTotals.today` surface.
+- Rewrote `ISSUE-GW-ENERGY-03` to make the coherence-measurement read path a
+  hard deliverable.
+
+## Fresh Adversarial Round 1 - Sonnet Validation
+
+- Verdict: `PASS`
+
+## Fresh Adversarial Round 2 - Opus Review
+
+### Findings
+
+- `P2` The end-of-seed continuity check still needed an explicit numeric
+  invariant and tolerance rule.
+- `P2` The collector needed a restart-safe progress contract or the importer
+  could starve forever under restarts.
+- `P3` `daysExpected` still needed an exact definition for edge cases and
+  unsupported pairs.
+
+### Changes Applied
+
+- Defined the end-of-seed continuity invariant and the derived `epsilon_seed`
+  contract.
+- Made collector progress restart-safe and tied it to the gateway collector
+  issue scope.
+- Defined `daysExpected`, January 1 semantics, and the unsupported-pair rule.
+
+## Fresh Adversarial Round 2 - Sonnet Validation
+
+- Verdict: `PASS`
+
+## Fresh Adversarial Round 3 - Opus Review
+
+### Findings
+
+- `P2` The importer still needed a cooldown rule after repeated patience-window
+  expiry on unchanged stalled scans.
+- `P2` The M2 -> M3 gate from `ISSUE-DOC-ENERGY-03` to `ISSUE-GW-ENERGY-04`
+  needed to be explicit in the issue map itself, not only in the plan prose.
+- `P3` The restart-safe collector cursor still needed exact semantics so newly
+  completed days are not skipped after restart.
+- `P3` `EnergyHistoryDailyStatus` still needed a concrete GraphQL field to
+  represent unsupported pairs.
+
+### Changes Applied
+
+- Added a persisted cooldown after unchanged stalled scans.
+- Made the `ISSUE-DOC-ENERGY-03 -> ISSUE-GW-ENERGY-04` dependency explicit in
+  the M2 and M3 issue-map rules.
+- Defined the restart-safe collector cursor semantics.
+- Added `pairStatus` to `EnergyHistoryDailyStatus`.
+
+## Fresh Adversarial Round 3 - Sonnet Validation
+
+- Verdict: `PASS`
+
+## Fresh Adversarial Round 4 - Opus Review
+
+### Findings
+
+- `P2` `ISSUE-HA-ENERGY-01` was over-serialized behind the full
+  `MCP -> GraphQL -> Portal -> HA` pipeline even though it only consumes the
+  corrected existing `energyTotals.today` surface.
+- `P2` `ISSUE-DOC-ENERGY-04` needed an explicit dependency on
+  `ISSUE-GW-ENERGY-05` so the doc freeze happens after Portal validation.
+- `P2` `daily_round_trip_quantum` needed explicit ownership as a required output
+  so `epsilon_seed` is computable.
+- `P3` `ISSUE-DOC-ENERGY-03` needed an explicit dependency on
+  `ISSUE-GW-ENERGY-03` merging first.
+- `P3` The M1 milestone map needed to be consistent with the new placement of
+  `ISSUE-HA-ENERGY-01`.
+- `P3` The `pairStatus != supported` contract still needed to make
+  `scanComplete` non-interpretable and to require the importer to check
+  `pairStatus == supported` first.
+
+### Changes Applied
+
+- Moved `ISSUE-HA-ENERGY-01` into the existing-surface M1 track and clarified
+  that only `ISSUE-HA-ENERGY-02` is blocked on the full new-capability
+  pipeline.
+- Added the `ISSUE-DOC-ENERGY-04 -> ISSUE-GW-ENERGY-05` ordering rule.
+- Assigned `daily_round_trip_quantum` explicitly to `ISSUE-DOC-ENERGY-03`.
+- Added the `ISSUE-DOC-ENERGY-03 -> ISSUE-GW-ENERGY-03` dependency.
+- Aligned the M1 milestone map with the issue map.
+- Clarified that `scanComplete` is non-interpretable when
+  `pairStatus != supported` and that the importer checks `pairStatus` first.
+
+## Fresh Adversarial Round 4 - Sonnet Validation
+
+- Verdict: `PASS`
+
+## Fresh Adversarial Round 5 - Opus Review
+
+### Findings
+
+- `P2` The importer needed an explicit backward-range-expansion contract for the
+  case where previous-year enablement widens the backfill window after an
+  earlier current-year-only seed.
+- `P2` The issue map needed to carry the transport-gate pre-execution
+  obligation for the gateway issues, not only the plan prose.
+- `P3` The locked review log still left Fresh Adversarial Round 3 Sonnet
+  validation pending.
+- `P3` The collector still needed an explicit ongoing freshness trigger so newly
+  completed days enter `energyHistoryDaily` without restart.
+
+### Changes Applied
+
+- Scoped importer idempotence to a fixed enabled target window and added the
+  controlled full-reseed rule for backward range expansion.
+- Added a gateway pre-execution transport-gate rule to the issue map.
+- Marked Fresh Adversarial Round 3 Sonnet validation as `PASS`.
+- Added the post-sweep daily rollover reevaluation rule for the history
+  collector in canonical plus gateway chunk.
+
+## Fresh Adversarial Round 5 - Sonnet Validation
+
+- Verdict: `PASS`
+
+## Fresh Adversarial Round 6 - Opus Review
+
+### Findings
+
+- `P1` The first-install end-of-seed continuity check was tautological because
+  it reused the same snapshot from which `base` was derived.
+- `P2` `EnergyHistoryDailyStatus` lacked a year-level software-gate signal, so a
+  disabled previous year could look like a stalled scan.
+- `P2` Chunk 12 referenced `epsilon_seed` without reproducing the invariant and
+  derivation needed for isolated review.
+
+### Changes Applied
+
+- Moved the continuity check onto a second fresh post-import snapshot and
+  updated the trust chain accordingly.
+- Added `yearStatus` to `EnergyHistoryDailyStatus` and required the importer to
+  skip disabled years instead of entering the patience loop.
+- Reproduced the full `epsilon_seed` invariant and derivation in chunk 12.
+
+## Fresh Adversarial Round 6 - Sonnet Validation
+
+- Verdict: `PASS`
+
+## Fresh Adversarial Round 7 - Opus Review
+
+### Findings
+
+- `P1` The end-of-seed continuity check still had algebraic cancellation, so the
+  `imported_day_count * daily_round_trip_quantum` tolerance term had no real
+  error source.
+- `P2` `daily_round_trip_quantum` still referenced GraphQL even though the value
+  must be published before the GraphQL milestone exists.
+- `P3` The month-scoped coherence measurement still lacked a minimum completed
+  day count before a final tolerance could be accepted as representative.
+
+### Changes Applied
+
+- Moved the continuity check onto recorder-stored cumulative data read back from
+  HA plus a second fresh live snapshot after import completion.
+- Redefined `daily_round_trip_quantum` on the common representation path
+  `B516 float32 Wh -> gateway internal kWh -> serialized JSON float -> HA
+  statistics storage`.
+- Added the `>= 7 completed current-month days` minimum before the published
+  coherence tolerance is accepted as representative.
+
+## Fresh Adversarial Round 7 - Sonnet Validation
+
+- Verdict: `PASS`
+
+## Fresh Adversarial Round 8 - Opus Convergence Check
+
+- Verdict: `NO_MATERIAL_FINDINGS`
+
+## Fresh Adversarial Round 8 - Sonnet Convergence Validation
+
+- Verdict: `PASS`
+- No remaining implementation deltas found.

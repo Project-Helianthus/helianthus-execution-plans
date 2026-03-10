@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `17af2e502f3e5588be52f7b0355743cd0840834d434b810de76f97471c3a58f3`
+Canonical-SHA256: `6aa03bced178080e07cf3eb16c7345bece61e7f382069110f1ca8fc7d4f8ca4c`
 
 Depends on: None. This chunk defines the evidence model, source ownership,
 doc-gates, and out-of-scope boundaries that the rest of the plan imports.

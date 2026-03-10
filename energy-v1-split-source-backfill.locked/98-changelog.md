@@ -97,3 +97,82 @@ locked-plan artifacts in a traceable way.
     unsupported
 - Kept the lifetime anchor only for the base-residual calculation, not for the
   coherence proof itself.
+
+## Locked-Plan Review Round 6
+
+- Added explicit importer patience behavior for `scanComplete`:
+  - configurable wait window, default `6h`
+  - no automatic partial seed
+  - diagnostic with `daysScanned`, `daysExpected`, and coverage percentage on
+    expiry
+- Extended `EnergyHistoryDailyStatus` with `daysScanned` and `daysExpected` so
+  the importer and diagnostics can reason about progress explicitly.
+- Tightened the lifetime-anchor justification:
+  - base must satisfy `0 <= base <= live_total_now`
+  - month-scoped proof plus base bound plus continuity check are the trust chain
+- Reframed the same-day latency gate to the gateway `energyTotals.today`
+  surface; HA client-side latency now belongs to the HA rollout issues.
+- Rewrote `ISSUE-GW-ENERGY-03` so its summary unambiguously includes the
+  same-poll-cycle coherence-measurement read path as a hard deliverable.
+
+## Locked-Plan Review Round 7
+
+- Added a persistent importer cooldown after unchanged stalled scans so restart
+  loops do not repeatedly burn the full patience window.
+- Added `pairStatus` to `EnergyHistoryDailyStatus` so unsupported pairs have a
+  concrete GraphQL representation.
+- Made the `ISSUE-DOC-ENERGY-03 -> ISSUE-GW-ENERGY-04` gate explicit in both
+  the M2 and M3 sections of the issue map.
+- Defined the restart-safe collector cursor as
+  `previous_run_newest_completed_day + oldest_scanned_day`, with explicit
+  catch-up of newly completed days before resuming the backward walk.
+
+## Locked-Plan Review Round 8
+
+- Moved `ISSUE-HA-ENERGY-01` into the existing-surface M1 track so corrected
+  live-`today` behavior no longer waits behind the new-capability pipeline.
+- Added the explicit `ISSUE-DOC-ENERGY-04 -> ISSUE-GW-ENERGY-05` dependency so
+  the GraphQL/Portal doc freeze happens after Portal validation.
+- Made `daily_round_trip_quantum` an explicit required output of
+  `ISSUE-DOC-ENERGY-03` so `epsilon_seed` is computable at HA rollout time.
+- Added the explicit `ISSUE-DOC-ENERGY-03 -> ISSUE-GW-ENERGY-03` ordering rule
+  in canonical plus split artifacts.
+- Aligned the M1 milestone map with the revised issue placement.
+- Clarified that `scanComplete` is non-interpretable for unsupported pairs and
+  that the importer must check `pairStatus == supported` first.
+
+## Locked-Plan Review Round 9
+
+- Scoped importer idempotence to a fixed enabled backfill target window and
+  added the controlled full-reseed rule for backward window expansion after an
+  earlier seed.
+- Added the ongoing collector freshness contract:
+  - after a full sweep, reevaluate after each local-day rollover
+  - use the same newest-first catch-up path and pacing rules
+- Added the gateway transport-gate pre-execution rule directly to the issue map.
+- Closed the stale review-log gap by recording Fresh Adversarial Round 3 Sonnet
+  validation as `PASS`.
+
+## Locked-Plan Review Round 10
+
+- Replaced the tautological first-install continuity check with a post-import
+  second-snapshot invariant:
+  - `today_so_far_after_import`
+  - `live_total_after_import`
+- Added `yearStatus` to `EnergyHistoryDailyStatus` so software-disabled years
+  are explicit and skipped immediately by the importer.
+- Reproduced the full `epsilon_seed` invariant and derivation inside chunk 12 so
+  the HA/backfill contract remains reviewable in isolation.
+
+## Locked-Plan Review Round 11
+
+- Reworked the end-of-seed continuity proof so it reads back
+  `stored_cumulative_after_import` from HA recorder storage instead of
+  reusing in-memory imported sums.
+- Redefined `daily_round_trip_quantum` on the shared precision path:
+  - `B516 float32 Wh`
+  - `gateway internal kWh`
+  - `serialized JSON float`
+  - `HA statistics storage`
+- Added the `>= 7 completed current-month days` precondition before the
+  published month-scoped coherence tolerance is accepted as representative.

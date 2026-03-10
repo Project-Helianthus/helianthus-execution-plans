@@ -186,6 +186,22 @@ Status: `Locked bootstrap import`
 - History collection is not part of the hot startup path.
 - History collection starts only after semantic startup is complete and normal
   live polling is stable.
+- Collector progress is restart-safe:
+  - the gateway persists scan progress per `(channel, usage, year)` tuple
+  - the persisted cursor is a pair:
+    - `previous_run_newest_completed_day`
+    - `oldest_scanned_day`
+  - on restart, the collector first scans any newly completed days in
+    `(previous_run_newest_completed_day, current_newest_completed_day]`
+  - after catching up the newer suffix, the collector resumes the backward walk
+    from the day immediately older than `oldest_scanned_day`
+  - persisted progress is cleared only when the scan completes or the run is
+    invalidated by a configuration/capability change
+- After a full history sweep completes, the collector must schedule a periodic
+  follow-up run so newly completed days enter `energyHistoryDaily` without
+  requiring a gateway restart.
+- The minimum v1 contract is one reevaluation after each local-day rollover for
+  supported tuples, using the same newest-first catch-up path and pacing rules.
 - Pacing contract:
   - primary controlling limit: `1 request / 2s`
   - derived sanity-check cap at the current v1 setting: `30 requests / minute`
@@ -219,6 +235,10 @@ Status: `Locked bootstrap import`
   - `B524_month_current ~= sum(B516_completed_days_this_month) + B516_today`
 - The measured drift budget from that proof becomes the anchor mismatch
   tolerance.
+- That proof is representative only after at least `7` completed days exist in
+  the current month.
+- If fewer than `7` completed days exist, the measurement may be exploratory,
+  but it must not unlock first-install backfill or publish a final tolerance.
 - This proof is month-scoped on purpose. Energy v1 does not attempt a
   lifetime-versus-history equality check because the imported history window is
   intentionally bounded while the lifetime anchor is not.
@@ -252,9 +272,13 @@ Status: `Locked bootstrap import`
   - `end`
   - `valueKwh`
 - `EnergyHistoryDailyStatus` contains:
+  - `pairStatus`
+  - `yearStatus`
   - `coverageStart`
   - `coverageEnd`
   - `scanComplete`
+  - `daysScanned`
+  - `daysExpected`
 - For a `(channel, usage, year)` query, the coverage window is defined as:
   - `January 1` of the requested year through the last completed day in that
     year
@@ -262,6 +286,18 @@ Status: `Locked bootstrap import`
   - for a completed previous year, the last completed day is December 31
 - `scanComplete` becomes true only when every day in that coverage window has
   been read or confirmed unsupported for the active hardware/profile.
+- `daysExpected` is the count of calendar days in the coverage window.
+- For the current year on January 1, `daysExpected=0` and `scanComplete=true`
+  trivially because there are no completed days yet.
+- `pairStatus` is `supported | unsupported | temporarily_unavailable`.
+- `yearStatus` is `enabled | disabled`.
+- `yearStatus=disabled` means the requested year is blocked by a software gate
+  such as previous-year support still being disabled.
+- Unsupported pairs do not report `daysExpected=0`; they surface through
+  `pairStatus` instead.
+- When `pairStatus != supported` or `yearStatus != enabled`, `coverageStart`,
+  `coverageEnd`, `daysExpected`, `daysScanned`, and `scanComplete` are not
+  interpreted as coverage data.
 - GraphQL must keep `energyTotals.today` and the daily-history surface
   semantically distinct:
   - `energyTotals.today` is the only place where current-day energy appears
@@ -297,22 +333,64 @@ Status: `Locked bootstrap import`
   - reads recorder statistics state
   - fetches missing daily buckets from `energyHistoryDaily`
   - imports only completed days
-  - is idempotent on re-run
+  - is idempotent on re-run while the enabled backfill target window is fixed
 - The importer rules are:
   - if statistics already exist, resume from the last recorder `sum`
   - if statistics do not exist, compute the base cumulative anchor from
     `live_total_now - today_so_far - sum(imported_completed_days)`
+  - `live_total_now` is the `B524` lifetime/all-time cumulative anchor
+  - `today_so_far` is the `B516 day/current-year` intraday value
   - that base is an intentional opaque residual representing all energy before
     the oldest imported day
-  - the computed base must be non-negative or the importer aborts with a
-    diagnostic
+  - the computed base must satisfy `0 <= base <= live_total_now` or the
+    importer aborts with a diagnostic
   - chain imported day totals into cumulative sums in chronological order
   - abort and log on continuity mismatch
+- The plan does not require a whole-window lifetime-equality proof for the
+  imported history seed. The lifetime anchor is trusted through:
+  - the month-scoped coherence proof at the live boundary
+  - the bounded base invariant `0 <= base <= live_total_now`
+  - the end-of-seed continuity check against recorder-stored cumulative data and
+    a second fresh live snapshot after import completion
+- The end-of-seed continuity invariant is:
+  - `abs((stored_cumulative_after_import + today_so_far_after_import) - live_total_after_import) <= epsilon_seed`
+- `epsilon_seed` is derived as:
+  - `month_coherence_tolerance + imported_day_count * daily_round_trip_quantum`
+- `daily_round_trip_quantum` is the maximum single-day error introduced by the
+  common representation path `B516 float32 Wh -> gateway internal kWh ->
+  serialized JSON float -> HA statistics storage` and must be documented when
+  the tolerance is published.
 - The integration does not create synthetic past-hour rows.
 - The importer does not seed from a partial newest-only history suffix. It waits
-  until `energyHistoryDailyStatus.scanComplete` confirms the full configured
-  coverage window for the enabled backfill target, then sorts that window
+  until `energyHistoryDailyStatus.scanComplete` confirms the full coverage
+  window for the enabled backfill target, then sorts that window
   chronologically and imports it as one coherent seed.
+- The importer evaluates `scanComplete` only for tuples where
+  `pairStatus == supported` and `yearStatus == enabled`.
+- If the enabled backfill target later expands backward after an earlier seed
+  (for example when previous-year support is enabled after a current-year-only
+  seed already exists), the importer must perform one controlled full reseed for
+  the affected statistic IDs instead of attempting an append-only import.
+- That full reseed recomputes the base against the expanded window and
+  reimports the cumulative series from the oldest enabled completed day.
+- After a first-install seed completes, the importer must read back the
+  recorder-stored cumulative `sum` for the newest imported completed day before
+  evaluating the end-of-seed continuity invariant.
+- The importer waits up to a configurable patience window before giving up on
+  `scanComplete`; default `6h`.
+- If that patience window expires, the importer does not perform a partial seed.
+  It logs a diagnostic including `daysScanned`, `daysExpected`, and derived
+  coverage percentage, then exits cleanly so a later retry can continue.
+- After a patience-window expiry, the importer persists:
+  - expiry timestamp
+  - observed `daysScanned`
+  - observed `daysExpected`
+- On a later startup, if the gateway reports the same `(daysScanned,
+  daysExpected)` snapshot and less than the cooldown window has elapsed, the
+  importer skips the wait entirely and re-emits the persisted diagnostic.
+- Default cooldown window after an unchanged stalled scan is `24h`.
+- For `yearStatus == disabled`, the importer must skip the tuple immediately
+  rather than entering the patience-window path.
 - Home Assistant creates hourly long-term statistics prospectively after rollout
   because the live cumulative sensor now moves intraday from `B516`.
 
@@ -351,25 +429,33 @@ Status: `Locked bootstrap import`
 - First-install anchoring uses one atomic gateway payload for `live_total_now`
   and `today_so_far`.
 - Current day is not imported as completed history.
-- After rollout, same-day usage appears in the HA energy sensor state within one
-  semantic poll cycle after the gateway applies the updated `B516 day` reading,
-  and Home Assistant's hourly long-term statistics pick it up in the next
-  hourly rollup without synthetic history generation.
+- After rollout, the gateway `energyTotals.today` surface reflects the updated
+  `B516 day` value within one semantic poll cycle.
+- HA-side observability then follows the integration's own refresh cadence; the
+  consumer rollout issues own that exact client-side latency rather than this
+  plan's gateway contract.
 
 ## 8. Milestone Order
 
 - `M0`: documentation and ADR lock, issue creation, source-ownership freeze
 - `M1`: gateway semantic correction for `today` plus bounded `B516` collector
-  groundwork
+  groundwork, plus the HA live-`today` alignment on the existing
+  `energyTotals.today` surface
 - `M2`: MCP prototype for daily history and capability surfacing
 - `M3`: GraphQL parity plus Portal validation surface
-- `M4`: Home Assistant rollout and startup backfill importer
+- `M4`: Home Assistant new-capability rollout and startup backfill importer
 - `M5`: previous-year proof gate decision, final validation, and maintenance
 
 The default order is `M0 -> M1 -> M2 -> M3 -> M4 -> M5`.
 
 Additional sequencing rule:
 
+- `ISSUE-HA-ENERGY-01` may begin after `ISSUE-GW-ENERGY-01` because it consumes
+  the corrected existing `energyTotals.today` surface rather than the new
+  daily-history API.
+- `ISSUE-DOC-ENERGY-03` depends on `ISSUE-GW-ENERGY-03` merging first because
+  the coherence measurement must exercise the production same-poll-cycle read
+  path.
 - `ISSUE-DOC-ENERGY-03` must publish the coherence measurement and tolerance
   before `ISSUE-GW-ENERGY-04` begins GraphQL parity work.
 

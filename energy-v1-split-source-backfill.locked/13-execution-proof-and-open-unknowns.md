@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `17af2e502f3e5588be52f7b0355743cd0840834d434b810de76f97471c3a58f3`
+Canonical-SHA256: `6aa03bced178080e07cf3eb16c7345bece61e7f382069110f1ca8fc7d4f8ca4c`
 
 Depends on:
 - [10-source-ownership-and-doc-gates.md](./10-source-ownership-and-doc-gates.md)
@@ -25,17 +25,24 @@ Coverage: Sections 7-9 from the source plan.
 ## Milestone Order
 
 - `M0`: documentation and ADR lock, issue creation, source-ownership freeze
-- `M1`: gateway semantic correction for `today` plus bounded `B516` collector
-  groundwork
+- `M1`: gateway semantic correction for `today`, bounded `B516` collector
+  groundwork, and the HA live-`today` alignment on the existing
+  `energyTotals.today` surface
 - `M2`: MCP prototype for daily history and capability surfacing
 - `M3`: GraphQL parity plus Portal validation surface
-- `M4`: Home Assistant rollout and startup backfill importer
+- `M4`: Home Assistant new-capability rollout and startup backfill importer
 - `M5`: previous-year proof gate decision, final validation, and maintenance
 
 Default order is `M0 -> M1 -> M2 -> M3 -> M4 -> M5`.
 
 Additional sequencing rule:
 
+- `ISSUE-HA-ENERGY-01` may begin after `ISSUE-GW-ENERGY-01` because it
+  consumes the corrected existing `energyTotals.today` surface rather than the
+  new daily-history API.
+- `ISSUE-DOC-ENERGY-03` depends on `ISSUE-GW-ENERGY-03` merging first because
+  the coherence measurement must exercise the production same-poll-cycle read
+  path.
 - `ISSUE-DOC-ENERGY-03` must publish the coherence measurement and tolerance
   before `ISSUE-GW-ENERGY-04` begins GraphQL parity work.
 
@@ -64,6 +71,8 @@ Additional sequencing rule:
   backfill is enabled:
   - `B524_month_current ~= sum(B516_completed_days_this_month) + B516_today`
   - measured drift sets the anchor tolerance
+  - at least `7` completed current-month days are required before the published
+    tolerance is accepted as representative
 
 ### Home Assistant
 
@@ -73,10 +82,10 @@ Additional sequencing rule:
 - First-install anchoring reads `live_total_now` and `today_so_far` from the
   same payload.
 - Current day is excluded from completed-history import.
-- Same-day usage reaches the HA energy sensor state within one full semantic
-  poll cycle after the gateway applies the updated `B516 day` reading.
-- HA hourly long-term statistics pick up that intraday movement in the next
-  hourly rollup.
+- The gateway `energyTotals.today` surface reflects the updated `B516 day`
+  value within one full semantic poll cycle after the read lands.
+- HA-side visibility then follows the integration refresh cadence owned by the
+  HA rollout issues rather than this gateway-level proof gate.
 
 ## Residual Unknowns That Stay Explicit
 
@@ -86,3 +95,5 @@ Additional sequencing rule:
 - If previous-year `B516` proof fails, current-year-only backfill still ships.
 - The minimum supported Home Assistant version floor still needs to be written.
 - The anchor mismatch tolerance constant still needs to be chosen explicitly.
+- `daily_round_trip_quantum` must be published with the tolerance output from
+  `ISSUE-DOC-ENERGY-03` or the `epsilon_seed` proof stays incomplete.

@@ -8,7 +8,9 @@ State: `locked`
 - Current slug state: `energy-v1-split-source-backfill.locked`
 - The plan is a bootstrap import from local dual-AI hardening, not yet a
   GitHub-discussion-backed lock.
-- Local validator is green and the Opus adversarial loop reached convergence.
+- Local validator is green.
+- The latest Opus adversarial pass returned `NO_MATERIAL_FINDINGS`.
+- Sonnet convergence validation returned `PASS`.
 
 ## Active Focus
 
