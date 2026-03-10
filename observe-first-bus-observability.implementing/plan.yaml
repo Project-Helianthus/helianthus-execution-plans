@@ -1,0 +1,15 @@
+slug: observe-first-bus-observability
+title: Observe-First Bus Observability
+state: implementing
+source_discussion: bootstrap-seed-import-no-discussion-yet
+target_repos:
+  - helianthus-ebusgo
+  - helianthus-ebusgateway
+  - helianthus-docs-ebus
+  - helianthus-tinyebus
+  - helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-03-10
+current_milestone: M0-M1
