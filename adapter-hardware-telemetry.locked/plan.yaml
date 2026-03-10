@@ -1,6 +1,6 @@
 slug: adapter-hardware-telemetry
 title: Adapter Hardware Telemetry & Identity Propagation
-state: implementing
+state: locked
 source_discussion: bootstrap-seed-import-no-discussion-yet
 target_repos:
   - helianthus-docs-ebus
