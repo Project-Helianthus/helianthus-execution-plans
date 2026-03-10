@@ -1,0 +1,13 @@
+slug: energy-v1-split-source-backfill
+title: Energy v1 Split-Source Backfill
+state: locked
+source_discussion: bootstrap-local-dual-ai-hardening-2026-03-10-no-discussion-yet
+target_repos:
+  - helianthus-docs-ebus
+  - helianthus-ebusgateway
+  - helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-03-10
+current_milestone: M0
