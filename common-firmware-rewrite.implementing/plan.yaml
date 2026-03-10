@@ -1,0 +1,18 @@
+slug: common-firmware-rewrite
+title: Common eBUS Adapter Firmware Rewrite
+state: implementing
+source_discussion: bootstrap-dual-ai-firmware-rewrite-2026-03-10
+target_repos:
+  - helianthus-tinyebus
+  - helianthus-ebusgo
+  - helianthus-ebus-adapter-proxy
+  - helianthus-ebusgateway
+  - helianthus-docs-ebus
+  - helianthus-ha-addon
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-03-10
+current_milestone: T0
+canonical_revision: v2.0-testing-first
+canonical_sha256: 117b40ab6c3df5cbc842ea7fbe228290fe861eca104c8ac209f09ea9132ab6cb
