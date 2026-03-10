@@ -83,8 +83,16 @@ Coverage: Milestones M0-M1 from the source plan.
   7. `ISSUE-GW-01C`
   8. `ISSUE-GW-02`
   9. `ISSUE-GW-03`
-  10. `ISSUE-GW-18`
-  11. `ISSUE-DOC-05`
+  10. `ISSUE-GW-03A`
+  11. `ISSUE-GW-03B`
+  12. `ISSUE-GW-18`
+  13. `ISSUE-DOC-05`
+
+- The M1 lane gained a post-matrix review extension on 2026-03-10. After the
+  successful `T01..T88` artifact
+  `20260310T121708Z-gw03-recovery-full88-v3`, adversarial and competitive
+  review surfaced two `GW-03` correctness gaps that must settle before M1 can
+  be closed.
 
 `ISSUE-EG-01` `helianthus-ebusgo`
 - Design a TinyGo-safe observer interface and extend `BusConfig`
@@ -299,6 +307,36 @@ Coverage: Milestones M0-M1 from the source plan.
   - busy/periodicity timing quality is documented or exposed as estimated unless the transport supplies true wire timestamps
   - custom Prometheus text exposition
   - expvar remains untouched
+
+`ISSUE-GW-03A` `helianthus-ebusgateway`
+- Bootstrap passive warmup from the current reconstructor snapshot when the
+  observability store attaches after the passive tap has already emitted the
+  initial `connected` discontinuity
+- Acceptance:
+  - the observability store checks current reconstructor/tap connectivity on
+    attach and enters passive warmup without waiting for a future reconnect or
+    reset boundary
+  - a clean boot with passive traffic available does not remain stuck in
+    `unavailable` or degrade to `startup_timeout` solely because the initial
+    `connected` discontinuity was emitted before subscription
+  - regression coverage exists for the "already connected before attach" path
+  - the fix is documented as a `GW-03` follow-up discovered during the
+    successful `T01..T88` matrix validation and immediately following dual
+    review cycle on 2026-03-10
+
+`ISSUE-GW-03B` `helianthus-ebusgateway`
+- Wire the runtime local-address snapshotter into `BusObservabilityStore` so
+  `local_participant_inbound` accounting is live in the gateway binary rather
+  than falling back to the generic master bucket
+- Acceptance:
+  - `run()` wires `cfg.LocalAddressSnapshotter` from the active/passive
+    deduplicator into `BusObservabilityStore`
+  - frames attributable to the local participant are exported under the
+    intended `local_participant_inbound` path
+  - regression coverage exists for the runtime wiring path
+  - the fix is documented as a `GW-03` follow-up discovered during the
+    successful `T01..T88` matrix validation and immediately following dual
+    review cycle on 2026-03-10
 
 `ISSUE-DOC-05` `helianthus-docs-ebus`
 - Update docs after M1 implementation

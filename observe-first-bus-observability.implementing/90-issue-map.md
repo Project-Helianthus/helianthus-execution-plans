@@ -34,7 +34,9 @@ Status legend:
 | `ISSUE-GW-01B` | `helianthus-ebusgateway` | Implement `PassiveTransactionReconstructor` | merged | `Project-Helianthus/helianthus-ebusgateway#337` |
 | `ISSUE-GW-01C` | `helianthus-ebusgateway` | Add active/passive deduplicator | merged | `Project-Helianthus/helianthus-ebusgateway#338`, follow-up `#340` |
 | `ISSUE-GW-02` | `helianthus-ebusgateway` | Refactor `BroadcastListener` to consume classified passive events | merged | issue `Project-Helianthus/helianthus-ebusgateway#339`, PR `#341` |
-| `ISSUE-GW-03` | `helianthus-ebusgateway` | Add `BusObservabilityStore` and Prometheus exporter | active | issue `Project-Helianthus/helianthus-ebusgateway#342`, branch `issue/342-bus-observability-store` |
+| `ISSUE-GW-03` | `helianthus-ebusgateway` | Add `BusObservabilityStore` and Prometheus exporter | blocked | issue `Project-Helianthus/helianthus-ebusgateway#342`, PR `#343`; post-matrix review follow-ups `#344` and `#345` |
+| `ISSUE-GW-03A` | `helianthus-ebusgateway` | Bootstrap passive warmup when the store attaches after the tap is already connected | active | `Project-Helianthus/helianthus-ebusgateway#344` |
+| `ISSUE-GW-03B` | `helianthus-ebusgateway` | Wire runtime local-address snapshotting into `local_participant_inbound` labeling | planned | `Project-Helianthus/helianthus-ebusgateway#345` |
 | `ISSUE-DOC-05` | `helianthus-docs-ebus` | Update docs after M1 implementation | planned | not yet linked |
 
 ## M2-M5
