@@ -67,6 +67,14 @@ State: `implementing`
   addon-image rebuild and restart, not via `/data` binary override.
 - The passive proof lane remains red and is still tracked through
   `ISSUE-GW-18A` / `#352`, `ISSUE-GW-18B` / `#353`, and `ISSUE-GW-18C` / `#355`.
+- Targeted `P01` / `P02` reruns have now isolated a shared contract problem:
+  - the common blocker is the direct-adapter passive support/proof contract,
+    not two separate product failures
+  - that slice is now being worked as `ISSUE-GW-18D` in
+    `helianthus-ebusgateway` via issue `#356` and stacked PR `#357` on top of
+    `#354`
+  - latest gateway branch head for that slice is `d5b2296`, still waiting on a
+    fresh Codex review result for the current head
 - The latest `GW-18` proof-watch attempt
   (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
   gateway product bug:
@@ -90,8 +98,10 @@ State: `implementing`
   active in `helianthus-docs-ebus`:
   - `ISSUE-DOC-05` -> issue `Project-Helianthus/helianthus-docs-ebus#206`
   - PR `Project-Helianthus/helianthus-docs-ebus#207` carries the current docs
-    lane for that follow-up
-  - Codex review on PR `#207` reported “Didn't find any major issues”
+    lane for that follow-up and was amended to document the passive transport
+    contract discovered in the `P01` / `P02` proof work
+  - latest docs branch head is `1ccf23b`, still waiting on a fresh Codex
+    review result for the current head
 - Documentation-side canonical IDs `ISSUE-DOC-01..04` still need explicit
   linkage and reconciliation against the current code-repo reality.
 
@@ -114,6 +124,10 @@ State: `implementing`
 - `ISSUE-GW-18C` blocks `P06` from being treated as fully proven in `M1`
   because the matrix `ebusd` side still fails config compatibility before it
   can provide clean active discovery evidence.
+- `ISSUE-GW-18D` is now the active slice for the shared `P01` / `P02`
+  direct-adapter passive contract blocker; until that gateway/docs pair lands,
+  those cases should be treated as contract-unproven rather than separately
+  failing for unknown reasons.
 - `P03` / `P04` also remain unproven in the latest watch attempt, but the
   present blocker is lab/handoff behavior after addon stop rather than a newly
   proven gateway product bug.
@@ -137,7 +151,8 @@ State: `implementing`
    passive suite reruns go green, and do not treat `P03` / `P04` as code-red
    until the exclusive matrix handoff can keep adapter signal long enough to
    start those cases
-4. keep `ISSUE-DOC-05` on `helianthus-docs-ebus#206` / PR `#207` aligned with
-   the gateway branch state, and backfill the remaining documentation-side
-   canonical issues
+4. keep `ISSUE-GW-18D` (`#356` / stacked PR `#357`) and `ISSUE-DOC-05`
+   (`#206` / PR `#207`) aligned on the direct-passive transport contract, then
+   re-run review-watch once fresh Codex results exist for `d5b2296` and
+   `1ccf23b`
 5. settle `ISSUE-DOC-05` and then close `M1`
