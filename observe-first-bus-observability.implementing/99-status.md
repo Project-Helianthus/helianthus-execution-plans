@@ -120,20 +120,16 @@ State: `implementing`
   - `ISSUE-GW-18I` (`Project-Helianthus/helianthus-ebusgateway#366`) targets
     the passive proxy-session contract on proxy-single `ENS`
   - active branch is `issue/366-p03-passive-proxy-session-contract`
-  - latest stacked head is `2b5df32`
-  - no stacked PR is linked yet for this head
-  - `#365` remains open and not merge-ready, parent PR `#354` remains
-    open/draft, and this is still proof-remediation work rather than proof
-    success
-- The latest `GW-18` proof-watch attempt
-  (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
-  gateway product bug:
-  - `P03` / `P04` did not start because the exclusive matrix handoff drops
-    adapter signal immediately after `local_helianthus` is stopped
-  - adapter state was `eBUS signal: acquired` with the addon running, then
-    `eBUS signal: no signal` for the full post-stop observation window
-  - current `P03` / `P04` status is therefore “unproven for ops/lab reasons,”
-    not “new gateway regression proven”
+  - stacked PR `#367` is now open against `#365`
+  - latest stacked head is `350d4a33ee2c80af706d8a392ad2ddeed2d4eabd`
+  - rerun artifact
+    `results-matrix-ha/20260311T194649Z-issue366-p03-rerun` is `FAIL`
+  - `P03` still showed all four devices present (`NETX3`, `BAI00`, `BASV2`,
+    `VR_71`), passive tap connected (`1`), warmup still `warming_up`,
+    `available=0`, and `completed_transactions=3`
+  - startup still degraded on `semantic_b524_root ... no coherent responder`
+  - `#367` remains the active blocked lane and is not ready to fold upward
+    into parent PR `#354`
 - Current live HA runtime on that rebuilt image confirms branch-slice recovery,
   but still should not be treated as proof-closed:
   - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
@@ -192,12 +188,12 @@ State: `implementing`
   merge-ready, parent PR `#354` remains draft, and the proof lane remains
   open.
 - `ISSUE-GW-18I` is now active as a further stacked remediation slice for
-  `P03`; until it lands and the rerun succeeds, `#365` remains open and not
-  merge-ready, parent PR `#354` remains draft, and the proof lane remains
-  open.
-- `P03` / `P04` also remain unproven in the latest watch attempt, but the
-  present blocker is lab/handoff behavior after addon stop rather than a newly
-  proven gateway product bug.
+  `P03`, but rerun artifact
+  `results-matrix-ha/20260311T194649Z-issue366-p03-rerun` still fails with all
+  four devices present, passive tap connected (`1`), warmup still
+  `warming_up`, `available=0`, `completed_transactions=3`, and degraded startup
+  on `semantic_b524_root ... no coherent responder`; `#367` remains the active
+  blocked lane and is not ready to fold upward into parent PR `#354`.
 - Live HA validation now shows the reported regulator/system-loss symptom
   recovered on the rebuilt addon image, but that recovery is still branch-only
   evidence and does not clear the red passive proof lane.
@@ -215,10 +211,11 @@ State: `implementing`
 2. settle `ISSUE-GW-18A`, `ISSUE-GW-18B`, and `ISSUE-GW-18C`, then rerun the
    passive suite until the `GW-18` proof lane is green again
 3. keep the live rebuilt-image recovery result as branch evidence only until the
-   passive suite reruns go green, and do not treat `P03` / `P04` as code-red
-   until the exclusive matrix handoff can keep adapter signal long enough to
-   start those cases
-4. settle `ISSUE-GW-18F`, `ISSUE-GW-18G`, `ISSUE-GW-18H`, and `ISSUE-GW-18I`,
-   then resume the parent `GW-18` proof rerun on updated PR `#354`, starting
-   with `P03`
+   passive suite reruns go green, and treat the current `P03` failure on
+   stacked PR `#367` as the active product blocker rather than as a lab-only
+   handoff artifact
+4. settle `ISSUE-GW-18I` on stacked PR `#367` first, because it is still the
+   active blocked lane for `P03` and is not ready to fold upward into parent
+   PR `#354`; only then continue folding the stacked `GW-18` remediation chain
+   upward and resume the parent proof rerun
 5. settle `ISSUE-DOC-05` and then close `M1`
