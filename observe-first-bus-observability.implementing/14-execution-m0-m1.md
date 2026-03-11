@@ -87,6 +87,7 @@ Coverage: Milestones M0-M1 from the source plan.
   11. `ISSUE-GW-03B`
   12. `ISSUE-GW-18`
   13. `ISSUE-DOC-05`
+  14. `ISSUE-GW-18C`
 
 - The M1 lane gained a post-matrix review extension on 2026-03-10. After the
   successful `T01..T88` artifact
@@ -166,7 +167,9 @@ Coverage: Milestones M0-M1 from the source plan.
   - harness-side false negatives discovered during bring-up were fixed inside the
     `ISSUE-GW-18` branch before this artifact (`signal-before-connect` preflight
     and canceled-context cleanup).
-  - the remaining failures are tracked as `ISSUE-GW-18A` and `ISSUE-GW-18B`.
+  - the remaining failures are tracked as `ISSUE-GW-18A`, `ISSUE-GW-18B`, and
+    the follow-up `ISSUE-GW-18C` discovered after the `P06` reruns
+    `20260311T064844Z-gw18b-p06-v1` and `20260311T065409Z-gw18b-p06-v2`.
 
 `ISSUE-GW-18A` `helianthus-ebusgateway`
 - Investigate and fix supported passive smoke failures on `P01..P05`
@@ -193,6 +196,25 @@ Coverage: Milestones M0-M1 from the source plan.
   - no false `available` or `timed_out` passive outcomes are emitted on
     `ebusd-tcp`
   - rerun passive smoke artifact is attached
+- Status note:
+  - reruns `20260311T064844Z-gw18b-p06-v1` and
+    `20260311T065409Z-gw18b-p06-v2` moved this blocker from a startup-fatal
+    product bug to a harness-compatibility problem: the gateway now stays up
+    and passive metrics degrade correctly, but matrix `ebusd` still fails to
+    prove active discovery cleanly.
+
+`ISSUE-GW-18C` `helianthus-ebusgateway`
+- Supply an `ebusd`-compatible matrix config source for `P06`
+- Trigger:
+  - discovered by `ISSUE-GW-18B` reruns
+    `results-matrix-ha/20260311T064844Z-gw18b-p06-v1` and
+    `results-matrix-ha/20260311T065409Z-gw18b-p06-v2`
+- Acceptance:
+  - matrix `ebusd` config loads without parse errors for `P06`
+  - `P06` proves non-empty `devices` while passive metrics remain
+    `unsupported_or_misconfigured`
+  - wrapper/harness config-source selection is deterministic and documented
+  - a fresh rerun artifact is attached
 
 `ISSUE-GW-01` `helianthus-ebusgateway`
 - Introduce `PassiveBusTap`

@@ -29,9 +29,10 @@ Status legend:
 | `ISSUE-EG-02` | `helianthus-ebusgo` | Wire observer events into `protocol.Bus` | merged | `Project-Helianthus/helianthus-ebusgo#116` |
 | `ISSUE-EG-03` | `helianthus-ebusgo` | Surface transport reset events for passive consumers | merged | `Project-Helianthus/helianthus-ebusgo#116` |
 | `ISSUE-GW-17` | `helianthus-ebusgateway` | Bump `helianthus-ebusgo` pin after M1 ebusgo work | merged | `Project-Helianthus/helianthus-ebusgateway#334` |
-| `ISSUE-GW-18` | `helianthus-ebusgateway` | Add passive-topology smoke coverage | active | `Project-Helianthus/helianthus-ebusgateway#351`; first clean suite artifact `results-matrix-ha/20260311T062516Z-gw18-passive-smoke-v4/index.json` exposed follow-ups |
+| `ISSUE-GW-18` | `helianthus-ebusgateway` | Add passive-topology smoke coverage | active | `Project-Helianthus/helianthus-ebusgateway#351`, PR `#354`; first clean suite artifact `results-matrix-ha/20260311T062516Z-gw18-passive-smoke-v4/index.json` exposed follow-ups |
 | `ISSUE-GW-18A` | `helianthus-ebusgateway` | Investigate supported passive smoke failures on `P01..P05` | active | `Project-Helianthus/helianthus-ebusgateway#352` |
-| `ISSUE-GW-18B` | `helianthus-ebusgateway` | Degrade cleanly on passive `ebusd-tcp` smoke negative path | active | `Project-Helianthus/helianthus-ebusgateway#353` |
+| `ISSUE-GW-18B` | `helianthus-ebusgateway` | Degrade cleanly on passive `ebusd-tcp` smoke negative path | active | `Project-Helianthus/helianthus-ebusgateway#353`, code in PR `#354`; reruns `P06 v1/v2` moved the remaining blocker to matrix harness compatibility |
+| `ISSUE-GW-18C` | `helianthus-ebusgateway` | Supply an `ebusd`-compatible matrix config source for `P06` | active | `Project-Helianthus/helianthus-ebusgateway#355`, current proof artifacts `results-matrix-ha/20260311T064844Z-gw18b-p06-v1` and `results-matrix-ha/20260311T065409Z-gw18b-p06-v2` |
 | `ISSUE-GW-01` | `helianthus-ebusgateway` | Introduce `PassiveBusTap` | merged | `Project-Helianthus/helianthus-ebusgateway#335` |
 | `ISSUE-GW-01B` | `helianthus-ebusgateway` | Implement `PassiveTransactionReconstructor` | merged | `Project-Helianthus/helianthus-ebusgateway#337` |
 | `ISSUE-GW-01C` | `helianthus-ebusgateway` | Add active/passive deduplicator | merged | `Project-Helianthus/helianthus-ebusgateway#338`, follow-up `#340` |

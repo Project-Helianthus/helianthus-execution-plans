@@ -32,6 +32,15 @@ State: `implementing`
 - That artifact exposed two explicit follow-up blockers:
   - `ISSUE-GW-18A` -> `Project-Helianthus/helianthus-ebusgateway#352`
   - `ISSUE-GW-18B` -> `Project-Helianthus/helianthus-ebusgateway#353`
+- `ISSUE-GW-18B` no longer reproduces as a startup-fatal product bug on the
+  active branch. Reruns `results-matrix-ha/20260311T064844Z-gw18b-p06-v1` and
+  `results-matrix-ha/20260311T065409Z-gw18b-p06-v2` show the gateway staying
+  alive and passive metrics degrading to `unsupported_or_misconfigured`
+  correctly.
+- Those reruns exposed a new harness-side blocker:
+  - `ISSUE-GW-18C` -> `Project-Helianthus/helianthus-ebusgateway#355`
+  - matrix `ebusd` config/image compatibility still prevents `P06` from
+    proving non-empty active discovery cleanly
 - `90-issue-map.md` is now being used as the canonical backfill surface for
   merged code-repo execution references.
 - Documentation-side canonical IDs `ISSUE-DOC-01..05` still need explicit
@@ -49,8 +58,11 @@ State: `implementing`
   first clean suite run failed all six cases.
 - `ISSUE-GW-18A` blocks supported passive-capable topologies (`P01..P05`) from
   being treated as proven in `M1`.
-- `ISSUE-GW-18B` blocks the negative-path `ebusd-tcp` degraded contract from
-  being treated as proven in `M1`.
+- `ISSUE-GW-18B` is still open until the branch work lands, but its remaining
+  proof gap is no longer a startup-fatal gateway bug.
+- `ISSUE-GW-18C` blocks `P06` from being treated as fully proven in `M1`
+  because the matrix `ebusd` side still fails config compatibility before it
+  can provide clean active discovery evidence.
 - `ISSUE-DOC-05` is still required before `M1` can close, even though the
   gateway-side metric contract is now merged.
 
@@ -58,8 +70,8 @@ State: `implementing`
 
 1. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link the
    imported workstream
-2. settle `ISSUE-GW-18A` and `ISSUE-GW-18B`, then rerun the passive suite until
-   the `GW-18` proof lane is green again
+2. settle `ISSUE-GW-18A`, `ISSUE-GW-18B`, and `ISSUE-GW-18C`, then rerun the
+   passive suite until the `GW-18` proof lane is green again
 3. create or link the remaining documentation-side canonical issues and update
    status tracking accordingly
 4. settle `ISSUE-DOC-05` and then close `M1`
