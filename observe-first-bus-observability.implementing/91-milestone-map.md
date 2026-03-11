@@ -19,8 +19,8 @@
 - `M8` is the explicit parallel-track carve-out and does not start before the
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
 - `M1` remains implementing until `ISSUE-GW-18`, `ISSUE-GW-18A`,
-  `ISSUE-GW-18B`, `ISSUE-GW-18C`, `ISSUE-GW-18D`, `ISSUE-GW-18E`, and
-  `ISSUE-DOC-05` converge. The `GW-03A/B` extension opened
+  `ISSUE-GW-18B`, `ISSUE-GW-18C`, `ISSUE-GW-18D`, `ISSUE-GW-18E`,
+  `ISSUE-GW-18F`, and `ISSUE-DOC-05` converge. The `GW-03A/B` extension opened
   from the post-matrix dual-review cycle on 2026-03-10 is now settled and
   merged through `ISSUE-GW-03`.
 - The first clean `GW-18` passive suite artifact (`...gw18-passive-smoke-v4`)
@@ -33,5 +33,8 @@
   `issue/351-passive-topology-smoke`, the next active `GW-18` proof step is a
   rerun on parent PR `#354`, resuming at `P03`; docs PR `#207` remains open and
   clean but does not close `M1` by itself.
+- A new stacked lane `ISSUE-GW-18F` is now open as issue `#360` / PR `#361`
+  on top of parent branch `issue/351-passive-topology-smoke`; this is still
+  proof-remediation work inside `M1`, not proof closure.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

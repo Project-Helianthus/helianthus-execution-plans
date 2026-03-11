@@ -88,6 +88,14 @@ State: `implementing`
     as `acad9a09`
   - the next active proof step on the updated parent branch is a resumed
     `GW-18` rerun starting with `P03`
+- A third stacked slice is now open for the resumed `P03` proof path:
+  - `ISSUE-GW-18F` (`Project-Helianthus/helianthus-ebusgateway#360`) targets
+    the `P03` proxy-single startup discovery timeout
+  - stacked PR `#361` from branch `issue/360-p03-proxy-single-startup-timeout`
+    is open against parent branch `issue/351-passive-topology-smoke`
+  - latest stacked head is `8529569`
+  - this is still proof-remediation work behind parent PR `#354`; it does not
+    claim proof success or milestone closure
 - The latest `GW-18` proof-watch attempt
   (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
   gateway product bug:
@@ -144,6 +152,9 @@ State: `implementing`
 - `ISSUE-GW-18E` is now merged into the parent `issue/351` branch, but only as
   branch evidence behind draft PR `#354`; it does not close the milestone until
   proof reruns on the updated branch succeed.
+- `ISSUE-GW-18F` is now active as the next stacked remediation slice for `P03`;
+  until it lands and the rerun succeeds, parent PR `#354` remains draft and the
+  proof lane remains open.
 - `P03` / `P04` also remain unproven in the latest watch attempt, but the
   present blocker is lab/handoff behavior after addon stop rather than a newly
   proven gateway product bug.
