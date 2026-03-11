@@ -106,6 +106,16 @@ State: `implementing`
   - parent PR `#354` remains open/draft, `#361` remains open and not
     merge-ready, and this is still proof-remediation work rather than proof
     success
+- A fifth stacked slice is now open for the same `P03` proof path:
+  - `ISSUE-GW-18H` (`Project-Helianthus/helianthus-ebusgateway#364`) targets
+    the startup source-address contract on proxy-single `ENS`
+  - stacked PR `#365` from branch
+    `issue/364-p03-startup-source-addr-contract` is open against
+    stacked branch `issue/362-p03-active-startup-through-proxy-single`
+  - latest stacked head is `78eacdb239f11654861eb829f37e0ec4fc36aa6a`
+  - `#363` remains open and not merge-ready, parent PR `#354` remains
+    open/draft, and this is still proof-remediation work rather than proof
+    success
 - The latest `GW-18` proof-watch attempt
   (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
   gateway product bug:
@@ -168,6 +178,10 @@ State: `implementing`
 - `ISSUE-GW-18G` is now active as a further stacked remediation slice for
   `P03`; until it lands and the rerun succeeds, parent PR `#354` remains draft,
   PR `#361` remains open, and the proof lane remains open.
+- `ISSUE-GW-18H` is now active as a further stacked remediation slice for
+  `P03`; until it lands and the rerun succeeds, PR `#363` remains open and not
+  merge-ready, parent PR `#354` remains draft, and the proof lane remains
+  open.
 - `P03` / `P04` also remain unproven in the latest watch attempt, but the
   present blocker is lab/handoff behavior after addon stop rather than a newly
   proven gateway product bug.
@@ -191,6 +205,6 @@ State: `implementing`
    passive suite reruns go green, and do not treat `P03` / `P04` as code-red
    until the exclusive matrix handoff can keep adapter signal long enough to
    start those cases
-4. settle `ISSUE-GW-18F` and `ISSUE-GW-18G`, then resume the parent `GW-18`
-   proof rerun on updated PR `#354`, starting with `P03`
+4. settle `ISSUE-GW-18F`, `ISSUE-GW-18G`, and `ISSUE-GW-18H`, then resume the
+   parent `GW-18` proof rerun on updated PR `#354`, starting with `P03`
 5. settle `ISSUE-DOC-05` and then close `M1`
