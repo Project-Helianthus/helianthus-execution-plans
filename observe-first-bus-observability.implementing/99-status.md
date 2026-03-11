@@ -48,12 +48,16 @@ State: `implementing`
     proving non-empty active discovery cleanly
 - Active branch state for `ISSUE-GW-18` is `Project-Helianthus/helianthus-ebusgateway#354`
   on `issue/351-passive-topology-smoke`, currently draft and not merge-ready
-  with four commits on
+  with five commits on
   top of `main`:
   - `e322770` `Add passive topology smoke suite and gates`
   - `8174de1` `Degrade passive ebusd-tcp startup cleanly`
   - `2397cea` `Prefer compatible ebusd matrix config fallback`
   - `28fad8b` `GW-18A: recover B524 root after partial preload`
+  - `41b35b0` `GW-18: fix passive script review findings`
+- Commit `41b35b0` addresses Codex review findings in the passive gate/wrapper
+  script slice; it does not change the plan status that PR `#354` remains
+  draft and not merge-ready while `#352`, `#353`, and `#355` stay open.
 - The latest incremental branch validation passed local `./scripts/ci_local.sh`
   only with explicit `TRANSPORT_GATE_OWNER_OVERRIDE` and
   `PASSIVE_SMOKE_GATE_OWNER_OVERRIDE`; this is sufficient to record branch
@@ -63,6 +67,15 @@ State: `implementing`
   addon-image rebuild and restart, not via `/data` binary override.
 - The passive proof lane remains red and is still tracked through
   `ISSUE-GW-18A` / `#352`, `ISSUE-GW-18B` / `#353`, and `ISSUE-GW-18C` / `#355`.
+- The latest `GW-18` proof-watch attempt
+  (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
+  gateway product bug:
+  - `P03` / `P04` did not start because the exclusive matrix handoff drops
+    adapter signal immediately after `local_helianthus` is stopped
+  - adapter state was `eBUS signal: acquired` with the addon running, then
+    `eBUS signal: no signal` for the full post-stop observation window
+  - current `P03` / `P04` status is therefore “unproven for ops/lab reasons,”
+    not “new gateway regression proven”
 - Current live HA runtime on that rebuilt image confirms branch-slice recovery,
   but still should not be treated as proof-closed:
   - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
@@ -78,6 +91,7 @@ State: `implementing`
   - `ISSUE-DOC-05` -> issue `Project-Helianthus/helianthus-docs-ebus#206`
   - PR `Project-Helianthus/helianthus-docs-ebus#207` carries the current docs
     lane for that follow-up
+  - Codex review on PR `#207` reported “Didn't find any major issues”
 - Documentation-side canonical IDs `ISSUE-DOC-01..04` still need explicit
   linkage and reconciliation against the current code-repo reality.
 
@@ -100,6 +114,9 @@ State: `implementing`
 - `ISSUE-GW-18C` blocks `P06` from being treated as fully proven in `M1`
   because the matrix `ebusd` side still fails config compatibility before it
   can provide clean active discovery evidence.
+- `P03` / `P04` also remain unproven in the latest watch attempt, but the
+  present blocker is lab/handoff behavior after addon stop rather than a newly
+  proven gateway product bug.
 - Live HA validation now shows the reported regulator/system-loss symptom
   recovered on the rebuilt addon image, but that recovery is still branch-only
   evidence and does not clear the red passive proof lane.
@@ -117,7 +134,9 @@ State: `implementing`
 2. settle `ISSUE-GW-18A`, `ISSUE-GW-18B`, and `ISSUE-GW-18C`, then rerun the
    passive suite until the `GW-18` proof lane is green again
 3. keep the live rebuilt-image recovery result as branch evidence only until the
-   passive suite reruns go green and the same-cycle docs follow-up lands
+   passive suite reruns go green, and do not treat `P03` / `P04` as code-red
+   until the exclusive matrix handoff can keep adapter signal long enough to
+   start those cases
 4. keep `ISSUE-DOC-05` on `helianthus-docs-ebus#206` / PR `#207` aligned with
    the gateway branch state, and backfill the remaining documentation-side
    canonical issues
