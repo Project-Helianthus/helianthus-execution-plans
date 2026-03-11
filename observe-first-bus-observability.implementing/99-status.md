@@ -25,7 +25,8 @@ State: `implementing`
 
 - `M1` implementation remains in progress.
 - `GW-03` and its `GW-03A/B` review follow-ups are settled and merged.
-- The remaining code-side blocker inside `M1` is `ISSUE-GW-18`.
+- The remaining code-side blocker inside `M1` is `ISSUE-GW-18`, now linked as
+  `Project-Helianthus/helianthus-ebusgateway#351`.
 - `90-issue-map.md` is now being used as the canonical backfill surface for
   merged code-repo execution references.
 - Documentation-side canonical IDs `ISSUE-DOC-01..05` still need explicit
@@ -37,8 +38,9 @@ State: `implementing`
   `bootstrap-seed-import-no-discussion-yet` as the source marker in `plan.yaml`.
 - Documentation-side canonical issues are not yet linked in
   `helianthus-docs-ebus`.
-- `ISSUE-GW-18` is still open and keeps the passive-topology smoke lane from
-  being marked complete for `M1`.
+- `ISSUE-GW-18` is now linked as
+  `Project-Helianthus/helianthus-ebusgateway#351`, but the passive-topology
+  smoke lane itself is still open and keeps `M1` from being marked complete.
 - `ISSUE-DOC-05` is still required before `M1` can close, even though the
   gateway-side metric contract is now merged.
 

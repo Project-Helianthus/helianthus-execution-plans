@@ -29,7 +29,7 @@ Status legend:
 | `ISSUE-EG-02` | `helianthus-ebusgo` | Wire observer events into `protocol.Bus` | merged | `Project-Helianthus/helianthus-ebusgo#116` |
 | `ISSUE-EG-03` | `helianthus-ebusgo` | Surface transport reset events for passive consumers | merged | `Project-Helianthus/helianthus-ebusgo#116` |
 | `ISSUE-GW-17` | `helianthus-ebusgateway` | Bump `helianthus-ebusgo` pin after M1 ebusgo work | merged | `Project-Helianthus/helianthus-ebusgateway#334` |
-| `ISSUE-GW-18` | `helianthus-ebusgateway` | Add passive-topology smoke coverage | blocked | not yet linked |
+| `ISSUE-GW-18` | `helianthus-ebusgateway` | Add passive-topology smoke coverage | planned | `Project-Helianthus/helianthus-ebusgateway#351` |
 | `ISSUE-GW-01` | `helianthus-ebusgateway` | Introduce `PassiveBusTap` | merged | `Project-Helianthus/helianthus-ebusgateway#335` |
 | `ISSUE-GW-01B` | `helianthus-ebusgateway` | Implement `PassiveTransactionReconstructor` | merged | `Project-Helianthus/helianthus-ebusgateway#337` |
 | `ISSUE-GW-01C` | `helianthus-ebusgateway` | Add active/passive deduplicator | merged | `Project-Helianthus/helianthus-ebusgateway#338`, follow-up `#340` |
