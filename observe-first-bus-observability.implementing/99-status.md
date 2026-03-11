@@ -116,6 +116,15 @@ State: `implementing`
   - `#363` remains open and not merge-ready, parent PR `#354` remains
     open/draft, and this is still proof-remediation work rather than proof
     success
+- A sixth stacked slice is now active for the same `P03` proof path:
+  - `ISSUE-GW-18I` (`Project-Helianthus/helianthus-ebusgateway#366`) targets
+    the passive proxy-session contract on proxy-single `ENS`
+  - active branch is `issue/366-p03-passive-proxy-session-contract`
+  - latest stacked head is `2b5df32`
+  - no stacked PR is linked yet for this head
+  - `#365` remains open and not merge-ready, parent PR `#354` remains
+    open/draft, and this is still proof-remediation work rather than proof
+    success
 - The latest `GW-18` proof-watch attempt
   (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
   gateway product bug:
@@ -182,6 +191,10 @@ State: `implementing`
   `P03`; until it lands and the rerun succeeds, PR `#363` remains open and not
   merge-ready, parent PR `#354` remains draft, and the proof lane remains
   open.
+- `ISSUE-GW-18I` is now active as a further stacked remediation slice for
+  `P03`; until it lands and the rerun succeeds, `#365` remains open and not
+  merge-ready, parent PR `#354` remains draft, and the proof lane remains
+  open.
 - `P03` / `P04` also remain unproven in the latest watch attempt, but the
   present blocker is lab/handoff behavior after addon stop rather than a newly
   proven gateway product bug.
@@ -205,6 +218,7 @@ State: `implementing`
    passive suite reruns go green, and do not treat `P03` / `P04` as code-red
    until the exclusive matrix handoff can keep adapter signal long enough to
    start those cases
-4. settle `ISSUE-GW-18F`, `ISSUE-GW-18G`, and `ISSUE-GW-18H`, then resume the
-   parent `GW-18` proof rerun on updated PR `#354`, starting with `P03`
+4. settle `ISSUE-GW-18F`, `ISSUE-GW-18G`, `ISSUE-GW-18H`, and `ISSUE-GW-18I`,
+   then resume the parent `GW-18` proof rerun on updated PR `#354`, starting
+   with `P03`
 5. settle `ISSUE-DOC-05` and then close `M1`

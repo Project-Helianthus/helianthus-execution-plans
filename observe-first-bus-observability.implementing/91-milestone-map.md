@@ -20,7 +20,8 @@
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
 - `M1` remains implementing until `ISSUE-GW-18`, `ISSUE-GW-18A`,
   `ISSUE-GW-18B`, `ISSUE-GW-18C`, `ISSUE-GW-18D`, `ISSUE-GW-18E`,
-  `ISSUE-GW-18F`, `ISSUE-GW-18G`, `ISSUE-GW-18H`, and `ISSUE-DOC-05`
+  `ISSUE-GW-18F`, `ISSUE-GW-18G`, `ISSUE-GW-18H`, `ISSUE-GW-18I`, and
+  `ISSUE-DOC-05`
   converge. The `GW-03A/B` extension opened from the post-matrix dual-review
   cycle on 2026-03-10 is now settled and merged through `ISSUE-GW-03`.
 - The first clean `GW-18` passive suite artifact (`...gw18-passive-smoke-v4`)
@@ -42,5 +43,9 @@
 - A further stacked lane `ISSUE-GW-18H` is now open as issue `#364` / PR `#365`
   on top of `ISSUE-GW-18G`; this is still proof-remediation work inside `M1`,
   not proof closure.
+- A further stacked lane `ISSUE-GW-18I` is now open as issue `#366` on branch
+  `issue/366-p03-passive-proxy-session-contract` at head `2b5df32`; `#365`
+  remains open and not merge-ready, parent PR `#354` remains open/draft, and
+  this is still proof-remediation work inside `M1`, not proof closure.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
