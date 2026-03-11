@@ -1,0 +1,13 @@
+slug: writable-installer-maintenance
+title: Writable Maintenance & Installer Properties
+state: locked
+source_discussion: adversarial-review-rounds-8-12-converged-0p0-0p1
+target_repos:
+  - helianthus-ebusgateway
+  - helianthus-ha-integration
+  - helianthus-docs-ebus
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-03-11
+current_milestone: M0
