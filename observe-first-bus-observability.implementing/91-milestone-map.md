@@ -45,10 +45,10 @@
   not proof closure.
 - A further stacked lane `ISSUE-GW-18I` is now open as issue `#366` / PR `#367`
   on branch `issue/366-p03-passive-proxy-session-contract` at head
-  `350d4a33ee2c80af706d8a392ad2ddeed2d4eabd`; rerun artifact
-  `results-matrix-ha/20260311T194649Z-issue366-p03-rerun` failed, so `#367`
-  remains the active blocked lane and is not ready to fold upward into parent
-  PR `#354`. This is still proof-remediation work inside `M1`, not proof
-  closure.
+  `a7a46f609ede42ac3bf5ac3d461ecc656331e3ec`; rerun artifact
+  `results-matrix-ha/20260311T200705Z-issue367-p03-rerun` failed and Codex
+  review is clean on the current head, so `#367` remains the active blocked
+  lane and is not ready to fold upward into parent PR `#354`. This is still
+  proof-remediation work inside `M1`, not proof closure.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

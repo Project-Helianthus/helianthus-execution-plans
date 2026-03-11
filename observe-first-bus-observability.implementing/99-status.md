@@ -121,13 +121,15 @@ State: `implementing`
     the passive proxy-session contract on proxy-single `ENS`
   - active branch is `issue/366-p03-passive-proxy-session-contract`
   - stacked PR `#367` is now open against `#365`
-  - latest stacked head is `350d4a33ee2c80af706d8a392ad2ddeed2d4eabd`
+  - latest stacked head is `a7a46f609ede42ac3bf5ac3d461ecc656331e3ec`
   - rerun artifact
-    `results-matrix-ha/20260311T194649Z-issue366-p03-rerun` is `FAIL`
+    `results-matrix-ha/20260311T200705Z-issue367-p03-rerun` is `FAIL`
+  - Codex review is clean on the current head
   - `P03` still showed all four devices present (`NETX3`, `BAI00`, `BASV2`,
     `VR_71`), passive tap connected (`1`), warmup still `warming_up`,
-    `available=0`, and `completed_transactions=3`
-  - startup still degraded on `semantic_b524_root ... no coherent responder`
+    `available=0`, and `completed_transactions=1`
+  - startup still degraded after `context deadline exceeded` on
+    `discoverB524Root: no coherent responder among [0x15, 0x04, 0x08, 0x26]`
   - `#367` remains the active blocked lane and is not ready to fold upward
     into parent PR `#354`
 - Current live HA runtime on that rebuilt image confirms branch-slice recovery,
@@ -189,11 +191,13 @@ State: `implementing`
   open.
 - `ISSUE-GW-18I` is now active as a further stacked remediation slice for
   `P03`, but rerun artifact
-  `results-matrix-ha/20260311T194649Z-issue366-p03-rerun` still fails with all
+  `results-matrix-ha/20260311T200705Z-issue367-p03-rerun` still fails with all
   four devices present, passive tap connected (`1`), warmup still
-  `warming_up`, `available=0`, `completed_transactions=3`, and degraded startup
-  on `semantic_b524_root ... no coherent responder`; `#367` remains the active
-  blocked lane and is not ready to fold upward into parent PR `#354`.
+  `warming_up`, `available=0`, `completed_transactions=1`, and degraded startup
+  after `context deadline exceeded` on `discoverB524Root: no coherent
+  responder among [0x15, 0x04, 0x08, 0x26]`; Codex review is clean on the
+  current head, but `#367` remains the active blocked lane and is not ready to
+  fold upward into parent PR `#354`.
 - Live HA validation now shows the reported regulator/system-loss symptom
   recovered on the rebuilt addon image, but that recovery is still branch-only
   evidence and does not clear the red passive proof lane.
