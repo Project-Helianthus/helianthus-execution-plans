@@ -120,18 +120,17 @@ State: `implementing`
   - `ISSUE-GW-18I` (`Project-Helianthus/helianthus-ebusgateway#366`) targets
     the passive proxy-session contract on proxy-single `ENS`
   - active branch is `issue/366-p03-passive-proxy-session-contract`
-  - stacked PR `#367` is now open against `#365`
-  - latest stacked head is `a7a46f609ede42ac3bf5ac3d461ecc656331e3ec`
+  - stacked PR `#369` is now the active blocked lane on top of `#367`
+  - latest stacked head is `daaa1cb`
   - rerun artifact
-    `results-matrix-ha/20260311T200705Z-issue367-p03-rerun` is `FAIL`
-  - Codex review is clean on the current head
+    `results-matrix-ha/20260311T202655Z-issue369-p03-rerun` is `FAIL`
   - `P03` still showed all four devices present (`NETX3`, `BAI00`, `BASV2`,
     `VR_71`), passive tap connected (`1`), warmup still `warming_up`,
-    `available=0`, and `completed_transactions=1`
+    `available=0`, and `completed_transactions=3`
   - startup still degraded after `context deadline exceeded` on
     `discoverB524Root: no coherent responder among [0x15, 0x04, 0x08, 0x26]`
-  - `#367` remains the active blocked lane and is not ready to fold upward
-    into parent PR `#354`
+  - `#369` remains the active blocked lane and is not ready to fold upward
+    into `#367` / parent PR `#354`
 - Current live HA runtime on that rebuilt image confirms branch-slice recovery,
   but still should not be treated as proof-closed:
   - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
@@ -191,13 +190,12 @@ State: `implementing`
   open.
 - `ISSUE-GW-18I` is now active as a further stacked remediation slice for
   `P03`, but rerun artifact
-  `results-matrix-ha/20260311T200705Z-issue367-p03-rerun` still fails with all
+  `results-matrix-ha/20260311T202655Z-issue369-p03-rerun` still fails with all
   four devices present, passive tap connected (`1`), warmup still
-  `warming_up`, `available=0`, `completed_transactions=1`, and degraded startup
+  `warming_up`, `available=0`, `completed_transactions=3`, and degraded startup
   after `context deadline exceeded` on `discoverB524Root: no coherent
-  responder among [0x15, 0x04, 0x08, 0x26]`; Codex review is clean on the
-  current head, but `#367` remains the active blocked lane and is not ready to
-  fold upward into parent PR `#354`.
+  responder among [0x15, 0x04, 0x08, 0x26]`; `#369` remains the active blocked
+  lane and is not ready to fold upward into `#367` / parent PR `#354`.
 - Live HA validation now shows the reported regulator/system-loss symptom
   recovered on the rebuilt addon image, but that recovery is still branch-only
   evidence and does not clear the red passive proof lane.
@@ -216,10 +214,10 @@ State: `implementing`
    passive suite until the `GW-18` proof lane is green again
 3. keep the live rebuilt-image recovery result as branch evidence only until the
    passive suite reruns go green, and treat the current `P03` failure on
-   stacked PR `#367` as the active product blocker rather than as a lab-only
+   stacked PR `#369` as the active product blocker rather than as a lab-only
    handoff artifact
-4. settle `ISSUE-GW-18I` on stacked PR `#367` first, because it is still the
-   active blocked lane for `P03` and is not ready to fold upward into parent
-   PR `#354`; only then continue folding the stacked `GW-18` remediation chain
-   upward and resume the parent proof rerun
+4. settle `ISSUE-GW-18I` on stacked PR `#369` first, because it is still the
+   active blocked lane for `P03` and is not ready to fold upward into `#367` /
+   parent PR `#354`; only then continue folding the stacked `GW-18`
+   remediation chain upward and resume the parent proof rerun
 5. settle `ISSUE-DOC-05` and then close `M1`
