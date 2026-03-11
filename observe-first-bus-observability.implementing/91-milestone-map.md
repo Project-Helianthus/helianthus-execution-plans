@@ -19,7 +19,8 @@
 - `M8` is the explicit parallel-track carve-out and does not start before the
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
 - `M1` remains implementing until `ISSUE-GW-18`, `ISSUE-GW-18A`,
-  `ISSUE-GW-18B`, `ISSUE-GW-18C`, and `ISSUE-DOC-05` converge. The `GW-03A/B` extension opened
+  `ISSUE-GW-18B`, `ISSUE-GW-18C`, `ISSUE-GW-18D`, `ISSUE-GW-18E`, and
+  `ISSUE-DOC-05` converge. The `GW-03A/B` extension opened
   from the post-matrix dual-review cycle on 2026-03-10 is now settled and
   merged through `ISSUE-GW-03`.
 - The first clean `GW-18` passive suite artifact (`...gw18-passive-smoke-v4`)
@@ -28,5 +29,9 @@
 - The `P06` reruns `...gw18b-p06-v1` and `...gw18b-p06-v2` further narrowed the
   `ebusd-tcp` negative-path problem: startup degradation is now fixed in code,
   while the remaining proof gap is matrix `ebusd` config/image compatibility.
+- After stacked merges `d5e4011` (`#357`) and `acad9a09` (`#359`) into
+  `issue/351-passive-topology-smoke`, the next active `GW-18` proof step is a
+  rerun on parent PR `#354`, resuming at `P03`; docs PR `#207` remains open and
+  clean but does not close `M1` by itself.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

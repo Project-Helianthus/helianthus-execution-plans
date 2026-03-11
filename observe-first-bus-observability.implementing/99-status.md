@@ -48,7 +48,7 @@ State: `implementing`
     proving non-empty active discovery cleanly
 - Active branch state for `ISSUE-GW-18` is `Project-Helianthus/helianthus-ebusgateway#354`
   on `issue/351-passive-topology-smoke`, currently draft and not merge-ready
-  with six commits on
+  with seven commits on
   top of `main`:
   - `e322770` `Add passive topology smoke suite and gates`
   - `8174de1` `Degrade passive ebusd-tcp startup cleanly`
@@ -56,6 +56,8 @@ State: `implementing`
   - `28fad8b` `GW-18A: recover B524 root after partial preload`
   - `41b35b0` `GW-18: fix passive script review findings`
   - `d5e4011` squash-merge of stacked PR `#357` (`ISSUE-GW-18D`) into
+    `issue/351-passive-topology-smoke`
+  - `acad9a09` squash-merge of stacked PR `#359` (`ISSUE-GW-18E`) into
     `issue/351-passive-topology-smoke`
 - Commit `41b35b0` addresses Codex review findings in the passive gate/wrapper
   script slice; it does not change the plan status that PR `#354` remains
@@ -79,6 +81,13 @@ State: `implementing`
     squash-merged into `issue/351-passive-topology-smoke` as `d5e4011`
   - the parent proof lane remains PR `#354`, still draft and still not
     merge-ready because passive proof is not closed yet
+- A second stacked slice is now merged behind the same parent proof lane:
+  - `ISSUE-GW-18E` (`Project-Helianthus/helianthus-ebusgateway#358`) required
+    active confirmation before imported-only startup success
+  - stacked PR `#359` was squash-merged into `issue/351-passive-topology-smoke`
+    as `acad9a09`
+  - the next active proof step on the updated parent branch is a resumed
+    `GW-18` rerun starting with `P03`
 - The latest `GW-18` proof-watch attempt
   (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
   gateway product bug:
@@ -132,6 +141,9 @@ State: `implementing`
   direct-adapter passive contract blocker; until that gateway/docs pair lands,
   those cases should be treated as contract-unproven rather than separately
   failing for unknown reasons.
+- `ISSUE-GW-18E` is now merged into the parent `issue/351` branch, but only as
+  branch evidence behind draft PR `#354`; it does not close the milestone until
+  proof reruns on the updated branch succeed.
 - `P03` / `P04` also remain unproven in the latest watch attempt, but the
   present blocker is lab/handoff behavior after addon stop rather than a newly
   proven gateway product bug.
@@ -155,8 +167,6 @@ State: `implementing`
    passive suite reruns go green, and do not treat `P03` / `P04` as code-red
    until the exclusive matrix handoff can keep adapter signal long enough to
    start those cases
-4. keep `ISSUE-GW-18D` (`#356` / stacked PR `#357`) and `ISSUE-DOC-05`
-   (`#206` / PR `#207`) aligned on the direct-passive transport contract, then
-   re-run review-watch once fresh Codex results exist for `d5b2296` and
-   `1ccf23b`
+4. resume the parent `GW-18` proof rerun on updated PR `#354`, starting with
+   `P03`
 5. settle `ISSUE-DOC-05` and then close `M1`
