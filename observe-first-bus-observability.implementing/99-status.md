@@ -27,6 +27,11 @@ State: `implementing`
 - `GW-03` and its `GW-03A/B` review follow-ups are settled and merged.
 - The remaining code-side blocker inside `M1` is `ISSUE-GW-18`, now linked as
   `Project-Helianthus/helianthus-ebusgateway#351`.
+- `ISSUE-GW-18` now has a repo-owned passive suite and a first clean full
+  artifact: `results-matrix-ha/20260311T062516Z-gw18-passive-smoke-v4`.
+- That artifact exposed two explicit follow-up blockers:
+  - `ISSUE-GW-18A` -> `Project-Helianthus/helianthus-ebusgateway#352`
+  - `ISSUE-GW-18B` -> `Project-Helianthus/helianthus-ebusgateway#353`
 - `90-issue-map.md` is now being used as the canonical backfill surface for
   merged code-repo execution references.
 - Documentation-side canonical IDs `ISSUE-DOC-01..05` still need explicit
@@ -39,8 +44,13 @@ State: `implementing`
 - Documentation-side canonical issues are not yet linked in
   `helianthus-docs-ebus`.
 - `ISSUE-GW-18` is now linked as
-  `Project-Helianthus/helianthus-ebusgateway#351`, but the passive-topology
-  smoke lane itself is still open and keeps `M1` from being marked complete.
+  `Project-Helianthus/helianthus-ebusgateway#351`, and the passive-topology
+  smoke lane now exists as repo-owned code plus runtime artifacts, but the
+  first clean suite run failed all six cases.
+- `ISSUE-GW-18A` blocks supported passive-capable topologies (`P01..P05`) from
+  being treated as proven in `M1`.
+- `ISSUE-GW-18B` blocks the negative-path `ebusd-tcp` degraded contract from
+  being treated as proven in `M1`.
 - `ISSUE-DOC-05` is still required before `M1` can close, even though the
   gateway-side metric contract is now merged.
 
@@ -48,8 +58,8 @@ State: `implementing`
 
 1. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link the
    imported workstream
-2. implement or link `ISSUE-GW-18` so the remaining `M1` smoke-coverage gate is
-   explicitly tracked in the canonical plan
+2. settle `ISSUE-GW-18A` and `ISSUE-GW-18B`, then rerun the passive suite until
+   the `GW-18` proof lane is green again
 3. create or link the remaining documentation-side canonical issues and update
    status tracking accordingly
 4. settle `ISSUE-DOC-05` and then close `M1`

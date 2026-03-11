@@ -159,6 +159,40 @@ Coverage: Milestones M0-M1 from the source plan.
   - if this issue proves the current `passive_delivery_budget` or derived dedup timing defaults too small for a supported topology, this issue owns freezing revised timing constants and the corresponding doc update before M1 can close
   - any such timing-constant revision forces rerun of any later proof or replay evidence that depended on the older constants; M7 may not reuse pre-revision evidence silently
   - failure of this issue blocks M1 completion and any later default-flip work for the affected topology until the passive smoke evidence is green again
+- Status note:
+  - the first clean artifact from the repo-owned passive suite,
+    `results-matrix-ha/20260311T062516Z-gw18-passive-smoke-v4/index.json`,
+    landed with `0 pass / 6 fail / 0 blocked`.
+  - harness-side false negatives discovered during bring-up were fixed inside the
+    `ISSUE-GW-18` branch before this artifact (`signal-before-connect` preflight
+    and canceled-context cleanup).
+  - the remaining failures are tracked as `ISSUE-GW-18A` and `ISSUE-GW-18B`.
+
+`ISSUE-GW-18A` `helianthus-ebusgateway`
+- Investigate and fix supported passive smoke failures on `P01..P05`
+- Trigger:
+  - discovered by `ISSUE-GW-18` artifact
+    `results-matrix-ha/20260311T062516Z-gw18-passive-smoke-v4/index.json`
+- Acceptance:
+  - supported passive-capable smoke topologies prove passive availability or are
+    explicitly reclassified with doc/plan updates in the same cycle
+  - `P01`/`P02` direct `ENS`/`ENH` no longer stall at
+    `ebus_passive_warmup_state=warming_up` with `confirmed=0`
+  - proxy smoke cases no longer keep `devices=[]` while passive warmup remains
+    incomplete
+  - rerun passive smoke artifact is attached
+
+`ISSUE-GW-18B` `helianthus-ebusgateway`
+- Make the `ebusd-tcp` passive smoke negative path degrade cleanly
+- Trigger:
+  - discovered by `ISSUE-GW-18` artifact
+    `results-matrix-ha/20260311T062516Z-gw18-passive-smoke-v4/index.json`
+- Acceptance:
+  - `P06` keeps gateway startup alive
+  - passive state degrades to `unsupported_or_misconfigured`
+  - no false `available` or `timed_out` passive outcomes are emitted on
+    `ebusd-tcp`
+  - rerun passive smoke artifact is attached
 
 `ISSUE-GW-01` `helianthus-ebusgateway`
 - Introduce `PassiveBusTap`
