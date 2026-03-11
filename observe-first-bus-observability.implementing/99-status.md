@@ -96,6 +96,16 @@ State: `implementing`
   - latest stacked head is `8529569`
   - this is still proof-remediation work behind parent PR `#354`; it does not
     claim proof success or milestone closure
+- A fourth stacked slice is now open for the same `P03` proof path:
+  - `ISSUE-GW-18G` (`Project-Helianthus/helianthus-ebusgateway#362`) targets
+    active startup discovery through proxy-single `ENS`
+  - stacked PR `#363` from branch
+    `issue/362-p03-active-startup-through-proxy-single` is open against
+    stacked branch `issue/360-p03-proxy-single-startup-timeout`
+  - latest stacked head is `916bc455a8de11bb6be4c0e2e524478ef758cdd1`
+  - parent PR `#354` remains open/draft, `#361` remains open and not
+    merge-ready, and this is still proof-remediation work rather than proof
+    success
 - The latest `GW-18` proof-watch attempt
   (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
   gateway product bug:
@@ -155,6 +165,9 @@ State: `implementing`
 - `ISSUE-GW-18F` is now active as the next stacked remediation slice for `P03`;
   until it lands and the rerun succeeds, parent PR `#354` remains draft and the
   proof lane remains open.
+- `ISSUE-GW-18G` is now active as a further stacked remediation slice for
+  `P03`; until it lands and the rerun succeeds, parent PR `#354` remains draft,
+  PR `#361` remains open, and the proof lane remains open.
 - `P03` / `P04` also remain unproven in the latest watch attempt, but the
   present blocker is lab/handoff behavior after addon stop rather than a newly
   proven gateway product bug.
@@ -178,6 +191,6 @@ State: `implementing`
    passive suite reruns go green, and do not treat `P03` / `P04` as code-red
    until the exclusive matrix handoff can keep adapter signal long enough to
    start those cases
-4. resume the parent `GW-18` proof rerun on updated PR `#354`, starting with
-   `P03`
+4. settle `ISSUE-GW-18F` and `ISSUE-GW-18G`, then resume the parent `GW-18`
+   proof rerun on updated PR `#354`, starting with `P03`
 5. settle `ISSUE-DOC-05` and then close `M1`
