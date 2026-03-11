@@ -41,6 +41,19 @@ State: `implementing`
   - `ISSUE-GW-18C` -> `Project-Helianthus/helianthus-ebusgateway#355`
   - matrix `ebusd` config/image compatibility still prevents `P06` from
     proving non-empty active discovery cleanly
+- Active branch state for `ISSUE-GW-18` is `Project-Helianthus/helianthus-ebusgateway#354`
+  on `issue/351-passive-topology-smoke`, currently draft with three commits on
+  top of `main`:
+  - `e322770` `Add passive topology smoke suite and gates`
+  - `8174de1` `Degrade passive ebusd-tcp startup cleanly`
+  - `2397cea` `Prefer compatible ebusd matrix config fallback`
+- Current live HA runtime should not be treated as proof-closed:
+  - GraphQL currently returns only `NETX3` and `BAI00` from `devices`
+  - GraphQL `system` is currently `null`
+  - the adapter status page still shows `eBUS signal: acquired` and `ebusd connected: yes`
+  - recent `ebusd` logs still show live `BASV2` / `VR_71` traffic, so the bus
+    is not dead; the runtime is only partially reconverged after the smoke lane
+    experiments
 - `90-issue-map.md` is now being used as the canonical backfill surface for
   merged code-repo execution references.
 - Documentation-side canonical IDs `ISSUE-DOC-01..05` still need explicit
@@ -63,6 +76,10 @@ State: `implementing`
 - `ISSUE-GW-18C` blocks `P06` from being treated as fully proven in `M1`
   because the matrix `ebusd` side still fails config compatibility before it
   can provide clean active discovery evidence.
+- Live HA runtime is currently below the pre-GW-18 validation baseline even
+  though the adapter is healthy enough to show signal and active traffic. Until
+  full device and semantic parity return, live observations must be treated as
+  degraded runtime evidence, not as milestone-close evidence.
 - `ISSUE-DOC-05` is still required before `M1` can close, even though the
   gateway-side metric contract is now merged.
 
@@ -72,6 +89,8 @@ State: `implementing`
    imported workstream
 2. settle `ISSUE-GW-18A`, `ISSUE-GW-18B`, and `ISSUE-GW-18C`, then rerun the
    passive suite until the `GW-18` proof lane is green again
-3. create or link the remaining documentation-side canonical issues and update
+3. restore live HA runtime to full device and semantic parity before treating
+   any new smoke evidence as operator-ready
+4. create or link the remaining documentation-side canonical issues and update
    status tracking accordingly
-4. settle `ISSUE-DOC-05` and then close `M1`
+5. settle `ISSUE-DOC-05` and then close `M1`
