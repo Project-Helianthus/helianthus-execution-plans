@@ -59,15 +59,18 @@ State: `implementing`
   `PASSIVE_SMOKE_GATE_OWNER_OVERRIDE`; this is sufficient to record branch
   progress, not to claim the passive proof lane is green or the PR is
   merge-ready.
+- Commit `28fad8b` has now also been validated live through a full HA
+  addon-image rebuild and restart, not via `/data` binary override.
 - The passive proof lane remains red and is still tracked through
   `ISSUE-GW-18A` / `#352`, `ISSUE-GW-18B` / `#353`, and `ISSUE-GW-18C` / `#355`.
-- Current live HA runtime should not be treated as proof-closed:
-  - GraphQL currently returns only `NETX3` and `BAI00` from `devices`
-  - GraphQL `system` is currently `null`
-  - the adapter status page still shows `eBUS signal: acquired` and `ebusd connected: yes`
-  - recent `ebusd` logs still show live `BASV2` / `VR_71` traffic, so the bus
-    is not dead; the runtime is only partially reconverged after the smoke lane
-    experiments
+- Current live HA runtime on that rebuilt image confirms branch-slice recovery,
+  but still should not be treated as proof-closed:
+  - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
+    reappeared after the rebuilt addon image was deployed
+  - `system`, `dhw`, and `circuits` recovered live as well
+  - startup reached `LIVE_READY`
+  - this is branch validation for the `28fad8b` fix, not evidence that the
+    passive proof lane is green or that PR `#354` is merge-ready
 - `90-issue-map.md` is now being used as the canonical backfill surface for
   merged code-repo execution references.
 - Documentation-side canonical IDs `ISSUE-DOC-01..05` still need explicit
@@ -91,10 +94,9 @@ State: `implementing`
 - `ISSUE-GW-18C` blocks `P06` from being treated as fully proven in `M1`
   because the matrix `ebusd` side still fails config compatibility before it
   can provide clean active discovery evidence.
-- Live HA runtime is currently below the pre-GW-18 validation baseline even
-  though the adapter is healthy enough to show signal and active traffic. Until
-  full device and semantic parity return, live observations must be treated as
-  degraded runtime evidence, not as milestone-close evidence.
+- Live HA validation now shows the reported regulator/system-loss symptom
+  recovered on the rebuilt addon image, but that recovery is still branch-only
+  evidence and does not clear the red passive proof lane.
 - Doc-gate is now explicitly `YES` for the active `GW-18A` branch state, so a
   same-cycle docs follow-up is required before the gateway work can be treated
   as merge-ready.
@@ -107,8 +109,8 @@ State: `implementing`
    imported workstream
 2. settle `ISSUE-GW-18A`, `ISSUE-GW-18B`, and `ISSUE-GW-18C`, then rerun the
    passive suite until the `GW-18` proof lane is green again
-3. restore live HA runtime to full device and semantic parity before treating
-   any new smoke evidence as operator-ready
+3. keep the live rebuilt-image recovery result as branch evidence only until the
+   passive suite reruns go green and the same-cycle docs follow-up lands
 4. create or link the remaining documentation-side canonical issues and update
    status tracking accordingly, with the `GW-18A` docs follow-up treated as a
    same-cycle requirement rather than post-merge cleanup
