@@ -73,15 +73,21 @@ State: `implementing`
     passive proof lane is green or that PR `#354` is merge-ready
 - `90-issue-map.md` is now being used as the canonical backfill surface for
   merged code-repo execution references.
-- Documentation-side canonical IDs `ISSUE-DOC-01..05` still need explicit
+- The same-cycle docs follow-up for the `GW-18A` startup/discovery fix is now
+  active in `helianthus-docs-ebus`:
+  - `ISSUE-DOC-05` -> issue `Project-Helianthus/helianthus-docs-ebus#206`
+  - PR `Project-Helianthus/helianthus-docs-ebus#207` carries the current docs
+    lane for that follow-up
+- Documentation-side canonical IDs `ISSUE-DOC-01..04` still need explicit
   linkage and reconciliation against the current code-repo reality.
 
 ## Blockers
 
 - The imported seed does not yet have a historical Discussion archive; it uses
   `bootstrap-seed-import-no-discussion-yet` as the source marker in `plan.yaml`.
-- Documentation-side canonical issues are not yet linked in
-  `helianthus-docs-ebus`.
+- Documentation-side canonical linkage is still incomplete in
+  `helianthus-docs-ebus`; `ISSUE-DOC-05` is now active via `#206` / PR `#207`,
+  but `ISSUE-DOC-01..04` remain unlinked here.
 - `ISSUE-GW-18` is now linked as
   `Project-Helianthus/helianthus-ebusgateway#351`, and the passive-topology
   smoke lane now exists as repo-owned code plus runtime artifacts, but the
@@ -100,8 +106,9 @@ State: `implementing`
 - Doc-gate is now explicitly `YES` for the active `GW-18A` branch state, so a
   same-cycle docs follow-up is required before the gateway work can be treated
   as merge-ready.
-- `ISSUE-DOC-05` is still required before `M1` can close, and it can no longer
-  be treated as deferred cleanup after the gateway branch lands.
+- `ISSUE-DOC-05` is now active on issue `#206` / PR `#207`; it is still
+  required before `M1` can close and can no longer be treated as deferred
+  cleanup after the gateway branch lands.
 
 ## Next Actions
 
@@ -111,7 +118,7 @@ State: `implementing`
    passive suite until the `GW-18` proof lane is green again
 3. keep the live rebuilt-image recovery result as branch evidence only until the
    passive suite reruns go green and the same-cycle docs follow-up lands
-4. create or link the remaining documentation-side canonical issues and update
-   status tracking accordingly, with the `GW-18A` docs follow-up treated as a
-   same-cycle requirement rather than post-merge cleanup
+4. keep `ISSUE-DOC-05` on `helianthus-docs-ebus#206` / PR `#207` aligned with
+   the gateway branch state, and backfill the remaining documentation-side
+   canonical issues
 5. settle `ISSUE-DOC-05` and then close `M1`

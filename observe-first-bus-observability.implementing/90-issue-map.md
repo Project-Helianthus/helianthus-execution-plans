@@ -40,7 +40,7 @@ Status legend:
 | `ISSUE-GW-03` | `helianthus-ebusgateway` | Add `BusObservabilityStore` and Prometheus exporter | merged | issue `Project-Helianthus/helianthus-ebusgateway#342`, PR `#343`; review follow-up fixes settled in `#346` and the final `#343` merge |
 | `ISSUE-GW-03A` | `helianthus-ebusgateway` | Bootstrap passive warmup when the store attaches after the tap is already connected | merged | issue `Project-Helianthus/helianthus-ebusgateway#344`; code landed via `Project-Helianthus/helianthus-ebusgateway#346` and final merge `#343` |
 | `ISSUE-GW-03B` | `helianthus-ebusgateway` | Wire runtime local-address snapshotting into `local_participant_inbound` labeling | merged | issue `Project-Helianthus/helianthus-ebusgateway#345`; code landed via `Project-Helianthus/helianthus-ebusgateway#346` and final merge `#343` |
-| `ISSUE-DOC-05` | `helianthus-docs-ebus` | Update docs after M1 implementation | planned | not yet linked |
+| `ISSUE-DOC-05` | `helianthus-docs-ebus` | Update docs after M1 implementation | active | issue `Project-Helianthus/helianthus-docs-ebus#206`, PR `#207`; same-cycle docs follow-up for the `GW-18A` startup/discovery fix |
 
 ## M2-M5
 
