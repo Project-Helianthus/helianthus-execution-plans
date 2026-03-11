@@ -48,13 +48,15 @@ State: `implementing`
     proving non-empty active discovery cleanly
 - Active branch state for `ISSUE-GW-18` is `Project-Helianthus/helianthus-ebusgateway#354`
   on `issue/351-passive-topology-smoke`, currently draft and not merge-ready
-  with five commits on
+  with six commits on
   top of `main`:
   - `e322770` `Add passive topology smoke suite and gates`
   - `8174de1` `Degrade passive ebusd-tcp startup cleanly`
   - `2397cea` `Prefer compatible ebusd matrix config fallback`
   - `28fad8b` `GW-18A: recover B524 root after partial preload`
   - `41b35b0` `GW-18: fix passive script review findings`
+  - `d5e4011` squash-merge of stacked PR `#357` (`ISSUE-GW-18D`) into
+    `issue/351-passive-topology-smoke`
 - Commit `41b35b0` addresses Codex review findings in the passive gate/wrapper
   script slice; it does not change the plan status that PR `#354` remains
   draft and not merge-ready while `#352`, `#353`, and `#355` stay open.
@@ -73,8 +75,10 @@ State: `implementing`
   - that slice is now being worked as `ISSUE-GW-18D` in
     `helianthus-ebusgateway` via issue `#356` and stacked PR `#357` on top of
     `#354`
-  - latest gateway branch head for that slice is `d5b2296`, still waiting on a
-    fresh Codex review result for the current head
+  - stacked PR `#357` received a fresh clean Codex result and was then
+    squash-merged into `issue/351-passive-topology-smoke` as `d5e4011`
+  - the parent proof lane remains PR `#354`, still draft and still not
+    merge-ready because passive proof is not closed yet
 - The latest `GW-18` proof-watch attempt
   (`results-matrix-ha/20260311T115600Z-gw18-proof-watch`) did not prove a new
   gateway product bug:
@@ -100,8 +104,8 @@ State: `implementing`
   - PR `Project-Helianthus/helianthus-docs-ebus#207` carries the current docs
     lane for that follow-up and was amended to document the passive transport
     contract discovered in the `P01` / `P02` proof work
-  - latest docs branch head is `1ccf23b`, still waiting on a fresh Codex
-    review result for the current head
+  - PR `#207` also received a fresh clean Codex result and is ready from the
+    review-watch perspective, but it has not been merged yet
 - Documentation-side canonical IDs `ISSUE-DOC-01..04` still need explicit
   linkage and reconciliation against the current code-repo reality.
 
