@@ -119,24 +119,17 @@ State: `implementing`
 - A sixth stacked slice is now active for the same `P03` proof path:
   - `ISSUE-GW-18I` (`Project-Helianthus/helianthus-ebusgateway#366`) targets
     the passive proxy-session contract on proxy-single `ENS`
-  - the latest combined proof rerun used proxy PR `#81` head `01f3e68`
+  - the latest combined proof rerun used proxy PR `#81` head `acb894c`
     together with gateway PR `#373` head `97da9f9`
   - rerun artifact
-    `results-matrix-ha/20260312T091015Z-proxy81-gateway373-p03-rerun` is
-    `FAIL`
-  - startup is no longer the blocker: `semantic_startup_phase_transition ... to=
-    LIVE_READY` was reached with all four devices present (`NETX3`, `BAI00`,
-    `BASV2`, `VR_71`)
-  - passive still remained `warming_up`, with final tap snapshot connected
-    (`1`), `available=0`, and `completed_transactions=0`
-  - request/passive `decode_fault` still accumulates while the blocker reason
-    remains `completed_transactions`
+    `results-matrix-ha/20260312T091947Z-proxy81-acb894c-gateway373-97da9f9-p03-rerun`
+    is `PASS`
+  - `semantic_startup_phase_transition ... to=LIVE_READY` was reached with all
+    four devices present (`NETX3`, `BAI00`, `BASV2`, `VR_71`)
+  - passive warmup reached `available`
   - gateway harness PR `#375` was clean and folded upward into parent gateway
     lane `#373` as squash commit `97da9f9422a17951a94b1854783ce8f86be9a8da`
-  - remaining ownership now routes to proxy issue `#80` / PR `#81` on stream
-    shape, not gateway warmup logic
-  - the next proxy fix is `request-window observer replay` for owner shorthand
-    traffic
+  - HA was restored cleanly afterward with no override artifacts
 - Current live HA runtime on that rebuilt image confirms branch-slice recovery,
   but still should not be treated as proof-closed:
   - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
@@ -194,20 +187,13 @@ State: `implementing`
   `P03`; until it lands and the rerun succeeds, PR `#363` remains open and not
   merge-ready, parent PR `#354` remains draft, and the proof lane remains
   open.
-- `ISSUE-GW-18I` is now active as a further stacked remediation slice for
-  `P03`, but rerun artifact
-  `results-matrix-ha/20260312T091015Z-proxy81-gateway373-p03-rerun` still
-  fails even though startup is no longer the blocker:
-  `semantic_startup_phase_transition ... to=LIVE_READY` was reached with all
-  four devices present. Passive still remained `warming_up`, with final tap
-  snapshot connected (`1`), `available=0`, and `completed_transactions=0`;
-  request/passive `decode_fault` still accumulates while the blocker reason
-  remains `completed_transactions`. Gateway harness PR `#375` then folded
-  cleanly upward into parent gateway lane `#373` as squash commit
-  `97da9f9422a17951a94b1854783ce8f86be9a8da`, so remaining ownership now routes
-  to proxy issue `#80` / PR `#81` on stream shape rather than gateway warmup
-  logic; the next proxy fix is `request-window observer replay` for owner
-  shorthand traffic.
+- `ISSUE-GW-18I` remains active as a further stacked remediation slice for
+  `P03`, and rerun artifact
+  `results-matrix-ha/20260312T091947Z-proxy81-acb894c-gateway373-97da9f9-p03-rerun`
+  now passes: `semantic_startup_phase_transition ... to=LIVE_READY` was reached
+  with all four devices present, passive warmup reached `available`, and HA was
+  restored cleanly afterward with no override artifacts. This clears the prior
+  `P03` blocker without changing the surrounding issue or milestone state yet.
 - Live HA validation now shows the reported regulator/system-loss symptom
   recovered on the rebuilt addon image, but that recovery is still branch-only
   evidence and does not clear the red passive proof lane.
@@ -225,11 +211,9 @@ State: `implementing`
 2. settle `ISSUE-GW-18A`, `ISSUE-GW-18B`, and `ISSUE-GW-18C`, then rerun the
    passive suite until the `GW-18` proof lane is green again
 3. keep the live rebuilt-image recovery result as branch evidence only until the
-   passive suite reruns go green, and treat the current `P03` failure on
-   proxy PR `#81` as the active product blocker rather than as a gateway
-   warmup issue or lab-only handoff artifact
-4. settle proxy issue `#80` / PR `#81` with the next stream-shape fix,
-   `request-window observer replay` for owner shorthand traffic, then rerun the
-   combined proof against gateway lane `#373` before resuming milestone closure
-   work
+   passive suite reruns go green, and treat the current `P03` pass as branch
+   evidence rather than milestone closure by itself
+4. continue the remaining combined proof reruns on proxy PR `#81` and gateway
+   lane `#373`, keeping HA restored cleanly with no override artifacts between
+   runs, before resuming milestone closure work
 5. settle `ISSUE-DOC-05` and then close `M1`
