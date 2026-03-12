@@ -17,7 +17,7 @@ Status legend:
 | `ISSUE-DOC-01` | `helianthus-docs-ebus` | Entry points and stale-claim correction | merged | issue `Project-Helianthus/helianthus-docs-ebus#208`, PRs `#209` / `#210`, merge commits `c0b2ecd` / `a278af3`; `#208` closed after `#210` confirmed the rewritten docs realignment scope was exhausted |
 | `ISSUE-DOC-02` | `helianthus-docs-ebus` | Create `DOC-04`, `DOC-05`, `DOC-06`, `DOC-09` draft contracts | merged | issue `Project-Helianthus/helianthus-docs-ebus#211`, PR `#212`, merge commit `577ac0d` |
 | `ISSUE-DOC-03` | `helianthus-docs-ebus` | Create `DOC-07`, `DOC-08` protocol caveats and validation docs | merged | issue `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, merge commit `7620102` |
-| `ISSUE-DOC-04` | `helianthus-docs-ebus` | Rename and migrate stale B555 references | planned | not yet linked |
+| `ISSUE-DOC-04` | `helianthus-docs-ebus` | Rename and migrate stale B555 references | merged | issue `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`, merge commit `0da202a` |
 | `ISSUE-EG-00` | `helianthus-ebusgo` | Add replay and testdata fixtures for observer hooks | merged | `Project-Helianthus/helianthus-ebusgo#116` |
 | `ISSUE-GW-00` | `helianthus-ebusgateway` | Build gateway replay corpus for passive tap scenarios | merged | `Project-Helianthus/helianthus-ebusgateway#334` |
 
