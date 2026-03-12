@@ -3,7 +3,7 @@
 | Milestone | Scope | Primary repos | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | `M0` | documentation skeletons and replay corpus | `helianthus-docs-ebus`, `helianthus-ebusgo`, `helianthus-ebusgateway` | none | implementing |
-| `M1` | low-level instrumentation, passive tap, smoke coverage, and docs closure | `helianthus-ebusgo`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M0` | implementing |
+| `M1` | low-level instrumentation, passive tap, smoke coverage, and docs closure | `helianthus-ebusgo`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M0` | merged |
 | `M2` | MCP-first rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M1` | queued |
 | `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | queued |
 | `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | queued |
@@ -18,36 +18,22 @@
 - The default order is `M0 -> M1 -> M2 -> M3 -> M4 -> M5 -> M6 -> M7 -> M9`.
 - `M8` is the explicit parallel-track carve-out and does not start before the
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
-- `M1` remains implementing until `ISSUE-GW-18`, `ISSUE-GW-18A`,
-  `ISSUE-GW-18B`, `ISSUE-GW-18C`, `ISSUE-GW-18D`, `ISSUE-GW-18E`,
-  `ISSUE-GW-18F`, `ISSUE-GW-18G`, `ISSUE-GW-18H`, `ISSUE-GW-18I`, and
-  `ISSUE-DOC-05`
-  converge. The `GW-03A/B` extension opened from the post-matrix dual-review
-  cycle on 2026-03-10 is now settled and merged through `ISSUE-GW-03`.
-- The first clean `GW-18` passive suite artifact (`...gw18-passive-smoke-v4`)
-  moved `M1` from “missing proof lane” to “proof lane exists, runtime failures
-  exposed”; the new blockers are explicit rather than implicit.
-- The `P06` reruns `...gw18b-p06-v1` and `...gw18b-p06-v2` further narrowed the
-  `ebusd-tcp` negative-path problem: startup degradation is now fixed in code,
-  while the remaining proof gap is matrix `ebusd` config/image compatibility.
-- After stacked merges `d5e4011` (`#357`) and `acad9a09` (`#359`) into
-  `issue/351-passive-topology-smoke`, the next active `GW-18` proof step is a
-  rerun on parent PR `#354`, resuming at `P03`; docs PR `#207` remains open and
-  clean but does not close `M1` by itself.
-- A new stacked lane `ISSUE-GW-18F` is now open as issue `#360` / PR `#361`
-  on top of parent branch `issue/351-passive-topology-smoke`; this is still
-  proof-remediation work inside `M1`, not proof closure.
-- A further stacked lane `ISSUE-GW-18G` is now open as issue `#362` / PR `#363`
-  on top of `ISSUE-GW-18F`; this is still proof-remediation work inside `M1`,
-  not proof closure.
-- A further stacked lane `ISSUE-GW-18H` is now open as issue `#364` / PR `#365`
-  on top of `ISSUE-GW-18G`; this is still proof-remediation work inside `M1`,
-  not proof closure.
-- A further stacked lane `ISSUE-GW-18I` now has a clean gateway harness fold-up:
-  PR `#375` was folded upward into parent gateway lane `#373` as squash commit
-  `97da9f9422a17951a94b1854783ce8f86be9a8da`. Remaining ownership therefore
-  routes to proxy issue `#80` / PR `#81` on stream shape; the next proxy fix is
-  `request-window observer replay` for owner shorthand traffic. This is still
-  proof-remediation work inside `M1`, not proof closure.
+- `M0` remains implementing only because the docs-canonicalization items
+  `ISSUE-DOC-01`, `ISSUE-DOC-02`, `ISSUE-DOC-03`, and `ISSUE-DOC-04` are still
+  unlinked/unmerged on `helianthus-docs-ebus` `main`. The replay-corpus half of
+  `M0` is already merged through `ISSUE-EG-00` and `ISSUE-GW-00`.
+- `M1` is now merged on `main`: gateway PR `#354` (`ef4e64e`), proxy PR `#81`
+  (`a141fe0`), and docs PR `#207` (`4323a4c`) all landed on 2026-03-12.
+- Final parent artifact
+  `results-matrix-ha/20260312T094435Z-pr354-parent-passive-p01-p06/index.json`
+  records `P01..P06` all `pass`.
+- That final artifact freezes the merged transport/proof contract for `M1`:
+  `P01` / `P02` prove the corrected direct-adapter contract with
+  `passive_mode=unsupported_or_misconfigured`, `P03` / `P04` / `P05` prove the
+  required passive-capable proxy paths, and `P06` proves the `ebusd-tcp`
+  negative-path contract with `passive_mode=unsupported_or_misconfigured`.
+- `M2` remains queued until the earlier `M0` docs-canonicalization backlog is
+  reconciled and a fresh MCP-first issue set is opened from the merged `M1`
+  baseline.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
