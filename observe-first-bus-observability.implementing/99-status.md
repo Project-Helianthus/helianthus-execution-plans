@@ -119,17 +119,18 @@ State: `implementing`
 - A sixth stacked slice is now active for the same `P03` proof path:
   - `ISSUE-GW-18I` (`Project-Helianthus/helianthus-ebusgateway#366`) targets
     the passive proxy-session contract on proxy-single `ENS`
-  - the latest combined proof rerun used proxy PR `#81` head `e75af3a`
-    together with gateway PR `#373` head `0b5292e`
+  - the latest combined proof rerun used proxy PR `#81` head `01f3e68`
+    together with gateway PR `#373` head `97da9f9`
   - rerun artifact
-    `results-matrix-ha/20260312T055859Z-proxy81-gateway373-p03-rerun` is
+    `results-matrix-ha/20260312T091015Z-proxy81-gateway373-p03-rerun` is
     `FAIL`
-  - `P03` still showed all four devices present (`NETX3`, `BAI00`, `BASV2`,
-    `VR_71`) and `semantic_startup_phase_transition ... to=LIVE_READY`
-  - the passive tap final snapshot still ended at connected (`1`),
-    `available=0`, and `completed_transactions=0`
-  - current blocker reason is `completed_transactions`, and passive request
-    `decode_fault` grows to `191`
+  - startup is no longer the blocker: `semantic_startup_phase_transition ... to=
+    LIVE_READY` was reached with all four devices present (`NETX3`, `BAI00`,
+    `BASV2`, `VR_71`)
+  - passive still remained `warming_up`, with final tap snapshot connected
+    (`1`), `available=0`, and `completed_transactions=0`
+  - request/passive `decode_fault` still accumulates while the blocker reason
+    remains `completed_transactions`
   - gateway harness PR `#375` was clean and folded upward into parent gateway
     lane `#373` as squash commit `97da9f9422a17951a94b1854783ce8f86be9a8da`
   - remaining ownership now routes to proxy issue `#80` / PR `#81` on stream
@@ -195,13 +196,14 @@ State: `implementing`
   open.
 - `ISSUE-GW-18I` is now active as a further stacked remediation slice for
   `P03`, but rerun artifact
-  `results-matrix-ha/20260312T055859Z-proxy81-gateway373-p03-rerun` still
-  fails after showing all four devices present and
-  `semantic_startup_phase_transition ... to=LIVE_READY`, with passive tap final
-  snapshot connected (`1`), `available=0`, and `completed_transactions=0`; the
-  current blocker reason is `completed_transactions`, passive request
-  `decode_fault` grows to `191`. Gateway harness PR `#375` then folded cleanly
-  upward into parent gateway lane `#373` as squash commit
+  `results-matrix-ha/20260312T091015Z-proxy81-gateway373-p03-rerun` still
+  fails even though startup is no longer the blocker:
+  `semantic_startup_phase_transition ... to=LIVE_READY` was reached with all
+  four devices present. Passive still remained `warming_up`, with final tap
+  snapshot connected (`1`), `available=0`, and `completed_transactions=0`;
+  request/passive `decode_fault` still accumulates while the blocker reason
+  remains `completed_transactions`. Gateway harness PR `#375` then folded
+  cleanly upward into parent gateway lane `#373` as squash commit
   `97da9f9422a17951a94b1854783ce8f86be9a8da`, so remaining ownership now routes
   to proxy issue `#80` / PR `#81` on stream shape rather than gateway warmup
   logic; the next proxy fix is `request-window observer replay` for owner
