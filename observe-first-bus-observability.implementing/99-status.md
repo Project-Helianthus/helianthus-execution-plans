@@ -60,9 +60,11 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#206` are all closed.
 - `ISSUE-DOC-05` is merged on docs `main`; the same-cycle passive transport
   contract is no longer a pending doc-gate item.
-- The overall workstream still stays in `implementing` because the earlier
-  docs-canonicalization items `ISSUE-DOC-01..04` are not yet linked/merged on
-  `helianthus-docs-ebus` `main`, and `M2` has not started yet.
+- The overall workstream still stays in `implementing` because the remaining
+  docs-canonicalization items `ISSUE-DOC-02..04` are not yet linked/merged on
+  `helianthus-docs-ebus` `main`; `ISSUE-DOC-01` is now exhausted via docs issue
+  `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`, and
+  `M2` has not started yet.
 
 ## Blockers
 
@@ -70,13 +72,13 @@ State: `implementing`
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
 - Documentation-side canonical linkage is still incomplete in
-  `helianthus-docs-ebus` `main`; `ISSUE-DOC-01..04` remain unlinked/unmerged.
+  `helianthus-docs-ebus` `main`; `ISSUE-DOC-02..04` remain unlinked/unmerged.
 - `M2` and later milestones are still blocked on that earlier docs
   canonicalization plus fresh issue creation from the merged `M1` baseline.
 
 ## Next Actions
 
-1. backfill or merge the pending `ISSUE-DOC-01..04` docs-canonicalization work
+1. backfill or merge the pending `ISSUE-DOC-02..04` docs-canonicalization work
    onto `helianthus-docs-ebus` `main`
 2. open the next `M2` MCP-first execution lane from the merged `M1` baseline
 3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link

@@ -18,10 +18,12 @@
 - The default order is `M0 -> M1 -> M2 -> M3 -> M4 -> M5 -> M6 -> M7 -> M9`.
 - `M8` is the explicit parallel-track carve-out and does not start before the
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
-- `M0` remains implementing only because the docs-canonicalization items
-  `ISSUE-DOC-01`, `ISSUE-DOC-02`, `ISSUE-DOC-03`, and `ISSUE-DOC-04` are still
-  unlinked/unmerged on `helianthus-docs-ebus` `main`. The replay-corpus half of
-  `M0` is already merged through `ISSUE-EG-00` and `ISSUE-GW-00`.
+- `M0` remains implementing only because the remaining docs-canonicalization
+  items `ISSUE-DOC-02`, `ISSUE-DOC-03`, and `ISSUE-DOC-04` are still
+  unlinked/unmerged on `helianthus-docs-ebus` `main`. `ISSUE-DOC-01` is merged
+  via docs issue `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209`
+  / `#210`. The replay-corpus half of `M0` is already merged through
+  `ISSUE-EG-00` and `ISSUE-GW-00`.
 - `M1` is now merged on `main`: gateway PR `#354` (`ef4e64e`), proxy PR `#81`
   (`a141fe0`), and docs PR `#207` (`4323a4c`) all landed on 2026-03-12.
 - Final parent artifact

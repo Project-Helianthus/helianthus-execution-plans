@@ -14,7 +14,7 @@ Status legend:
 
 | Canonical ID | Repo | Summary | Status | Linked execution |
 | --- | --- | --- | --- | --- |
-| `ISSUE-DOC-01` | `helianthus-docs-ebus` | Create `DOC-01`, `DOC-02`, `DOC-03` skeleton docs | planned | not yet linked |
+| `ISSUE-DOC-01` | `helianthus-docs-ebus` | Entry points and stale-claim correction | merged | issue `Project-Helianthus/helianthus-docs-ebus#208`, PRs `#209` / `#210`, merge commits `c0b2ecd` / `a278af3`; `#208` closed after `#210` confirmed the rewritten docs realignment scope was exhausted |
 | `ISSUE-DOC-02` | `helianthus-docs-ebus` | Create `DOC-04`, `DOC-05`, `DOC-06`, `DOC-09` draft contracts | planned | not yet linked |
 | `ISSUE-DOC-03` | `helianthus-docs-ebus` | Create `DOC-07`, `DOC-08` protocol caveats and validation docs | planned | not yet linked |
 | `ISSUE-DOC-04` | `helianthus-docs-ebus` | Rename and migrate stale B555 references | planned | not yet linked |
