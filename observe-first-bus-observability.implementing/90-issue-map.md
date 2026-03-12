@@ -57,8 +57,8 @@ Status legend:
 | Canonical ID | Repo | Summary | Status | Linked execution |
 | --- | --- | --- | --- | --- |
 | `ISSUE-GW-04` | `helianthus-ebusgateway` | Implement MCP observe-first tools | merged | issue `Project-Helianthus/helianthus-ebusgateway#376`, PR `#377`, merge commit `3daf4be`; passive proof artifact `results-matrix-ha/20260312T175648Z-pr377-gw04-26ee758-passive-p01-p06-recovery/index.json` records `P01..P06` all `pass`; standard `T01` probe `results-matrix-ha/20260312T175250Z-pr377-gw04-26ee758-recovery/full88-probe-t01-after-adapter-reboot/index.json` remained `blocked-infra` with `infra_reason=adapter_no_signal` after an adapter reboot, so merge proceeded under owner override once the official addon/runtime restore was re-verified clean |
-| `ISSUE-DOC-06` | `helianthus-docs-ebus` | Freeze MCP contract against real output | active | next critical path after merged `ISSUE-GW-04`; docs freeze must capture the merged MCP surface and fresh proof artifacts before `ISSUE-GW-05` / `M3` opens |
-| `ISSUE-GW-05` | `helianthus-ebusgateway` | Implement GraphQL parity | blocked | not yet linked |
+| `ISSUE-DOC-06` | `helianthus-docs-ebus` | Freeze MCP contract against real output | merged | PR `#218`, merge commit `f037e16131e0efddbd825e4c3f2462f6163eec16`; `ISSUE-DOC-06` is now merged/closed and the `M2` docs freeze is complete |
+| `ISSUE-GW-05` | `helianthus-ebusgateway` | Implement GraphQL parity | active | unblocked after merged `ISSUE-DOC-06` / docs PR `#218`; now the `M3` critical path |
 | `ISSUE-DOC-07` | `helianthus-docs-ebus` | Freeze GraphQL contract | blocked | not yet linked |
 | `ISSUE-GW-06` | `helianthus-ebusgateway` | Implement `WatchCatalog` | blocked | not yet linked |
 | `ISSUE-GW-07` | `helianthus-ebusgateway` | Implement bounded `ShadowCache` | blocked | not yet linked |

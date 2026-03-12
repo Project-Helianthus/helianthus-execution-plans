@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1 merged on main; M2 active with ISSUE-GW-04 merged and ISSUE-DOC-06 next`
+- Current milestone focus: `M0/M1/M2 merged on main; M3 active with ISSUE-GW-05 next`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -52,6 +52,8 @@ State: `implementing`
     which passed before the parent full-suite rerun
   - `ISSUE-GW-04` is now merged in `helianthus-ebusgateway` via issue `#376`,
     PR `#377`, merge commit `3daf4beed9d6406f7af52869eea1c53ef14f2f62`
+  - `ISSUE-DOC-06` is now merged/closed in `helianthus-docs-ebus` via PR
+    `#218`, merge commit `f037e16131e0efddbd825e4c3f2462f6163eec16`
   - Fresh `GW-04` passive proof artifact
     `results-matrix-ha/20260312T175648Z-pr377-gw04-26ee758-passive-p01-p06-recovery/index.json`
     records `P01..P06` all `pass`
@@ -76,6 +78,8 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#206` are all closed.
 - `ISSUE-DOC-05` is merged on docs `main`; the same-cycle passive transport
   contract is no longer a pending doc-gate item.
+- `ISSUE-DOC-06` is also merged/closed on docs `main`; the MCP docs freeze is
+  no longer a pending gate item, so `ISSUE-GW-05` is now the active lane.
 - The original `M0` docs-canonicalization backlog is now fully merged on docs
   `main`; `ISSUE-DOC-01` is exhausted via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`,
@@ -85,24 +89,23 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, and
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
-- The overall workstream stays in `implementing` because `M2` is now open but
-  not yet complete: the gateway half is merged, while the docs freeze in
-  `ISSUE-DOC-06` is now the active gate before `M3`.
+- The overall workstream stays in `implementing` because `M3` is now open on a
+  fully merged `M2` baseline: `ISSUE-GW-05` is the active gate before
+  `ISSUE-DOC-07` / `M4`.
 
 ## Blockers
 
 - The imported seed still does not have a historical Discussion archive; it
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
-- `ISSUE-DOC-06` is now the gating blocker for the rest of `M2`; until the
-  merged MCP surface is frozen against real output, `ISSUE-GW-05` and all of
-  `M3+` remain blocked.
+- `ISSUE-DOC-07` and `M4+` remain blocked until `ISSUE-GW-05` lands and the
+  GraphQL contract can be frozen on the merged `M3` surface.
 
 ## Next Actions
 
-1. execute `ISSUE-DOC-06` to freeze the merged MCP contract against the
-   `GW-04` merged head and proof artifacts
-2. open `ISSUE-GW-05` only after `ISSUE-DOC-06` lands, keeping the `MCP ->
+1. execute `ISSUE-GW-05` to deliver GraphQL parity on top of the merged `M2`
+   baseline
+2. execute `ISSUE-DOC-07` only after `ISSUE-GW-05` lands, keeping the `MCP ->
    GraphQL` sequencing intact
 3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream

@@ -4,8 +4,8 @@
 | --- | --- | --- | --- | --- |
 | `M0` | documentation skeletons and replay corpus | `helianthus-docs-ebus`, `helianthus-ebusgo`, `helianthus-ebusgateway` | none | merged |
 | `M1` | low-level instrumentation, passive tap, smoke coverage, and docs closure | `helianthus-ebusgo`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M0` | merged |
-| `M2` | MCP-first rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M1` | active |
-| `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | queued |
+| `M2` | MCP-first rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M1` | merged |
+| `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | active |
 | `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | queued |
 | `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | queued |
 | `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | queued |
@@ -48,10 +48,12 @@
   required passive-capable proxy paths on merged gateway/proxy heads; and
   `P06` proves the `ebusd-tcp` negative-path contract with
   `passive_mode=unsupported_or_misconfigured` on merged heads.
-- `M2` is now active on the merged `M1` baseline: `ISSUE-GW-04` landed via
+- `M2` is now merged on the merged `M1` baseline: `ISSUE-GW-04` landed via
   gateway issue `Project-Helianthus/helianthus-ebusgateway#376`, PR `#377`,
-  merge commit `3daf4be`. The current critical path inside `M2` is
-  `ISSUE-DOC-06`, which must freeze the merged MCP contract and proof before
-  `M3` / `ISSUE-GW-05` can open.
+  merge commit `3daf4be`, and `ISSUE-DOC-06` landed via docs PR `#218`,
+  merge commit
+  `f037e16131e0efddbd825e4c3f2462f6163eec16`. `ISSUE-DOC-06` is now
+  merged/closed, so the MCP docs freeze is complete and `M3` / `ISSUE-GW-05`
+  is now open.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
