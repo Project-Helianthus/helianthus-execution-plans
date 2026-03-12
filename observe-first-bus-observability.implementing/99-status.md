@@ -119,18 +119,19 @@ State: `implementing`
 - A sixth stacked slice is now active for the same `P03` proof path:
   - `ISSUE-GW-18I` (`Project-Helianthus/helianthus-ebusgateway#366`) targets
     the passive proxy-session contract on proxy-single `ENS`
-  - stacked PR `#373` is now the active blocked lane on top of `#371`
-  - latest stacked head is `0b5292e`
+  - the latest combined proof rerun used proxy PR `#81` head `e75af3a`
+    together with gateway PR `#373` head `0b5292e`
   - rerun artifact
-    `results-matrix-ha/20260312T000413Z-issue373-p03-rerun` is `FAIL`
+    `results-matrix-ha/20260312T055859Z-proxy81-gateway373-p03-rerun` is
+    `FAIL`
   - `P03` still showed all four devices present (`NETX3`, `BAI00`, `BASV2`,
     `VR_71`) and `semantic_startup_phase_transition ... to=LIVE_READY`
   - the passive tap final snapshot still ended at connected (`1`),
     `available=0`, and `completed_transactions=0`
-  - current blocker reason is `completed_transactions`, and passive
-    `decode_fault` request errors still accumulate
-  - `#373` remains the active blocked lane and is not ready to fold upward
-    into `#371` / `#369` / `#367` / parent PR `#354`
+  - current blocker reason is `completed_transactions`, and passive request
+    `decode_fault` grows to `191`
+  - proxy PR `#81` is not yet proven enough to fold / merge, and gateway PR
+    `#373` cannot close `P03`
 - Current live HA runtime on that rebuilt image confirms branch-slice recovery,
   but still should not be treated as proof-closed:
   - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
@@ -190,14 +191,13 @@ State: `implementing`
   open.
 - `ISSUE-GW-18I` is now active as a further stacked remediation slice for
   `P03`, but rerun artifact
-  `results-matrix-ha/20260312T000413Z-issue373-p03-rerun` still fails after
-  showing all four devices present and
+  `results-matrix-ha/20260312T055859Z-proxy81-gateway373-p03-rerun` still
+  fails after showing all four devices present and
   `semantic_startup_phase_transition ... to=LIVE_READY`, with passive tap final
   snapshot connected (`1`), `available=0`, and `completed_transactions=0`; the
-  current blocker reason is `completed_transactions`, passive `decode_fault`
-  request errors still accumulate, and `#373` remains the active blocked lane
-  and is not ready to fold upward into `#371` / `#369` / `#367` / parent PR
-  `#354`.
+  current blocker reason is `completed_transactions`, passive request
+  `decode_fault` grows to `191`, proxy PR `#81` is not yet proven enough to
+  fold / merge, and gateway PR `#373` cannot close `P03`.
 - Live HA validation now shows the reported regulator/system-loss symptom
   recovered on the rebuilt addon image, but that recovery is still branch-only
   evidence and does not clear the red passive proof lane.
@@ -216,10 +216,9 @@ State: `implementing`
    passive suite until the `GW-18` proof lane is green again
 3. keep the live rebuilt-image recovery result as branch evidence only until the
    passive suite reruns go green, and treat the current `P03` failure on
-   stacked PR `#373` as the active product blocker rather than as a lab-only
-   handoff artifact
-4. settle `ISSUE-GW-18I` on stacked PR `#373` first, because it is still the
-   active blocked lane for `P03` and is not ready to fold upward into `#371` /
-   `#369` / `#367` / parent PR `#354`; only then continue folding the stacked
-   `GW-18` remediation chain upward and resume the parent proof rerun
+   proxy PR `#81` plus gateway PR `#373` as the active product blocker rather
+   than as a lab-only handoff artifact
+4. settle the combined `ISSUE-GW-18I` proof state by proving proxy PR `#81`
+   enough to fold / merge and by getting gateway PR `#373` past the `P03`
+   `completed_transactions` blocker before resuming milestone closure work
 5. settle `ISSUE-DOC-05` and then close `M1`
