@@ -5,8 +5,8 @@
 | `M0` | documentation skeletons and replay corpus | `helianthus-docs-ebus`, `helianthus-ebusgo`, `helianthus-ebusgateway` | none | merged |
 | `M1` | low-level instrumentation, passive tap, smoke coverage, and docs closure | `helianthus-ebusgo`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M0` | merged |
 | `M2` | MCP-first rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M1` | merged |
-| `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | active |
-| `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | queued |
+| `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | merged |
+| `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | active |
 | `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | queued |
 | `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | queued |
 | `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | queued |
@@ -54,9 +54,13 @@
   merge commit
   `f037e16131e0efddbd825e4c3f2462f6163eec16`. `ISSUE-DOC-06` is now
   merged/closed, so the MCP docs freeze is complete.
-- `M3` remains active: `ISSUE-GW-05` landed via gateway issue
+- `M3` is now merged on `main`: `ISSUE-GW-05` landed via gateway issue
   `Project-Helianthus/helianthus-ebusgateway#378`, PR `#379`, merge commit
-  `83e9c7b1ba927a282d87599269e91be817ff3582`. The remaining `M3` gate is now
-  `ISSUE-DOC-07`, which is active before `M4` can start.
+  `83e9c7b1ba927a282d87599269e91be817ff3582`, and `ISSUE-DOC-07` landed via
+  docs issue `Project-Helianthus/helianthus-docs-ebus#219`, PR `#220`, merge
+  commit `cbdf89aa795083093631da7849df5e12e8d448c5`. The GraphQL contract is
+  now frozen on the merged `M3` surface.
+- `M4` is now active. `ISSUE-GW-06` is the next critical path item on top of
+  the merged `M3` baseline.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
