@@ -130,8 +130,12 @@ State: `implementing`
     `available=0`, and `completed_transactions=0`
   - current blocker reason is `completed_transactions`, and passive request
     `decode_fault` grows to `191`
-  - proxy PR `#81` is not yet proven enough to fold / merge, and gateway PR
-    `#373` cannot close `P03`
+  - gateway harness PR `#375` was clean and folded upward into parent gateway
+    lane `#373` as squash commit `97da9f9422a17951a94b1854783ce8f86be9a8da`
+  - remaining ownership now routes to proxy issue `#80` / PR `#81` on stream
+    shape, not gateway warmup logic
+  - the next proxy fix is `request-window observer replay` for owner shorthand
+    traffic
 - Current live HA runtime on that rebuilt image confirms branch-slice recovery,
   but still should not be treated as proof-closed:
   - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
@@ -196,8 +200,12 @@ State: `implementing`
   `semantic_startup_phase_transition ... to=LIVE_READY`, with passive tap final
   snapshot connected (`1`), `available=0`, and `completed_transactions=0`; the
   current blocker reason is `completed_transactions`, passive request
-  `decode_fault` grows to `191`, proxy PR `#81` is not yet proven enough to
-  fold / merge, and gateway PR `#373` cannot close `P03`.
+  `decode_fault` grows to `191`. Gateway harness PR `#375` then folded cleanly
+  upward into parent gateway lane `#373` as squash commit
+  `97da9f9422a17951a94b1854783ce8f86be9a8da`, so remaining ownership now routes
+  to proxy issue `#80` / PR `#81` on stream shape rather than gateway warmup
+  logic; the next proxy fix is `request-window observer replay` for owner
+  shorthand traffic.
 - Live HA validation now shows the reported regulator/system-loss symptom
   recovered on the rebuilt addon image, but that recovery is still branch-only
   evidence and does not clear the red passive proof lane.
@@ -216,9 +224,10 @@ State: `implementing`
    passive suite until the `GW-18` proof lane is green again
 3. keep the live rebuilt-image recovery result as branch evidence only until the
    passive suite reruns go green, and treat the current `P03` failure on
-   proxy PR `#81` plus gateway PR `#373` as the active product blocker rather
-   than as a lab-only handoff artifact
-4. settle the combined `ISSUE-GW-18I` proof state by proving proxy PR `#81`
-   enough to fold / merge and by getting gateway PR `#373` past the `P03`
-   `completed_transactions` blocker before resuming milestone closure work
+   proxy PR `#81` as the active product blocker rather than as a gateway
+   warmup issue or lab-only handoff artifact
+4. settle proxy issue `#80` / PR `#81` with the next stream-shape fix,
+   `request-window observer replay` for owner shorthand traffic, then rerun the
+   combined proof against gateway lane `#373` before resuming milestone closure
+   work
 5. settle `ISSUE-DOC-05` and then close `M1`

@@ -43,11 +43,11 @@
 - A further stacked lane `ISSUE-GW-18H` is now open as issue `#364` / PR `#365`
   on top of `ISSUE-GW-18G`; this is still proof-remediation work inside `M1`,
   not proof closure.
-- A further stacked lane `ISSUE-GW-18I` is now in combined proof with proxy PR
-  `#81` at head `e75af3a` and gateway PR `#373` at head `0b5292e`; artifact
-  `results-matrix-ha/20260312T055859Z-proxy81-gateway373-p03-rerun` failed
-  after reaching `LIVE_READY` with all four devices present, so proxy PR `#81`
-  is not yet proven enough to fold / merge and gateway PR `#373` cannot close
-  `P03`. This is still proof-remediation work inside `M1`, not proof closure.
+- A further stacked lane `ISSUE-GW-18I` now has a clean gateway harness fold-up:
+  PR `#375` was folded upward into parent gateway lane `#373` as squash commit
+  `97da9f9422a17951a94b1854783ce8f86be9a8da`. Remaining ownership therefore
+  routes to proxy issue `#80` / PR `#81` on stream shape; the next proxy fix is
+  `request-window observer replay` for owner shorthand traffic. This is still
+  proof-remediation work inside `M1`, not proof closure.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
