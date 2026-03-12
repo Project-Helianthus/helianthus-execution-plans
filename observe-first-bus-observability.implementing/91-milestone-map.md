@@ -2,7 +2,7 @@
 
 | Milestone | Scope | Primary repos | Depends on | Status |
 | --- | --- | --- | --- | --- |
-| `M0` | documentation skeletons and replay corpus | `helianthus-docs-ebus`, `helianthus-ebusgo`, `helianthus-ebusgateway` | none | implementing |
+| `M0` | documentation skeletons and replay corpus | `helianthus-docs-ebus`, `helianthus-ebusgo`, `helianthus-ebusgateway` | none | merged |
 | `M1` | low-level instrumentation, passive tap, smoke coverage, and docs closure | `helianthus-ebusgo`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M0` | merged |
 | `M2` | MCP-first rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M1` | queued |
 | `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | queued |
@@ -18,15 +18,15 @@
 - The default order is `M0 -> M1 -> M2 -> M3 -> M4 -> M5 -> M6 -> M7 -> M9`.
 - `M8` is the explicit parallel-track carve-out and does not start before the
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
-- `M0` remains implementing only because the remaining docs-canonicalization
-  item `ISSUE-DOC-04` is still unlinked/unmerged on `helianthus-docs-ebus`
-  `main`. `ISSUE-DOC-01` is merged via docs issue
+- `M0` is now fully merged on `main`. `ISSUE-DOC-01` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`;
   `ISSUE-DOC-02` is now merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#211`, PR `#212`, merge commit
   `577ac0d`; `ISSUE-DOC-03` is now merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, merge commit
-  `7620102`. The replay-corpus half of `M0` is already merged through
+  `7620102`; `ISSUE-DOC-04` is now merged via docs issue
+  `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`, merge commit
+  `0da202a`. The replay-corpus half of `M0` is already merged through
   `ISSUE-EG-00` and `ISSUE-GW-00`.
 - `M1` is now merged on `main`: gateway PR `#354` (`ef4e64e`), proxy PR `#81`
   (`a141fe0`), and docs PR `#207` (`4323a4c`) all landed on 2026-03-12.
@@ -48,8 +48,7 @@
   required passive-capable proxy paths on merged gateway/proxy heads; and
   `P06` proves the `ebusd-tcp` negative-path contract with
   `passive_mode=unsupported_or_misconfigured` on merged heads.
-- `M2` remains queued until the earlier `M0` docs-canonicalization backlog
-  (`ISSUE-DOC-04`) is reconciled and a fresh MCP-first issue set is opened
-  from the merged `M1` baseline.
+- `M2` remains queued until a fresh MCP-first issue set is opened from the
+  merged `M1` baseline.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
