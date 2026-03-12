@@ -43,10 +43,14 @@ State: `implementing`
 
 ## Active Focus
 
-- No `GW-18` code or proof blocker remains on merged `main`.
+- No `GW-18` code, proof, or gateway-family issue blocker remains on merged
+  `main`.
 - Gateway follow-up slices `ISSUE-GW-18A` through `ISSUE-GW-18L`, plus the
   harness slice `ISSUE-GW-18M`, are now merged into the parent `GW-18` lane and
   proven by the focused `P03` rerun plus the final parent artifact.
+- The last open gateway `GW-18`-family issue (`Project-Helianthus/helianthus-ebusgateway#374`)
+  is satisfied by merged gateway PR `#375`, proxy PR `#81`, and the final
+  parent passive artifact.
 - `ISSUE-DOC-05` is merged on docs `main`; the same-cycle passive transport
   contract is no longer a pending doc-gate item.
 - The overall workstream still stays in `implementing` because the earlier

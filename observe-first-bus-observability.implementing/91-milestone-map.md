@@ -27,6 +27,11 @@
 - Final parent artifact
   `results-matrix-ha/20260312T094435Z-pr354-parent-passive-p01-p06/index.json`
   records `P01..P06` all `pass`.
+- The last open gateway `GW-18`-family issue, `ISSUE-GW-18M` /
+  `Project-Helianthus/helianthus-ebusgateway#374`, is now satisfied on merged
+  `main`: gateway PR `#375` (`97da9f9`) added the replay harness/tests, proxy
+  PR `#81` (`a141fe0`) resolved the routed stream-shape defect, and the final
+  parent artifact confirms `P03=pass`.
 - That final artifact freezes the merged transport/proof contract for `M1`:
   `P01` / `P02` prove the corrected direct-adapter contract with
   `passive_mode=unsupported_or_misconfigured`, `P03` / `P04` / `P05` prove the
