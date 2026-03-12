@@ -53,7 +53,10 @@
   merge commit `3daf4be`, and `ISSUE-DOC-06` landed via docs PR `#218`,
   merge commit
   `f037e16131e0efddbd825e4c3f2462f6163eec16`. `ISSUE-DOC-06` is now
-  merged/closed, so the MCP docs freeze is complete and `M3` / `ISSUE-GW-05`
-  is now open.
+  merged/closed, so the MCP docs freeze is complete.
+- `M3` remains active: `ISSUE-GW-05` landed via gateway issue
+  `Project-Helianthus/helianthus-ebusgateway#378`, PR `#379`, merge commit
+  `83e9c7b1ba927a282d87599269e91be817ff3582`. The remaining `M3` gate is now
+  `ISSUE-DOC-07`, which is active before `M4` can start.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
