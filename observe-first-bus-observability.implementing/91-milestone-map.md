@@ -27,16 +27,21 @@
 - Final parent artifact
   `results-matrix-ha/20260312T094435Z-pr354-parent-passive-p01-p06/index.json`
   records `P01..P06` all `pass`.
-- The last open gateway `GW-18`-family issue, `ISSUE-GW-18M` /
-  `Project-Helianthus/helianthus-ebusgateway#374`, is now satisfied on merged
-  `main`: gateway PR `#375` (`97da9f9`) added the replay harness/tests, proxy
-  PR `#81` (`a141fe0`) resolved the routed stream-shape defect, and the final
-  parent artifact confirms `P03=pass`.
-- That final artifact freezes the merged transport/proof contract for `M1`:
+- Fresh merged-head passive rerun
+  `results-matrix-ha/20260312T105720Z-main-ef4e64e-proxy-a141fe0-passive-p03-p06/index.json`
+  records `P03..P06` all `pass` on gateway `ef4e64e` and proxy `a141fe0`.
+- No `GW-18`-family gateway issue and no related proxy/docs issue remains open
+  on GitHub. The final tail issue, `ISSUE-GW-18M` /
+  `Project-Helianthus/helianthus-ebusgateway#374`, is closed; proxy issue
+  `Project-Helianthus/helianthus-ebus-adapter-proxy#80` and docs issue
+  `Project-Helianthus/helianthus-docs-ebus#206` are also closed.
+- The parent artifact plus the merged-head rerun freeze the merged
+  transport/proof contract for `M1`:
   `P01` / `P02` prove the corrected direct-adapter contract with
-  `passive_mode=unsupported_or_misconfigured`, `P03` / `P04` / `P05` prove the
-  required passive-capable proxy paths, and `P06` proves the `ebusd-tcp`
-  negative-path contract with `passive_mode=unsupported_or_misconfigured`.
+  `passive_mode=unsupported_or_misconfigured`; `P03` / `P04` / `P05` prove the
+  required passive-capable proxy paths on merged gateway/proxy heads; and
+  `P06` proves the `ebusd-tcp` negative-path contract with
+  `passive_mode=unsupported_or_misconfigured` on merged heads.
 - `M2` remains queued until the earlier `M0` docs-canonicalization backlog is
   reconciled and a fresh MCP-first issue set is opened from the merged `M1`
   baseline.

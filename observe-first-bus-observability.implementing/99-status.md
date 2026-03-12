@@ -31,7 +31,11 @@ State: `implementing`
     `4323a4c281dc6cdc776805bc82acf81b4cad3e76`
   - Final parent proof artifact:
     `results-matrix-ha/20260312T094435Z-pr354-parent-passive-p01-p06/index.json`
-  - That final artifact records `P01..P06` all `pass`
+  - Fresh merged-head passive rerun:
+    `results-matrix-ha/20260312T105720Z-main-ef4e64e-proxy-a141fe0-passive-p03-p06/index.json`
+  - The parent artifact records `P01..P06` all `pass`, and the merged-head
+    rerun records `P03..P06` all `pass` on gateway `ef4e64e` plus proxy
+    `a141fe0`
   - `P01` / `P02` now prove the corrected direct-adapter contract with
     `passive_mode=unsupported_or_misconfigured`
   - `P03` / `P04` / `P05` prove the required passive-capable proxy paths
@@ -44,13 +48,16 @@ State: `implementing`
 ## Active Focus
 
 - No `GW-18` code, proof, or gateway-family issue blocker remains on merged
-  `main`.
+  `main`; the merged-head rerun reconfirms `P03..P06` on final gateway/proxy
+  heads.
 - Gateway follow-up slices `ISSUE-GW-18A` through `ISSUE-GW-18L`, plus the
   harness slice `ISSUE-GW-18M`, are now merged into the parent `GW-18` lane and
-  proven by the focused `P03` rerun plus the final parent artifact.
-- The last open gateway `GW-18`-family issue (`Project-Helianthus/helianthus-ebusgateway#374`)
-  is satisfied by merged gateway PR `#375`, proxy PR `#81`, and the final
-  parent passive artifact.
+  proven by the focused `P03` rerun, the final parent artifact, and the merged-head
+  rerun.
+- No `GW-18`-family gateway issue and no related proxy/docs issue remains
+  open; gateway issue `Project-Helianthus/helianthus-ebusgateway#374`, proxy
+  issue `Project-Helianthus/helianthus-ebus-adapter-proxy#80`, and docs issue
+  `Project-Helianthus/helianthus-docs-ebus#206` are all closed.
 - `ISSUE-DOC-05` is merged on docs `main`; the same-cycle passive transport
   contract is no longer a pending doc-gate item.
 - The overall workstream still stays in `implementing` because the earlier
