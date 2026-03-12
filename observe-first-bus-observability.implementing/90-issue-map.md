@@ -60,8 +60,8 @@ Status legend:
 | `ISSUE-DOC-06` | `helianthus-docs-ebus` | Freeze MCP contract against real output | merged | PR `#218`, merge commit `f037e16131e0efddbd825e4c3f2462f6163eec16`; `ISSUE-DOC-06` is now merged/closed and the `M2` docs freeze is complete |
 | `ISSUE-GW-05` | `helianthus-ebusgateway` | Implement GraphQL parity | merged | issue `Project-Helianthus/helianthus-ebusgateway#378`, PR `#379`, merge commit `83e9c7b1ba927a282d87599269e91be817ff3582`; the gateway half of `M3` is now closed on `main` |
 | `ISSUE-DOC-07` | `helianthus-docs-ebus` | Freeze GraphQL contract | merged | issue `Project-Helianthus/helianthus-docs-ebus#219`, PR `#220`, merge commit `cbdf89aa795083093631da7849df5e12e8d448c5`; `ISSUE-DOC-07` is now merged/closed and `M3` is fully closed on `main` |
-| `ISSUE-GW-06` | `helianthus-ebusgateway` | Implement `WatchCatalog` | active | next `M4` critical path on top of the merged `M3` baseline; target repo issue/PR not yet linked here |
-| `ISSUE-GW-07` | `helianthus-ebusgateway` | Implement bounded `ShadowCache` | blocked | not yet linked |
+| `ISSUE-GW-06` | `helianthus-ebusgateway` | Implement `WatchCatalog` | merged | issue `Project-Helianthus/helianthus-ebusgateway#380`, PR `#381`, merge commit `873c970459d1933ba50638df5e6fb349a6a9a3a2`; `ISSUE-GW-06` is now merged/closed on gateway `main` |
+| `ISSUE-GW-07` | `helianthus-ebusgateway` | Implement bounded `ShadowCache` | active | next `M4` critical path on top of the merged `ISSUE-GW-06` watch-catalog baseline; target repo issue/PR not yet linked here |
 | `ISSUE-GW-08` | `helianthus-ebusgateway` | Add feature flags before behavior changes | blocked | not yet linked |
 | `ISSUE-GW-09` | `helianthus-ebusgateway` | Implement family policy engine | blocked | not yet linked |
 | `ISSUE-DOC-08` | `helianthus-docs-ebus` | Update architecture docs with watch, flags, and family rules | blocked | not yet linked |

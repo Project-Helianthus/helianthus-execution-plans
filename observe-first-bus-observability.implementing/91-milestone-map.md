@@ -60,7 +60,10 @@
   docs issue `Project-Helianthus/helianthus-docs-ebus#219`, PR `#220`, merge
   commit `cbdf89aa795083093631da7849df5e12e8d448c5`. The GraphQL contract is
   now frozen on the merged `M3` surface.
-- `M4` is now active. `ISSUE-GW-06` is the next critical path item on top of
-  the merged `M3` baseline.
+- `M4` remains active on `main`: `ISSUE-GW-06` landed via gateway issue
+  `Project-Helianthus/helianthus-ebusgateway#380`, PR `#381`, merge commit
+  `873c970459d1933ba50638df5e6fb349a6a9a3a2`.
+- `ISSUE-GW-07` is now the next critical path item on top of the merged
+  `ISSUE-GW-06` watch-catalog baseline inside `M4`.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
