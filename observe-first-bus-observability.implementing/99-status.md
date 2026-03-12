@@ -6,9 +6,10 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0-M1 foundations`
+- Current milestone focus: `M0 docs canonical linkage; M1 merged on main`
 - Current slug state: `observe-first-bus-observability.implementing`
-- Anchored implementation has moved past the import seed:
+- Anchored implementation has moved past the import seed and the `GW-18`
+  merge/proof lane is now settled on repo `main`:
   - `ISSUE-EG-00..03` merged in `helianthus-ebusgo` via
     `Project-Helianthus/helianthus-ebusgo#116`
   - `ISSUE-GW-00` and `ISSUE-GW-17` merged in `helianthus-ebusgateway` via
@@ -20,200 +21,52 @@ State: `implementing`
     `Project-Helianthus/helianthus-ebusgateway#343`, after the post-matrix
     dual-review follow-ups from issues `#344` and `#345` landed through the
     repair cycle and final branch merge
+  - `ISSUE-GW-18` merged in `helianthus-ebusgateway` via issue `#351`, PR
+    `#354`, merge commit `ef4e64eec876975246aba102475de079211d05e2`
+  - The supporting proxy merge is issue
+    `Project-Helianthus/helianthus-ebus-adapter-proxy#80`, PR `#81`, merge
+    commit `a141fe056cbf6a3e212f850b501a893f922f41f6`
+  - The supporting docs merge is issue
+    `Project-Helianthus/helianthus-docs-ebus#206`, PR `#207`, merge commit
+    `4323a4c281dc6cdc776805bc82acf81b4cad3e76`
+  - Final parent proof artifact:
+    `results-matrix-ha/20260312T094435Z-pr354-parent-passive-p01-p06/index.json`
+  - That final artifact records `P01..P06` all `pass`
+  - `P01` / `P02` now prove the corrected direct-adapter contract with
+    `passive_mode=unsupported_or_misconfigured`
+  - `P03` / `P04` / `P05` prove the required passive-capable proxy paths
+  - `P06` proves the `ebusd-tcp` negative-path contract with
+    `passive_mode=unsupported_or_misconfigured`
+  - Focused `P03` proof also exists in
+    `results-matrix-ha/20260312T091947Z-proxy81-acb894c-gateway373-97da9f9-p03-rerun/index.json`,
+    which passed before the parent full-suite rerun
 
 ## Active Focus
 
-- `M1` implementation remains in progress.
-- `GW-03` and its `GW-03A/B` review follow-ups are settled and merged.
-- The remaining code-side blocker inside `M1` is `ISSUE-GW-18`, now linked as
-  `Project-Helianthus/helianthus-ebusgateway#351`.
-- `ISSUE-GW-18` now has a repo-owned passive suite and a first clean full
-  artifact: `results-matrix-ha/20260311T062516Z-gw18-passive-smoke-v4`.
-- That artifact exposed two explicit follow-up blockers:
-  - `ISSUE-GW-18A` -> `Project-Helianthus/helianthus-ebusgateway#352`
-  - `ISSUE-GW-18B` -> `Project-Helianthus/helianthus-ebusgateway#353`
-- `ISSUE-GW-18A` now has an active branch-only regulator-loss recovery commit:
-  - `28fad8b` `GW-18A: recover B524 root after partial preload`
-  - this work is committed on `issue/351-passive-topology-smoke` / PR `#354`
-    but is not merged, so `ISSUE-GW-18A` remains open until reruns prove the
-    passive lane green again
-- `ISSUE-GW-18B` no longer reproduces as a startup-fatal product bug on the
-  active branch. Reruns `results-matrix-ha/20260311T064844Z-gw18b-p06-v1` and
-  `results-matrix-ha/20260311T065409Z-gw18b-p06-v2` show the gateway staying
-  alive and passive metrics degrading to `unsupported_or_misconfigured`
-  correctly.
-- Those reruns exposed a new harness-side blocker:
-  - `ISSUE-GW-18C` -> `Project-Helianthus/helianthus-ebusgateway#355`
-  - matrix `ebusd` config/image compatibility still prevents `P06` from
-    proving non-empty active discovery cleanly
-- Active branch state for `ISSUE-GW-18` is `Project-Helianthus/helianthus-ebusgateway#354`
-  on `issue/351-passive-topology-smoke`, currently draft and not merge-ready
-  with seven commits on
-  top of `main`:
-  - `e322770` `Add passive topology smoke suite and gates`
-  - `8174de1` `Degrade passive ebusd-tcp startup cleanly`
-  - `2397cea` `Prefer compatible ebusd matrix config fallback`
-  - `28fad8b` `GW-18A: recover B524 root after partial preload`
-  - `41b35b0` `GW-18: fix passive script review findings`
-  - `d5e4011` squash-merge of stacked PR `#357` (`ISSUE-GW-18D`) into
-    `issue/351-passive-topology-smoke`
-  - `acad9a09` squash-merge of stacked PR `#359` (`ISSUE-GW-18E`) into
-    `issue/351-passive-topology-smoke`
-- Commit `41b35b0` addresses Codex review findings in the passive gate/wrapper
-  script slice; it does not change the plan status that PR `#354` remains
-  draft and not merge-ready while `#352`, `#353`, and `#355` stay open.
-- The latest incremental branch validation passed local `./scripts/ci_local.sh`
-  only with explicit `TRANSPORT_GATE_OWNER_OVERRIDE` and
-  `PASSIVE_SMOKE_GATE_OWNER_OVERRIDE`; this is sufficient to record branch
-  progress, not to claim the passive proof lane is green or the PR is
-  merge-ready.
-- Commit `28fad8b` has now also been validated live through a full HA
-  addon-image rebuild and restart, not via `/data` binary override.
-- The passive proof lane remains red and is still tracked through
-  `ISSUE-GW-18A` / `#352`, `ISSUE-GW-18B` / `#353`, and `ISSUE-GW-18C` / `#355`.
-- Targeted `P01` / `P02` reruns have now isolated a shared contract problem:
-  - the common blocker is the direct-adapter passive support/proof contract,
-    not two separate product failures
-  - that slice is now being worked as `ISSUE-GW-18D` in
-    `helianthus-ebusgateway` via issue `#356` and stacked PR `#357` on top of
-    `#354`
-  - stacked PR `#357` received a fresh clean Codex result and was then
-    squash-merged into `issue/351-passive-topology-smoke` as `d5e4011`
-  - the parent proof lane remains PR `#354`, still draft and still not
-    merge-ready because passive proof is not closed yet
-- A second stacked slice is now merged behind the same parent proof lane:
-  - `ISSUE-GW-18E` (`Project-Helianthus/helianthus-ebusgateway#358`) required
-    active confirmation before imported-only startup success
-  - stacked PR `#359` was squash-merged into `issue/351-passive-topology-smoke`
-    as `acad9a09`
-  - the next active proof step on the updated parent branch is a resumed
-    `GW-18` rerun starting with `P03`
-- A third stacked slice is now open for the resumed `P03` proof path:
-  - `ISSUE-GW-18F` (`Project-Helianthus/helianthus-ebusgateway#360`) targets
-    the `P03` proxy-single startup discovery timeout
-  - stacked PR `#361` from branch `issue/360-p03-proxy-single-startup-timeout`
-    is open against parent branch `issue/351-passive-topology-smoke`
-  - latest stacked head is `8529569`
-  - this is still proof-remediation work behind parent PR `#354`; it does not
-    claim proof success or milestone closure
-- A fourth stacked slice is now open for the same `P03` proof path:
-  - `ISSUE-GW-18G` (`Project-Helianthus/helianthus-ebusgateway#362`) targets
-    active startup discovery through proxy-single `ENS`
-  - stacked PR `#363` from branch
-    `issue/362-p03-active-startup-through-proxy-single` is open against
-    stacked branch `issue/360-p03-proxy-single-startup-timeout`
-  - latest stacked head is `916bc455a8de11bb6be4c0e2e524478ef758cdd1`
-  - parent PR `#354` remains open/draft, `#361` remains open and not
-    merge-ready, and this is still proof-remediation work rather than proof
-    success
-- A fifth stacked slice is now open for the same `P03` proof path:
-  - `ISSUE-GW-18H` (`Project-Helianthus/helianthus-ebusgateway#364`) targets
-    the startup source-address contract on proxy-single `ENS`
-  - stacked PR `#365` from branch
-    `issue/364-p03-startup-source-addr-contract` is open against
-    stacked branch `issue/362-p03-active-startup-through-proxy-single`
-  - latest stacked head is `78eacdb239f11654861eb829f37e0ec4fc36aa6a`
-  - `#363` remains open and not merge-ready, parent PR `#354` remains
-    open/draft, and this is still proof-remediation work rather than proof
-    success
-- A sixth stacked slice is now active for the same `P03` proof path:
-  - `ISSUE-GW-18I` (`Project-Helianthus/helianthus-ebusgateway#366`) targets
-    the passive proxy-session contract on proxy-single `ENS`
-  - the latest combined proof rerun used proxy PR `#81` head `acb894c`
-    together with gateway PR `#373` head `97da9f9`
-  - rerun artifact
-    `results-matrix-ha/20260312T091947Z-proxy81-acb894c-gateway373-97da9f9-p03-rerun`
-    is `PASS`
-  - `semantic_startup_phase_transition ... to=LIVE_READY` was reached with all
-    four devices present (`NETX3`, `BAI00`, `BASV2`, `VR_71`)
-  - passive warmup reached `available`
-  - gateway harness PR `#375` was clean and folded upward into parent gateway
-    lane `#373` as squash commit `97da9f9422a17951a94b1854783ce8f86be9a8da`
-  - HA was restored cleanly afterward with no override artifacts
-- Current live HA runtime on that rebuilt image confirms branch-slice recovery,
-  but still should not be treated as proof-closed:
-  - the reported regulator-loss defect recovered live: `BASV2` and `VR_71`
-    reappeared after the rebuilt addon image was deployed
-  - `system`, `dhw`, and `circuits` recovered live as well
-  - startup reached `LIVE_READY`
-  - this is branch validation for the `28fad8b` fix, not evidence that the
-    passive proof lane is green or that PR `#354` is merge-ready
-- `90-issue-map.md` is now being used as the canonical backfill surface for
-  merged code-repo execution references.
-- The same-cycle docs follow-up for the `GW-18A` startup/discovery fix is now
-  active in `helianthus-docs-ebus`:
-  - `ISSUE-DOC-05` -> issue `Project-Helianthus/helianthus-docs-ebus#206`
-  - PR `Project-Helianthus/helianthus-docs-ebus#207` carries the current docs
-    lane for that follow-up and was amended to document the passive transport
-    contract discovered in the `P01` / `P02` proof work
-  - PR `#207` also received a fresh clean Codex result and is ready from the
-    review-watch perspective, but it has not been merged yet
-- Documentation-side canonical IDs `ISSUE-DOC-01..04` still need explicit
-  linkage and reconciliation against the current code-repo reality.
+- No `GW-18` code or proof blocker remains on merged `main`.
+- Gateway follow-up slices `ISSUE-GW-18A` through `ISSUE-GW-18L`, plus the
+  harness slice `ISSUE-GW-18M`, are now merged into the parent `GW-18` lane and
+  proven by the focused `P03` rerun plus the final parent artifact.
+- `ISSUE-DOC-05` is merged on docs `main`; the same-cycle passive transport
+  contract is no longer a pending doc-gate item.
+- The overall workstream still stays in `implementing` because the earlier
+  docs-canonicalization items `ISSUE-DOC-01..04` are not yet linked/merged on
+  `helianthus-docs-ebus` `main`, and `M2` has not started yet.
 
 ## Blockers
 
-- The imported seed does not yet have a historical Discussion archive; it uses
-  `bootstrap-seed-import-no-discussion-yet` as the source marker in `plan.yaml`.
+- The imported seed still does not have a historical Discussion archive; it
+  uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
+  `plan.yaml`.
 - Documentation-side canonical linkage is still incomplete in
-  `helianthus-docs-ebus`; `ISSUE-DOC-05` is now active via `#206` / PR `#207`,
-  but `ISSUE-DOC-01..04` remain unlinked here.
-- `ISSUE-GW-18` is now linked as
-  `Project-Helianthus/helianthus-ebusgateway#351`, and the passive-topology
-  smoke lane now exists as repo-owned code plus runtime artifacts, but the
-  first clean suite run failed all six cases.
-- `ISSUE-GW-18A` still blocks supported passive-capable topologies (`P01..P05`)
-  from being treated as proven in `M1`; commit `28fad8b` is an unmerged branch
-  fix, not milestone-closing evidence.
-- `ISSUE-GW-18B` is still open until the branch work lands, but its remaining
-  proof gap is no longer a startup-fatal gateway bug.
-- `ISSUE-GW-18C` blocks `P06` from being treated as fully proven in `M1`
-  because the matrix `ebusd` side still fails config compatibility before it
-  can provide clean active discovery evidence.
-- `ISSUE-GW-18D` is now the active slice for the shared `P01` / `P02`
-  direct-adapter passive contract blocker; until that gateway/docs pair lands,
-  those cases should be treated as contract-unproven rather than separately
-  failing for unknown reasons.
-- `ISSUE-GW-18E` is now merged into the parent `issue/351` branch, but only as
-  branch evidence behind draft PR `#354`; it does not close the milestone until
-  proof reruns on the updated branch succeed.
-- `ISSUE-GW-18F` is now active as the next stacked remediation slice for `P03`;
-  until it lands and the rerun succeeds, parent PR `#354` remains draft and the
-  proof lane remains open.
-- `ISSUE-GW-18G` is now active as a further stacked remediation slice for
-  `P03`; until it lands and the rerun succeeds, parent PR `#354` remains draft,
-  PR `#361` remains open, and the proof lane remains open.
-- `ISSUE-GW-18H` is now active as a further stacked remediation slice for
-  `P03`; until it lands and the rerun succeeds, PR `#363` remains open and not
-  merge-ready, parent PR `#354` remains draft, and the proof lane remains
-  open.
-- `ISSUE-GW-18I` remains active as a further stacked remediation slice for
-  `P03`, and rerun artifact
-  `results-matrix-ha/20260312T091947Z-proxy81-acb894c-gateway373-97da9f9-p03-rerun`
-  now passes: `semantic_startup_phase_transition ... to=LIVE_READY` was reached
-  with all four devices present, passive warmup reached `available`, and HA was
-  restored cleanly afterward with no override artifacts. This clears the prior
-  `P03` blocker without changing the surrounding issue or milestone state yet.
-- Live HA validation now shows the reported regulator/system-loss symptom
-  recovered on the rebuilt addon image, but that recovery is still branch-only
-  evidence and does not clear the red passive proof lane.
-- Doc-gate is now explicitly `YES` for the active `GW-18A` branch state, so a
-  same-cycle docs follow-up is required before the gateway work can be treated
-  as merge-ready.
-- `ISSUE-DOC-05` is now active on issue `#206` / PR `#207`; it is still
-  required before `M1` can close and can no longer be treated as deferred
-  cleanup after the gateway branch lands.
+  `helianthus-docs-ebus` `main`; `ISSUE-DOC-01..04` remain unlinked/unmerged.
+- `M2` and later milestones are still blocked on that earlier docs
+  canonicalization plus fresh issue creation from the merged `M1` baseline.
 
 ## Next Actions
 
-1. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link the
-   imported workstream
-2. settle `ISSUE-GW-18A`, `ISSUE-GW-18B`, and `ISSUE-GW-18C`, then rerun the
-   passive suite until the `GW-18` proof lane is green again
-3. keep the live rebuilt-image recovery result as branch evidence only until the
-   passive suite reruns go green, and treat the current `P03` pass as branch
-   evidence rather than milestone closure by itself
-4. continue the remaining combined proof reruns on proxy PR `#81` and gateway
-   lane `#373`, keeping HA restored cleanly with no override artifacts between
-   runs, before resuming milestone closure work
-5. settle `ISSUE-DOC-05` and then close `M1`
+1. backfill or merge the pending `ISSUE-DOC-01..04` docs-canonicalization work
+   onto `helianthus-docs-ebus` `main`
+2. open the next `M2` MCP-first execution lane from the merged `M1` baseline
+3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
+   the imported workstream
