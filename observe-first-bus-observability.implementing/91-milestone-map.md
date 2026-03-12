@@ -19,12 +19,14 @@
 - `M8` is the explicit parallel-track carve-out and does not start before the
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
 - `M0` remains implementing only because the remaining docs-canonicalization
-  items `ISSUE-DOC-03` and `ISSUE-DOC-04` are still unlinked/unmerged on
-  `helianthus-docs-ebus` `main`. `ISSUE-DOC-01` is merged via docs issue
+  item `ISSUE-DOC-04` is still unlinked/unmerged on `helianthus-docs-ebus`
+  `main`. `ISSUE-DOC-01` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`;
   `ISSUE-DOC-02` is now merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#211`, PR `#212`, merge commit
-  `577ac0d`. The replay-corpus half of `M0` is already merged through
+  `577ac0d`; `ISSUE-DOC-03` is now merged via docs issue
+  `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, merge commit
+  `7620102`. The replay-corpus half of `M0` is already merged through
   `ISSUE-EG-00` and `ISSUE-GW-00`.
 - `M1` is now merged on `main`: gateway PR `#354` (`ef4e64e`), proxy PR `#81`
   (`a141fe0`), and docs PR `#207` (`4323a4c`) all landed on 2026-03-12.
@@ -47,7 +49,7 @@
   `P06` proves the `ebusd-tcp` negative-path contract with
   `passive_mode=unsupported_or_misconfigured` on merged heads.
 - `M2` remains queued until the earlier `M0` docs-canonicalization backlog
-  (`ISSUE-DOC-03` / `ISSUE-DOC-04`) is reconciled and a fresh MCP-first issue
-  set is opened from the merged `M1` baseline.
+  (`ISSUE-DOC-04`) is reconciled and a fresh MCP-first issue set is opened
+  from the merged `M1` baseline.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

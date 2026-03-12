@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0 docs canonical linkage (DOC-03/04 remaining); M1 merged on main`
+- Current milestone focus: `M0 docs canonical linkage (DOC-04 remaining); M1 merged on main`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -31,6 +31,8 @@ State: `implementing`
     `4323a4c281dc6cdc776805bc82acf81b4cad3e76`
   - `ISSUE-DOC-02` is now merged in `helianthus-docs-ebus` via issue `#211`,
     PR `#212`, merge commit `577ac0d37cde1ec95dec277bcba0a35fa32648f8`
+  - `ISSUE-DOC-03` is now merged in `helianthus-docs-ebus` via issue `#213`,
+    PR `#214`, merge commit `7620102dec68f6a803739974a81e0e6d0366b4a4`
   - Final parent proof artifact:
     `results-matrix-ha/20260312T094435Z-pr354-parent-passive-p01-p06/index.json`
   - Fresh merged-head passive rerun:
@@ -62,12 +64,16 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#206` are all closed.
 - `ISSUE-DOC-05` is merged on docs `main`; the same-cycle passive transport
   contract is no longer a pending doc-gate item.
+- `ISSUE-DOC-03` is merged on docs `main`; only `ISSUE-DOC-04` remains from
+  the original `M0` docs-canonicalization backlog.
 - The overall workstream still stays in `implementing` because the remaining
-  docs-canonicalization items `ISSUE-DOC-03..04` are not yet linked/merged on
+  docs-canonicalization item `ISSUE-DOC-04` is not yet linked/merged on
   `helianthus-docs-ebus` `main`; `ISSUE-DOC-01` is exhausted via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`,
   `ISSUE-DOC-02` is merged via docs issue
-  `Project-Helianthus/helianthus-docs-ebus#211`, PR `#212`, and `M2` has not
+  `Project-Helianthus/helianthus-docs-ebus#211`, PR `#212`,
+  `ISSUE-DOC-03` is merged via docs issue
+  `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, and `M2` has not
   started yet.
 
 ## Blockers
@@ -76,14 +82,14 @@ State: `implementing`
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
 - Documentation-side canonical linkage is still incomplete in
-  `helianthus-docs-ebus` `main`; `ISSUE-DOC-03..04` remain unlinked/unmerged.
+  `helianthus-docs-ebus` `main`; `ISSUE-DOC-04` remains unlinked/unmerged.
 - `M2` and later milestones are still blocked on that earlier docs
   canonicalization plus fresh issue creation from the merged `M1` baseline.
 
 ## Next Actions
 
-1. backfill or merge the pending `ISSUE-DOC-03..04` docs-canonicalization work
-   onto `helianthus-docs-ebus` `main`
+1. open and merge `ISSUE-DOC-04` to finish the pending `M0`
+   docs-canonicalization work on `helianthus-docs-ebus` `main`
 2. open the next `M2` MCP-first execution lane from the merged `M1` baseline
 3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream
