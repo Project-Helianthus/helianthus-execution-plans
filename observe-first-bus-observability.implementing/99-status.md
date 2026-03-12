@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1 merged on main; M2 lane not yet opened`
+- Current milestone focus: `M0/M1 merged on main; M2 active with ISSUE-GW-04 merged and ISSUE-DOC-06 next`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -50,6 +50,16 @@ State: `implementing`
   - Focused `P03` proof also exists in
     `results-matrix-ha/20260312T091947Z-proxy81-acb894c-gateway373-97da9f9-p03-rerun/index.json`,
     which passed before the parent full-suite rerun
+  - `ISSUE-GW-04` is now merged in `helianthus-ebusgateway` via issue `#376`,
+    PR `#377`, merge commit `3daf4beed9d6406f7af52869eea1c53ef14f2f62`
+  - Fresh `GW-04` passive proof artifact
+    `results-matrix-ha/20260312T175648Z-pr377-gw04-26ee758-passive-p01-p06-recovery/index.json`
+    records `P01..P06` all `pass`
+  - The fresh standard exclusive-handoff recovery probe
+    `results-matrix-ha/20260312T175250Z-pr377-gw04-26ee758-recovery/full88-probe-t01-after-adapter-reboot/index.json`
+    remained `blocked-infra` with `infra_reason=adapter_no_signal` after one
+    adapter reboot, so the merge used an owner override only after the artifact
+    pair proved the official addon/runtime was restored cleanly afterward
 
 ## Active Focus
 
@@ -75,19 +85,24 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, and
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
-- The overall workstream still stays in `implementing` because no fresh `M2`
-  MCP-first issue set has been opened from the merged `M1` baseline yet.
+- The overall workstream stays in `implementing` because `M2` is now open but
+  not yet complete: the gateway half is merged, while the docs freeze in
+  `ISSUE-DOC-06` is now the active gate before `M3`.
 
 ## Blockers
 
 - The imported seed still does not have a historical Discussion archive; it
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
-- `M2` and later milestones are still blocked on fresh issue creation from the
-  merged `M1` baseline.
+- `ISSUE-DOC-06` is now the gating blocker for the rest of `M2`; until the
+  merged MCP surface is frozen against real output, `ISSUE-GW-05` and all of
+  `M3+` remain blocked.
 
 ## Next Actions
 
-1. open the next `M2` MCP-first execution lane from the merged `M1` baseline
-2. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
+1. execute `ISSUE-DOC-06` to freeze the merged MCP contract against the
+   `GW-04` merged head and proof artifacts
+2. open `ISSUE-GW-05` only after `ISSUE-DOC-06` lands, keeping the `MCP ->
+   GraphQL` sequencing intact
+3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream
