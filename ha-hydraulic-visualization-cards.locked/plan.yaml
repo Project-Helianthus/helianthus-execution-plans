@@ -1,0 +1,11 @@
+slug: ha-hydraulic-visualization-cards
+title: Hydraulic Visualization Lovelace Cards
+state: locked
+source_discussion: adversarial-convergence-2026-03-13-opus-r5
+target_repos:
+  - helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-03-13
+current_milestone: M0
