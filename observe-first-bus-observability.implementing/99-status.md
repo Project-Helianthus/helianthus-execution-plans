@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3 merged on main; M4 active with ISSUE-GW-08 next`
+- Current milestone focus: `M0/M1/M2/M3 merged on main; M4 active with ISSUE-GW-09 next`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -66,6 +66,9 @@ State: `implementing`
   - `ISSUE-GW-07` is now merged/closed in `helianthus-ebusgateway` via issue
     `#382`, PR `#385`, merge commit
     `9e9e6904e0337812ffa87591a83ad6f4a5c0ea44`
+  - `ISSUE-GW-08` is now merged/closed in `helianthus-ebusgateway` via issue
+    `#386`, PR `#387`, merge commit
+    `23e46011f3c57d08148cf3cdd51acd6958303f90`
   - Fresh `GW-04` passive proof artifact
     `results-matrix-ha/20260312T175648Z-pr377-gw04-26ee758-passive-p01-p06-recovery/index.json`
     records `P01..P06` all `pass`
@@ -100,9 +103,11 @@ State: `implementing`
   slice no longer blocks `M4`.
 - `ISSUE-GW-07` is now merged/closed on gateway `main`, so the bounded
   `ShadowCache` slice no longer blocks `M4`.
+- `ISSUE-GW-08` is now merged/closed on gateway `main`, so the feature-flag
+  layer no longer blocks `M4`.
 - `M3` is now fully merged on `main`, and `M4` remains the active milestone.
-- `ISSUE-GW-08` is now the active critical path for the watch/shadow work that
-  continues `M4` after the merged bounded `ShadowCache` slice.
+- `ISSUE-GW-09` is now the active critical path for the watch/shadow work that
+  continues `M4` after the merged feature-flag slice.
 - The original `M0` docs-canonicalization backlog is now fully merged on docs
   `main`; `ISSUE-DOC-01` is exhausted via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`,
@@ -113,7 +118,7 @@ State: `implementing`
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
 - The overall workstream stays in `implementing` on a fully merged `M3`
-  baseline, with `ISSUE-GW-08` now carrying the next active delivery lane in
+  baseline, with `ISSUE-GW-09` now carrying the next active delivery lane in
   `M4`.
 
 ## Blockers
@@ -125,8 +130,8 @@ State: `implementing`
 
 ## Next Actions
 
-1. execute `ISSUE-GW-08` to continue `M4` with the feature-flag layer on top
-   of the merged `ISSUE-GW-07` bounded `ShadowCache` baseline
+1. execute `ISSUE-GW-09` to continue `M4` with the family policy engine on top
+   of the merged `ISSUE-GW-08` feature-flag baseline
 2. keep the `MCP -> GraphQL -> watch/shadow` sequencing intact as `M4`
    advances through the gateway watch/shadow slices
 3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
