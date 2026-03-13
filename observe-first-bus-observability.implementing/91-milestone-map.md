@@ -63,7 +63,9 @@
 - `M4` remains active on `main`: `ISSUE-GW-08` landed via gateway issue
   `Project-Helianthus/helianthus-ebusgateway#386`, PR `#387`, merge commit
   `23e46011f3c57d08148cf3cdd51acd6958303f90`.
-- `ISSUE-GW-09` is now the next critical path item on top of the merged
-  `ISSUE-GW-08` feature-flag baseline inside `M4`.
+- `ISSUE-GW-09` is now merged/closed on gateway `main` via issue
+  `Project-Helianthus/helianthus-ebusgateway#388`, PR `#389`, merge commit
+  `db09bbae687912a16fbc9f0a2f3a5616b84931e8`.
+- `ISSUE-DOC-08` is now the next critical path item inside `M4`.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
