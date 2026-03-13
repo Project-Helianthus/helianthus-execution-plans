@@ -6,8 +6,8 @@
 | `M1` | low-level instrumentation, passive tap, smoke coverage, and docs closure | `helianthus-ebusgo`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M0` | merged |
 | `M2` | MCP-first rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M1` | merged |
 | `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | merged |
-| `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | active |
-| `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | queued |
+| `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | merged |
+| `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | active |
 | `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | queued |
 | `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | queued |
 | `M8` | tinyebus parallel track | `helianthus-tinyebus`, `helianthus-docs-ebus` | `ISSUE-GW-03` and `ISSUE-DOC-05` frozen | queued |
@@ -60,12 +60,15 @@
   docs issue `Project-Helianthus/helianthus-docs-ebus#219`, PR `#220`, merge
   commit `cbdf89aa795083093631da7849df5e12e8d448c5`. The GraphQL contract is
   now frozen on the merged `M3` surface.
-- `M4` remains active on `main`: `ISSUE-GW-08` landed via gateway issue
+- `M4` is now merged on `main`: `ISSUE-GW-08` landed via gateway issue
   `Project-Helianthus/helianthus-ebusgateway#386`, PR `#387`, merge commit
   `23e46011f3c57d08148cf3cdd51acd6958303f90`.
 - `ISSUE-GW-09` is now merged/closed on gateway `main` via issue
   `Project-Helianthus/helianthus-ebusgateway#388`, PR `#389`, merge commit
   `db09bbae687912a16fbc9f0a2f3a5616b84931e8`.
-- `ISSUE-DOC-08` is now the next critical path item inside `M4`.
+- `ISSUE-DOC-08` is now merged/closed on docs `main` via issue
+  `Project-Helianthus/helianthus-docs-ebus#221`, PR `#222`, merge commit
+  `bf8587f41dedb3be8372b30cf7cd667abc1c0226`.
+- `M5` is now active with `ISSUE-GW-10` as the next critical path item.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3 merged on main; M4 active with ISSUE-DOC-08 next`
+- Current milestone focus: `M0/M1/M2/M3/M4 merged on main; M5 active with ISSUE-GW-10 next`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -105,12 +105,13 @@ State: `implementing`
   `ShadowCache` slice no longer blocks `M4`.
 - `ISSUE-GW-08` is now merged/closed on gateway `main`, so the feature-flag
   layer no longer blocks `M4`.
-- `M3` is now fully merged on `main`, and `M4` remains the active milestone.
+- `M3` is now fully merged on `main`, and `M4` is also fully merged on `main`.
 - `ISSUE-GW-09` is now merged/closed on gateway `main` via issue
   `#388`, PR `#389`, merge commit
   `db09bbae687912a16fbc9f0a2f3a5616b84931e8`.
-- `ISSUE-DOC-08` is now the active critical path for the remaining `M4`
-  docs-gate closure after the merged `ISSUE-GW-09` family-policy slice.
+- `ISSUE-DOC-08` is now merged/closed on docs `main` via issue `#221`,
+  PR `#222`, merge commit `bf8587f41dedb3be8372b30cf7cd667abc1c0226`.
+- `M5` is now active, with `ISSUE-GW-10` as the next canonical critical path.
 - The original `M0` docs-canonicalization backlog is now fully merged on docs
   `main`; `ISSUE-DOC-01` is exhausted via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`,
@@ -120,22 +121,22 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, and
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
-- The overall workstream stays in `implementing` on a fully merged `M3`
-  baseline, with `ISSUE-DOC-08` now carrying the next active delivery lane in
-  `M4`.
+- The overall workstream stays in `implementing` on a fully merged `M4`
+  baseline, with `ISSUE-GW-10` now carrying the next active delivery lane in
+  `M5`.
 
 ## Blockers
 
 - The imported seed still does not have a historical Discussion archive; it
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
-- `M5+` remains blocked behind the active `M4` implementation lane.
+- `M6+` remains blocked behind the active `M5` implementation lane.
 
 ## Next Actions
 
-1. execute `ISSUE-DOC-08` to close the `M4` docs gate on top of the merged
-   `ISSUE-GW-09` family-policy baseline
-2. keep the `MCP -> GraphQL -> watch/shadow` sequencing intact as `M4`
-   advances through the gateway watch/shadow slices
+1. execute `ISSUE-GW-10` to start `M5` scheduler integration on top of the
+   merged `M4` watch baseline
+2. keep the `MCP -> GraphQL -> watch/shadow` sequencing intact as `M5`
+   advances through scheduler/watch-summary slices
 3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream

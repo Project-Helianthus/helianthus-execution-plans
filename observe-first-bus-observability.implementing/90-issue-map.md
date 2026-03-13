@@ -64,8 +64,8 @@ Status legend:
 | `ISSUE-GW-07` | `helianthus-ebusgateway` | Implement bounded `ShadowCache` | merged | issue `Project-Helianthus/helianthus-ebusgateway#382`, PR `#385`, merge commit `9e9e6904e0337812ffa87591a83ad6f4a5c0ea44`; `ISSUE-GW-07` is now merged/closed on gateway `main` |
 | `ISSUE-GW-08` | `helianthus-ebusgateway` | Add feature flags before behavior changes | merged | issue `Project-Helianthus/helianthus-ebusgateway#386`, PR `#387`, merge commit `23e46011f3c57d08148cf3cdd51acd6958303f90`; `ISSUE-GW-08` is now merged/closed on gateway `main` |
 | `ISSUE-GW-09` | `helianthus-ebusgateway` | Implement family policy engine | merged | issue `Project-Helianthus/helianthus-ebusgateway#388`, PR `#389`, merge commit `db09bbae687912a16fbc9f0a2f3a5616b84931e8`; `ISSUE-GW-09` is now merged/closed on gateway `main` |
-| `ISSUE-DOC-08` | `helianthus-docs-ebus` | Update architecture docs with watch, flags, and family rules | active | next `M4` critical path after merged `ISSUE-GW-09`; target repo issue/PR not yet linked here |
-| `ISSUE-GW-10` | `helianthus-ebusgateway` | Integrate `ShadowCache` into `SemanticReadScheduler` | blocked | not yet linked |
+| `ISSUE-DOC-08` | `helianthus-docs-ebus` | Update architecture docs with watch, flags, and family rules | merged | issue `Project-Helianthus/helianthus-docs-ebus#221`, PR `#222`, merge commit `bf8587f41dedb3be8372b30cf7cd667abc1c0226`; `ISSUE-DOC-08` is now merged/closed on docs `main` |
+| `ISSUE-GW-10` | `helianthus-ebusgateway` | Integrate `ShadowCache` into `SemanticReadScheduler` | active | next `M5` critical path after merged `ISSUE-DOC-08`; target repo issue/PR not yet linked here |
 | `ISSUE-GW-11` | `helianthus-ebusgateway` | Add watch-summary surfaces | blocked | not yet linked |
 | `ISSUE-GW-12` | `helianthus-ebusgateway` | Add watch-efficiency metrics | blocked | not yet linked |
 | `ISSUE-DOC-09` | `helianthus-docs-ebus` | Freeze watch-summary and scheduler/shadow contracts | blocked | not yet linked |
