@@ -68,13 +68,13 @@ Status legend:
 | `ISSUE-GW-10` | `helianthus-ebusgateway` | Integrate `ShadowCache` into `SemanticReadScheduler` | merged | issue `Project-Helianthus/helianthus-ebusgateway#390`, PR `#391`, merge commit `75ee6aa639bb44e8e859835293ae3912dc4d7b48`; `ISSUE-GW-10` is now merged/closed on gateway `main` |
 | `ISSUE-GW-11` | `helianthus-ebusgateway` | Add watch-summary surfaces | merged | issue `Project-Helianthus/helianthus-ebusgateway#392`, PR `#393`; `ISSUE-GW-11` is now merged/closed on gateway `main` |
 | `ISSUE-GW-12` | `helianthus-ebusgateway` | Add watch-efficiency metrics | merged | issue `Project-Helianthus/helianthus-ebusgateway#394`, PR `#395`; `ISSUE-GW-12` is now merged/closed on gateway `main` |
-| `ISSUE-DOC-09` | `helianthus-docs-ebus` | Freeze watch-summary and scheduler/shadow contracts | active | next `M5` critical path after merged `ISSUE-GW-12`; target repo issue/PR not yet linked here |
+| `ISSUE-DOC-09` | `helianthus-docs-ebus` | Freeze watch-summary and scheduler/shadow contracts | merged | PR `#224` (clean merge); `ISSUE-DOC-09` is now merged/closed and the `M5` doc-gate is closed |
 
 ## M6-M9
 
 | Canonical ID | Repo | Summary | Status | Linked execution |
 | --- | --- | --- | --- | --- |
-| `ISSUE-GW-13` | `helianthus-ebusgateway` | Semantic publish groundwork for observe-first rollout | blocked | not yet linked |
+| `ISSUE-GW-13` | `helianthus-ebusgateway` | Semantic publish groundwork for observe-first rollout | active | next `M6` critical path after merged `ISSUE-DOC-09`; target repo issue/PR not yet linked here |
 | `ISSUE-GW-14` | `helianthus-ebusgateway` | Portal rollout work for observe-first evidence surfaces | blocked | not yet linked |
 | `ISSUE-DOC-10` | `helianthus-docs-ebus` | Freeze Portal and semantic publish docs for M6 | blocked | not yet linked |
 | `ISSUE-GW-15` | `helianthus-ebusgateway` | Proof gate and default-flip preparation | blocked | not yet linked |

@@ -7,8 +7,8 @@
 | `M2` | MCP-first rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M1` | merged |
 | `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | merged |
 | `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | merged |
-| `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | active |
-| `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | queued |
+| `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | merged |
+| `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | active |
 | `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | queued |
 | `M8` | tinyebus parallel track | `helianthus-tinyebus`, `helianthus-docs-ebus` | `ISSUE-GW-03` and `ISSUE-DOC-05` frozen | queued |
 | `M9` | Home Assistant consumer rollout and final validation | `helianthus-ha-integration`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M7` | queued |
@@ -76,6 +76,8 @@
   `Project-Helianthus/helianthus-ebusgateway#392`, PR `#393`.
 - `ISSUE-GW-12` is now merged/closed on gateway `main` via issue
   `Project-Helianthus/helianthus-ebusgateway#394`, PR `#395`.
-- `M5` remains active with `ISSUE-DOC-09` as the next critical path item.
+- `ISSUE-DOC-09` is now merged/closed on docs `main` via PR `#224`.
+- `M5` is now fully merged on `main`, and `M6` is now active with
+  `ISSUE-GW-13` as the next canonical critical path item.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
