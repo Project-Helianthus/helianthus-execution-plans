@@ -74,8 +74,8 @@ Status legend:
 
 | Canonical ID | Repo | Summary | Status | Linked execution |
 | --- | --- | --- | --- | --- |
-| `ISSUE-GW-13` | `helianthus-ebusgateway` | Semantic publish groundwork for observe-first rollout | active | next `M6` critical path after merged `ISSUE-DOC-09`; target repo issue/PR not yet linked here |
-| `ISSUE-GW-14` | `helianthus-ebusgateway` | Portal rollout work for observe-first evidence surfaces | blocked | not yet linked |
+| `ISSUE-GW-13` | `helianthus-ebusgateway` | Semantic publish groundwork for observe-first rollout | merged | issue `Project-Helianthus/helianthus-ebusgateway#396`, PR `#397`, merge commit `9f4a1df2837cbf075c03e9dc65b7419dceb9ae47`; required HA smoke passed externally on 2026-03-14 |
+| `ISSUE-GW-14` | `helianthus-ebusgateway` | Portal rollout work for observe-first evidence surfaces | active | next `M6` critical path after merged `ISSUE-GW-13`; target repo issue/PR not yet linked here |
 | `ISSUE-DOC-10` | `helianthus-docs-ebus` | Freeze Portal and semantic publish docs for M6 | blocked | not yet linked |
 | `ISSUE-GW-15` | `helianthus-ebusgateway` | Proof gate and default-flip preparation | blocked | not yet linked |
 | `ISSUE-GW-16` | `helianthus-ebusgateway` | Final validation and rollout gate work | blocked | not yet linked |
