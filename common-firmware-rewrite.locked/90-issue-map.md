@@ -15,6 +15,13 @@ Cross-workstream note:
 - observe-first canonical IDs `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed
   here as deferred parallel-track tinyebus work.
 
+## Cross-Workstream Re-Home Mapping
+
+| Observe-first canonical ID | Re-home status | Primary owner in this plan | Follow-up owner(s) in this plan | Notes |
+| --- | --- | --- | --- | --- |
+| `ISSUE-TE-01` | deferred/re-homed | `ISSUE-CFW-T0-02` | `ISSUE-CFW-M1-02`, `ISSUE-CFW-M2-01` | tinyebus groundwork now executes under the firmware rewrite T0->M2 chain |
+| `ISSUE-TE-02` | deferred/re-homed | `ISSUE-CFW-M3-01` | `ISSUE-CFW-M4-01`, `ISSUE-CFW-M8-01` | tinyebus follow-up and optional augmentation now execute under firmware rewrite M3+ |
+
 ## T0
 
 | Canonical ID | Repo | Summary | Status | Linked execution |
