@@ -10,7 +10,7 @@
 | `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | merged |
 | `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | active |
 | `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | queued |
-| `M8` | tinyebus parallel track | `helianthus-tinyebus`, `helianthus-docs-ebus` | `ISSUE-GW-03` and `ISSUE-DOC-05` frozen | queued |
+| `M8` | tinyebus parallel track (re-homed to `common-firmware-rewrite.locked`) | `helianthus-tinyebus`, `helianthus-docs-ebus` | `ISSUE-GW-03` and `ISSUE-DOC-05` frozen | queued |
 | `M9` | Home Assistant consumer rollout and final validation | `helianthus-ha-integration`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M7` | queued |
 
 ## Ordering Rules
@@ -18,6 +18,9 @@
 - The default order is `M0 -> M1 -> M2 -> M3 -> M4 -> M5 -> M6 -> M7 -> M9`.
 - `M8` is the explicit parallel-track carve-out and does not start before the
   shared metric contract freezes at `ISSUE-GW-03` and `ISSUE-DOC-05`.
+- In this observe-first plan, `ISSUE-TE-01` and `ISSUE-TE-02` are now tracked
+  as deferred and re-homed to `common-firmware-rewrite.locked`; only the
+  `ISSUE-DOC-12` final-rollout-doc tail remains here.
 - `M0` is now fully merged on `main`. `ISSUE-DOC-01` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`;
   `ISSUE-DOC-02` is now merged via docs issue

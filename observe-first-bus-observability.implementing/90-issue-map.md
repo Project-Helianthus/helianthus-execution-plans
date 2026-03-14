@@ -9,6 +9,7 @@ Status legend:
 - `active`: current execution focus
 - `merged`: canonical work merged on the target repo `main`
 - `blocked`: depends on earlier milestone completion
+- `deferred`: intentionally routed to a parallel workstream, not on this plan's critical path
 
 ## M0
 
@@ -80,7 +81,7 @@ Status legend:
 | `ISSUE-GW-15` | `helianthus-ebusgateway` | Proof gate and default-flip preparation | blocked | not yet linked |
 | `ISSUE-GW-16` | `helianthus-ebusgateway` | Final validation and rollout gate work | blocked | not yet linked |
 | `ISSUE-DOC-11` | `helianthus-docs-ebus` | Finalize proof and rollout docs | blocked | not yet linked |
-| `ISSUE-TE-01` | `helianthus-tinyebus` | tinyebus M8 parallel-track groundwork | blocked | not yet linked |
-| `ISSUE-TE-02` | `helianthus-tinyebus` | tinyebus M8 follow-up implementation work | blocked | not yet linked |
-| `ISSUE-DOC-12` | `helianthus-docs-ebus` | tinyebus and final rollout documentation | blocked | not yet linked |
+| `ISSUE-TE-01` | `helianthus-tinyebus` | tinyebus M8 parallel-track groundwork | deferred | re-homed to `common-firmware-rewrite.locked`; tracked via `common-firmware` tinyebus issue map |
+| `ISSUE-TE-02` | `helianthus-tinyebus` | tinyebus M8 follow-up implementation work | deferred | re-homed to `common-firmware-rewrite.locked`; tracked via `common-firmware` tinyebus issue map |
+| `ISSUE-DOC-12` | `helianthus-docs-ebus` | tinyebus and final rollout documentation | blocked | deferred in observe-first; tinyebus-specific docs follow `common-firmware-rewrite.locked`, final rollout docs stay on this plan tail |
 | `ISSUE-HA-01` | `helianthus-ha-integration` | Home Assistant consumer rollout | blocked | not yet linked |

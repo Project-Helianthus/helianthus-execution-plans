@@ -17,6 +17,9 @@ State: `locked`
   repo
 - keep the rewrite framed as a testing-first, proof-gated workstream rather
   than a direct implementation sprint
+- absorb observe-first tinyebus reroute context (`ISSUE-TE-01`,
+  `ISSUE-TE-02`) as deferred parallel inputs while keeping this plan's own
+  `ISSUE-CFW-*` identifiers canonical
 
 ## Blockers
 

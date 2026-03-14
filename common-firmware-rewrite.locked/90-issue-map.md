@@ -11,6 +11,10 @@ Status legend:
 - `blocked`: depends on earlier milestone completion
 - `optional`: gated feature lane that may remain intentionally unstarted
 
+Cross-workstream note:
+- observe-first canonical IDs `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed
+  here as deferred parallel-track tinyebus work.
+
 ## T0
 
 | Canonical ID | Repo | Summary | Status | Linked execution |

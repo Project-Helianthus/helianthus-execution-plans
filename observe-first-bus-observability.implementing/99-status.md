@@ -124,6 +124,12 @@ State: `implementing`
   after the required HA smoke passed externally on 2026-03-14.
 - `M6` remains active, with `ISSUE-GW-14` as the next canonical critical path
   via gateway issue `Project-Helianthus/helianthus-ebusgateway#398`.
+- The tiny parallel lane is now explicitly de-emphasized from this plan's
+  critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
+  `common-firmware-rewrite.locked`.
+- `ISSUE-DOC-12` remains in observe-first as a deferred tail item; tinyebus
+  documentation follows the firmware-rewrite workstream while final rollout
+  documentation stays on this plan.
 - The original `M0` docs-canonicalization backlog is now fully merged on docs
   `main`; `ISSUE-DOC-01` is exhausted via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`,
@@ -151,5 +157,8 @@ State: `implementing`
    merged `ISSUE-GW-13` semantic-publish baseline
 2. keep the locked `M6` execution order intact (`ISSUE-GW-14` ->
    `ISSUE-DOC-10`)
-3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
+3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
+   `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
+   plan until firmware bring-up milestones are ready
+4. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream
