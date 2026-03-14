@@ -80,9 +80,12 @@
 - `ISSUE-GW-12` is now merged/closed on gateway `main` via issue
   `Project-Helianthus/helianthus-ebusgateway#394`, PR `#395`.
 - `ISSUE-DOC-09` is now merged/closed on docs `main` via PR `#224`.
-- `M5` is now fully merged on `main`, and `M6` remains active with
-  `ISSUE-GW-14` as the next canonical critical path item after merged
-  `ISSUE-GW-13` (`Project-Helianthus/helianthus-ebusgateway#396`,
-  PR `#397`, merge commit `9f4a1df2837cbf075c03e9dc65b7419dceb9ae47`).
+- `M5` is now fully merged on `main`.
+- `ISSUE-GW-14` is now merged/closed on gateway `main` via issue
+  `Project-Helianthus/helianthus-ebusgateway#398`, PR `#399`, merge commit
+  `858e0ec75ad7ba6004e7af62f9043d8304fbd362`, after required HA smoke passed
+  on 2026-03-14.
+- `M6` remains active with `ISSUE-DOC-10` as the next canonical critical path
+  item after merged `ISSUE-GW-14`.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

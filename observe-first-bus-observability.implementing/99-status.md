@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3/M4/M5 merged on main; M6 active with ISSUE-GW-14 next`
+- Current milestone focus: `M0/M1/M2/M3/M4/M5 merged on main; M6 active with ISSUE-DOC-10 next`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -122,8 +122,11 @@ State: `implementing`
 - `ISSUE-GW-13` is now merged/closed on gateway `main` via issue `#396`,
   PR `#397`, merge commit `9f4a1df2837cbf075c03e9dc65b7419dceb9ae47`,
   after the required HA smoke passed externally on 2026-03-14.
-- `M6` remains active, with `ISSUE-GW-14` as the next canonical critical path
-  via gateway issue `Project-Helianthus/helianthus-ebusgateway#398`.
+- `ISSUE-GW-14` is now merged/closed on gateway `main` via issue `#398`,
+  PR `#399`, merge commit `858e0ec75ad7ba6004e7af62f9043d8304fbd362`,
+  after required HA smoke passed on 2026-03-14.
+- `M6` remains active, with `ISSUE-DOC-10` as the next canonical critical
+  path item.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -140,7 +143,7 @@ State: `implementing`
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
 - The overall workstream stays in `implementing` on a fully merged `M5`
-  baseline, with `ISSUE-GW-14` now carrying the next active delivery lane in
+  baseline, with `ISSUE-DOC-10` now carrying the next active delivery lane in
   `M6`.
 
 ## Blockers
@@ -149,14 +152,14 @@ State: `implementing`
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
 - `M7+` remains blocked behind the active `M6` implementation lane now led by
-  `ISSUE-GW-14`.
+  `ISSUE-DOC-10`.
 
 ## Next Actions
 
-1. execute `ISSUE-GW-14` as the next `M6` Portal rollout lane on top of the
-   merged `ISSUE-GW-13` semantic-publish baseline
-2. keep the locked `M6` execution order intact (`ISSUE-GW-14` ->
-   `ISSUE-DOC-10`)
+1. execute `ISSUE-DOC-10` as the next `M6` docs freeze lane on top of merged
+   `ISSUE-GW-14` (`Project-Helianthus/helianthus-ebusgateway#398`, PR `#399`)
+2. keep the locked `M6` execution order intact (`ISSUE-DOC-10` ->
+   `ISSUE-GW-15`)
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
