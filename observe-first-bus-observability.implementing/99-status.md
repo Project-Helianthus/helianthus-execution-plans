@@ -130,6 +130,12 @@ State: `implementing`
 - `M6` is now fully merged on `main`.
 - `M7` is now active, with `ISSUE-GW-15` as the next canonical critical
   path item.
+- `ISSUE-GW-15` is now linked to gateway issue
+  `Project-Helianthus/helianthus-ebusgateway#400` and PR `#401`, merged as
+  `5409c216654500a7b822ab620eacf2be59ae9497` on 2026-03-14.
+- The merged `#401` lane is explicitly the first bounded `P03` proof-plumbing
+  slice only; `ISSUE-GW-15` remains active for the next bounded proof slices
+  and has not advanced to `ISSUE-GW-16`.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -161,10 +167,10 @@ State: `implementing`
 
 ## Next Actions
 
-1. execute `ISSUE-GW-15` as the next `M7` proof/default-flip lane on top of
-   merged `M6` (`ISSUE-GW-13`, `ISSUE-GW-14`, `ISSUE-DOC-10`)
-2. keep the locked post-`M6` execution order intact (`ISSUE-GW-15` ->
-   `ISSUE-GW-16` -> `ISSUE-DOC-11` -> `ISSUE-HA-01`)
+1. execute the next bounded `ISSUE-GW-15` proof slice on top of the merged
+   first bounded `P03` plumbing lane from PR `#401`
+2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
+   and the `GW-15` safety/timing evidence gate is closed
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
