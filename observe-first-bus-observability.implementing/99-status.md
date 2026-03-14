@@ -131,11 +131,17 @@ State: `implementing`
 - `M7` is now active, with `ISSUE-GW-15` as the next canonical critical
   path item.
 - `ISSUE-GW-15` is now linked to gateway issue
-  `Project-Helianthus/helianthus-ebusgateway#400` and PR `#401`, merged as
-  `5409c216654500a7b822ab620eacf2be59ae9497` on 2026-03-14.
-- The merged `#401` lane is explicitly the first bounded `P03` proof-plumbing
-  slice only; `ISSUE-GW-15` remains active for the next bounded proof slices
-  and has not advanced to `ISSUE-GW-16`.
+  `Project-Helianthus/helianthus-ebusgateway#400` with bounded slices merged
+  via PR `#401` (`5409c216654500a7b822ab620eacf2be59ae9497`) and PR `#402`
+  (`GW-15: add P03 canary manifest and interval verifier`,
+  `1596c9fc02a0f745996cc5c911b9b1fec2c7c22d`).
+- The merged `#401` lane closed the first bounded `P03` proof-plumbing slice;
+  the merged `#402` lane closed the second bounded slice (fixed `P03` canary
+  manifest, active direct-read canary verifier, interval verifier integration,
+  and review hardening on baseline seeding, read-only method allowlist, first
+  interval artifact scheduling, and semantic phase ordering). `ISSUE-GW-15`
+  remains active for the next bounded proof slices and has not advanced to
+  `ISSUE-GW-16`.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -168,7 +174,7 @@ State: `implementing`
 ## Next Actions
 
 1. execute the next bounded `ISSUE-GW-15` proof slice on top of the merged
-   first bounded `P03` plumbing lane from PR `#401`
+   first two bounded lanes from PR `#401` and PR `#402`
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
