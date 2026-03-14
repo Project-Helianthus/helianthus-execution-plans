@@ -122,7 +122,8 @@ State: `implementing`
 - `ISSUE-GW-13` is now merged/closed on gateway `main` via issue `#396`,
   PR `#397`, merge commit `9f4a1df2837cbf075c03e9dc65b7419dceb9ae47`,
   after the required HA smoke passed externally on 2026-03-14.
-- `M6` remains active, with `ISSUE-GW-14` as the next canonical critical path.
+- `M6` remains active, with `ISSUE-GW-14` as the next canonical critical path
+  via gateway issue `Project-Helianthus/helianthus-ebusgateway#398`.
 - The original `M0` docs-canonicalization backlog is now fully merged on docs
   `main`; `ISSUE-DOC-01` is exhausted via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`,
