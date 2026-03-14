@@ -132,16 +132,20 @@ State: `implementing`
   path item.
 - `ISSUE-GW-15` is now linked to gateway issue
   `Project-Helianthus/helianthus-ebusgateway#400` with bounded slices merged
-  via PR `#401` (`5409c216654500a7b822ab620eacf2be59ae9497`) and PR `#402`
+  via PR `#401` (`5409c216654500a7b822ab620eacf2be59ae9497`), PR `#402`
   (`GW-15: add P03 canary manifest and interval verifier`,
-  `1596c9fc02a0f745996cc5c911b9b1fec2c7c22d`).
+  `1596c9fc02a0f745996cc5c911b9b1fec2c7c22d`), and PR `#403`
+  (`GW-15: add P03 canary proof verdict gate`,
+  `a4cb5fb82b3adea42c45912e4c8f0a2d3e2db5bb`).
 - The merged `#401` lane closed the first bounded `P03` proof-plumbing slice;
   the merged `#402` lane closed the second bounded slice (fixed `P03` canary
   manifest, active direct-read canary verifier, interval verifier integration,
   and review hardening on baseline seeding, read-only method allowlist, first
-  interval artifact scheduling, and semantic phase ordering). `ISSUE-GW-15`
-  remains active for the next bounded proof slices and has not advanced to
-  `ISSUE-GW-16`.
+  interval artifact scheduling, and semantic phase ordering); and the merged
+  `#403` lane closed the third bounded slice (machine-readable canary verdict
+  thresholds plus a fail-closed proof-mode gate on top of the
+  artifact-production slices). `ISSUE-GW-15` remains active for the next
+  bounded proof slices and has not advanced to `ISSUE-GW-16`.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -174,7 +178,7 @@ State: `implementing`
 ## Next Actions
 
 1. execute the next bounded `ISSUE-GW-15` proof slice on top of the merged
-   first two bounded lanes from PR `#401` and PR `#402`
+   first three bounded lanes from PR `#401`, PR `#402`, and PR `#403`
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
