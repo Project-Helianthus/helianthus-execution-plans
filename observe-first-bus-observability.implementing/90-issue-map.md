@@ -66,8 +66,8 @@ Status legend:
 | `ISSUE-GW-09` | `helianthus-ebusgateway` | Implement family policy engine | merged | issue `Project-Helianthus/helianthus-ebusgateway#388`, PR `#389`, merge commit `db09bbae687912a16fbc9f0a2f3a5616b84931e8`; `ISSUE-GW-09` is now merged/closed on gateway `main` |
 | `ISSUE-DOC-08` | `helianthus-docs-ebus` | Update architecture docs with watch, flags, and family rules | merged | issue `Project-Helianthus/helianthus-docs-ebus#221`, PR `#222`, merge commit `bf8587f41dedb3be8372b30cf7cd667abc1c0226`; `ISSUE-DOC-08` is now merged/closed on docs `main` |
 | `ISSUE-GW-10` | `helianthus-ebusgateway` | Integrate `ShadowCache` into `SemanticReadScheduler` | merged | issue `Project-Helianthus/helianthus-ebusgateway#390`, PR `#391`, merge commit `75ee6aa639bb44e8e859835293ae3912dc4d7b48`; `ISSUE-GW-10` is now merged/closed on gateway `main` |
-| `ISSUE-GW-11` | `helianthus-ebusgateway` | Add watch-summary surfaces | active | next `M5` critical path after merged `ISSUE-GW-10`; target repo issue/PR not yet linked here |
-| `ISSUE-GW-12` | `helianthus-ebusgateway` | Add watch-efficiency metrics | blocked | not yet linked |
+| `ISSUE-GW-11` | `helianthus-ebusgateway` | Add watch-summary surfaces | merged | issue `Project-Helianthus/helianthus-ebusgateway#392`, PR `#393`; `ISSUE-GW-11` is now merged/closed on gateway `main` |
+| `ISSUE-GW-12` | `helianthus-ebusgateway` | Add watch-efficiency metrics | active | next `M5` critical path after merged `ISSUE-GW-11`; target repo issue/PR not yet linked here |
 | `ISSUE-DOC-09` | `helianthus-docs-ebus` | Freeze watch-summary and scheduler/shadow contracts | blocked | not yet linked |
 
 ## M6-M9

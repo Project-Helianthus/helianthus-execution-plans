@@ -72,6 +72,8 @@
 - `ISSUE-GW-10` is now merged/closed on gateway `main` via issue
   `Project-Helianthus/helianthus-ebusgateway#390`, PR `#391`, merge commit
   `75ee6aa639bb44e8e859835293ae3912dc4d7b48`.
-- `M5` remains active with `ISSUE-GW-11` as the next critical path item.
+- `ISSUE-GW-11` is now merged/closed on gateway `main` via issue
+  `Project-Helianthus/helianthus-ebusgateway#392`, PR `#393`.
+- `M5` remains active with `ISSUE-GW-12` as the next critical path item.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.
