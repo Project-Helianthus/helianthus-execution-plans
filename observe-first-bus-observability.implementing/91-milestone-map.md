@@ -8,8 +8,8 @@
 | `M3` | GraphQL parity | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M2` | merged |
 | `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | merged |
 | `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | merged |
-| `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | active |
-| `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | queued |
+| `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | merged |
+| `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | active |
 | `M8` | tinyebus parallel track (re-homed to `common-firmware-rewrite.locked`) | `helianthus-tinyebus`, `helianthus-docs-ebus` | `ISSUE-GW-03` and `ISSUE-DOC-05` frozen | queued |
 | `M9` | Home Assistant consumer rollout and final validation | `helianthus-ha-integration`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M7` | queued |
 
@@ -85,7 +85,14 @@
   `Project-Helianthus/helianthus-ebusgateway#398`, PR `#399`, merge commit
   `858e0ec75ad7ba6004e7af62f9043d8304fbd362`, after required HA smoke passed
   on 2026-03-14.
-- `M6` remains active with `ISSUE-DOC-10` as the next canonical critical path
-  item after merged `ISSUE-GW-14`.
+- `M6` is now fully merged on `main`: `ISSUE-GW-13` landed via gateway issue
+  `Project-Helianthus/helianthus-ebusgateway#396`, PR `#397`, merge commit
+  `9f4a1df`; `ISSUE-GW-14` landed via gateway issue
+  `Project-Helianthus/helianthus-ebusgateway#398`, PR `#399`, merge commit
+  `858e0ec`; and `ISSUE-DOC-10` landed via docs issue
+  `Project-Helianthus/helianthus-docs-ebus#225`, PR `#226`, merge commit
+  `5ab82fb`.
+- `M7` is now active with `ISSUE-GW-15` as the next canonical critical path
+  item.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

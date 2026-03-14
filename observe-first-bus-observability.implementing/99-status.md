@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3/M4/M5 merged on main; M6 active with ISSUE-DOC-10 next`
+- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-GW-15 next`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -125,7 +125,10 @@ State: `implementing`
 - `ISSUE-GW-14` is now merged/closed on gateway `main` via issue `#398`,
   PR `#399`, merge commit `858e0ec75ad7ba6004e7af62f9043d8304fbd362`,
   after required HA smoke passed on 2026-03-14.
-- `M6` remains active, with `ISSUE-DOC-10` as the next canonical critical
+- `ISSUE-DOC-10` is now merged/closed on docs `main` via issue `#225`,
+  PR `#226`, merge commit `5ab82fb`.
+- `M6` is now fully merged on `main`.
+- `M7` is now active, with `ISSUE-GW-15` as the next canonical critical
   path item.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
@@ -142,24 +145,26 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, and
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
-- The overall workstream stays in `implementing` on a fully merged `M5`
-  baseline, with `ISSUE-DOC-10` now carrying the next active delivery lane in
-  `M6`.
+- The overall workstream stays in `implementing` on a fully merged `M6`
+  baseline, with `ISSUE-GW-15` now carrying the next active delivery lane in
+  `M7`.
 
 ## Blockers
 
 - The imported seed still does not have a historical Discussion archive; it
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
-- `M7+` remains blocked behind the active `M6` implementation lane now led by
-  `ISSUE-DOC-10`.
+- `M8` remains intentionally deferred for this plan's critical path and is
+  tracked in `common-firmware-rewrite.locked`.
+- `M9` remains blocked behind the active `M7` implementation lane now led by
+  `ISSUE-GW-15`.
 
 ## Next Actions
 
-1. execute `ISSUE-DOC-10` as the next `M6` docs freeze lane on top of merged
-   `ISSUE-GW-14` (`Project-Helianthus/helianthus-ebusgateway#398`, PR `#399`)
-2. keep the locked `M6` execution order intact (`ISSUE-DOC-10` ->
-   `ISSUE-GW-15`)
+1. execute `ISSUE-GW-15` as the next `M7` proof/default-flip lane on top of
+   merged `M6` (`ISSUE-GW-13`, `ISSUE-GW-14`, `ISSUE-DOC-10`)
+2. keep the locked post-`M6` execution order intact (`ISSUE-GW-15` ->
+   `ISSUE-GW-16` -> `ISSUE-DOC-11` -> `ISSUE-HA-01`)
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
