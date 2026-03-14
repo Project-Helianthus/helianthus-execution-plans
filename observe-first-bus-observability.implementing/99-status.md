@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3/M4 merged on main; M5 active with ISSUE-GW-12 next`
+- Current milestone focus: `M0/M1/M2/M3/M4 merged on main; M5 active with ISSUE-DOC-09 next (after merged ISSUE-GW-12)`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -115,7 +115,10 @@ State: `implementing`
   PR `#391`, merge commit `75ee6aa639bb44e8e859835293ae3912dc4d7b48`.
 - `ISSUE-GW-11` is now merged/closed on gateway `main` via issue `#392`,
   PR `#393`.
-- `M5` remains active, with `ISSUE-GW-12` as the next canonical critical path.
+- `ISSUE-GW-12` is now merged/closed on gateway `main` via issue `#394`,
+  PR `#395`.
+- `M5` remains active, with `ISSUE-DOC-09` as the next canonical critical
+  path.
 - The original `M0` docs-canonicalization backlog is now fully merged on docs
   `main`; `ISSUE-DOC-01` is exhausted via docs issue
   `Project-Helianthus/helianthus-docs-ebus#208` and PRs `#209` / `#210`,
@@ -126,7 +129,7 @@ State: `implementing`
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
 - The overall workstream stays in `implementing` on a fully merged `M4`
-  baseline, with `ISSUE-GW-12` now carrying the next active delivery lane in
+  baseline, with `ISSUE-DOC-09` now carrying the next active delivery lane in
   `M5`.
 
 ## Blockers
@@ -135,13 +138,13 @@ State: `implementing`
   uses `bootstrap-seed-import-no-discussion-yet` as the source marker in
   `plan.yaml`.
 - `M6+` remains blocked behind the active `M5` implementation lane now led by
-  `ISSUE-GW-12`.
+  `ISSUE-DOC-09`.
 
 ## Next Actions
 
-1. execute `ISSUE-GW-12` to continue `M5` with watch-efficiency metrics on top
-   of the merged scheduler/watch-summary baseline from `ISSUE-GW-10` /
-   `ISSUE-GW-11`
+1. execute `ISSUE-DOC-09` to close the `M5` doc-gate on top of the merged
+   scheduler/watch-summary/efficiency baseline from `ISSUE-GW-10`,
+   `ISSUE-GW-11`, and `ISSUE-GW-12`
 2. keep the `MCP -> GraphQL -> watch/shadow` sequencing intact as `M5`
    advances through scheduler/watch-summary/efficiency slices
 3. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
