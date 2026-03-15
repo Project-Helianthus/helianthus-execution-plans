@@ -149,25 +149,30 @@ State: `implementing`
   artifact-production slices). The merged `#404` lane closed the fourth
   bounded slice by requiring an elapsed proof window before proof mode can
   succeed and resetting proof-window state on hard poll failures.
-- The first bounded merged-main `P03` rerun from an HA-reachable environment
-  completed on 2026-03-15 as
-  `results-matrix-ha/20260315T032703Z-gw15-proof-p03/index.json`. It produced
-  the full proof artifact set, including `canary_manifest_validation.json`,
-  `canary_baseline.json`, `canary_phase_start.json`,
-  `canary_phase_sample_0001.json`, `canary_phase_sample_0002.json`,
-  `canary_phase_end.json`, `canary_summary.json`, and `canary_verdict.json`,
-  so `GW-15` now has its first bounded merged-main proof artifact even though
-  the bounded proof did not pass.
-- That 2026-03-15 bounded merged-main rerun failed closed rather than
-  passing: `gateway-start` and `proxy-start` both passed, passive capability
-  reached `available` by phase end, and the HA environment blocker from the
-  previous session was cleared, but every start-phase canary direct read
-  returned `BUS_COLLISION`, `canary_baseline.json` remained empty, every later
-  canary interval stayed `inconclusive`, and `canary_verdict.json` recorded
-  `status=fail` with `overall_interval_conclusive_rate=0.0` across `12`
-  interval results.
-  `ISSUE-GW-15` remains active for the next bounded proof slices and has not
-  advanced to `ISSUE-GW-16`.
+- The merged `#406` lane (`gateway: canonicalize P03 proof gating and
+  canaries`) plus follow-up `#408` moved `GW-15` past the earlier
+  start-phase-collision failure and into a canonical bounded proof shape on
+  gateway `main`.
+- The bounded canonical `P03` proof rerun now passes on 2026-03-15 at
+  `results-matrix-ha/20260315T070147Z-gw15-proof-p03-canonical-rerun/index.json`.
+  That artifact records `P03=pass`, emits the full proof artifact set, and
+  includes a passing `canary_verdict.json`; this closes the narrower
+  sub-objective “first bounded canonical `P03` proof artifact exists and
+  passes” under parent issue `Project-Helianthus/helianthus-ebusgateway#400`.
+- The passive follow-up gate also passes at
+  `results-matrix-ha/20260315T073335Z-passive-suite-followup-gate/index.json`,
+  giving a green bounded passive-suite checkpoint (`P01..P06`) on top of the
+  canonicalized proof lane.
+- The merged `#410` lane
+  (`GW-15 child: add read-avoidance accounting to canonical proof artifacts`)
+  replaced placeholder `read_avoidance_accounting` with fail-closed proof-window
+  accounting derived from persisted metrics, and it rejects current-run
+  mid-window counter regressions instead of trusting only start/end deltas.
+- `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
+  because the parent gate now explicitly carries the remaining default-flip
+  evidence beyond the bounded `P03` artifact: proof traffic minimums,
+  timing/reference comparison, adversarial replay coverage, cross-plane skew,
+  rollback smoke, and family-by-family promotion evidence.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -199,11 +204,10 @@ State: `implementing`
 
 ## Next Actions
 
-1. investigate the start-phase canary `BUS_COLLISION` / empty-baseline failure
-   recorded by
-   `results-matrix-ha/20260315T032703Z-gw15-proof-p03/index.json` and rerun
-   the bounded merged-main `P03` proof on top of the merged first four bounded
-   lanes from PR `#401`, PR `#402`, PR `#403`, and PR `#404`
+1. open the next bounded `GW-15` child slice under
+   `Project-Helianthus/helianthus-ebusgateway#400` for the remaining
+   default-flip evidence after the bounded proof artifact and read-avoidance
+   accounting slices
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
