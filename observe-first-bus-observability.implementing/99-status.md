@@ -149,6 +149,23 @@ State: `implementing`
   artifact-production slices). The merged `#404` lane closed the fourth
   bounded slice by requiring an elapsed proof window before proof mode can
   succeed and resetting proof-window state on hard poll failures.
+- The first bounded merged-main `P03` rerun from an HA-reachable environment
+  completed on 2026-03-15 as
+  `results-matrix-ha/20260315T032703Z-gw15-proof-p03/index.json`. It produced
+  the full proof artifact set, including `canary_manifest_validation.json`,
+  `canary_baseline.json`, `canary_phase_start.json`,
+  `canary_phase_sample_0001.json`, `canary_phase_sample_0002.json`,
+  `canary_phase_end.json`, `canary_summary.json`, and `canary_verdict.json`,
+  so `GW-15` now has its first bounded merged-main proof artifact even though
+  the bounded proof did not pass.
+- That 2026-03-15 bounded merged-main rerun failed closed rather than
+  passing: `gateway-start` and `proxy-start` both passed, passive capability
+  reached `available` by phase end, and the HA environment blocker from the
+  previous session was cleared, but every start-phase canary direct read
+  returned `BUS_COLLISION`, `canary_baseline.json` remained empty, every later
+  canary interval stayed `inconclusive`, and `canary_verdict.json` recorded
+  `status=fail` with `overall_interval_conclusive_rate=0.0` across `12`
+  interval results.
   `ISSUE-GW-15` remains active for the next bounded proof slices and has not
   advanced to `ISSUE-GW-16`.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
@@ -182,9 +199,11 @@ State: `implementing`
 
 ## Next Actions
 
-1. execute the next bounded `ISSUE-GW-15` proof slice on top of the merged
-   first four bounded lanes from PR `#401`, PR `#402`, PR `#403`, and PR
-   `#404`
+1. investigate the start-phase canary `BUS_COLLISION` / empty-baseline failure
+   recorded by
+   `results-matrix-ha/20260315T032703Z-gw15-proof-p03/index.json` and rerun
+   the bounded merged-main `P03` proof on top of the merged first four bounded
+   lanes from PR `#401`, PR `#402`, PR `#403`, and PR `#404`
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
