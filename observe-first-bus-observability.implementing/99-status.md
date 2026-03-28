@@ -216,9 +216,12 @@ State: `implementing`
   bounded proof surfaces, carries them through GraphQL / MCP / verifier
   sampling, and includes the follow-up fix from commit `1e06729` that keeps
   `watchSummary.lastUpdatedAt` stable on idempotent runtime bootstrap reads.
-- `Project-Helianthus/helianthus-ebusgateway#423` is no longer blocked on
-  missing proof-surface freshness clocks and is now the next honest bounded
-  `GW-15` seam for cross-plane-skew evidence.
+- The merged `#431` lane now publishes honest publisher cadence evidence on
+  the runtime bus-observability surface, carries it through GraphQL / MCP,
+  and wires the fail-closed publisher-cadence proof artifact that `#423`
+  needed as its cross-plane-skew precursor.
+- `Project-Helianthus/helianthus-ebusgateway#423` is unblocked again and is
+  now the next honest bounded `GW-15` seam for cross-plane-skew evidence.
 - The merged `#421` lane
   (`GW-15 child: report cold-start vs post-warmup behavior in canonical proof
   artifacts`) is now closed on gateway `main` via PR `#422`
@@ -273,10 +276,10 @@ State: `implementing`
 ## Next Actions
 
 1. resume `Project-Helianthus/helianthus-ebusgateway#423` as the next bounded
-   `GW-15` child slice now that `#428` is merged, keeping scope on
+   `GW-15` child slice now that `#431` is merged, keeping scope on
    cross-plane-skew evidence that consumes the newly published proof-surface
-   freshness clocks and still avoids the blocked `#416` timing-reference seam
-   and the deferred `#418` rollback seam
+   freshness clocks and publisher cadence evidence, while still avoiding the
+   blocked `#416` timing-reference seam and the deferred `#418` rollback seam
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
 3. keep `#416` explicitly blocked on an independent wire-derived timing
