@@ -168,11 +168,18 @@ State: `implementing`
   replaced placeholder `read_avoidance_accounting` with fail-closed proof-window
   accounting derived from persisted metrics, and it rejects current-run
   mid-window counter regressions instead of trusting only start/end deltas.
+- The merged `#412` lane
+  (`GW-15: gate proof-window traffic minimums from transaction counters`)
+  makes the proof traffic minimums fail closed against the current proof window:
+  completed passive transactions now count transaction-classified events only,
+  direct-apply candidate counts distinguish evaluated traffic from accepted
+  direct applies, and the verifier rejects missing, non-finite, regressing, or
+  threshold-missing counters instead of treating the requirement as advisory.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
   because the parent gate now explicitly carries the remaining default-flip
-  evidence beyond the bounded `P03` artifact: proof traffic minimums,
-  timing/reference comparison, adversarial replay coverage, cross-plane skew,
-  rollback smoke, and family-by-family promotion evidence.
+  evidence beyond the bounded `P03` artifact: timing/reference comparison,
+  adversarial replay coverage, cross-plane skew, rollback smoke, and
+  family-by-family promotion evidence.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
