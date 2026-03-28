@@ -220,8 +220,16 @@ State: `implementing`
   the runtime bus-observability surface, carries it through GraphQL / MCP,
   and wires the fail-closed publisher-cadence proof artifact that `#423`
   needed as its cross-plane-skew precursor.
-- `Project-Helianthus/helianthus-ebusgateway#423` is unblocked again and is
-  now the next honest bounded `GW-15` seam for cross-plane-skew evidence.
+- The cross-plane-skew slice is now merged via PR `#432`
+  (`GW-15: add cross-plane skew proof artifact`), merge commit
+  `fd034693f2ae2fcaeceb02c0b945ab91801925dd`; issue
+  `Project-Helianthus/helianthus-ebusgateway#423` is closed by that merge.
+- The merged `#432` lane derives `cross_plane_skew.json` only from same-run
+  structured start/sample/end snapshots plus the merged publisher-cadence
+  artifact, binds the skew threshold to
+  `max(publisher_cadence_sec, configured_proof_sample_interval_sec)`, and
+  fails closed on missing cadence evidence, missing same-phase timestamps, or
+  skew above the bounded target.
 - The merged `#421` lane
   (`GW-15 child: report cold-start vs post-warmup behavior in canonical proof
   artifacts`) is now closed on gateway `main` via PR `#422`
@@ -230,9 +238,8 @@ State: `implementing`
   for the remaining default-flip evidence.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
   because the parent gate now explicitly carries the remaining bounded proof
-  evidence under issue `#400`: read-avoidance, replay, cross-plane skew, and
-  the still-open bounded proof evidence other than the timing-reference and
-  rollback seams.
+  evidence under issue `#400`: the independent timing-reference seam and the
+  still-missing rollback execution proof seam.
 - The attempted rollback-smoke child `#418` / PR `#419` was explicitly rerouted
   out of the active lane as a wrong seam: the current repo has no independent
   rollback execution/result primitive, so that artifact cannot yet prove real
@@ -275,11 +282,10 @@ State: `implementing`
 
 ## Next Actions
 
-1. resume `Project-Helianthus/helianthus-ebusgateway#423` as the next bounded
-   `GW-15` child slice now that `#431` is merged, keeping scope on
-   cross-plane-skew evidence that consumes the newly published proof-surface
-   freshness clocks and publisher cadence evidence, while still avoiding the
-   blocked `#416` timing-reference seam and the deferred `#418` rollback seam
+1. resume `Project-Helianthus/helianthus-ebusgateway#416` as the next bounded
+   `GW-15` child slice only when an honest independent wire-derived timing
+   reference source exists, keeping the implementation seam separate from the
+   already-merged observability/proof surfaces
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
 3. keep `#416` explicitly blocked on an independent wire-derived timing
