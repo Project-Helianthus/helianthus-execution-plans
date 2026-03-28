@@ -189,11 +189,16 @@ State: `implementing`
   the proof summary/verdict path, and keeps the legitimate bus-side omitted
   `normalizations` case compatible without weakening GraphQL/canonical malformed
   snapshots.
+- The merged `#422` lane
+  (`GW-15: derive warmup behavior proof artifact`) replaces the earlier
+  fake-green warmup artifact seam with structured `start` / `sample_*` / `end`
+  bus-observability and GraphQL snapshots, and it hardens the fake-smoke test
+  defaults so CI continues to fail closed on missing or malformed warmup
+  transition evidence instead of silently passing on canary-phase labels.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
   because the parent gate now explicitly carries the remaining default-flip
   evidence beyond the bounded `P03` artifact: timing/reference comparison,
-  cross-plane skew, rollback smoke, remaining artifact-reporting detail, and
-  family-by-family promotion evidence.
+  cross-plane skew, rollback smoke, and family-by-family promotion evidence.
 - The attempted rollback-smoke child `#418` / PR `#419` was explicitly rerouted
   out of the active lane as a wrong seam: the current repo has no independent
   rollback execution/result primitive, so that artifact cannot yet prove real
@@ -235,7 +240,7 @@ State: `implementing`
 
 1. open the next bounded `GW-15` child slice under
    `Project-Helianthus/helianthus-ebusgateway#400` for the remaining
-   artifact-reporting / cross-plane-skew / promotion evidence that does not
+   cross-plane-skew / promotion evidence that does not
    depend on the blocked `#416` timing-reference seam or the deferred `#418`
    rollback seam
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
