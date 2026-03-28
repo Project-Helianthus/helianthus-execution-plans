@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-GW-15 next`
+- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-GW-15 next, family-proof-eligibility merged`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -195,6 +195,11 @@ State: `implementing`
   bus-observability and GraphQL snapshots, and it hardens the fake-smoke test
   defaults so CI continues to fail closed on missing or malformed warmup
   transition evidence instead of silently passing on canary-phase labels.
+- The family-proof-eligibility slice is now merged via PR `#426`
+  (`GW-15: add family proof eligibility artifact`), merge commit
+  `96d7010e9676b686ed3301712b9e9b6d71f7225f`, merged at
+  `2026-03-28T14:10:16Z`; issue `Project-Helianthus/helianthus-ebusgateway#424`
+  was closed by that merge.
 - The merged `#421` lane
   (`GW-15 child: report cold-start vs post-warmup behavior in canonical proof
   artifacts`) is now closed on gateway `main` via PR `#422`
@@ -202,9 +207,9 @@ State: `implementing`
   behavior proof artifact slice as merged while keeping `ISSUE-GW-15` active
   for the remaining default-flip evidence.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
-  because the parent gate now explicitly carries the remaining default-flip
-  evidence beyond the bounded `P03` artifact: timing/reference comparison,
-  cross-plane skew, rollback smoke, and family-by-family promotion evidence.
+  because the parent gate now explicitly carries the remaining bounded proof
+  evidence under issue `#400`: timing/reference comparison, cross-plane skew,
+  rollback smoke, and the remaining family-by-family promotion evidence.
 - The attempted rollback-smoke child `#418` / PR `#419` was explicitly rerouted
   out of the active lane as a wrong seam: the current repo has no independent
   rollback execution/result primitive, so that artifact cannot yet prove real
