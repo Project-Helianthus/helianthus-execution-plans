@@ -195,6 +195,12 @@ State: `implementing`
   bus-observability and GraphQL snapshots, and it hardens the fake-smoke test
   defaults so CI continues to fail closed on missing or malformed warmup
   transition evidence instead of silently passing on canary-phase labels.
+- The merged `#421` lane
+  (`GW-15 child: report cold-start vs post-warmup behavior in canonical proof
+  artifacts`) is now closed on gateway `main` via PR `#422`
+  (`f899cc0de1cfd91beb54cf70af96630977e0f950`), and it records the warmup-
+  behavior proof artifact slice as merged while keeping `ISSUE-GW-15` active
+  for the remaining default-flip evidence.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
   because the parent gate now explicitly carries the remaining default-flip
   evidence beyond the bounded `P03` artifact: timing/reference comparison,
