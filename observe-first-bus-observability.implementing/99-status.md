@@ -175,11 +175,17 @@ State: `implementing`
   direct-apply candidate counts distinguish evaluated traffic from accepted
   direct applies, and the verifier rejects missing, non-finite, regressing, or
   threshold-missing counters instead of treating the requirement as advisory.
+- The merged `#415` lane
+  (`GW-15 child: add adversarial replay falsification gate`) replaces the
+  earlier fake-green verifier path with a Go-produced observed replay behavior
+  artifact, then compares that observed behavior fail-closed against the locked
+  replay corpus expectations; garbled boundary cases and the B524 ambiguity case
+  are now proven through the behavioral replay seam instead of through corpus
+  metadata alone.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
   because the parent gate now explicitly carries the remaining default-flip
   evidence beyond the bounded `P03` artifact: timing/reference comparison,
-  adversarial replay coverage, cross-plane skew, rollback smoke, and
-  family-by-family promotion evidence.
+  cross-plane skew, rollback smoke, and family-by-family promotion evidence.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
