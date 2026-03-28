@@ -182,10 +182,26 @@ State: `implementing`
   replay corpus expectations; garbled boundary cases and the B524 ambiguity case
   are now proven through the behavioral replay seam instead of through corpus
   metadata alone.
+- The merged `#420` lane
+  (`GW-15 child: fail proof on feature-flag drift`) makes proof-window
+  feature-flag state immutability fail closed across start/sample/end snapshot
+  artifacts, compares canonicalized GraphQL and bus-observability flag state in
+  the proof summary/verdict path, and keeps the legitimate bus-side omitted
+  `normalizations` case compatible without weakening GraphQL/canonical malformed
+  snapshots.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
   because the parent gate now explicitly carries the remaining default-flip
   evidence beyond the bounded `P03` artifact: timing/reference comparison,
-  cross-plane skew, rollback smoke, and family-by-family promotion evidence.
+  cross-plane skew, rollback smoke, remaining artifact-reporting detail, and
+  family-by-family promotion evidence.
+- The attempted rollback-smoke child `#418` / PR `#419` was explicitly rerouted
+  out of the active lane as a wrong seam: the current repo has no independent
+  rollback execution/result primitive, so that artifact cannot yet prove real
+  rollback execution instead of derived snapshot state.
+- The timing-reference child `#416` remains open but blocked on the same
+  missing prerequisite identified earlier: there is still no independent
+  wire-derived timing reference source available to compare against busy /
+  periodicity observability outputs.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -219,12 +235,16 @@ State: `implementing`
 
 1. open the next bounded `GW-15` child slice under
    `Project-Helianthus/helianthus-ebusgateway#400` for the remaining
-   default-flip evidence after the bounded proof artifact and read-avoidance
-   accounting slices
+   artifact-reporting / cross-plane-skew / promotion evidence that does not
+   depend on the blocked `#416` timing-reference seam or the deferred `#418`
+   rollback seam
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
-3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
+3. keep `#416` explicitly blocked on an independent wire-derived timing
+   reference source and keep `#418` explicitly deferred until a real rollback
+   execution hook exists
+4. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
-4. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
+5. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream
