@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-GW-15 next, family-proof-eligibility merged`
+- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-GW-15 next, family-proof-eligibility and family-scoped promotion-eligibility merged`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -136,9 +136,13 @@ State: `implementing`
   (`GW-15: add P03 canary manifest and interval verifier`,
   `1596c9fc02a0f745996cc5c911b9b1fec2c7c22d`), PR `#403`
   (`GW-15: add P03 canary proof verdict gate`,
-  `a4cb5fb82b3adea42c45912e4c8f0a2d3e2db5bb`), and PR `#404`
+  `a4cb5fb82b3adea42c45912e4c8f0a2d3e2db5bb`), PR `#404`
   (`GW-15: add P03 proof window gate`,
-  `977503bdab9a7bf6cb94b1b4a8243c86ed45e8b5`).
+  `977503bdab9a7bf6cb94b1b4a8243c86ed45e8b5`), PR `#426`
+  (`GW-15: add family proof eligibility artifact`,
+  `96d7010e9676b686ed3301712b9e9b6d71f7225f`), and PR `#427`
+  (`GW-15: add family-scoped promotion eligibility artifact`), merged via
+  squash merge.
 - The merged `#401` lane closed the first bounded `P03` proof-plumbing slice;
   the merged `#402` lane closed the second bounded slice (fixed `P03` canary
   manifest, active direct-read canary verifier, interval verifier integration,
@@ -200,6 +204,10 @@ State: `implementing`
   `96d7010e9676b686ed3301712b9e9b6d71f7225f`, merged at
   `2026-03-28T14:10:16Z`; issue `Project-Helianthus/helianthus-ebusgateway#424`
   was closed by that merge.
+- The family-scoped promotion-eligibility slice is now merged via PR `#427`
+  (`GW-15: add family-scoped promotion eligibility artifact`) and closes issue
+  `Project-Helianthus/helianthus-ebusgateway#425` without advancing the parent
+  `GW-15` lane.
 - The merged `#421` lane
   (`GW-15 child: report cold-start vs post-warmup behavior in canonical proof
   artifacts`) is now closed on gateway `main` via PR `#422`
@@ -208,14 +216,15 @@ State: `implementing`
   for the remaining default-flip evidence.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
   because the parent gate now explicitly carries the remaining bounded proof
-  evidence under issue `#400`: timing/reference comparison, cross-plane skew,
-  rollback smoke, and the remaining family-by-family promotion evidence.
+  evidence under issue `#400`: read-avoidance, replay, cross-plane skew, and
+  the still-open bounded proof evidence other than the timing-reference and
+  rollback seams.
 - The attempted rollback-smoke child `#418` / PR `#419` was explicitly rerouted
   out of the active lane as a wrong seam: the current repo has no independent
   rollback execution/result primitive, so that artifact cannot yet prove real
   rollback execution instead of derived snapshot state.
-- The timing-reference child `#416` remains open but blocked on the same
-  missing prerequisite identified earlier: there is still no independent
+- The timing-reference child `#416` remains open but is not part of the
+  remaining active bounded proof evidence here; there is still no independent
   wire-derived timing reference source available to compare against busy /
   periodicity observability outputs.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
@@ -251,9 +260,9 @@ State: `implementing`
 
 1. open the next bounded `GW-15` child slice under
    `Project-Helianthus/helianthus-ebusgateway#400` for the remaining
-   cross-plane-skew / promotion evidence that does not
-   depend on the blocked `#416` timing-reference seam or the deferred `#418`
-   rollback seam
+   cross-plane-skew / promotion evidence that stays on the still-open bounded
+   proof evidence path and does not depend on the blocked `#416`
+   timing-reference seam or the deferred `#418` rollback seam
 2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
 3. keep `#416` explicitly blocked on an independent wire-derived timing
