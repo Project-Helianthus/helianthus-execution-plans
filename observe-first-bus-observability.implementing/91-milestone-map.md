@@ -92,7 +92,7 @@
   `858e0ec`; and `ISSUE-DOC-10` landed via docs issue
   `Project-Helianthus/helianthus-docs-ebus#225`, PR `#226`, merge commit
   `5ab82fb`.
-- `M7` is now active with `ISSUE-GW-15` as the next canonical critical path
-  item.
+- `M7` remains active on `main`, but `ISSUE-GW-15` is now merged/closed and
+  `ISSUE-GW-16` is the next canonical critical path item.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

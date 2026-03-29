@@ -236,10 +236,12 @@ State: `implementing`
   (`f899cc0de1cfd91beb54cf70af96630977e0f950`), and it records the warmup-
   behavior proof artifact slice as merged while keeping `ISSUE-GW-15` active
   for the remaining default-flip evidence.
-- `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
-  because the parent gate now explicitly carries one remaining bounded proof
-  evidence item under issue `#400`: the wire-derived comparator/verdict path
-  in `#416`.
+- The timing-reference child `#416` is now closed on gateway `main` via PR
+  `#438` (`cb91426b77103ec1f260466909e878f2846c6d51`). That lane binds the
+  independent `wire_timing_reference.json` evidence from `#435` into the
+  final busy/periodicity comparator verdict, wires the fail-closed artifact
+  gate into proof mode, and exhausts the last non-deferred bounded proof slice
+  under parent issue `#400`.
 - The rollback execution precursor is now merged on gateway `main` via PR
   `#436` (`1de2d0b4e05ae6f440395815f86e9208f01ace66`). That lane emits a
   standalone `rollback_execution.json`, bundles same-run pre-/post-restart
@@ -258,11 +260,10 @@ State: `implementing`
   (`session start` / `session send` / `wire_rx`) evidence, fails closed on
   malformed relevant lines, and accepts only decodable initiator requests as
   usable timing evidence.
-- The timing-reference child `#416` is now the only remaining non-deferred
-  bounded child under `#400`. The timing-source producer from `#435` is
-  merged, but the downstream comparator/verdict seam still needs a fresh
-  bounded recut against the current wire artifact and busy/periodicity proof
-  surfaces before `ISSUE-GW-15` can close.
+- Parent issue `Project-Helianthus/helianthus-ebusgateway#400` is now closed
+  as the completed `GW-15` proof/default-flip-preparation gate. The canonical
+  rollout/default-state decision is split forward into
+  `Project-Helianthus/helianthus-ebusgateway#439` (`ISSUE-GW-16`).
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -279,7 +280,7 @@ State: `implementing`
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
 - The overall workstream stays in `implementing` on a fully merged `M6`
-  baseline, with `ISSUE-GW-15` now carrying the next active delivery lane in
+  baseline, with `ISSUE-GW-16` now carrying the next active delivery lane in
   `M7`.
 - `featureFlagsUpdatedAt` remains intentionally process-stable configuration
   metadata after `#429`; that is honest for the freshness precursor but it is
@@ -293,17 +294,18 @@ State: `implementing`
 - `M8` remains intentionally deferred for this plan's critical path and is
   tracked in `common-firmware-rewrite.locked`.
 - `M9` remains blocked behind the active `M7` implementation lane now led by
-  `ISSUE-GW-15`.
+  `ISSUE-GW-16`.
 
 ## Next Actions
 
-1. recut `Project-Helianthus/helianthus-ebusgateway#416` now as the next
-   bounded `GW-15` child slice on top of the merged
-   `wire_timing_reference.json` producer from `#435`
-2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
-   and the `GW-15` safety/timing evidence gate is closed
+1. execute `Project-Helianthus/helianthus-ebusgateway#439` as the active
+   rollout/default-state lane on top of the now-closed `GW-15` proof gate
+2. open and execute `ISSUE-DOC-11` once `GW-16` lands, promoting only the
+   evidence-backed claims from `candidate` to `proven`
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
+4. open and execute `ISSUE-HA-01` after `DOC-11` if the optional HA consumer
+   rollout is still desired on the critical path
 5. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream
