@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-GW-16 next after GW-15 proof closure`
+- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-DOC-11 next after the GW-16 non-promotion decision`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -128,7 +128,7 @@ State: `implementing`
 - `ISSUE-DOC-10` is now merged/closed on docs `main` via issue `#225`,
   PR `#226`, merge commit `5ab82fb`.
 - `M6` is now fully merged on `main`.
-- `M7` remains active, with `ISSUE-GW-16` as the next canonical critical
+- `M7` remains active, with `ISSUE-DOC-11` as the next canonical critical
   path item.
 - `ISSUE-GW-15` is now merged/closed on gateway `main` via parent issue
   `Project-Helianthus/helianthus-ebusgateway#400`. Its bounded slices landed
@@ -264,9 +264,13 @@ State: `implementing`
   malformed relevant lines, and accepts only decodable initiator requests as
   usable timing evidence.
 - Parent issue `Project-Helianthus/helianthus-ebusgateway#400` is now closed
-  as the completed `GW-15` proof/default-flip-preparation gate. The canonical
-  rollout/default-state decision is split forward into
-  `Project-Helianthus/helianthus-ebusgateway#439` (`ISSUE-GW-16`).
+  as the completed `GW-15` proof/default-flip-preparation gate.
+- `ISSUE-GW-16` is now also closed on gateway issue
+  `Project-Helianthus/helianthus-ebusgateway#439` as the canonical
+  non-promotion/default-state decision: the merged `promotion_eligibility`
+  contract proves only `proxy-single-client/required/ens` with
+  `ebusd_transport=no-ebusd`, so broader runtime promotion would overreach
+  beyond the proven family scope. Record-only remains the canonical default.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -297,14 +301,14 @@ State: `implementing`
 - `M8` remains intentionally deferred for this plan's critical path and is
   tracked in `common-firmware-rewrite.locked`.
 - `M9` remains blocked behind the active `M7` implementation lane now led by
-  `ISSUE-GW-16`.
+  `ISSUE-DOC-11`.
 
 ## Next Actions
 
-1. execute `Project-Helianthus/helianthus-ebusgateway#439` as the active
-   rollout/default-state lane on top of the now-closed `GW-15` proof gate
-2. open and execute `ISSUE-DOC-11` once `GW-16` lands, promoting only the
-   evidence-backed claims from `candidate` to `proven`
+1. execute `Project-Helianthus/helianthus-docs-ebus#229` as the active
+   `ISSUE-DOC-11` lane, promoting only evidence-backed proof and rollout claims
+2. decide whether to implement or explicitly skip `ISSUE-HA-01` once the docs
+   freeze lands, without reactivating any deferred tinyebus tail work
 3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
