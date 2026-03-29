@@ -41,13 +41,15 @@ Each milestone requires:
 - Doc-gate: documentation updated before or alongside code
 - Transport-gate: no transport-level regressions
 
-## Execution Backfill
+## Final Execution State
 
-| Milestone | State | Backfill Notes |
-|-----------|-------|----------------|
-| M0 | open | Docs backfill still pending in `helianthus-docs-ebus`. |
-| M1 | merged | `ebusgo#121` merged; transport INFO API and the chatter-bounded INFO follow-up are backfilled. |
-| M2 | open | `helianthus-ebus-adapter-proxy#83` remains open. |
-| M3 | merged (gateway) | Gateway `#440` and `#442` are merged; `GW-05` is now closed on `main`. |
-| M4 | merged | Portal adapter hardware panel backfilled by the gateway merge. |
-| M5 | merged | `ha-integration#169` and `#178` are both merged. |
+| Milestone | State | PRs | Closed |
+|-----------|-------|-----|--------|
+| M0 | done | docs-ebus #232 (`a788415`) | 2026-03-29 |
+| M1 | done | ebusgo #119 (`c61c8fb`), #121 (`e5d3f66`) | 2026-03-29 |
+| M2 | done | proxy #83 (`0007894`) | 2026-03-29 |
+| M3 | done | gateway #440 (`becf3b5`), #442 (`ba0def9`) | 2026-03-29 |
+| M4 | done | gateway #440 (bundled) | 2026-03-29 |
+| M5 | done | ha-integration #169, #176, #178 | 2026-03-29 |
+
+Execution order: M1 → M3/M4 → M5 → M2 → M0 (deviated from planned M0 → M1 → M2 → M3 → M4 → M5).
