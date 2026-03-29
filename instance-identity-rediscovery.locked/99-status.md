@@ -2,9 +2,9 @@
 
 ## Current State
 
-- Plan state: locked
-- Code state: code complete, live deployed, awaiting merge
-- Docs state: repo-local docs shipped with code lanes; durable docs repo draft PR is open
+- Plan state: implemented on `main`
+- Code state: merged on `main`
+- Docs state: merged on `main`
 
 ## Live Validation Snapshot
 
@@ -30,3 +30,7 @@
 | 2026-03-29 | Gateway/add-on/HA/docs implementation completed in local worktrees |
 | 2026-03-29 | Live HA deploy verified: stable GUID persisted, exposed, and adopted in place |
 | 2026-03-29 | Draft PRs opened for gateway (#444), add-on (#109), HA integration (#180), docs (#234), execution plan (#4) |
+| 2026-03-29 | Gateway PR #444 merged on `main` as `ab22eda98ae58da13b49d452a774d26c44f846ad` |
+| 2026-03-29 | Add-on PR #109 merged on `main` as `a547cab79a9d002a859d35edec88c012181ee02f` |
+| 2026-03-29 | HA integration PR #180 merged on `main` as `7a09fc9ff335d0a1594c948bfa64be9f0d44890f` |
+| 2026-03-29 | Docs PR #234 merged on `main` as `57b9844e089586692176348c346b75059b73b8c3` |

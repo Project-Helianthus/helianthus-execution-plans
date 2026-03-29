@@ -4,9 +4,9 @@
 
 | Milestone | Repo | Issues | Description | Dependencies | State |
 | --- | --- | --- | --- | --- | --- |
-| M1 | helianthus-ebusgateway, helianthus-ha-addon | #443, #108 | Stable GUID generation, persistence, GraphQL, Zeroconf | None | code complete, live deployed, awaiting merge |
-| M2 | helianthus-ha-integration | #179 | Verified rediscovery rebind and reachable legacy adoption | M1 | code complete, live deployed, awaiting merge |
-| M3 | helianthus-docs-ebus | #233 | Durable contract publication | M1, M2 | draft PR open, synced to implementation wave |
+| M1 | helianthus-ebusgateway, helianthus-ha-addon | #443, #108 | Stable GUID generation, persistence, GraphQL, Zeroconf | None | merged on `main` |
+| M2 | helianthus-ha-integration | #179 | Verified rediscovery rebind and reachable legacy adoption | M1 | merged on `main` |
+| M3 | helianthus-docs-ebus | #233 | Durable contract publication | M1, M2 | merged on `main` |
 
 ## Parallelization
 
