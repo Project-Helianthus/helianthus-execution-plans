@@ -128,11 +128,11 @@ State: `implementing`
 - `ISSUE-DOC-10` is now merged/closed on docs `main` via issue `#225`,
   PR `#226`, merge commit `5ab82fb`.
 - `M6` is now fully merged on `main`.
-- `M7` is now active, with `ISSUE-GW-15` as the next canonical critical
+- `M7` remains active, with `ISSUE-GW-16` as the next canonical critical
   path item.
-- `ISSUE-GW-15` is now linked to gateway issue
-  `Project-Helianthus/helianthus-ebusgateway#400` with bounded slices merged
-  via PR `#401` (`5409c216654500a7b822ab620eacf2be59ae9497`), PR `#402`
+- `ISSUE-GW-15` is now merged/closed on gateway `main` via parent issue
+  `Project-Helianthus/helianthus-ebusgateway#400`. Its bounded slices landed
+  through PR `#401` (`5409c216654500a7b822ab620eacf2be59ae9497`), PR `#402`
   (`GW-15: add P03 canary manifest and interval verifier`,
   `1596c9fc02a0f745996cc5c911b9b1fec2c7c22d`), PR `#403`
   (`GW-15: add P03 canary proof verdict gate`,
@@ -140,9 +140,13 @@ State: `implementing`
   (`GW-15: add P03 proof window gate`,
   `977503bdab9a7bf6cb94b1b4a8243c86ed45e8b5`), PR `#426`
   (`GW-15: add family proof eligibility artifact`,
-  `96d7010e9676b686ed3301712b9e9b6d71f7225f`), and PR `#427`
+  `96d7010e9676b686ed3301712b9e9b6d71f7225f`), PR `#427`
   (`GW-15: add family-scoped promotion eligibility artifact`), merged via
-  squash merge.
+  squash merge, and PR `#438`
+  (`GW-15: add wire-derived timing reference comparator verdict`,
+  `cb91426b77103ec1f260466909e878f2846c6d51`), which exhausted the last
+  non-deferred proof slice before the lane advanced to
+  `Project-Helianthus/helianthus-ebusgateway#439`.
 - The merged `#401` lane closed the first bounded `P03` proof-plumbing slice;
   the merged `#402` lane closed the second bounded slice (fixed `P03` canary
   manifest, active direct-read canary verifier, interval verifier integration,
@@ -234,8 +238,7 @@ State: `implementing`
   (`GW-15 child: report cold-start vs post-warmup behavior in canonical proof
   artifacts`) is now closed on gateway `main` via PR `#422`
   (`f899cc0de1cfd91beb54cf70af96630977e0f950`), and it records the warmup-
-  behavior proof artifact slice as merged while keeping `ISSUE-GW-15` active
-  for the remaining default-flip evidence.
+  behavior proof artifact slice as merged.
 - The timing-reference child `#416` is now closed on gateway `main` via PR
   `#438` (`cb91426b77103ec1f260466909e878f2846c6d51`). That lane binds the
   independent `wire_timing_reference.json` evidence from `#435` into the
