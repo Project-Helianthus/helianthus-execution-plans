@@ -46,8 +46,8 @@ Each milestone requires:
 | Milestone | State | Backfill Notes |
 |-----------|-------|----------------|
 | M0 | open | Docs backfill still pending in `helianthus-docs-ebus`. |
-| M1 | merged | `ebusgo#119` merged; transport INFO API and parsed types are backfilled. |
+| M1 | merged | `ebusgo#121` merged; transport INFO API and the chatter-bounded INFO follow-up are backfilled. |
 | M2 | open | `helianthus-ebus-adapter-proxy#83` remains open. |
-| M3 | partially merged | Gateway `#440` merged, but `GW-05` remains open. |
+| M3 | merged (gateway) | Gateway `#440` and `#442` are merged; `GW-05` is now closed on `main`. |
 | M4 | merged | Portal adapter hardware panel backfilled by the gateway merge. |
-| M5 | merged | `ha-integration#169` merged; `#178` remains as the hardening follow-up. |
+| M5 | merged | `ha-integration#169` and `#178` are both merged. |

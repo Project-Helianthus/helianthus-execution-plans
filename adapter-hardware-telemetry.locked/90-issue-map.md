@@ -2,10 +2,10 @@
 
 ## Issue Catalog
 
-Backfill snapshot: `ebusgo#119` merged, `helianthus-ebus-adapter-proxy#83` still
-open, `helianthus-ebusgateway#440` merged with `GW-05` still open,
-`helianthus-ha-integration#169` merged with `#178` as the hardening follow-up,
-and docs backfill still pending.
+Backfill snapshot: `helianthus-ebusgo#121` merged, `helianthus-ebus-adapter-proxy#83`
+still open, `helianthus-ebusgateway#442` merged and closed `GW-05`,
+`helianthus-ha-integration#169` and `#178` are both merged, and docs backfill
+is still pending.
 
 | Issue ID | Repo | Milestone | Title | Status |
 |----------|------|-----------|-------|--------|
@@ -18,7 +18,7 @@ and docs backfill still pending.
 | ISSUE-GW-02 | helianthus-ebusgateway | M3 | Adapter telemetry Prometheus metrics | merged |
 | ISSUE-GW-03 | helianthus-ebusgateway | M3 | adapter.info.get MCP tool | merged |
 | ISSUE-GW-04 | helianthus-ebusgateway | M3 | adapterHardwareInfo GraphQL query | merged |
-| ISSUE-GW-05 | helianthus-ebusgateway | M3 | Populate adapterStatus.firmwareVersion | open |
+| ISSUE-GW-05 | helianthus-ebusgateway | M3 | Populate adapterStatus.firmwareVersion | merged |
 | ISSUE-GW-06 | helianthus-ebusgateway | M4 | Portal Adapter Hardware panel | merged |
 | ISSUE-HA-01 | helianthus-ha-integration | M5 | Adapter device enrichment (sw_version, hw_version, serial) | merged |
 | ISSUE-HA-02 | helianthus-ha-integration | M5 | Adapter diagnostic sensors | merged |
