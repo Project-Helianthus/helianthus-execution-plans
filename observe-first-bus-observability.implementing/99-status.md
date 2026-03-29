@@ -237,33 +237,32 @@ State: `implementing`
   behavior proof artifact slice as merged while keeping `ISSUE-GW-15` active
   for the remaining default-flip evidence.
 - `ISSUE-GW-15` still remains active and has not advanced to `ISSUE-GW-16`,
-  because the parent gate now explicitly carries the remaining bounded proof
-  evidence under issue `#400`: the rollback-smoke result seam in `#418` and
-  the still-blocked wire-derived comparator/verdict path in `#416`.
+  because the parent gate now explicitly carries one remaining bounded proof
+  evidence item under issue `#400`: the wire-derived comparator/verdict path
+  in `#416`.
 - The rollback execution precursor is now merged on gateway `main` via PR
   `#436` (`1de2d0b4e05ae6f440395815f86e9208f01ace66`). That lane emits a
   standalone `rollback_execution.json`, bundles same-run pre-/post-restart
   gateway logs under `proof_artifacts`, retries rollback GraphQL readiness in
   a bounded loop, and makes rollback execution provenance fail closed on
   missing, empty, or out-of-bundle evidence.
-- The attempted rollback-smoke child `#418` / PR `#419` was previously rerouted
-  as a wrong seam, but that reroute is now exhausted: the independent rollback
-  execution primitive exists, so `#418` can resume honestly as the next
-  rollback result/verdict consumer lane.
+- The rollback-smoke child is now closed on gateway `main` via PR `#437`
+  (`2a379bb098a2e00e247a85240dddc38637021a72`). That lane consumes the merged
+  rollback execution primitive from `#436`, emits `rollback_result.json`, and
+  makes the rollback result/verdict slice fail closed on drifted pre-state,
+  missing ordered snapshots, missing transition evidence, or rollback post
+  state that fails to return to the target configuration.
 - The independent timing-reference precursor is now merged on gateway `main`
   via PR `#435` (`538532709c441320306db07a8871737c60e89c5b`). That lane emits
   `wire_timing_reference.json` from same-run `proxy.log`
   (`session start` / `session send` / `wire_rx`) evidence, fails closed on
   malformed relevant lines, and accepts only decodable initiator requests as
   usable timing evidence.
-- The timing-reference child `#416` is no longer blocked on timing-source
-  production, but it is still not honestly implementable on the current
-  comparator contract. Audit confirmed that busy semantics still mismatch
-  between the wire artifact and the bounded proof metrics, periodicity lacks
-  the tuple-level observed-side payload needed for a locked comparison, and
-  the current wire producer is not yet anchored to explicit proof-window
-  bounds. So `#416` stays blocked behind another bounded precursor instead of
-  advancing as the immediate next lane.
+- The timing-reference child `#416` is now the only remaining non-deferred
+  bounded child under `#400`. The timing-source producer from `#435` is
+  merged, but the downstream comparator/verdict seam still needs a fresh
+  bounded recut against the current wire artifact and busy/periodicity proof
+  surfaces before `ISSUE-GW-15` can close.
 - The tiny parallel lane is now explicitly de-emphasized from this plan's
   critical path: `ISSUE-TE-01` and `ISSUE-TE-02` are re-homed as deferred to
   `common-firmware-rewrite.locked`.
@@ -298,14 +297,12 @@ State: `implementing`
 
 ## Next Actions
 
-1. resume `Project-Helianthus/helianthus-ebusgateway#418` now as the next
-   bounded `GW-15` child slice, using merged `rollback_execution.json`
-   output from `#436` as the independent rollback execution seam
-2. keep `#416` blocked until a bounded precursor makes the wire-derived timing
-   comparator contract honestly comparable against busy / periodicity outputs
-3. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
+1. recut `Project-Helianthus/helianthus-ebusgateway#416` now as the next
+   bounded `GW-15` child slice on top of the merged
+   `wire_timing_reference.json` producer from `#435`
+2. keep `ISSUE-GW-16` blocked until `ISSUE-GW-15` proof slices are complete
    and the `GW-15` safety/timing evidence gate is closed
-4. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
+3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
 5. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
