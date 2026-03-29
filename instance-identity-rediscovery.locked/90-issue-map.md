@@ -8,7 +8,7 @@
 | ADDON | helianthus-ha-addon | M1 | #108 | #109 | draft PR open, live verified |
 | HA | helianthus-ha-integration | M2 | #179 | #180 | draft PR open, live verified |
 | DOCS | helianthus-docs-ebus | M3 | #233 | #234 | draft PR open |
-| PLAN | helianthus-execution-plans | closure | #3 | pending in this lane | updating status + issue map |
+| PLAN | helianthus-execution-plans | closure | #3 | #4 | draft PR open |
 
 ## Dependency Graph
 

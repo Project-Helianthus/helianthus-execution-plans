@@ -29,4 +29,4 @@
 | 2026-03-29 | Plan created and locked in `helianthus-execution-plans` |
 | 2026-03-29 | Gateway/add-on/HA/docs implementation completed in local worktrees |
 | 2026-03-29 | Live HA deploy verified: stable GUID persisted, exposed, and adopted in place |
-| 2026-03-29 | Draft PRs opened for gateway (#444), add-on (#109), HA integration (#180), docs (#234) |
+| 2026-03-29 | Draft PRs opened for gateway (#444), add-on (#109), HA integration (#180), docs (#234), execution plan (#4) |
