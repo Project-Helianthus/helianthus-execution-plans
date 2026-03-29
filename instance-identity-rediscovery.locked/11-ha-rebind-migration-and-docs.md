@@ -3,23 +3,16 @@
 Source: [00-canonical.md](./00-canonical.md)
 Canonical-SHA256: `9cac304fa44d9d8c54f17d412724acfc055e848e87ede5c16a4676f30394cc92`
 
-## Depends on
+Depends on: [10-identity-contract-and-gateway-addon.md](./10-identity-contract-and-gateway-addon.md).
 
-- [10-identity-contract-and-gateway-addon.md](./10-identity-contract-and-gateway-addon.md)
+Scope: Zeroconf parse of `instance_guid`, GraphQL verification before
+create/rebind, GUID-backed `config_entry.unique_id`, reachable legacy-entry
+adoption, and repo-local plus durable docs.
 
-## Scope
-
-- Zeroconf parse of `instance_guid`
-- GraphQL verification before create/rebind
-- GUID-backed `config_entry.unique_id`
-- Reachable legacy-entry adoption
-- Repo-local and durable docs
-
-## Idempotence Contract
-
-- Rediscovery of unchanged coordinates must be a no-op
-- Repeating legacy adoption on an already migrated entry must not create a duplicate entry
-- Repeating discovery for the same GUID across stale/live endpoints must produce the same accept/refuse decision
+Idempotence contract: Rediscovery of unchanged coordinates must be a no-op.
+Repeating legacy adoption on an already migrated entry must not create a
+duplicate entry. Repeating discovery for the same GUID across stale/live
+endpoints must produce the same accept/refuse decision.
 
 ## HA Tasks
 
@@ -36,15 +29,11 @@ Canonical-SHA256: `9cac304fa44d9d8c54f17d412724acfc055e848e87ede5c16a4676f30394c
 - Update gateway README discovery/API notes
 - Publish the durable contract in `helianthus-docs-ebus`
 
-## Falsifiability Gate
+Falsifiability gate: Missing TXT `instance_guid` must abort discovery.
+TXT/GraphQL mismatch must abort discovery. Reachable legacy entries must adopt a
+GUID without changing `entry.entry_id`. New entries against pre-GUID gateways
+must fail with an upgrade-required error.
 
-- Missing TXT `instance_guid` must abort discovery
-- TXT/GraphQL mismatch must abort discovery
-- Reachable legacy entries must adopt a GUID without changing `entry.entry_id`
-- New entries against pre-GUID gateways must fail with an upgrade-required error
-
-## Coverage
-
-- Pure HA integration tests for discovery parsing and GraphQL identity verification
-- Legacy adoption coverage at helper/setup level
-- Operator-facing docs for restart/update/reinstall semantics
+Coverage: Pure HA integration tests for discovery parsing and GraphQL identity
+verification; legacy adoption coverage at helper/setup level; operator-facing
+docs for restart/update/reinstall semantics.
