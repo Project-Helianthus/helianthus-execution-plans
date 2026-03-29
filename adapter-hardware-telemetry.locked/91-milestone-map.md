@@ -40,3 +40,14 @@ Each milestone requires:
 - CI passing (local CI gate)
 - Doc-gate: documentation updated before or alongside code
 - Transport-gate: no transport-level regressions
+
+## Execution Backfill
+
+| Milestone | State | Backfill Notes |
+|-----------|-------|----------------|
+| M0 | open | Docs backfill still pending in `helianthus-docs-ebus`. |
+| M1 | merged | `ebusgo#119` merged; transport INFO API and parsed types are backfilled. |
+| M2 | open | `helianthus-ebus-adapter-proxy#83` remains open. |
+| M3 | partially merged | Gateway `#440` merged, but `GW-05` remains open. |
+| M4 | merged | Portal adapter hardware panel backfilled by the gateway merge. |
+| M5 | merged | `ha-integration#169` merged; `#178` remains as the hardening follow-up. |
