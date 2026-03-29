@@ -9,9 +9,9 @@
 | `M4` | watch catalog, shadow cache, flags, family policy | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M3` | merged |
 | `M5` | scheduler integration and watch surfaces | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M4` | merged |
 | `M6` | semantic publish and Portal rollout | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M5` | merged |
-| `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | active |
+| `M7` | proof gate and default flip | `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M6` | merged |
 | `M8` | tinyebus parallel track (re-homed to `common-firmware-rewrite.locked`) | `helianthus-tinyebus`, `helianthus-docs-ebus` | `ISSUE-GW-03` and `ISSUE-DOC-05` frozen | queued |
-| `M9` | Home Assistant consumer rollout and final validation | `helianthus-ha-integration`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M7` | queued |
+| `M9` | Home Assistant consumer rollout and final validation | `helianthus-ha-integration`, `helianthus-ebusgateway`, `helianthus-docs-ebus` | `M7` | merged |
 
 ## Ordering Rules
 
@@ -92,8 +92,15 @@
   `858e0ec`; and `ISSUE-DOC-10` landed via docs issue
   `Project-Helianthus/helianthus-docs-ebus#225`, PR `#226`, merge commit
   `5ab82fb`.
-- `M7` remains active on `main`. `ISSUE-GW-15` and `ISSUE-GW-16` are now
-  merged/closed, and `ISSUE-DOC-11` / docs issue `#229` is the next canonical
-  critical path item.
+- `M7` is now fully merged on `main`. `ISSUE-GW-15` and `ISSUE-GW-16` are
+  merged/closed on gateway `main`, and `ISSUE-DOC-11` landed via docs issue
+  `Project-Helianthus/helianthus-docs-ebus#229`, PR `#230`, merge commit
+  `fc63c43af7dc5cf5d8882ea54dc3920c60ef88cd`.
+- `M9` is also now closed on the explicit optional-rollout no-op path:
+  `ISSUE-HA-01` is linked to
+  `Project-Helianthus/helianthus-ha-integration#170`, which was closed on
+  2026-03-29 after confirming the HA integration remains a semantic GraphQL
+  consumer with parity guardrails and does not need a new observe-first
+  diagnostics surface for this plan closure.
 - Locked decisions in `00-canonical.md` override milestone shorthand in this
   file if drift appears.

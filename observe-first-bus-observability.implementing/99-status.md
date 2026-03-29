@@ -6,7 +6,7 @@ State: `implementing`
 
 - Bootstrap import complete: the observability workstream now lives in the
   canonical plan layout used by `helianthus-execution-plans`.
-- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6 merged on main; M7 active with ISSUE-DOC-11 next after the GW-16 non-promotion decision`
+- Current milestone focus: `M0/M1/M2/M3/M4/M5/M6/M7 merged on main; optional M9 is explicitly closed as a no-op; only deferred M8 remains outside this critical path`
 - Current slug state: `observe-first-bus-observability.implementing`
 - Anchored implementation has moved past the import seed and the `GW-18`
   merge/proof lane is now settled on repo `main`:
@@ -128,8 +128,7 @@ State: `implementing`
 - `ISSUE-DOC-10` is now merged/closed on docs `main` via issue `#225`,
   PR `#226`, merge commit `5ab82fb`.
 - `M6` is now fully merged on `main`.
-- `M7` remains active, with `ISSUE-DOC-11` as the next canonical critical
-  path item.
+- `M7` is now fully merged on `main`.
 - `ISSUE-GW-15` is now merged/closed on gateway `main` via parent issue
   `Project-Helianthus/helianthus-ebusgateway#400`. Its bounded slices landed
   through PR `#401` (`5409c216654500a7b822ab620eacf2be59ae9497`), PR `#402`
@@ -258,6 +257,18 @@ State: `implementing`
   missing ordered snapshots, missing transition evidence, or rollback post
   state that fails to return to the target configuration.
 - The independent timing-reference precursor is now merged on gateway `main`
+- `ISSUE-DOC-11` is now merged/closed on docs `main` via issue
+  `Project-Helianthus/helianthus-docs-ebus#229`, PR `#230`, merge commit
+  `fc63c43af7dc5cf5d8882ea54dc3920c60ef88cd`. The docs now freeze the bounded
+  `P03` proof scope as family-scoped evidence only, record the GW-16
+  non-promotion decision, and remove the stale claim that observe-first proof
+  artifacts did not yet exist.
+- `M9` is now also exhausted on the explicit optional-rollout no-op path:
+  `ISSUE-HA-01` is linked to
+  `Project-Helianthus/helianthus-ha-integration#170`, which was closed on
+  2026-03-29 after confirming the HA integration remains a semantic GraphQL
+  consumer with parity guardrails and does not need a new observe-first
+  diagnostics surface for this plan closure.
   via PR `#435` (`538532709c441320306db07a8871737c60e89c5b`). That lane emits
   `wire_timing_reference.json` from same-run `proxy.log`
   (`session start` / `session send` / `wire_rx`) evidence, fails closed on
@@ -286,9 +297,10 @@ State: `implementing`
   `Project-Helianthus/helianthus-docs-ebus#213`, PR `#214`, and
   `ISSUE-DOC-04` is merged via docs issue
   `Project-Helianthus/helianthus-docs-ebus#215`, PR `#216`.
-- The overall workstream stays in `implementing` on a fully merged `M6`
-  baseline, with `ISSUE-GW-16` now carrying the next active delivery lane in
-  `M7`.
+- The overall workstream stays in `implementing` only because the imported seed
+  still lacks a historical Discussion archive and `M8` remains intentionally
+  deferred; the non-deferred `M0/M1/M2/M3/M4/M5/M6/M7/M9` lane is now closed on
+  merged `main` plus the explicit optional `HA-01` no-op decision.
 - `featureFlagsUpdatedAt` remains intentionally process-stable configuration
   metadata after `#429`; that is honest for the freshness precursor but it is
   not itself proof of live-mutating feature-flag skew semantics.
@@ -300,19 +312,11 @@ State: `implementing`
   `plan.yaml`.
 - `M8` remains intentionally deferred for this plan's critical path and is
   tracked in `common-firmware-rewrite.locked`.
-- `M9` remains blocked behind the active `M7` implementation lane now led by
-  `ISSUE-DOC-11`.
 
 ## Next Actions
 
-1. execute `Project-Helianthus/helianthus-docs-ebus#229` as the active
-   `ISSUE-DOC-11` lane, promoting only evidence-backed proof and rollout claims
-2. decide whether to implement or explicitly skip `ISSUE-HA-01` once the docs
-   freeze lands, without reactivating any deferred tinyebus tail work
-3. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
+1. keep `ISSUE-TE-01` / `ISSUE-TE-02` tracking in
    `common-firmware-rewrite.locked` and avoid reactivating tiny work on this
    plan until firmware bring-up milestones are ready
-4. open and execute `ISSUE-HA-01` after `DOC-11` if the optional HA consumer
-   rollout is still desired on the critical path
-5. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
+2. open a bootstrap Discussion in `helianthus-execution-plans` to retro-link
    the imported workstream
