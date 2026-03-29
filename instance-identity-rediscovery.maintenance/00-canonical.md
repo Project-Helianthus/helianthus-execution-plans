@@ -168,7 +168,7 @@ The first-wave durability guarantee is scoped to the HA add-on lifecycle.
 
 ### 6.5 `helianthus-execution-plans`
 
-- Track this work in `instance-identity-rediscovery.locked`
+- Track this work in `instance-identity-rediscovery.maintenance`
 
 ## 7. Migration Semantics
 

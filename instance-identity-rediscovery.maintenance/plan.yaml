@@ -1,6 +1,6 @@
 slug: instance-identity-rediscovery
 title: Stable Helianthus Instance Identity & Verified Rediscovery Rebind
-state: locked
+state: maintenance
 source_discussion: codex-implementation-pass-2026-03-29
 target_repos:
   - helianthus-ebusgateway

@@ -1,7 +1,7 @@
 # Stable Helianthus Instance Identity — HA Rebind, Migration, Docs
 
 Source: [00-canonical.md](./00-canonical.md)
-Canonical-SHA256: `9cac304fa44d9d8c54f17d412724acfc055e848e87ede5c16a4676f30394cc92`
+Canonical-SHA256: `ed01a3a04a1ea93979803ce4aab5bcf5c9ce0894d1d6c20336135781905c574a`
 
 Depends on: [10-identity-contract-and-gateway-addon.md](./10-identity-contract-and-gateway-addon.md).
 
