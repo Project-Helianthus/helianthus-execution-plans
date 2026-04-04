@@ -1,0 +1,13 @@
+slug: proxy-wire-semantics-fidelity
+title: Proxy Wire-Semantics Fidelity and Local Target Emulation
+state: locked
+source_discussion: bootstrap-proxy-wire-semantics-2026-04-04-no-discussion-yet
+target_repos:
+  - helianthus-execution-plans
+  - helianthus-docs-ebus
+  - helianthus-ebus-adapter-proxy
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-04-04
+current_milestone: M0
