@@ -2,6 +2,12 @@
 
 This repository is the canonical home for locked Helianthus execution plans.
 
+## Dual-AI Reciprocity
+
+- `ORCHESTRATOR` and `CO_PILOT` are portable roles. The current workspace default is Claude as orchestrator and Codex as co-pilot, but plan review must remain valid when the bindings are swapped.
+- Use the co-pilot only for adversarial planning, review, and second-opinion reasoning. Do not spend Claude MCP or any equivalent co-pilot runtime on file reads, globs, grep, polling, or routine repository inspection.
+- If the preferred co-pilot is unavailable, throttled, or not integrated, the active orchestrator must fall back to fresh-context agents on the available runtime and keep the same planning and supervision contract.
+
 ## Scope
 
 Use this repository for workstreams that are:
