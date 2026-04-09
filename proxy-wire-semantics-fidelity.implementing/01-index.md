@@ -2,10 +2,10 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `da94a59d01b9ed187ceeaa28657b2ddd3cce0f8a699770b457d330c38d336bd3`
+Canonical-SHA256: `954320c60b9331eef34ef7405403ae689a4b99e59899da490337be1ef6047bc0`
 
-This directory contains the canonical EPIC lock and a lossless execution split
-for orchestrator-driven implementation.
+This directory contains the canonical EPIC contract and a lossless execution
+split for orchestrator-driven implementation.
 
 ## Split Rules
 
@@ -47,5 +47,7 @@ The split is acceptable only if adversarial review can confirm:
 
 - complete issue coverage (`#5`, `#6`, `#7`, `#238`-`#241`, `#85`-`#91`)
 - exact milestone ordering with deferred `M6`
+- implementation-state reconciliation: `M1..M5` landed, `M0` plan lane
+  reconciling, `M6` deferred
 - explicit matrix subset definition (`PX01..PX12`)
 - explicit assumptions/defaults preserved from the EPIC contract

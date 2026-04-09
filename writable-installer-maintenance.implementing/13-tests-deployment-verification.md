@@ -2,7 +2,12 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `34d2c8b70b8852a694fb09916744fe3670f3f386016de83d65c1f239b85213b7`
+Canonical-SHA256: `76ba52c1c0e115e69fec268ade5d5291bb47dedae4b6c6d42649fadb14143da7`
+
+Implementation reconciliation note (2026-04-09):
+- Test expectations must follow aggregated controller field API.
+- Menu code test surfaces are in `text.py`, not `number.py`.
+- Boiler phone write tests should validate digit normalization + BCD semantics.
 
 Depends on: `11-gateway-semantic-graphql.md` and `12-mcp-ha-integration.md`
 (tests cover features defined in those chunks).
@@ -38,11 +43,14 @@ plan.
 `confirmDecodableReadback` for 4 types with edge cases.
 `configReadbackMatchesWrite` including CString asymmetric null-padding.
 
-### internal/configwrite/ package tests
+### Writer/codec path tests
 
-Encode/decode round-trip for all 4 types. Value validation (hex, ASCII, range,
-calendar). Readback comparison logic. Field spec resolution is NOT in this
-package.
+Cover the delivered writer + mutation + semantic encoding path directly:
+- aggregated B524 CString split/join behavior
+- date encode/decode and sentinel rejection
+- boiler menu code range handling
+- boiler phone digit normalization and BCD payload encoding
+- readback comparison logic in the active gateway path
 
 ### B509 transport tests (existing)
 
@@ -83,14 +91,16 @@ error tests. Compile-time decision.
 ## HA Tests (Python)
 
 ### test_text.py
-- 5 text entities (4 B524 parts + 1 boiler phone)
-- Write flows, ASCII/hex validation, empty/max-length edge cases
+- 5 text entities:
+  - system `installerName`
+  - system `installerPhone`
+  - boiler `phoneNumber`
+  - system `installerMenuCode`
+  - boiler `installerMenuCode`
+- Write flows, ASCII/phone validation, digit normalization, empty/max-length edge cases
 
 ### test_date.py
 - 1 date entity, date conversion, sentinel rejection
-
-### test_number.py (additions)
-- 2 menu code entities, hidden+disabled defaults, write flows
 
 ### test_sensor.py (additions)
 - Hours Till Service: read-only, duration, diagnostic
@@ -111,9 +121,9 @@ passed. All MCP field names use snake_case.
 1. Gateway binary deploy to RPi4
 2. `system.get` -- confirm new config fields
 3. [B509-gated] `boiler_status.get` -- confirm new config fields
-4. [write-gated: CString] system.set_config installerName1 round-trip
+4. [write-gated: CString] system.set_config installerName round-trip
 5. [write-gated: DateHDA3] system.set_config maintenanceDate round-trip
-6. [B509-gated, write-gated: UCH] boiler_status.set_config no-op writeback
+6. [B509-gated, write-gated: UCH] boiler_status.set_config installerMenuCode no-op writeback
 7. HA deployment -- verify entities appear
 8. [write-gated] HA write test -- maintenance date via UI
 9. Backward-compat smoke: revert gateway, verify main queries intact

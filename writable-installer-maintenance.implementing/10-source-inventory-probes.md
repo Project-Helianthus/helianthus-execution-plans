@@ -2,7 +2,12 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `34d2c8b70b8852a694fb09916744fe3670f3f386016de83d65c1f239b85213b7`
+Canonical-SHA256: `76ba52c1c0e115e69fec268ade5d5291bb47dedae4b6c6d42649fadb14143da7`
+
+Implementation reconciliation note (2026-04-09):
+- Canonical API fields are aggregated `installerName`/`installerPhone`.
+- Menu code entity strategy is text-based.
+- Boiler phone UX is digit-string with BCD wire encoding.
 
 Depends on: None. This is the foundation chunk.
 

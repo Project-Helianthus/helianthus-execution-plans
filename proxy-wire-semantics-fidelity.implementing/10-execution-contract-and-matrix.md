@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `da94a59d01b9ed187ceeaa28657b2ddd3cce0f8a699770b457d330c38d336bd3`
+Canonical-SHA256: `954320c60b9331eef34ef7405403ae689a4b99e59899da490337be1ef6047bc0`
 
 Depends on: [00-canonical.md](./00-canonical.md),
 [90-issue-map.md](./90-issue-map.md), and

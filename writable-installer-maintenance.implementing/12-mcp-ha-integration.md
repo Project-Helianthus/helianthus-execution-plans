@@ -2,7 +2,12 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `34d2c8b70b8852a694fb09916744fe3670f3f386016de83d65c1f239b85213b7`
+Canonical-SHA256: `76ba52c1c0e115e69fec268ade5d5291bb47dedae4b6c6d42649fadb14143da7`
+
+Implementation reconciliation note (2026-04-09):
+- HA menu code surfaces are text entities with hidden/disabled defaults.
+- Controller installer fields are aggregated in coordinator/query contract.
+- Boiler phone UX is digit-string; gateway performs BCD encoding.
 
 Depends on: `11-gateway-semantic-graphql.md` (Gateway types and mutations must
 exist before MCP tools and HA entities can consume them).
@@ -51,11 +56,11 @@ Same pattern as system.set_config for B509 boiler registers.
 
 ### Shared Write Logic
 
-B524 and B509 write pipelines are structurally different. Shared in
-`internal/configwrite/`: value validation, encoder/decoder functions, readback
-comparison. Protocol-specific: field spec resolution, write execution.
-
-MCP tools delegate to injected `SystemConfigWriter`/`BoilerConfigWriter`.
+B524 and B509 write pipelines are structurally different, but the delivered
+shape keeps both behind the injected `SystemConfigWriter` /
+`BoilerConfigWriter` paths. Validation/encoding lives in the existing gateway
+mutation + semantic writer flow; there is no required `internal/configwrite/`
+package in the implemented design.
 
 ## Phase 5: HA Integration
 
@@ -67,7 +72,7 @@ CRITICAL backward-compat: Adding fields to existing queries causes whole-query
 validation failure on older gateways. Solution: 4 separate optional queries.
 
 New queries:
-- `QUERY_SYSTEM_INSTALLER`: maintenanceDate, installerName1/2, installerPhone1/2
+- `QUERY_SYSTEM_INSTALLER`: maintenanceDate, installerName, installerPhone
 - `QUERY_SYSTEM_SENSITIVE`: installerMenuCode
 - `QUERY_BOILER_INSTALLER`: phoneNumber, hoursTillService
 - `QUERY_BOILER_SENSITIVE`: installerMenuCode
@@ -92,28 +97,32 @@ Entity availability:
 
 ### 5.2: Text Platform (text.py, NEW)
 
-4 B524 text entities (raw parts, not combined):
-- Installer Name Part 1/2, Installer Phone Part 1/2 (each maxLength 6)
+Delivered text entities:
+- System `installerName` (maxLength 12)
+- System `installerPhone` (maxLength 12)
+- Boiler `phoneNumber` (maxLength 16, digit-string UX)
+- System `installerMenuCode` (sensitive text entity)
+- Boiler `installerMenuCode` (sensitive text entity)
 
-1 B509 text entity:
-- Boiler Phone Number (hex-encoded 8 bytes, native_max=16)
+Input validation:
+- system installer name: printable ASCII
+- system installer phone: digits and `+() `
+- boiler phone: digit-string UX normalized before BCD encoding in gateway
+- menu code text entities: digit-only with range enforcement by source
 
-Input validation: ASCII-only for B524, hex-only for B509.
-Properties: EntityCategory.CONFIG, TextMode.TEXT.
+Properties: `EntityCategory.CONFIG`, `TextMode.TEXT`.
 
 ### 5.3: Date Platform (date.py, NEW)
 
 1 writable DateEntity: Maintenance Date. Reject sentinel 2015-01-01 on write.
 Properties: EntityCategory.CONFIG, icon mdi:calendar-clock.
 
-### 5.4: Number / Sensor Entities
+### 5.4: Sensor / Sensitive-Entity Contract
 
-2 writable NumberEntity: Controller menu code (0-999), Boiler menu code (0-255).
-Both: `entity_registry_visible_default=False`, `entity_registry_enabled_default=False`.
-Note: `entity_registry_visible_default` is first-time use in this integration.
-
-1 read-only sensor: Hours Till Service (SensorDeviceClass.DURATION, unit h,
-EntityCategory.DIAGNOSTIC). Read-only -- B509 service counter must not be written.
+- No installer menu-code `number.py` entities in the implemented design.
+- Both menu-code surfaces live in `text.py` with hidden/disabled defaults.
+- `hoursTillService` is a read-only diagnostic sensor
+  (`SensorDeviceClass.DURATION`, unit `h`, `EntityCategory.DIAGNOSTIC`).
 
 ### 5.5: Platform Registration
 

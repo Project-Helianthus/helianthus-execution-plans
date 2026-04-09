@@ -1,8 +1,8 @@
 # Proxy Wire-Semantics Fidelity and Local Target Emulation
 
-Revision: `v1.0-epic-lock`
-Date: `2026-04-04`
-Status: `Locked`
+Revision: `v1.1-implementing-reconcile`
+Date: `2026-04-09`
+Status: `Implementing`
 
 ## Summary
 
@@ -25,15 +25,22 @@ sequencing:
 No transport/protocol behavior change is allowed to merge without matrix
 evidence.
 
+Execution-state note:
+
+- Proxy/docs implementation lanes for `M1..M5` are already landed on local
+  `main` histories.
+- `M0` docs lane is landed, while the execution-plans lane remains in
+  reconciliation.
+- `M6` remains deferred and non-blocking.
+
 ## 1. Proven / Hypothesis / Unknown
 
 ### 1.1 Proven
 
 - EPIC issue exists: `#5`.
-- Required child issues exist across all three repos:
-  - execution-plans: `#6`, `#7`
-  - docs: `#238`, `#239`, `#240`, `#241`
-  - proxy: `#85` to `#91`
+- Required child issues exist across all three repos.
+- Proxy implementation lanes `#85` to `#91` are landed in local `main` history.
+- Docs lanes `#238`, `#239`, and `#240` are landed in local execution history.
 - Milestone ordering contract is fixed: `M0 -> M1 -> M2 -> M3 -> M4 -> M5`,
   with `M6` deferred.
 
@@ -49,7 +56,7 @@ evidence.
 - Hardware-timing proof for strict local target response fidelity on production
   shared bus topology remains unknown until ESERA passive validation (`M6`).
 
-## 2. Locked Milestone Model
+## 2. Milestone Model and Current Execution State
 
 ### M0: Spec, docs, and harness scaffolding
 
@@ -62,6 +69,10 @@ Outcomes:
 - define runtime evidence expectations
 - no functional proxy behavior change
 
+Current state:
+- docs lane (`DOC-01`) landed
+- execution-plans lane (`PLAN-01`) still reconciling
+
 ### M1: Immediate correctness fixes
 
 Repo:
@@ -72,6 +83,9 @@ Outcomes:
 - `SYN-while-waiting` closes current transaction for scheduling
 - add stable counters/logs
 - keep scheduler model otherwise unchanged
+
+Current state:
+- completed on proxy `main`
 
 ### M2: Boundary-based initiator arbitration
 
@@ -84,6 +98,9 @@ Outcomes:
 - FIFO only within equal initiator
 - same-round requeue is honored
 
+Current state:
+- completed on proxy `main`
+
 ### M3: Minimal direct-mode phase tracker
 
 Repo:
@@ -94,6 +111,9 @@ Outcomes:
 - detect `ACK/NACK` and response phase transitions
 - classify terminal vs timeout boundaries
 - no L7 semantic parsing
+
+Current state:
+- completed on proxy `main`
 
 ### M4: Local target emulation core
 
@@ -107,6 +127,9 @@ Outcomes:
 - responder window from echoed request
 - reject and count late detached responses
 
+Current state:
+- completed on proxy/docs `main`
+
 ### M5: Matrix, smoke, and operator proof updates
 
 Repos:
@@ -119,6 +142,9 @@ Outcomes:
 - require `PX01..PX12` as adjunct gate for proxy behavior work
 - define deferred hardware-proof placeholders
 
+Current state:
+- completed on proxy/docs `main`
+
 ### M6: Deferred hardware validation follow-up
 
 Repos:
@@ -129,6 +155,9 @@ Outcomes:
 - ESERA passive capture procedure and pass/fail contract
 - non-blocking for M0-M5
 - required before production claims of strict timing fidelity
+
+Current state:
+- intentionally deferred; no closure claim
 
 ## 3. Canonical Issue Split
 
@@ -220,12 +249,14 @@ Execution rules for an orchestrator receiving only EPIC `#5`:
 - Hardware validation is deferred in this wave, but the matrix/docs/proof
   contract must be implementation-ready now.
 
-## 7. Merge Readiness Definition
+## 7. Maintenance Readiness Definition
 
-This plan remains `locked` until:
+This plan remains `implementing` until:
 
-- `M0` child issues are complete and reviewed,
-- at least one implementation lane in `M1` starts,
-- and the first code PR opens in a target implementation repo.
+- `PLAN-01` (`#6`) is reconciled on `main` with status/issue/milestone maps
+  aligned to landed implementation evidence,
+- deferred follow-up ownership for `FOLLOWUP-01` (`#241`, `#7`) is explicitly
+  reaffirmed in plan status, and
+- no stale `locked`-state execution instructions remain in the split package.
 
-At that point, slug transitions to `.implementing` by standard repo policy.
+After these are satisfied, the slug may transition to `.maintenance`.

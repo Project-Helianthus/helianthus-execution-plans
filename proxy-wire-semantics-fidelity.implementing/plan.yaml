@@ -1,6 +1,6 @@
 slug: proxy-wire-semantics-fidelity
 title: Proxy Wire-Semantics Fidelity and Local Target Emulation
-state: locked
+state: implementing
 source_discussion: bootstrap-proxy-wire-semantics-2026-04-04-no-discussion-yet
 target_repos:
   - helianthus-execution-plans

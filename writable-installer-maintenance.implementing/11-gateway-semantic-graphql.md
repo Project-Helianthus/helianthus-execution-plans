@@ -2,7 +2,12 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `34d2c8b70b8852a694fb09916744fe3670f3f386016de83d65c1f239b85213b7`
+Canonical-SHA256: `76ba52c1c0e115e69fec268ade5d5291bb47dedae4b6c6d42649fadb14143da7`
+
+Implementation reconciliation note (2026-04-09):
+- Controller API contract is aggregated (`installerName`, `installerPhone`).
+- Boiler phone mutation path uses digit-string input and BCD wire encoding.
+- `internal/configwrite/` extraction is not a required delivered milestone.
 
 Depends on: `10-source-inventory-probes.md` (Phase 0 probe results gate all work here).
 
@@ -31,27 +36,28 @@ GraphQL Schema & Mutations).
 
 File: `graphql/semantic.go` (SystemConfig at line ~235, cloneSystemConfig at ~461)
 
-Add 6 new fields:
+Implemented shape:
 ```
 MaintenanceDate   *string  // ISO "YYYY-MM-DD" from HDA:3
-InstallerName1    *string  // maxLength 6
-InstallerName2    *string  // maxLength 6
-InstallerPhone1   *string  // maxLength 6
-InstallerPhone2   *string  // maxLength 6
+InstallerName     *string  // aggregated 0x006C + 0x006D, maxLength 12
+InstallerPhone    *string  // aggregated 0x006F + 0x0070, maxLength 12
 InstallerMenuCode *int     // 0..999
 ```
 
-Update `cloneSystemConfig()` with deep-copy for all 6 fields.
+Implementation note:
+- Aggregation happens at the gateway surface while the underlying write path
+  still targets the paired B524 CString registers.
+- `cloneSystemConfig()` must deep-copy the aggregated installer fields.
 
 ### 1B: BoilerConfig (B509)
 
 File: `graphql/semantic.go` (BoilerConfig at line ~191)
 Clone helper: `graphql/semantic_live.go` (cloneBoilerConfig at line ~605)
 
-Add 3 new fields:
+Implemented shape:
 ```
 InstallerMenuCode  *int     // 0..255 (UCH)
-PhoneNumber        *string  // hex-encoded 8 bytes
+PhoneNumber        *string  // digit-string UX, BCD-encoded on wire
 HoursTillService   *int     // hours (hoursum2)
 ```
 
@@ -71,24 +77,23 @@ B509 register reads for Password, PhoneNumber, HoursTillService using opcode
 
 ### 2C: Write-Through Cache
 
-Boiler (B509): Already has `SetBoilerConfig()` at line 4896 with patch+publish.
+Boiler (B509): `SetBoilerConfig()` remains the writer/publish anchor.
 
-System (B524): Currently `setSystemConfig` resolver at `mutations.go:431` calls
-`setSystemConfigResolve()` directly -- no builder-injected writer, no snapshot
-patch. Must be fixed in M2:
+System (B524): the delivered implementation wires `SystemConfigWriter`
+through the existing builder/schema path so `setSystemConfig` also patches the
+snapshot and republishes immediately after successful writes.
 
-1. Define `SystemConfigWriter` interface in `graphql/builder.go`
-2. Add `systemConfigWriter` field + `SetSystemConfigWriter()` to Builder
-3. Change `buildMutationType()` signature at `mutations.go:168` (5th param)
-4. Change `NewSchema()` at `mutations.go:140` to pass through
-5. Rewrite resolver closure at `mutations.go:424-433`
-6. Implement in `semantic_vaillant.go` (patch+publish pattern)
-7. Inject at startup in `cmd/gateway/main.go`
+Delivered wiring scope:
+1. `SystemConfigWriter` interface in `graphql/builder.go`
+2. builder field + setter
+3. `buildMutationType()` / `NewSchema()` pass-through
+4. `setSystemConfig` resolver uses the writer path
+5. `semantic_vaillant.go` patches and publishes the updated system snapshot
+6. gateway startup injects the writer
 
-Files touched: `builder.go`, `mutations.go`, `semantic_vaillant.go`, `main.go`.
-
-MCP write path: Add `ConfigWriter` interface to `mcp/server.go` alongside
-existing `SemanticProvider` (line 344) and `ScheduleWriter` (line 339).
+MCP write path: the MCP server delegates to the same writer-backed system/boiler
+config paths. A dedicated `internal/configwrite/` package is not part of the
+implemented contract.
 
 ## Phase 3: GraphQL Schema & Mutations
 
@@ -106,37 +111,36 @@ B524 `systemConfigFieldSpecs` additions:
 | Field | Addr | Type | Constraints |
 |-------|------|------|-------------|
 | `maintenanceDate` | 0x002C | configValueDateHDA3 | -- |
-| `installerName1` | 0x006C | configValueCString | maxLen: 6 |
-| `installerName2` | 0x006D | configValueCString | maxLen: 6 |
-| `installerPhone1` | 0x006F | configValueCString | maxLen: 6 |
-| `installerPhone2` | 0x0070 | configValueCString | maxLen: 6 |
+| `installerName` | 0x006C + 0x006D | configValueCString | maxLen: 12 |
+| `installerPhone` | 0x006F + 0x0070 | configValueCString | maxLen: 12 |
 | `installerMenuCode` | 0x0076 | configValueUint16 | min: 0, max: 999 |
 
-B509 `boilerConfigFieldSpecs` additions (uses `addrs []uint16` plural):
+B509 `boilerConfigFieldSpecs` additions:
 
-| Field | addrs | Codec | Constraints |
-|-------|-------|-------|-------------|
+| Field | Addr | Codec | Constraints |
+|-------|------|-------|-------------|
 | `installerMenuCode` | `[]uint16{0x4904}` | boilerConfigCodecUCH | min: 0, max: 255 |
-| `phoneNumber` | `[]uint16{0x8104}` | boilerConfigCodecHex8 | -- |
+| `phoneNumber` | `[]uint16{0x8104}` | BCD/digit-string codec | max 16 digits |
 
 `hoursTillService` is read-only (not in `boilerConfigFieldSpecs`).
 
 Encoding details:
-- CString: ASCII-only, maxLen, null-pad. Use `readB524CStringSanitized()` wrapper
-  (NOT base `readB524CString()` -- base is also used by zone names at line 5665).
+- CString: printable ASCII validation, null-pad/split across the paired B524
+  registers as needed for aggregated controller values.
 - DateHDA3: ISO parse, calendar validate, encode [DD, MM, YY-2000], reject 2015-01-01.
 - UCH: integer 0-255, single byte.
-- Hex8: hex string to 8 bytes.
+- Boiler phone: normalize user input to digits, then encode to 8-byte BCD.
 
 ### 3C: B509 Pipeline Type Generalization
 
-Existing `SetBoilerConfig` pipeline is float64-only. HEX:8 cannot pass through.
+Existing `SetBoilerConfig` pipeline had to generalize beyond float-only updates
+so phone/menu code writes could flow through the same snapshot/publish path.
 
 Required changes in M3:
 1. Union value type: `boilerConfigValue interface{}` (float64/string/int)
 2. Generalize `parseBoilerConfigValue()` return type
 3. Generalize `encodeBoilerConfigPayload()` input type
 4. Extend `boilerSnapshotWithConfigValue()` for `*string`, `*int` fields
-5. Add `boilerConfigCodecUCH` and `boilerConfigCodecHex8`
+5. Add codec handling for UCH and boiler phone digit-string/BCD payloads
 
 Size: ~100-150 lines changed in `semantic_vaillant.go`.
