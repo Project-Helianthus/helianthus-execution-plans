@@ -354,38 +354,37 @@ Gate policy:
 
 ### EPIC Root
 
-- `Project-Helianthus/helianthus-execution-plans#TBD` (`EPIC-GATEWAY-EMBEDDED-PROXY`)
+- `Project-Helianthus/helianthus-execution-plans#11` (`EPIC-GATEWAY-EMBEDDED-PROXY`)
 
 ### M0
 
-- `Project-Helianthus/helianthus-execution-plans#TBD` (`PLAN-01`)
-- `Project-Helianthus/helianthus-docs-ebus#TBD` (`DOC-01`)
+- `Project-Helianthus/helianthus-execution-plans#11` (`PLAN-01`)
+- `Project-Helianthus/helianthus-docs-ebus#248` (`DOC-01`)
 
 ### M1
 
-- `Project-Helianthus/helianthus-ebusgateway#TBD` (`GW-01`)
+- `Project-Helianthus/helianthus-ebusgateway#472` (`GW-01`, merged)
 
 ### M2
 
-- `Project-Helianthus/helianthus-ebusgateway#TBD` (`GW-02`)
+- `Project-Helianthus/helianthus-ebusgateway#472` (`GW-02`, merged)
 
 ### M3
 
-- `Project-Helianthus/helianthus-ebusgateway#TBD` (`GW-03`)
+- `Project-Helianthus/helianthus-ebusgateway#472` (`GW-03`, merged)
 
 ### M4
 
-- `Project-Helianthus/helianthus-ha-addon#TBD` (`HA-01`)
-- `Project-Helianthus/helianthus-docs-ebus#TBD` (`DOC-02`)
+- `Project-Helianthus/helianthus-ha-addon#117` (`HA-01`, merged)
+- `Project-Helianthus/helianthus-docs-ebus#249` (`DOC-02`)
 
 ### M5
 
-- `Project-Helianthus/helianthus-ebusgateway#TBD` (`GW-04`)
-- `Project-Helianthus/helianthus-docs-ebus#TBD` (`DOC-03`)
+- `Project-Helianthus/helianthus-ebusgateway#476` (`GW-04`)
+- `Project-Helianthus/helianthus-docs-ebus#250` (`DOC-03`)
 
-Issue numbers will be assigned when issues are created on GitHub. The
-canonical map files must be updated with real issue numbers before any
-downstream execution handoff.
+All issue numbers are now assigned. GW-01/GW-02/GW-03 and HA-01 are
+merged. Active work: DOC-01, DOC-02, DOC-03, GW-04.
 
 ## 6. Orchestrator Contract
 
