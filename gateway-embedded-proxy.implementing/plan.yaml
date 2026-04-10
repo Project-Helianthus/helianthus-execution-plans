@@ -1,6 +1,6 @@
 slug: gateway-embedded-proxy
 title: Gateway-Embedded Adapter Multiplexer (Direct Connect)
-state: locked
+state: implementing
 source_discussion: gateway-embedded-proxy-2026-04-09-pre-discussion
 target_repos:
   - helianthus-execution-plans
@@ -11,4 +11,4 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-09
-current_milestone: M0
+current_milestone: M5
