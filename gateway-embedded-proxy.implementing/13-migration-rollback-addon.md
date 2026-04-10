@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `0bc9965756418f65ae4c709b90ff08d152612e2c9894ca8e684e8ba36e0cd8a8`
+Canonical-SHA256: `252f7011bb61387c568511a9396203de2ad31e37787a1755fb8bf97aba353985`
 
 Depends on: [00-canonical.md](./00-canonical.md),
 [11-gateway-integration-paths.md](./11-gateway-integration-paths.md),

@@ -13,46 +13,46 @@ Status legend:
 
 | Canonical ID | Repo | Summary | Status |
 | --- | --- | --- | --- |
-| `EPIC-GATEWAY-EMBEDDED-PROXY` | `helianthus-execution-plans` | TBD | planned |
+| `EPIC-GATEWAY-EMBEDDED-PROXY` | `helianthus-execution-plans` | [#11](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/11) | planned |
 
 ## M0
 
 | Canonical ID | Repo | GitHub issue | Summary | Status |
 | --- | --- | --- | --- | --- |
-| `PLAN-01` | `helianthus-execution-plans` | TBD | Canonical execution-plan package | reconciling |
-| `DOC-01` | `helianthus-docs-ebus` | TBD | Architecture doc + AD01..AD12 definitions | active |
+| `PLAN-01` | `helianthus-execution-plans` | [#11](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/11) | Canonical execution-plan package | reconciling |
+| `DOC-01` | `helianthus-docs-ebus` | [#248](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/248) | Architecture doc + AD01..AD12 definitions | active |
 
 ## M1
 
 | Canonical ID | Repo | GitHub issue | Summary | Status |
 | --- | --- | --- | --- | --- |
-| `GW-01` | `helianthus-ebusgateway` | TBD | Adapter multiplexer core + arbitration + echo suppression | merged-main (PR #472) |
+| `GW-01` | `helianthus-ebusgateway` | [#472](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/472) (merged) | Adapter multiplexer core + arbitration + echo suppression | merged-main (PR #472) |
 
 ## M2
 
 | Canonical ID | Repo | GitHub issue | Summary | Status |
 | --- | --- | --- | --- | --- |
-| `GW-02` | `helianthus-ebusgateway` | TBD | Active + passive path integration | merged-main (PR #472) |
+| `GW-02` | `helianthus-ebusgateway` | [#472](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/472) (merged) | Active + passive path integration | merged-main (PR #472) |
 
 ## M3
 
 | Canonical ID | Repo | GitHub issue | Summary | Status |
 | --- | --- | --- | --- | --- |
-| `GW-03` | `helianthus-ebusgateway` | TBD | External proxy endpoint with full master access | merged-main (PR #472) |
+| `GW-03` | `helianthus-ebusgateway` | [#472](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/472) (merged) | External proxy endpoint with full master access | merged-main (PR #472) |
 
 ## M4
 
 | Canonical ID | Repo | GitHub issue | Summary | Status |
 | --- | --- | --- | --- | --- |
-| `HA-01` | `helianthus-ha-addon` | TBD | Addon config + migration | merged-main (PR #117) |
-| `DOC-02` | `helianthus-docs-ebus` | TBD | Migration + rollback documentation | active |
+| `HA-01` | `helianthus-ha-addon` | [#117](https://github.com/Project-Helianthus/helianthus-ha-addon/issues/117) (merged) | Addon config + migration | merged-main (PR #117) |
+| `DOC-02` | `helianthus-docs-ebus` | [#249](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/249) | Migration + rollback documentation | active |
 
 ## M5
 
 | Canonical ID | Repo | GitHub issue | Summary | Status |
 | --- | --- | --- | --- | --- |
-| `GW-04` | `helianthus-ebusgateway` | TBD | Matrix validation + E2E evidence | active |
-| `DOC-03` | `helianthus-docs-ebus` | TBD | AD01..AD12 evidence documentation | active |
+| `GW-04` | `helianthus-ebusgateway` | [#476](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/476) | Matrix validation + E2E evidence | active |
+| `DOC-03` | `helianthus-docs-ebus` | [#250](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/250) | AD01..AD12 evidence documentation | active |
 
 ## Ordering Rules
 
