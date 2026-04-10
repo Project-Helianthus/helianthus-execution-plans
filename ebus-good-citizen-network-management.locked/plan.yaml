@@ -1,0 +1,18 @@
+slug: ebus-good-citizen-network-management
+title: eBUS Good-Citizen Network Management + Raw MCP
+state: locked
+source_discussion: dual-ai-working-thread-2026-04-10
+target_repos:
+  - helianthus-docs-ebus
+  - helianthus-ebusgo
+  - helianthus-ebusreg
+  - helianthus-ebusgateway
+  - helianthus-ebus-adapter-proxy
+  - helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-04-10
+current_milestone: M0
+canonical_revision: v1.0-locked
+canonical_sha256: eb11742d60722b1389dca6822b956c15ddee542aacf95901299fefcd1a27dfcf
