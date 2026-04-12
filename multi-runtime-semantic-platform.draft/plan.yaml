@@ -1,0 +1,17 @@
+slug: multi-runtime-semantic-platform
+title: Helianthus Multi-Runtime Semantic Platform
+state: draft
+source_discussion: owner-override-direct-main-draft-2026-04-12
+target_repos:
+  - helianthus-execution-plans
+  - helianthus-docs-ebus
+  - helianthus-ebusgateway
+  - helianthus-ebusreg
+  - helianthus-eebusreg
+  - helianthus-ha-integration
+  - helianthus-ha-addon
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-04-12
+current_milestone: M0
