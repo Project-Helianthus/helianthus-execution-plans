@@ -1,0 +1,18 @@
+slug: ebus-standard-l7-services-w16-26
+title: eBUS Standard L7 Services Namespace (ebus_standard)
+state: locked
+source_discussion: dual-ai-working-thread-2026-04-18
+target_repos:
+  - helianthus-docs-ebus
+  - helianthus-ebusgo
+  - helianthus-ebusreg
+  - helianthus-ebusgateway
+  - helianthus-vrc-explorer
+  - helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-04-18
+current_milestone: M0
+canonical_revision: v1.0-locked
+canonical_sha256: 9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305
