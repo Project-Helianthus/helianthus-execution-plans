@@ -17,10 +17,10 @@ Status legend:
 
 | Canonical ID | Repo | Summary | Status | Linked execution |
 | --- | --- | --- | --- | --- |
-| `ISSUE-DOC-EBS-00` | `helianthus-docs-ebus` | Normative `ebus_standard` catalog; adopt-and-extend NM docs `#251/#253/#256` | planned | not yet linked |
-| `ISSUE-DOC-EBS-01` | `helianthus-docs-ebus` | L7 type rules | planned | not yet linked |
-| `ISSUE-DOC-EBS-02` | `helianthus-docs-ebus` | Execution-safety policy + whitelist contract | planned | not yet linked |
-| `ISSUE-GO-EBS-01` | `helianthus-ebusgo` | L7 type primitives with golden vectors | queued | not yet linked |
+| `ISSUE-DOC-EBS-00` | `helianthus-docs-ebus` | Normative `ebus_standard` catalog; adopt-and-extend NM docs `#251/#253/#256` | **merged** | [#266](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/266) → [PR #267](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/267) (squash `b85e7084`) |
+| `ISSUE-DOC-EBS-01` | `helianthus-docs-ebus` | L7 type rules | **merged** | grouped into [#266](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/266) → [PR #267](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/267) |
+| `ISSUE-DOC-EBS-02` | `helianthus-docs-ebus` | Execution-safety policy + whitelist contract | **merged** | grouped into [#266](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/266) → [PR #267](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/267) |
+| `ISSUE-GO-EBS-01` | `helianthus-ebusgo` | L7 type primitives with golden vectors | ready | not yet linked |
 
 ## Registry and Provider (M2, M3)
 
