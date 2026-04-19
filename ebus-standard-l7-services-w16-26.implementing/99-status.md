@@ -17,7 +17,7 @@ Implementation started: `2026-04-19`
 - **M4B_read_decode_lock** merged 2026-04-19 (squash `91bcb34c` via helianthus-docs-ebus#273)
 - **M4b2_responder_go_no_go** merged 2026-04-19 (squash `567a6798` via helianthus-execution-plans#17; decision artifact at `decisions/m4b2-responder-go-no-go.md`)
 - Current milestone target: `M4c1_ebusgo_responder_transport` (ebusgo RED/IMPL/GREEN; ResponderTransport + protocol/responder package)
-- Parallel unblocked (by M4B lock merge): `M5_PORTAL` + `M5b_HA_NOOP_COMPAT`
+- Parallel unblocked (by M4B lock merge): `M5_PORTAL` (target corrected to `helianthus-ebusgateway` portal surface) + `M5b_HA_NOOP_COMPAT`
 - Plan slug: `ebus-standard-l7-services-w16-26.implementing`
 - Canonical revision: `v1.0-locked`
 - Canonical-SHA256: `9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305`

@@ -351,7 +351,11 @@ delivery.
 - `helianthus-ebusgateway` — MCP surfaces, execution-policy module,
   `rpc.invoke` integration, NM runtime wiring to catalog, responder
   runtime, matrix artifact.
-- `helianthus-vrc-explorer` — portal read/list/decode UI with hardening.
+- `helianthus-ebusgateway` (portal surface: `portal/explorer.go` +
+  `portal/web/src/app.js`) — portal read/list/decode UI with hardening.
+  Target corrected from `helianthus-vrc-explorer` per preflight finding
+  (vrc-explorer is a Python CLI scanner; portal assets live in
+  ebusgateway).
 - `helianthus-ha-integration` — compatibility checkpoint only
   (`M5b_HA_NOOP_COMPAT`), no consumer rollout first delivery.
 
@@ -369,7 +373,7 @@ requires):
 4. `helianthus-ebusgateway` (`M4`, `M4B`).
 5. Responder lane: `M4b1` (ebusgo) → `M4b2` (gateway) → `M4c1` (ebusgo)
    → `M4c2` (gateway) → `M4D` (gateway).
-6. `helianthus-vrc-explorer` (`M5`), `helianthus-ha-integration` (`M5b`).
+6. `helianthus-ebusgateway` portal surface (`M5`), `helianthus-ha-integration` (`M5b`).
 7. `M6a` (gateway matrix artifact) → `M6b` (docs publication and NM plan
    deprecation close-out).
 
@@ -388,7 +392,7 @@ requires):
 | `M4c1` | Transport support for responder-mode frames on approved transports | `helianthus-ebusgo` | `M4b2=go` | Transport substrate for responder |
 | `M4c2` | Responder runtime for `07 04` + `FF 03/04/05/06`, driven by catalog | `helianthus-ebusgateway` | `M4c1` | Responder lane live where supported |
 | `M4D_responder_lock` | Freeze responder capability/status fields in MCP | `helianthus-ebusgateway` | `M4c2` | Semantic lock for responder consumers |
-| `M5_PORTAL` | Portal read/list/decode UI with hardening; no invocation UI for denied classes | `helianthus-vrc-explorer` | `M4B` | Operator-visible inspection surface |
+| `M5_PORTAL` | Portal read/list/decode UI with hardening; no invocation UI for denied classes | `helianthus-ebusgateway` (portal surface) | `M4B` | Operator-visible inspection surface |
 | `M5b_HA_NOOP_COMPAT` | HA compatibility checkpoint: no new entities or fields; identity/provenance regression | `helianthus-ha-integration` | `M4B` | HA-visible contracts unchanged |
 | `M6a` | Live-bus matrix artifact: offline conformance vectors, Vaillant regression transcripts, NM wire regression, 07 FF cadence floor, rollback criteria | `helianthus-ebusgateway` | `M4B`, `M4D`, `M5`, `M5b` | Deployment-grade proof |
 | `M6b` | Matrix publication in docs; NM plan deprecation close-out; issue map reconciliation | `helianthus-docs-ebus` | `M6a` | Superseded plan transitions to `.maintenance` |
@@ -414,7 +418,7 @@ requires):
 | `ISSUE-GW-EBS-06` | `helianthus-ebusgateway` | `M4B_read_decode_lock` semantic-lock artifact |
 | `ISSUE-GW-EBS-07` | `helianthus-ebusgateway` | `M4D_responder_lock` semantic-lock artifact |
 | `ISSUE-GW-EBS-08` | `helianthus-ebusgateway` | Live-bus matrix artifact (M6a): offline vectors, Vaillant regression, NM regression, cadence enforcement, rollback criteria |
-| `ISSUE-VRC-EBS-01` | `helianthus-vrc-explorer` | Portal read/list/decode UI with hardened decode sandbox |
+| `ISSUE-GW-EBS-09` | `helianthus-ebusgateway` | Portal read/list/decode UI with hardened decode sandbox (ebus_standard consumer extension of existing `portal/explorer.go`) — renamed from ISSUE-VRC-EBS-01 per target amendment |
 | `ISSUE-HA-EBS-01` | `helianthus-ha-integration` | Compatibility checkpoint: prove no HA-visible contract changes from identity/provenance shifts |
 | `ISSUE-DOC-EBS-03` | `helianthus-docs-ebus` | Matrix publication + NM plan `.maintenance` transition + issue map reconciliation (M6b) |
 

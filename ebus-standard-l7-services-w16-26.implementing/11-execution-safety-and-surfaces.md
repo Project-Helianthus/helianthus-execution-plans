@@ -153,7 +153,7 @@ is the only widening mechanism.
 - `helianthus-ebusgateway` — MCP surfaces, execution-policy module,
   `rpc.invoke` integration, NM runtime wiring to catalog, responder
   runtime, matrix artifact.
-- `helianthus-vrc-explorer` — portal read/list/decode UI with hardening.
+- `helianthus-ebusgateway` (portal surface: `portal/explorer.go` + `portal/web/src/app.js`) — portal read/list/decode UI with hardening (target corrected from `helianthus-vrc-explorer` per amendment).
 - `helianthus-ha-integration` — compatibility checkpoint only
   (`M5b_HA_NOOP_COMPAT`), no consumer rollout first delivery.
 
@@ -173,7 +173,8 @@ requires):
 5. Responder lane (strict serial, go-signal gated):
    `M4b1` (ebusgo) → `M4b2` (gateway) → `M4c1` (ebusgo) → `M4c2`
    (gateway) → `M4D_responder_lock` (gateway).
-6. Consumers: `M5_PORTAL` (vrc-explorer) and `M5b_HA_NOOP_COMPAT`
-   (helianthus-ha-integration), both gated on `M4B_read_decode_lock`.
+6. Consumers: `M5_PORTAL` (ebusgateway portal surface) and
+   `M5b_HA_NOOP_COMPAT` (helianthus-ha-integration), both gated on
+   `M4B_read_decode_lock`.
 7. Matrix: `M6a` (gateway) → `M6b` (docs publication and NM plan
    deprecation close-out).

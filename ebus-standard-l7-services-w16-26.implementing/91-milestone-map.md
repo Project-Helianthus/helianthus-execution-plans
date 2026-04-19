@@ -13,7 +13,7 @@
 | `M4c1` | Transport support for responder-mode frames on approved transports | `helianthus-ebusgo` | `M4b2=go` | blocked-on-feasibility |
 | `M4c2` | Responder runtime for `07 04` + `FF 03/04/05/06` | `helianthus-ebusgateway` | `M4c1` | blocked-on-feasibility |
 | `M4D_responder_lock` | Freeze responder capability/status fields | `helianthus-ebusgateway` | `M4c2` | blocked-on-feasibility |
-| `M5_PORTAL` | Portal read/list/decode UI with decode-sandbox hardening | `helianthus-vrc-explorer` | `M4B_read_decode_lock` | queued |
+| `M5_PORTAL` | Portal read/list/decode UI with decode-sandbox hardening | `helianthus-ebusgateway` (portal surface) | `M4B_read_decode_lock` | queued |
 | `M5b_HA_NOOP_COMPAT` | HA compatibility checkpoint: no new entities/fields | `helianthus-ha-integration` | `M4B_read_decode_lock` | queued |
 | `M6a` | Live-bus matrix artifact | `helianthus-ebusgateway` | `M4B`, `M4D`, `M5`, `M5b` | queued |
 | `M6b` | Matrix publication + NM plan `.maintenance` transition | `helianthus-docs-ebus` | `M6a` | queued |
