@@ -15,7 +15,9 @@ Implementation started: `2026-04-19`
 - **M4_DOC_COMPANION** merged 2026-04-19 (squash `4fa6796b` via helianthus-docs-ebus#271)
 - **M4_GATEWAY_MCP** merged 2026-04-19 (squash `92fb98cc` via helianthus-ebusgateway#505)
 - **M4B_read_decode_lock** merged 2026-04-19 (squash `91bcb34c` via helianthus-docs-ebus#273)
-- Current milestone target: `M4b2_responder_go_no_go` (cruise-consult dual-vendor; gates M4c1/M4c2/M4D responder lane)
+- **M4b2_responder_go_no_go** merged 2026-04-19 (squash `567a6798` via helianthus-execution-plans#17; decision artifact at `decisions/m4b2-responder-go-no-go.md`)
+- Current milestone target: `M4c1_ebusgo_responder_transport` (ebusgo RED/IMPL/GREEN; ResponderTransport + protocol/responder package)
+- Parallel unblocked (by M4B lock merge): `M5_PORTAL` + `M5b_HA_NOOP_COMPAT`
 - Plan slug: `ebus-standard-l7-services-w16-26.implementing`
 - Canonical revision: `v1.0-locked`
 - Canonical-SHA256: `9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305`
@@ -32,6 +34,7 @@ Implementation started: `2026-04-19`
 | M4_DOC_COMPANION | helianthus-docs-ebus | [#270](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/270) | [#271](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/271) | `4fa6796b` | `09-mcp-envelope.md` (envelope shape + data_hash determinism + golden-fixture discipline) + `10-rpc-source-113.md` (gateway source byte invariant) + `05-execution-safety.md` policy-module extension; 2 Codex rounds, 4 findings addressed |
 | M4_GATEWAY_MCP | helianthus-ebusgateway | [#504](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/504) | [#505](https://github.com/Project-Helianthus/helianthus-ebusgateway/pull/505) | `92fb98cc` | 4 MCP surfaces + single execution-policy module (14-tuple whitelist per AD09) + NM runtime wiring (catalog-driven emit; declared events only) + RPC source=113 invariant + envelope-golden tests + data_hash determinism; 11 Codex + 1 Copilot rounds, 31 findings addressed |
 | M4B_read_decode_lock | helianthus-docs-ebus | [#272](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/272) | [#273](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/273) | `91bcb34c` | Semantic lock of envelope/error/safety/decode scaffold/catalog-version + v1.minor additive policy + forward-compat conformance golden; cruise-consult dual-vendor 2 rounds consensus (option_a_prime/option_d); 3 Codex P2 APPLY rounds |
+| M4b2_responder_go_no_go | helianthus-execution-plans | n/a (decision artifact) | [#17](https://github.com/Project-Helianthus/helianthus-execution-plans/pull/17) | `567a6798` | Decision artifact `decisions/m4b2-responder-go-no-go.md`: option_go_transport_scoped (M4c1+M4c2+M4D GO for ENH/ENS; ebusd-tcp BLOCKED with `command_bridge_no_companion_listen`); cruise-consult dual-vendor 2 rounds consensus; 4 Codex review rounds on predecessor closed docs-ebus#275 (5 findings APPLY + THUMBS_UP) before relocation |
 
 ## Parallel Spike
 
@@ -55,10 +58,10 @@ Implementation started: `2026-04-19`
 
 ## Active Focus
 
-- **M4b2_responder_go_no_go** — cruise-consult dual-vendor (Q2); given M4b1=PARTIAL/BLOCKED + M4_GATEWAY_MCP NM wiring merged, decide go/no-go for M4c1 (ebusgo transport primitives) + M4c2 (gateway responder runtime) + per-transport capability signal.
-- **M4b1 responder spike**: DONE. Verdicts: ENH/ENS=PARTIAL, ebusd-tcp=BLOCKED.
-- **M4c1/M4c2/M4D** responder lane deferred until M4b2=go.
-- **M5_PORTAL** + **M5b_HA_NOOP_COMPAT**: unblocked by M4B merge (read+decode surfaces locked); dispatch after M4b2 resolves.
+- **M4c1_ebusgo_responder_transport** — ebusgo RED/IMPL/GREEN for ResponderTransport interface + protocol/responder package (inbound decoder, local-slave dispatch, ACK/response/final-ACK FSM); PASS/FAIL on ENH live-bus timing bench (BASV2).
+- **M4c2_gateway_responder_runtime** — hard-depends on M4c1 merge + gateway go.mod bump.
+- **M4D_responder_capability_lock** — parallel with M4c2 IMPL once M4c1 green; freezes `meta.capabilities.responder` into docs-ebus/architecture/ebus_standard/ (new file, e.g. `13-responder-capability-signal.md`).
+- **M5_PORTAL** + **M5b_HA_NOOP_COMPAT**: **unblocked now** by M4B merge (read+decode locked); can dispatch in parallel with M4c lane.
 
 ## Blockers
 
@@ -66,6 +69,6 @@ Implementation started: `2026-04-19`
 
 ## Next Actions
 
-1. M4b2 responder lane go/no-go via cruise-consult dual-vendor (Q2); M4b1 findings + M4_GATEWAY_MCP NM wiring + M4B semantic lock in place.
-2. Post-M4b2: if go → M4c1 (ebusgo transport primitives) + M4c2 (gateway responder runtime); if no-go → decommission responder lane planning.
-3. Wave 5 launch (parallel with M4c): M5_PORTAL (vrc-explorer consumer) + M5b_HA_NOOP_COMPAT (ha-integration compatibility checkpoint).
+1. **M4c1** dispatch in helianthus-ebusgo — ResponderTransport interface + protocol/responder package per `decisions/m4b2-responder-go-no-go.md` §6.1 (two PRs: PR-A interface/ENH impl, PR-B decoder/FSM).
+2. **M5_PORTAL** + **M5b_HA_NOOP_COMPAT** preflight — read+decode consumer work can launch in parallel with M4c lane (unblocked by M4B merge).
+3. After M4c1 green → M4c2 (gateway responder runtime) + M4D (capability signal freeze into docs-ebus).
