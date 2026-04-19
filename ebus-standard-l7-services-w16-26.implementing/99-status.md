@@ -12,7 +12,9 @@ Implementation started: `2026-04-19`
 - **M2_CATALOG** merged 2026-04-19 (squash `ae05a98a` via helianthus-ebusreg#121)
 - **M3_DOC_COMPANION** merged 2026-04-19 (squash `1a623666` via helianthus-docs-ebus#269)
 - **M3_PROVIDER** merged 2026-04-19 (squash `30aa69a0` via helianthus-ebusreg#123)
-- Current milestone target: `M4_GATEWAY_MCP` (deps M1 + M3 satisfied; Wave 4 preflight pending operator discussion)
+- **M4_DOC_COMPANION** merged 2026-04-19 (squash `4fa6796b` via helianthus-docs-ebus#271)
+- **M4_GATEWAY_MCP** merged 2026-04-19 (squash `92fb98cc` via helianthus-ebusgateway#505)
+- Current milestone target: `M4B_read_decode_lock` (semantic-lock; manual operator task; gates M5/M5b consumers)
 - Plan slug: `ebus-standard-l7-services-w16-26.implementing`
 - Canonical revision: `v1.0-locked`
 - Canonical-SHA256: `9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305`
@@ -26,6 +28,8 @@ Implementation started: `2026-04-19`
 | M2_CATALOG | helianthus-ebusreg | [#120](https://github.com/Project-Helianthus/helianthus-ebusreg/issues/120) | [#121](https://github.com/Project-Helianthus/helianthus-ebusreg/pull/121) | `ae05a98a` | 14-tuple identity, collision + ambiguity detection, SHA-pinned YAML catalog, TinyGo build-tag discipline; 9 review rounds, 15 findings addressed |
 | M3_DOC_COMPANION | helianthus-docs-ebus | [#268](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/268) | [#269](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/269) | `1a623666` | Runtime enforcement section in `05-execution-safety.md` + new `08-provider-contract.md` + `00-namespace.md` cross-namespace invariant; 1 review + 1 fix |
 | M3_PROVIDER | helianthus-ebusreg | [#122](https://github.com/Project-Helianthus/helianthus-ebusreg/issues/122) | [#123](https://github.com/Project-Helianthus/helianthus-ebusreg/pull/123) | `30aa69a0` | Generic provider + 14-tuple identity + ABI snapshot + namespace isolation (`internal/`) + invoke-boundary safety (`ErrSafetyClassDenied`) + disable switch (`EBUS_STANDARD_PROVIDER_ENABLED`); 6 Codex+1 Copilot rounds, 12 findings addressed |
+| M4_DOC_COMPANION | helianthus-docs-ebus | [#270](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/270) | [#271](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/271) | `4fa6796b` | `09-mcp-envelope.md` (envelope shape + data_hash determinism + golden-fixture discipline) + `10-rpc-source-113.md` (gateway source byte invariant) + `05-execution-safety.md` policy-module extension; 2 Codex rounds, 4 findings addressed |
+| M4_GATEWAY_MCP | helianthus-ebusgateway | [#504](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/504) | [#505](https://github.com/Project-Helianthus/helianthus-ebusgateway/pull/505) | `92fb98cc` | 4 MCP surfaces + single execution-policy module (14-tuple whitelist per AD09) + NM runtime wiring (catalog-driven emit; declared events only) + RPC source=113 invariant + envelope-golden tests + data_hash determinism; 11 Codex + 1 Copilot rounds, 31 findings addressed |
 
 ## Parallel Spike
 
@@ -49,20 +53,17 @@ Implementation started: `2026-04-19`
 
 ## Active Focus
 
-- **M4_GATEWAY_MCP** in `helianthus-ebusgateway` — MCP surfaces (`ebus.v1.ebus_standard.services.list` / `.commands.list` / `.command.get` / `.decode`) + execution-policy module shared with `rpc.invoke` + NM runtime wiring to catalog emit/responder. Doc-gate REQUIRED. Transport-gate REQUIRED.
-- **M4b1 responder spike**: DONE (findings doc on `helianthus-ebusgo/spike/m4b1-responder-feasibility`). Verdicts: ENH/ENS=PARTIAL, ebusd-tcp=BLOCKED.
-- **M4B_read_decode_lock** queued after M4.
-- **M4b2 responder go/no-go** (gateway) queued after M4b1+M4.
+- **M4B_read_decode_lock** — MCP envelope/list/get/decode semantic-lock artifact; MANUAL operator task; gates M5/M5b consumers.
+- **M4b1 responder spike**: DONE. Verdicts: ENH/ENS=PARTIAL, ebusd-tcp=BLOCKED.
+- **M4b2 responder go/no-go** (gateway) queued; can run parallel once operator authorizes.
+- **M4c1/M4c2/M4D** responder lane deferred until M4b2=go.
 
 ## Blockers
 
-- None. Wave 4 preflight pending operator discussion (routing + scope).
+- None.
 
 ## Next Actions
 
-1. **Operator discussion** required before Wave 4 preflight:
-   - Routing for M4: Codex MCP was not tested post-wave-2 start; claude_subagent continuation precedent vs codex_restricted re-attempt.
-   - Scope confirmation: MCP surfaces list + execution-policy module + NM runtime wiring. Any additional robustness checkpoints parallel to M3's ABI-snapshot / isolation / safety-enforcement triplet?
-   - M4 plan specifies doc-gate + transport-gate REQUIRED — plan a multi-repo batch (M4_DOC_COMPANION in docs-ebus + M4_GATEWAY_MCP in ebusgateway + possibly M4_TRANSPORT_MATRIX ancillary).
-2. M4b2 responder-lane go/no-go signal can run as parallel spike once M4 starts (M4b1 findings already available).
-3. M4_GATEWAY_MCP is the highest blast-radius milestone (user-visible MCP surfaces; downstream consumers depend on envelope shape stability post M4B_read_decode_lock).
+1. Operator authors M4B_read_decode_lock artifact (envelope shape freeze, safety metadata names, error schema, replacement-value schema, catalog version reporting).
+2. M4b2 responder lane go/no-go gateway-side decision (M4b1 findings available).
+3. Post-M4B_read_decode_lock: Wave 5 unblocks M5_PORTAL (vrc-explorer) + M5b_HA_NOOP_COMPAT (ha-integration compatibility checkpoint).
