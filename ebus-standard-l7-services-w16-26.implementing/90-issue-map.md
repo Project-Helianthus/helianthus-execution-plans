@@ -53,7 +53,7 @@ Status legend:
 
 | Canonical ID | Repo | Summary | Status | Linked execution |
 | --- | --- | --- | --- | --- |
-| `ISSUE-VRC-EBS-01` | `helianthus-vrc-explorer` | Portal read/list/decode UI with hardened decode sandbox | queued | not yet linked |
+| `ISSUE-GW-EBS-09` | `helianthus-ebusgateway` | Portal read/list/decode UI with hardened decode sandbox (ebus_standard consumer extension of `portal/explorer.go`; renamed from `ISSUE-VRC-EBS-01` per target amendment) | queued | not yet linked |
 | `ISSUE-HA-EBS-01` | `helianthus-ha-integration` | Compatibility checkpoint: identity/provenance regression | queued | not yet linked |
 
 ## Matrix and Close-out (M6a, M6b)

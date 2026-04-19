@@ -6,9 +6,12 @@ target_repos:
   - helianthus-docs-ebus
   - helianthus-ebusgo
   - helianthus-ebusreg
-  - helianthus-ebusgateway
-  - helianthus-vrc-explorer
+  - helianthus-ebusgateway  # also hosts M5_PORTAL surface (portal/explorer.go + portal/web/src/app.js)
   - helianthus-ha-integration
+# helianthus-vrc-explorer removed from target_repos (amendment 2026-04-19):
+#   originally listed as M5_PORTAL target, but vrc-explorer is a Python CLI
+#   scanner, not a web portal. Portal assets live in helianthus-ebusgateway.
+#   M5_PORTAL target corrected accordingly; see 00-canonical.md Milestone Plan.
 knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
