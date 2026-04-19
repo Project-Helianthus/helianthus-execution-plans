@@ -1,6 +1,6 @@
 slug: ebus-standard-l7-services-w16-26
 title: eBUS Standard L7 Services Namespace (ebus_standard)
-state: locked
+state: implementing
 source_discussion: dual-ai-working-thread-2026-04-18
 target_repos:
   - helianthus-docs-ebus
@@ -13,6 +13,11 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-18
-current_milestone: M0
+implementation_started_at: 2026-04-19
+current_milestone: M3
 canonical_revision: v1.0-locked
 canonical_sha256: 9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305
+merged_milestones:
+  - M0_DOC_GATE
+  - M1_TYPES
+  - M2_CATALOG
