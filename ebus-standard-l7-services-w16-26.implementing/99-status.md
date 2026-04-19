@@ -14,7 +14,8 @@ Implementation started: `2026-04-19`
 - **M3_PROVIDER** merged 2026-04-19 (squash `30aa69a0` via helianthus-ebusreg#123)
 - **M4_DOC_COMPANION** merged 2026-04-19 (squash `4fa6796b` via helianthus-docs-ebus#271)
 - **M4_GATEWAY_MCP** merged 2026-04-19 (squash `92fb98cc` via helianthus-ebusgateway#505)
-- Current milestone target: `M4B_read_decode_lock` (semantic-lock; manual operator task; gates M5/M5b consumers)
+- **M4B_read_decode_lock** merged 2026-04-19 (squash `91bcb34c` via helianthus-docs-ebus#273)
+- Current milestone target: `M4b2_responder_go_no_go` (cruise-consult dual-vendor; gates M4c1/M4c2/M4D responder lane)
 - Plan slug: `ebus-standard-l7-services-w16-26.implementing`
 - Canonical revision: `v1.0-locked`
 - Canonical-SHA256: `9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305`
@@ -30,6 +31,7 @@ Implementation started: `2026-04-19`
 | M3_PROVIDER | helianthus-ebusreg | [#122](https://github.com/Project-Helianthus/helianthus-ebusreg/issues/122) | [#123](https://github.com/Project-Helianthus/helianthus-ebusreg/pull/123) | `30aa69a0` | Generic provider + 14-tuple identity + ABI snapshot + namespace isolation (`internal/`) + invoke-boundary safety (`ErrSafetyClassDenied`) + disable switch (`EBUS_STANDARD_PROVIDER_ENABLED`); 6 Codex+1 Copilot rounds, 12 findings addressed |
 | M4_DOC_COMPANION | helianthus-docs-ebus | [#270](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/270) | [#271](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/271) | `4fa6796b` | `09-mcp-envelope.md` (envelope shape + data_hash determinism + golden-fixture discipline) + `10-rpc-source-113.md` (gateway source byte invariant) + `05-execution-safety.md` policy-module extension; 2 Codex rounds, 4 findings addressed |
 | M4_GATEWAY_MCP | helianthus-ebusgateway | [#504](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/504) | [#505](https://github.com/Project-Helianthus/helianthus-ebusgateway/pull/505) | `92fb98cc` | 4 MCP surfaces + single execution-policy module (14-tuple whitelist per AD09) + NM runtime wiring (catalog-driven emit; declared events only) + RPC source=113 invariant + envelope-golden tests + data_hash determinism; 11 Codex + 1 Copilot rounds, 31 findings addressed |
+| M4B_read_decode_lock | helianthus-docs-ebus | [#272](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/272) | [#273](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/273) | `91bcb34c` | Semantic lock of envelope/error/safety/decode scaffold/catalog-version + v1.minor additive policy + forward-compat conformance golden; cruise-consult dual-vendor 2 rounds consensus (option_a_prime/option_d); 3 Codex P2 APPLY rounds |
 
 ## Parallel Spike
 
@@ -53,10 +55,10 @@ Implementation started: `2026-04-19`
 
 ## Active Focus
 
-- **M4B_read_decode_lock** — MCP envelope/list/get/decode semantic-lock artifact; MANUAL operator task; gates M5/M5b consumers.
+- **M4b2_responder_go_no_go** — cruise-consult dual-vendor (Q2); given M4b1=PARTIAL/BLOCKED + M4_GATEWAY_MCP NM wiring merged, decide go/no-go for M4c1 (ebusgo transport primitives) + M4c2 (gateway responder runtime) + per-transport capability signal.
 - **M4b1 responder spike**: DONE. Verdicts: ENH/ENS=PARTIAL, ebusd-tcp=BLOCKED.
-- **M4b2 responder go/no-go** (gateway) queued; can run parallel once operator authorizes.
 - **M4c1/M4c2/M4D** responder lane deferred until M4b2=go.
+- **M5_PORTAL** + **M5b_HA_NOOP_COMPAT**: unblocked by M4B merge (read+decode surfaces locked); dispatch after M4b2 resolves.
 
 ## Blockers
 
@@ -64,6 +66,6 @@ Implementation started: `2026-04-19`
 
 ## Next Actions
 
-1. Operator authors M4B_read_decode_lock artifact (envelope shape freeze, safety metadata names, error schema, replacement-value schema, catalog version reporting).
-2. M4b2 responder lane go/no-go gateway-side decision (M4b1 findings available).
-3. Post-M4B_read_decode_lock: Wave 5 unblocks M5_PORTAL (vrc-explorer) + M5b_HA_NOOP_COMPAT (ha-integration compatibility checkpoint).
+1. M4b2 responder lane go/no-go via cruise-consult dual-vendor (Q2); M4b1 findings + M4_GATEWAY_MCP NM wiring + M4B semantic lock in place.
+2. Post-M4b2: if go → M4c1 (ebusgo transport primitives) + M4c2 (gateway responder runtime); if no-go → decommission responder lane planning.
+3. Wave 5 launch (parallel with M4c): M5_PORTAL (vrc-explorer consumer) + M5b_HA_NOOP_COMPAT (ha-integration compatibility checkpoint).

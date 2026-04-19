@@ -14,7 +14,7 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-18
 implementation_started_at: 2026-04-19
-current_milestone: M4B_read_decode_lock
+current_milestone: M4b2_responder_go_no_go
 canonical_revision: v1.0-locked
 canonical_sha256: 9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305
 merged_milestones:
@@ -25,3 +25,4 @@ merged_milestones:
   - M3_PROVIDER
   - M4_DOC_COMPANION
   - M4_GATEWAY_MCP
+  - M4B_read_decode_lock
