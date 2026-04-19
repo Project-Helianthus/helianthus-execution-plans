@@ -16,8 +16,10 @@ Implementation started: `2026-04-19`
 - **M4_GATEWAY_MCP** merged 2026-04-19 (squash `92fb98cc` via helianthus-ebusgateway#505)
 - **M4B_read_decode_lock** merged 2026-04-19 (squash `91bcb34c` via helianthus-docs-ebus#273)
 - **M4b2_responder_go_no_go** merged 2026-04-19 (squash `567a6798` via helianthus-execution-plans#17; decision artifact at `decisions/m4b2-responder-go-no-go.md`)
-- Current milestone target: `M4c1_ebusgo_responder_transport` (ebusgo RED/IMPL/GREEN; ResponderTransport + protocol/responder package)
-- Parallel unblocked (by M4B lock merge): `M5_PORTAL` (target corrected to `helianthus-ebusgateway` portal surface) + `M5b_HA_NOOP_COMPAT`
+- **M4c1 PR-A** merged 2026-04-19 (squash `e5c8841f` via helianthus-ebusgo#139; ResponderTransport interface + ENH SendResponderBytes)
+- **M5b_HA_NOOP_COMPAT** merged 2026-04-19 (squash `1335d81e` via helianthus-ha-integration#186; forward-compat checkpoint + M5B_FORWARD_COMPAT_POSTURE sentinel)
+- Current milestone target: `M4c1 PR-B` (protocol/responder package: FrameDecoder + LocalResponderDispatcher + FSM + timing harness with BASV2 bench)
+- Parallel unblocked: `M5_PORTAL` (target corrected to `helianthus-ebusgateway` portal surface; preflight GREEN)
 - Plan slug: `ebus-standard-l7-services-w16-26.implementing`
 - Canonical revision: `v1.0-locked`
 - Canonical-SHA256: `9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305`
@@ -35,6 +37,8 @@ Implementation started: `2026-04-19`
 | M4_GATEWAY_MCP | helianthus-ebusgateway | [#504](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/504) | [#505](https://github.com/Project-Helianthus/helianthus-ebusgateway/pull/505) | `92fb98cc` | 4 MCP surfaces + single execution-policy module (14-tuple whitelist per AD09) + NM runtime wiring (catalog-driven emit; declared events only) + RPC source=113 invariant + envelope-golden tests + data_hash determinism; 11 Codex + 1 Copilot rounds, 31 findings addressed |
 | M4B_read_decode_lock | helianthus-docs-ebus | [#272](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/272) | [#273](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/273) | `91bcb34c` | Semantic lock of envelope/error/safety/decode scaffold/catalog-version + v1.minor additive policy + forward-compat conformance golden; cruise-consult dual-vendor 2 rounds consensus (option_a_prime/option_d); 3 Codex P2 APPLY rounds |
 | M4b2_responder_go_no_go | helianthus-execution-plans | n/a (decision artifact) | [#17](https://github.com/Project-Helianthus/helianthus-execution-plans/pull/17) | `567a6798` | Decision artifact `decisions/m4b2-responder-go-no-go.md`: option_go_transport_scoped (M4c1+M4c2+M4D GO for ENH/ENS; ebusd-tcp BLOCKED with `command_bridge_no_companion_listen`); cruise-consult dual-vendor 2 rounds consensus; 4 Codex review rounds on predecessor closed docs-ebus#275 (5 findings APPLY + THUMBS_UP) before relocation |
+| M4c1 PR-A | helianthus-ebusgo | [#138](https://github.com/Project-Helianthus/helianthus-ebusgo/issues/138) | [#139](https://github.com/Project-Helianthus/helianthus-ebusgo/pull/139) | `e5c8841f` | `transport.ResponderTransport` interface + ENH `SendResponderBytes` (thin delegation to `Write()`, reuses single byte-send substrate; never calls StartArbitration); ebusd-tcp perpetual non-satisfaction (M4b2 §3 lock); ENS inherits via `NewENSTransport` returning `*ENHTransport`. 4/4 PR-A tests green; 13 PR-B tests `t.Skip("M4c1 PR-B impl pending")`. Codex THUMBS_UP clean; operator-directed skip-unskip pattern for CI isolation |
+| M5b_HA_NOOP_COMPAT | helianthus-ha-integration | [#185](https://github.com/Project-Helianthus/helianthus-ha-integration/issues/185) | [#186](https://github.com/Project-Helianthus/helianthus-ha-integration/pull/186) | `1335d81e` | Forward-compat checkpoint: `tests/test_forward_compat_m4b.py` (6 tests) + synthetic envelope fixture (unknown meta.*/safety_class/validity/DecodedField/error.code + `meta.capabilities.responder` 3-transport shape); `M5B_FORWARD_COMPAT_POSTURE` sentinel in `coordinator.py` forcing future strict-parsing refactors to visibly delete the sentinel. 0 production-code functional change; 0 regressions (238 tests green). Codex THUMBS_UP clean |
 
 ## Parallel Spike
 
@@ -58,10 +62,10 @@ Implementation started: `2026-04-19`
 
 ## Active Focus
 
-- **M4c1_ebusgo_responder_transport** — ebusgo RED/IMPL/GREEN for ResponderTransport interface + protocol/responder package (inbound decoder, local-slave dispatch, ACK/response/final-ACK FSM); PASS/FAIL on ENH live-bus timing bench (BASV2).
-- **M4c2_gateway_responder_runtime** — hard-depends on M4c1 merge + gateway go.mod bump.
-- **M4D_responder_capability_lock** — parallel with M4c2 IMPL once M4c1 green; freezes `meta.capabilities.responder` into docs-ebus/architecture/ebus_standard/ (new file, e.g. `13-responder-capability-signal.md`).
-- **M5_PORTAL** + **M5b_HA_NOOP_COMPAT**: **unblocked now** by M4B merge (read+decode locked); can dispatch in parallel with M4c lane.
+- **M4c1 PR-B** — protocol/responder package: FrameDecoder + LocalResponderDispatcher + ACK/response/final-ACK FSM + timing harness. Replaces `responderAckBudgetPlaceholder=0` with measured budget from BASV2 live bench. Unskips the 13 tests carrying `t.Skip("M4c1 PR-B impl pending")`.
+- **M4c2_gateway_responder_runtime** — hard-depends on M4c1 PR-B merge + gateway go.mod bump.
+- **M4D_responder_capability_lock** — parallel with M4c2 IMPL once M4c1 complete; freezes `meta.capabilities.responder` into docs-ebus/architecture/ebus_standard/ (new `13-responder-capability-signal.md`).
+- **M5_PORTAL** — preflight GREEN on `helianthus-ebusgateway` portal surface (target corrected via amendment `7828f4d7`); can dispatch in parallel with M4c1 PR-B (independent repos).
 
 ## Blockers
 
@@ -69,6 +73,6 @@ Implementation started: `2026-04-19`
 
 ## Next Actions
 
-1. **M4c1** dispatch in helianthus-ebusgo — ResponderTransport interface + protocol/responder package per `decisions/m4b2-responder-go-no-go.md` §6.1 (two PRs: PR-A interface/ENH impl, PR-B decoder/FSM).
-2. **M5_PORTAL** + **M5b_HA_NOOP_COMPAT** preflight — read+decode consumer work can launch in parallel with M4c lane (unblocked by M4B merge).
-3. After M4c1 green → M4c2 (gateway responder runtime) + M4D (capability signal freeze into docs-ebus).
+1. **M4c1 PR-B** dispatch in helianthus-ebusgo — protocol/responder package IMPL + unskip 13 tests + BASV2 timing bench on live bus. Parallel-independent with M5_PORTAL dispatch.
+2. **M5_PORTAL** dispatch in helianthus-ebusgateway (portal surface) per re-preflight issue stub `ISSUE-GW-EBS-09` — backend REST shims at `api/v1/ebus-standard/*` + frontend "L7 Standard Catalog" section + XSS hardening (textContent for decode sandbox).
+3. After M4c1 PR-B green → M4c2 (gateway responder runtime) + M4D (capability signal freeze into docs-ebus `13-responder-capability-signal.md`).
