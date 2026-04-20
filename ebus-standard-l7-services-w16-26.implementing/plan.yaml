@@ -17,15 +17,15 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-18
 implementation_started_at: 2026-04-19
-current_milestone: M4D_responder_capability_lock
+current_milestone: M6a_transport_matrix_artifact
 canonical_revision: v1.0-locked
 canonical_sha256: 9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305
-parallel_unblocked:
-  - M6a_transport_matrix_artifact   # gateway live-bus matrix (depends on M4B/M4D/M5/M5b all complete)
 bench_replace_obligation:
   description: "responderAckBudget=15ms placeholder pe ebusgo/protocol/responder/timing_harness.go + ebusgateway runtime; operator MUST run harness pe BASV2 live bus înainte de deployment"
   decision_ref: "decisions/m4b2-responder-go-no-go.md §7.1(1)"
   status: pending_operator_bench
+follow_up_tasks:
+  - "gateway-side forward_compat_synthetic_v1_1.golden.json: add unknown-active.transport case per M4D §10 conformance requirement"
 merged_milestones:
   - M0_DOC_GATE
   - M1_TYPES
@@ -41,3 +41,6 @@ merged_milestones:
   - M4c1_pr_b           # protocol/responder package — decoder + dispatcher + FSM + timing harness (ebusgo#140 @ 721165d7)
   - M4c2_gateway_responder_runtime  # NM runtime responder emit FF 03-06 + meta.capabilities.responder v1.minor (ebusgateway#509 @ 547fd4ed)
   - M5_PORTAL           # ebusgateway portal L7 consumer UI + XSS hardening (ebusgateway#507 @ 205c2a81)
+  - chore_gofmt_cleanup # gofmt drift cleanup across 14 files (ebusgateway#510 @ 58b9d23a)
+  - fix_silent_failures_sweep  # 37 errcheck+staticcheck + 16 extras per-site judgment (ebusgateway#512 @ af50fda5)
+  - M4D_responder_capability_lock  # normative freeze of meta.capabilities.responder shape (docs-ebus#279 @ 2fe399af)
