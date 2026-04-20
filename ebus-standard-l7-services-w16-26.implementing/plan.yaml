@@ -17,11 +17,15 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-18
 implementation_started_at: 2026-04-19
-current_milestone: M4c1_ebusgo_responder_transport_pr_b
+current_milestone: M4D_responder_capability_lock
 canonical_revision: v1.0-locked
 canonical_sha256: 9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305
 parallel_unblocked:
-  - M5_PORTAL          # ebusgateway portal surface (target amended; preflight GREEN; awaiting dispatch)
+  - M6a_transport_matrix_artifact   # gateway live-bus matrix (depends on M4B/M4D/M5/M5b all complete)
+bench_replace_obligation:
+  description: "responderAckBudget=15ms placeholder pe ebusgo/protocol/responder/timing_harness.go + ebusgateway runtime; operator MUST run harness pe BASV2 live bus înainte de deployment"
+  decision_ref: "decisions/m4b2-responder-go-no-go.md §7.1(1)"
+  status: pending_operator_bench
 merged_milestones:
   - M0_DOC_GATE
   - M1_TYPES
@@ -32,5 +36,8 @@ merged_milestones:
   - M4_GATEWAY_MCP
   - M4B_read_decode_lock
   - M4b2_responder_go_no_go
-  - M4c1_pr_a       # ResponderTransport interface + ENH SendResponderBytes (ebusgo#139 @ e5c8841f)
+  - M4c1_pr_a           # ResponderTransport interface + ENH SendResponderBytes (ebusgo#139 @ e5c8841f)
   - M5b_HA_NOOP_COMPAT  # forward-compat checkpoint (ha-integration#186 @ 1335d81e)
+  - M4c1_pr_b           # protocol/responder package — decoder + dispatcher + FSM + timing harness (ebusgo#140 @ 721165d7)
+  - M4c2_gateway_responder_runtime  # NM runtime responder emit FF 03-06 + meta.capabilities.responder v1.minor (ebusgateway#509 @ 547fd4ed)
+  - M5_PORTAL           # ebusgateway portal L7 consumer UI + XSS hardening (ebusgateway#507 @ 205c2a81)
