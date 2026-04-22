@@ -1,0 +1,45 @@
+slug: vaillant-b503-namespace-w17-26
+title: Vaillant B503 Diagnostic/Service/Live-Monitor Protocol Namespace
+state: locked
+source_discussion: cruise-plan-2026-04-22-operator-prompt
+target_repos:
+  - helianthus-docs-ebus
+  - helianthus-ebusgo
+  - helianthus-ebusgateway
+  - helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-04-22
+current_milestone: null
+canonical_revision: v1.0-locked
+canonical_sha256: 896a82e720b33eefb449ea532570e0a962bfa76504519996825f13d92ec9bb28
+adversarial_provenance:
+  co_pilot: codex
+  model: gpt-5.4
+  reasoning_effort: high
+  rounds: 4
+  attacks_per_round: [6, 6, 2, 0]
+  verdict: CONSENSUS
+  residual_concerns_folded: [R4-R1, R4-R2, R4-R3]
+  escalations: []
+milestone_order:
+  - M0_DOC_GATE
+  - M1_DECODER
+  - M2a_GATEWAY_MCP
+  - M5_TRANSPORT_MATRIX
+  - M2b_GATEWAY_GRAPHQL
+  - M3_PORTAL
+  - M4_HA
+dag_invariants:
+  m5_blocks_m2b: true
+  mcp_before_graphql_before_consumers: true
+  adversarial_review_required: [M2a_GATEWAY_MCP, M5_TRANSPORT_MATRIX]
+v1_forbidden_surfaces:
+  install_writes_anywhere: true
+  cross_device_fxxx_public_contract: true
+  graphql_mutations_b503: true
+  expired_in_public_enum: true
+  vaillant_knowledge_in_ebusreg: true
+follow_up_tasks: []
+merged_milestones: []
