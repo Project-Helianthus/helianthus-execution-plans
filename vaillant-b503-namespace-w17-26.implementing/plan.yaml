@@ -1,6 +1,8 @@
 slug: vaillant-b503-namespace-w17-26
 title: Vaillant B503 Diagnostic/Service/Live-Monitor Protocol Namespace
-state: locked
+state: implementing
+implementation_started_on: 2026-04-22
+current_milestone: M2a_GATEWAY_MCP
 source_discussion: cruise-plan-2026-04-22-operator-prompt
 target_repos:
   - helianthus-docs-ebus
@@ -11,7 +13,6 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-22
-current_milestone: null
 canonical_revision: v1.0-locked
 canonical_sha256: 896a82e720b33eefb449ea532570e0a962bfa76504519996825f13d92ec9bb28
 adversarial_provenance:
@@ -42,4 +43,6 @@ v1_forbidden_surfaces:
   expired_in_public_enum: true
   vaillant_knowledge_in_ebusreg: true
 follow_up_tasks: []
-merged_milestones: []
+merged_milestones:
+  - M0_DOC_GATE  # docs-ebus#283 squash b4cb1c7 @ 2026-04-22T19:57:32Z (12 Codex rounds, 17 comments resolved)
+  - M1_DECODER   # ebusgo#142 squash 5491494d @ 2026-04-22T20:21:42Z (TDD strict, 2 comments resolved)
