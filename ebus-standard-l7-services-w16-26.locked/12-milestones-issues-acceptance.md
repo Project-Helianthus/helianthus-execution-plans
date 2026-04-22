@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305`
+Canonical-SHA256: `23d973c55172df381adbee0c12ace33482cacf1627b5dfed994ef3ec82084a89`
 
 Depends on: `10-scope-decisions.md` establishes the catalog identity key
 and NM subsumption. `11-execution-safety-and-surfaces.md` establishes the

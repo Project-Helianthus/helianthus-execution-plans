@@ -29,7 +29,7 @@ Implementation started: `2026-04-19`
 - **BENCH-REPLACE obligation pending operator** — blocks M6a issue CLOSED state (but M6a artifact MERGED): `responderAckBudget=15ms` placeholder pe ebusgo + ebusgateway; operator MUST run harness pe BASV2 live bus, commit measured value, flip `matrix/M6a-transport-matrix.md` §7 PLACEHOLDER → MEASURED, bump go.mod pins per decision §7.1(1)
 - Plan slug: `ebus-standard-l7-services-w16-26.implementing`
 - Canonical revision: `v1.0-locked`
-- Canonical-SHA256: `9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305`
+- Canonical-SHA256: `23d973c55172df381adbee0c12ace33482cacf1627b5dfed994ef3ec82084a89`
 
 ## Merged Deliverables
 

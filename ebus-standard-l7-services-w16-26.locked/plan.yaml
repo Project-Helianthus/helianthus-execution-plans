@@ -22,7 +22,7 @@ started_on: 2026-04-18
 implementation_started_at: 2026-04-19
 current_milestone: null  # plan complete; all milestones merged
 canonical_revision: v1.0-locked
-canonical_sha256: 9e0a29bb76d99f551904b05749e322aafd3972621858aa6d1acbe49b9ef37305
+canonical_sha256: 23d973c55172df381adbee0c12ace33482cacf1627b5dfed994ef3ec82084a89
 bench_replace_obligation:
   description: "responderAckBudget=15ms placeholder pe ebusgo/protocol/responder/timing_harness.go + ebusgateway runtime; operator MUST run harness pe BASV2 live bus înainte de deployment; M6a §7 status flip PLACEHOLDER → MEASURED gated pe această măsurătoare"
   decision_ref: "decisions/m4b2-responder-go-no-go.md §7.1(1); matrix/M6a-transport-matrix.md §7"
