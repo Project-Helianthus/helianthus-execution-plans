@@ -1,8 +1,10 @@
 slug: vaillant-b503-namespace-w17-26
 title: Vaillant B503 Diagnostic/Service/Live-Monitor Protocol Namespace
-state: implementing
+state: locked
 implementation_started_on: 2026-04-22
-current_milestone: M3_PORTAL
+completed_on: 2026-04-23
+final_milestone: M3_PORTAL  # last of 7 merged 2026-04-23T02:01:37Z
+current_milestone: null  # plan complete; all 7 milestones merged
 source_discussion: cruise-plan-2026-04-22-operator-prompt
 target_repos:
   - helianthus-docs-ebus
@@ -49,3 +51,18 @@ merged_milestones:
   - M2a_GATEWAY_MCP   # ebusgateway#516 squash d74dc89b @ 2026-04-22T23:51:02Z (13 Codex rounds, 20 comments resolved; complexity 8 adversarial review)
   - M5_TRANSPORT_MATRIX # ebusgateway#518 squash 2b8fcd1c @ 2026-04-23T00:50:50Z (8 Codex rounds, 13 comments resolved; complexity 7; artefact-only; BENCH-REPLACE carry-forward for M2b publication gate)
   - M2b_GATEWAY_GRAPHQL # ebusgateway#520 squash 07385b01 @ 2026-04-23T01:30:39Z (2 Codex rounds, 3 comments resolved; complexity 5; schema-stable publication MUST-gated on M5 BENCH-REPLACE)
+  - M4_HA             # ha-integration#188 squash d9355e5f @ 2026-04-23T01:56:41Z (2 Codex rounds, 4 comments resolved; complexity 4; DUC delegation + AD11 runtime teardown)
+  - M3_PORTAL         # ebusgateway#522 squash 45846270 @ 2026-04-23T02:01:37Z (2 Codex rounds, 4 comments resolved; complexity 4; 6 new portal tests + 21 regression)
+post_implementation_obligations:
+  bench_replace:
+    description: "M5 matrix §6 BENCH-REPLACE — operator-attested live-bus captures (adapter-direct + ebusd_tcp) required to flip [~] rows to [x]; gates M2b GraphQL schema-stable publication per M5 §8"
+    status: pending_operator_bench
+    blocks_m2b_publication: true
+    artifact_location: "helianthus-ebusgateway/matrix/M6a-vaillant-b503.md §6"
+  raw_frame_dispatcher:
+    description: "Replace b503StubDispatcher in cmd/gateway/vaillant_b503_wiring.go with production raw-frame bridge (adaptermux/router substrate). Paired with BENCH-REPLACE execution."
+    status: pending
+    blocks: BENCH-REPLACE
+  ebusstd_errsafetyclassdenied_restore:
+    description: "internal/execution_policy/policy.go uses local ErrSafetyClassDenied sentinel (M2a interim fix after unbuildable origin/main break). Revert to ebusstd wrap once upstream helianthus-ebusreg exports the symbol."
+    status: pending_upstream
