@@ -2,7 +2,7 @@ slug: vaillant-b503-namespace-w17-26
 title: Vaillant B503 Diagnostic/Service/Live-Monitor Protocol Namespace
 state: implementing
 implementation_started_on: 2026-04-22
-current_milestone: M5_TRANSPORT_MATRIX
+current_milestone: M2b_GATEWAY_GRAPHQL
 source_discussion: cruise-plan-2026-04-22-operator-prompt
 target_repos:
   - helianthus-docs-ebus
@@ -47,3 +47,4 @@ merged_milestones:
   - M0_DOC_GATE       # docs-ebus#283 squash b4cb1c7 @ 2026-04-22T19:57:32Z (12 Codex rounds, 17 comments resolved)
   - M1_DECODER        # ebusgo#142 squash 5491494d @ 2026-04-22T20:21:42Z (TDD strict, 2 comments resolved)
   - M2a_GATEWAY_MCP   # ebusgateway#516 squash d74dc89b @ 2026-04-22T23:51:02Z (13 Codex rounds, 20 comments resolved; complexity 8 adversarial review)
+  - M5_TRANSPORT_MATRIX # ebusgateway#518 squash 2b8fcd1c @ 2026-04-23T00:50:50Z (8 Codex rounds, 13 comments resolved; complexity 7; artefact-only; BENCH-REPLACE carry-forward for M2b publication gate)
