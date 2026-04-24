@@ -1,0 +1,45 @@
+slug: startup-admission-discovery-w17-26
+title: Startup Bus Admission + Discovery Remediation (Joiner-admission before active traffic; passive-first bounded discovery)
+state: locked
+source_discussion: dual-ai-cruise-run-2026-04-23
+target_repos:
+  - helianthus-ebusreg
+  - helianthus-ebusgateway
+  - helianthus-docs-ebus
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-04-23
+current_milestone: M0_DOC_GATE
+canonical_revision: v1.0-locked
+canonical_sha256: 9e4b32d2b2b382ed9bad7f4098c63488c7b0e9da7fbec2a22ea10a76124eaee7
+parent_plan:
+  slug: ebus-good-citizen-network-management
+  state: maintenance
+  relationship: extracts ISSUE-GW-JOIN-01 as narrow-scope execution; parent treated as enrichment source per feedback_deprecation_enrichment.md
+pr_strategy:
+  helianthus-ebusreg: one-pr-one-issue
+  helianthus-docs-ebus: one-pr-one-issue
+  helianthus-ebusgateway: operator-blessed-multi-pr-exception
+adversarial_rounds: 5
+adversarial_converged_at_round: 5
+primary_planner: codex-gpt-5.4-high-reasoning
+adversary: claude-fresh-opus-orchestrator-glued
+milestones_locked:
+  - M0_DOC_GATE
+  - M1_EBUSREG_DIRECTED_SCAN
+  - M2_GATEWAY_JOINBUS_ADAPTER
+  - M2a_GATEWAY_OFFLINE_HARNESS
+  - M3_GATEWAY_STARTUP_ORDER_FLIP
+  - M4_GATEWAY_EVIDENCE_PIPELINE
+  - M5_GATEWAY_DEGRADED_MODE_AND_ENVELOPE
+  - M6_GATEWAY_OVERRIDE_AND_FULL_RANGE_GUARD
+  - M7_GATEWAY_INTEGRATION_ACCEPTANCE
+merge_order:
+  - helianthus-ebusreg
+  - helianthus-ebusgateway
+merge_blockers:
+  - helianthus-docs-ebus companion PR must be in open-for-review state before any helianthus-ebusgateway PR merges (M2..M6 tier)
+  - helianthus-docs-ebus companion PR must be merged into main before M7_GATEWAY_INTEGRATION_ACCEPTANCE merges (M7 tier)
+  - helianthus-ebusreg directed-scan support must merge before any helianthus-ebusgateway PR from M3 onward
+  - Each helianthus-ebusgateway PR requires green local CI before merge

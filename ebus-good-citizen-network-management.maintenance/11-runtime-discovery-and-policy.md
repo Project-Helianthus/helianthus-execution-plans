@@ -146,6 +146,6 @@ Conditional note:
   4. `helianthus-ebusgateway`
   5. conditional proxy / firmware work
   6. optional consumer rollout
-- `ISSUE-GW-JOIN-01` lands before `M4`.
+- `ISSUE-GW-JOIN-01` lands before `M4`. Extracted and superseded by `startup-admission-discovery-w17-26`; see `helianthus-execution-plans/startup-admission-discovery-w17-26.locked/` (per AD19).
 - `M7a` may start as soon as `M1` exists and may run in parallel with `M2a`
   through `M5`, but it gates only `M7b`.
