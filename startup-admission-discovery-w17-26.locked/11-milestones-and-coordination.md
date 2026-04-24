@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9e4b32d2b2b382ed9bad7f4098c63488c7b0e9da7fbec2a22ea10a76124eaee7`
+Canonical-SHA256: `345445f1cedfc21e6c35d6e0f21513979fbf7ff3a520978932f0dd82e65c1b3d`
 
 Depends on: [10-scope-and-problem.md](./10-scope-and-problem.md).
 Scope, out-of-scope guards, and normative anchors are prerequisite
@@ -142,7 +142,7 @@ M6's finalized spec. Harness artifact emissions validate against the
 M0-frozen `docs/schemas/admission-artifact.schema.json`; drift is a
 test failure. M7 live-bus remains the final integration gate.
 
-iteration_depends_on: `[M0, M2, M6]`.
+iteration_depends_on: `[M0, M2]` (adjusted per AD24; see 12-decision-matrix.md for cycle-break rationale). Override-spec alignment with M6 is enforced at merge time via the `iteration_vs_merge_gap` rule in `coordination.pr_strategy.rebase_protocol`; M2a's merge_depends_on is unchanged.
 merge_depends_on: `[M0, M2]`.
 Transport-gate: REQUIRED. Doc-gate trigger: no. Complexity: 4.
 

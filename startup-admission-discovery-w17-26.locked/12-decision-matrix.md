@@ -1,8 +1,8 @@
-# 12 — Locked Decisions AD01..AD23
+# 12 — Locked Decisions AD01..AD24
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9e4b32d2b2b382ed9bad7f4098c63488c7b0e9da7fbec2a22ea10a76124eaee7`
+Canonical-SHA256: `345445f1cedfc21e6c35d6e0f21513979fbf7ff3a520978932f0dd82e65c1b3d`
 
 Depends on: [10-scope-and-problem.md](./10-scope-and-problem.md) and
 [11-milestones-and-coordination.md](./11-milestones-and-coordination.md).
@@ -10,12 +10,14 @@ Scope, normative anchors, and milestone structure must be understood
 before the locked decisions make sense; several ADs reference
 specific milestones and configuration surfaces.
 
-Scope: All 23 locked decisions from the adversarial planning cycle
-(R1..R5). AD01..AD07 were frozen at R1 or absorbed from operator
-intent. AD08..AD13 resolved R1 escalations E1..E5. AD14..AD18 resolved
-R2 escalations E6..E9. AD17 appended in R3/R4 with escalation +
-cumulative + latch semantics. AD19 relocated in R3. AD20..AD23 added
-in R3/R4/R5.
+Scope: All 24 locked decisions from the adversarial planning cycle
+(R1..R5) plus the AD24 amendment applied at first execution. AD01..AD07
+were frozen at R1 or absorbed from operator intent. AD08..AD13 resolved
+R1 escalations E1..E5. AD14..AD18 resolved R2 escalations E6..E9. AD17
+appended in R3/R4 with escalation + cumulative + latch semantics. AD19
+relocated in R3. AD20..AD23 added in R3/R4/R5. AD24 was added
+post-lock during cruise-run execution to break an iteration cycle that
+R4 absorption introduced.
 
 Idempotence contract: Declarative-only. Reapplying this chunk must
 not rewrite any AD resolution, remove any AD entry, renumber
@@ -28,7 +30,7 @@ AD without a concrete resolution, (b) softens any resolution into
 guidance rather than a gate, (c) reopens a frozen resolution, or (d)
 permits an implementation choice that contradicts any AD.
 
-Coverage: AD01..AD23 with full resolutions; cross-references to
+Coverage: AD01..AD24 with full resolutions; cross-references to
 milestones, configuration surfaces, and acceptance criteria where
 applicable.
 
@@ -351,3 +353,45 @@ Enforcement is dual (M5 + M7):
   artifacts if `admission_path_selected` would be outside the enum.
 - **CI**: M7 acceptance script validates the emitted artifact
   against the schema; schema violations fail acceptance.
+
+## AD24 — Break M2a→M6 iteration cycle introduced in R4 absorption
+
+R4 adversary attack R4-A05 flagged a genuine hidden coupling: M2a's
+offline harness exercises override paths (Validate=true/false) whose
+semantics finalize in M6. R4 absorption chose option (a) — add M6 to
+M2a's `iteration_depends_on`. At first execution of the plan (2026-04-23
+during M2 dev), this was found to produce a **structural iteration
+cycle**:
+
+```
+M2a → M6 → M5 → M4 → M3 → M2a
+```
+
+(M3.iteration_depends_on includes M2a; M4 → M3; M5 → M4; M6 → M5;
+M2a → M6 closes the cycle.) No milestone in the cycle can iterate
+while any other is waiting on it.
+
+**Resolution**: revert `M2a.iteration_depends_on` from
+`[M0, M2, M6]` to `[M0, M2]`. This matches R4-A05's alternative
+option (b): "stub override semantics in M2a as
+`override_semantics_source_of_truth: M6` with a CI check verifying
+M2a's override stubs match M6's final spec at merge time". The CI
+check at merge time is already enforced by the plan's
+`iteration_vs_merge_gap` rule in
+`coordination.pr_strategy.rebase_protocol`.
+
+**Scope**: only the `iteration_depends_on` field of M2a changes.
+`merge_depends_on` is unchanged. Override-spec alignment enforcement
+moves from iteration-gate (where the cycle blocked progress) to
+merge-gate (where the CI check catches drift before landing). No
+other milestone is affected.
+
+**Applied by**: orchestrator during cruise-run #20 execution, before
+any M2a commit. Documented in the M2a PR body, meta-issue comment,
+and this decision matrix.
+
+Rationale for the adjustment pattern: iteration gates are
+drift-prevention; merge gates are integrity-preservation. Drift
+during iteration is acceptable if merge integrity is preserved. The
+cycle was a false-positive that tried to prevent drift at the wrong
+layer.

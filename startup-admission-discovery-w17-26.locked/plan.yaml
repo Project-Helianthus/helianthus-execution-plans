@@ -12,7 +12,7 @@ split_index: 01-index.md
 started_on: 2026-04-23
 current_milestone: M0_DOC_GATE
 canonical_revision: v1.0-locked
-canonical_sha256: 9e4b32d2b2b382ed9bad7f4098c63488c7b0e9da7fbec2a22ea10a76124eaee7
+canonical_sha256: 345445f1cedfc21e6c35d6e0f21513979fbf7ff3a520978932f0dd82e65c1b3d
 parent_plan:
   slug: ebus-good-citizen-network-management
   state: maintenance

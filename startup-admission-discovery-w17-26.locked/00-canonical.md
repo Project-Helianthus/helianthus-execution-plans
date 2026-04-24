@@ -383,6 +383,46 @@ REFERENCES but does not author the schema semantics). M5 and M7
 consume the schema without modification. Schema drift requires a plan
 amendment, not a milestone-local change.
 
+### AD24 — Break M2a→M6 iteration cycle introduced in R4 absorption
+
+R4 adversary attack R4-A05 flagged a genuine hidden coupling: M2a's
+offline harness exercises override paths (Validate=true/false) whose
+semantics finalize in M6. R4 absorption chose option (a) — add M6 to
+M2a's `iteration_depends_on`. At first execution of the plan (during
+M2 dev), this was found to produce a **structural iteration cycle**:
+
+```
+M2a → M6 → M5 → M4 → M3 → M2a
+```
+
+(M3.iteration_depends_on includes M2a; M4 → M3; M5 → M4; M6 → M5;
+M2a → M6 closes the cycle.)
+
+The cycle is blocking: no milestone in the cycle can be iterated
+while any other is waiting on it.
+
+**Resolution at first execution (2026-04-23 by orchestrator, cruise-run
+#20)**: revert `M2a.iteration_depends_on` from
+`[M0, M2, M6]` to `[M0, M2]`, matching R4-A05's alternative option (b)
+("stub override semantics in M2a as `override_semantics_source_of_truth:
+M6` with a CI check verifying M2a's override stubs match M6's final
+spec at merge time"). The CI check at merge time is already enforced
+by the plan's `iteration_vs_merge_gap` rule in
+`coordination.pr_strategy.rebase_protocol`: M2a's `merge_depends_on`
+remains unchanged and M2a cannot merge until its dep chain (including
+any override-spec-relevant predecessors enforced by reviewer sign-off)
+stabilizes.
+
+**Scope**: only the `iteration_depends_on` field of M2a changes.
+`merge_depends_on` is unchanged. Override-spec alignment enforcement
+moves from iteration-gate to merge-gate. No other milestone is
+affected.
+
+Rationale: iteration gates are drift-prevention; merge gates are
+integrity-preservation. Drift during iteration is acceptable if merge
+integrity is preserved. The cycle was a false-positive that tried to
+prevent drift at the wrong layer.
+
 ## Milestone Plan
 
 Dependency order (merge): M0 → M1 → M2 → M2a → M3 → M4 → M5 → M6 → M7.
@@ -516,7 +556,7 @@ M2a harness artifact emissions validate against the M0-frozen
 `docs/schemas/admission-artifact.schema.json`; drift is a test
 failure. M7 live-bus remains the final integration gate.
 
-**iteration_depends_on:** `[M0_DOC_GATE, M2_GATEWAY_JOINBUS_ADAPTER, M6_GATEWAY_OVERRIDE_AND_FULL_RANGE_GUARD]`
+**iteration_depends_on:** `[M0_DOC_GATE, M2_GATEWAY_JOINBUS_ADAPTER]` (adjusted per AD24 to break the M2a→M6→M5→M4→M3→M2a iteration cycle that the R4 absorption introduced; override-semantics alignment with M6 is enforced at merge time via the `iteration_vs_merge_gap` rebase protocol + CI check described in the Acceptance clause above)
 **merge_depends_on:** `[M0_DOC_GATE, M2_GATEWAY_JOINBUS_ADAPTER]`
 **transport_gate:** REQUIRED
 **doc_gate_trigger:** no

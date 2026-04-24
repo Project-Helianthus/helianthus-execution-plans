@@ -23,7 +23,7 @@ Dependency order (merge): `M0 → M1 → M2 → M2a → M3 → M4 → M5 → M6 
 | M0 | — | — |
 | M1 | M0 | M0 |
 | M2 | M0 | M0 |
-| M2a | M0, M2, M6 | M0, M2 |
+| M2a | M0, M2 | M0, M2 |
 | M3 | M0, M1, M2, M2a | M0, M1, M2, M2a |
 | M4 | M0, M1, M3 | M0, M1, M2, M2a, M3 |
 | M5 | M0, M3, M4 | M0, M1, M2, M2a, M3, M4 |

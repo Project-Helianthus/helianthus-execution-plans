@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9e4b32d2b2b382ed9bad7f4098c63488c7b0e9da7fbec2a22ea10a76124eaee7`
+Canonical-SHA256: `345445f1cedfc21e6c35d6e0f21513979fbf7ff3a520978932f0dd82e65c1b3d`
 
 Depends on: [10-scope-and-problem.md](./10-scope-and-problem.md),
 [11-milestones-and-coordination.md](./11-milestones-and-coordination.md),
