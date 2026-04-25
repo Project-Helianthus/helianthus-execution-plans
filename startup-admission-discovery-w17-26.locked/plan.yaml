@@ -10,7 +10,10 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-23
-current_milestone: M0_DOC_GATE
+completed_on: 2026-04-25
+completion_cruise_run: "Project-Helianthus/helianthus-execution-plans#20"
+final_milestone: M7_GATEWAY_INTEGRATION_ACCEPTANCE  # squash aa9263a via ebusgateway#545
+current_milestone: null  # plan complete; all 9 milestones merged
 canonical_revision: v1.0-locked
 canonical_sha256: 345445f1cedfc21e6c35d6e0f21513979fbf7ff3a520978932f0dd82e65c1b3d
 parent_plan:
@@ -35,6 +38,23 @@ milestones_locked:
   - M5_GATEWAY_DEGRADED_MODE_AND_ENVELOPE
   - M6_GATEWAY_OVERRIDE_AND_FULL_RANGE_GUARD
   - M7_GATEWAY_INTEGRATION_ACCEPTANCE
+merged_milestones:
+  - M0_DOC_GATE                              # squash 9ceab29 via docs-ebus#287
+  - M1_EBUSREG_DIRECTED_SCAN                 # squash 7f699c1 via ebusreg#127
+  - M2_GATEWAY_JOINBUS_ADAPTER               # squash 52133af via ebusgateway#527
+  - M2a_GATEWAY_OFFLINE_HARNESS              # squash 7216d10 via ebusgateway#540 (re-targeted from #529)
+  - M3_GATEWAY_STARTUP_ORDER_FLIP            # squash 26aa930 via ebusgateway#541 (re-targeted from #531)
+  - M4_GATEWAY_EVIDENCE_PIPELINE             # squash d4204a1 via ebusgateway#542 (re-targeted from #533)
+  - M5_GATEWAY_DEGRADED_MODE_AND_ENVELOPE    # squash 967fa1d via ebusgateway#543 (re-targeted from #535)
+  - M6_GATEWAY_OVERRIDE_AND_FULL_RANGE_GUARD # squash e0135b1 via ebusgateway#544 (re-targeted from #537)
+  - M7_GATEWAY_INTEGRATION_ACCEPTANCE        # squash aa9263a via ebusgateway#545 (re-targeted from #539)
+follow_up_tasks:
+  - description: "ClassifyTransportAdmission(adapter-direct) currently returns an error directing callers to classify the underlying transport. The RPi4 deployment uses adapter-direct mode wrapping ENH; M7 live-bus capture (docs/transport-gate-evidence/2026-04-25-adapter-direct-enh.yaml in helianthus-ebusgateway) shows admission_path_selected=degraded_no_events as a result. Follow-up: extend classifier to unwrap adapter-direct → underlying ENH/ENS so Joiner runs on multiplexer deployments."
+    status: open
+    discovered_in: M7 live-bus capture (cruise-run #20)
+  - description: "evidenceHasVaillantRoot is hardcoded false at production call sites of scanWithFullRangeGuard (M6 review-flagged). Diagnostic flag is unreachable until evidence-buffer wiring lands. Follow-up plan needed."
+    status: open
+    discovered_in: M6 AD20 second-reviewer pass (cruise-run #20)
 merge_order:
   - helianthus-ebusreg
   - helianthus-ebusgateway

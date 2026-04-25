@@ -1,21 +1,65 @@
 # Status
 
-State: `locked` as of 2026-04-23.
+State: `locked` (TERMINAL) — all 9 milestones merged 2026-04-25.
 
-Plan directory: `startup-admission-discovery-w17-26.draft/` → will
-rename to `.locked/` at plan-lock commit (per cruise-plan skill).
+Adversarial rounds: 5 (fully converged on R5). Zero blockers at lock.
 
-Adversarial rounds: 5 (fully converged on R5). Zero blockers.
+Current milestone: null (plan complete).
+Final milestone: `M7_GATEWAY_INTEGRATION_ACCEPTANCE` (squash `aa9263a`
+via ebusgateway#545).
 
-Current milestone: `M0_DOC_GATE` (planned, not started).
+## Merged milestones (squash SHAs)
 
-Plan is internally consistent and mergeable against its own
-dependency graph. No `helianthus-ebusgateway` PR can merge until at
-least `M0-DRAFT` (docs-ebus PR open-for-review) exists per AD18
-doc-gate Tier 1.
+| Milestone | Repo | PR | Squash SHA |
+|---|---|---|---|
+| M0_DOC_GATE | docs-ebus | #287 | `9ceab29` |
+| M1_EBUSREG_DIRECTED_SCAN | ebusreg | #127 | `7f699c1` |
+| M2_GATEWAY_JOINBUS_ADAPTER | ebusgateway | #527 | `52133af` |
+| M2a_GATEWAY_OFFLINE_HARNESS | ebusgateway | #540 | `7216d10` |
+| M3_GATEWAY_STARTUP_ORDER_FLIP | ebusgateway | #541 | `26aa930` |
+| M4_GATEWAY_EVIDENCE_PIPELINE | ebusgateway | #542 | `d4204a1` |
+| M5_GATEWAY_DEGRADED_MODE_AND_ENVELOPE | ebusgateway | #543 | `967fa1d` |
+| M6_GATEWAY_OVERRIDE_AND_FULL_RANGE_GUARD | ebusgateway | #544 | `e0135b1` |
+| M7_GATEWAY_INTEGRATION_ACCEPTANCE | ebusgateway | #545 | `aa9263a` |
+| (transport-gate evidence) | ebusgateway | #546 | merged |
 
-Next phase: `cruise-preflight` — routing and complexity classification
-for each milestone.
+Gateway PRs M2a..M7 have higher PR numbers than originally opened
+(#529..#539) because GitHub auto-closed the original stacked PRs when
+their base branches (M2..M6) were squash-merged + deleted. PRs were
+re-created against `main` with the unique commits cherry-picked. The
+original PR numbers are preserved in the squash commit messages and
+in the per-milestone issue history.
+
+## Live-bus evidence
+
+`docs/transport-gate-evidence/2026-04-25-adapter-direct-enh.yaml` in
+helianthus-ebusgateway captures the M7 acceptance runtime evidence
+from the RPi4 deployment at 192.168.100.4 (gateway binary SHA256
+`ddc34283fee7a72a7603d59b5aecdc550e42882fc4085c48e6892d1cd92b4001`,
+adapter-direct ENH @ 192.168.100.2).
+
+The evidence shows new admission code paths are alive (classifier
+log line, AD17 restart-WARN, `startup_directed_probe_phase` log,
+artifact emission at the 60s window). `admission_path_selected =
+degraded_no_events` because the deployment uses adapter-direct
+multiplexer mode which the classifier correctly rejects (AD11) and
+routes to static-fallback (AD13). Joiner does NOT run in this
+configuration.
+
+## Follow-up tasks (carried into post-cruise plans)
+
+1. **Adapter-direct unwrapping**: extend `ClassifyTransportAdmission`
+   so adapter-direct mode classifies based on its underlying ENH/ENS
+   adapter. Until then, M7 join-path runtime evidence requires
+   reconfiguring the deployment to non-adapter-direct ENS or running
+   on a dedicated test bench.
+2. **Evidence-buffer wiring**: `evidenceHasVaillantRoot` is hardcoded
+   `false` at production call sites of `scanWithFullRangeGuard` (M6
+   review-flagged). Diagnostic flag is unreachable until evidence-
+   buffer integration lands.
+
+Both items are tracked under `plan.yaml.follow_up_tasks` and should
+be addressed in a narrow follow-up plan.
 
 ## Adversarial Round Trajectory
 
