@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `896a82e720b33eefb449ea532570e0a962bfa76504519996825f13d92ec9bb28`
+Canonical-SHA256: `86495340799be9340dc191c371a49a958f65c357c76a1e0a2974502c8489b508`
 
 Depends on: None. This chunk establishes scope, evidence, and the full decision matrix.
 
@@ -127,7 +127,52 @@ Routing annotations on every milestone (docs-researcher / codex-dev / claude-dev
 
 3-poll confirmation required before destroying entity on NOT_SUPPORTED flip. Poll source = HA integration's standard coordinator tick; M4 acceptance pins poll cadence explicitly (R4 residual R3 fix). RESOLUTION: APPROVED. Provenance: R3 A14 + R4 R3.
 
+### AD16 — Production raw-frame dispatcher contract (amendment-1)
+
+The B503 MCP+GraphQL surface MUST route through the same adaptermux/router substrate as B524/B525 — no parallel transport path. `b503session.Manager` remains single-owner across MCP+GraphQL. On transport disconnect, `RawFrameDispatcher` MUST propagate the error to `b503session.Manager.OnTransportDisconnect()` so AD04 quiesce-release fires. Lock acquisition order `liveMonitorMu → readMu` is invariant; reversal is a defect class. Stub fallbacks are FORBIDDEN post-M6 — the only acceptable post-deploy state is production dispatch live. M6 acceptance MUST include mixed-traffic B503+B524/B525 concurrency tests with `-race` AND a deterministic test-only lock tracer that records acquisition order; deadlock-or-fail timeout is a secondary trip-wire, not the primary proof.
+
+RESOLUTION: APPROVED. Provenance: amend1 R1 A2 + R2 A2 + R3 A1.
+
+### AD17 — BENCH-REPLACE attestation contract (amendment-1)
+
+Matrix `M6a-vaillant-b503.md` §9 rows transition `[bridge-PASS] → [bridge-LIVE-PASS]` only via three concurrent gates:
+
+1. PR-head commit trailer `BENCH-REPLACE-SIGNOFF: <YYYY-MM-DD>` (immutable git history evidence — semantic proof);
+2. GitHub PR label `bench-replace-signoff` (workflow-gate evidence; PR scaffold step adds it; merge-gate validates);
+3. Capture-artefact appendix files under `helianthus-ebusgateway/matrix/captures/M7-<transport>-<date>.txt` (factual evidence).
+
+`cruise-merge-gate` MUST classify M7 as user-visible-breaking (LANE A) and force `WAIT_OPERATOR`. Auto-merge of BENCH-REPLACE PRs is FORBIDDEN. `cruise-merge-gate` MUST verify trailer-on-HEAD AND label BEFORE permitting operator to lift `WAIT_OPERATOR`. Trailer + captures remain authoritative semantic proof; label is workflow-gate evidence with explicit remediation path when missing only. Plan transition `.implementing → .locked → .maintenance` is BLOCKED until M7 merged.
+
+RESOLUTION: APPROVED. Provenance: amend1 R1 A4 + R2 A4 + R4 A4 (LANE A confirmation).
+
+### AD18 — Capability-signal 8-state truth table + stale-epoch discipline (amendment-1)
+
+`vaillantCapabilities.b503` transitions follow an 8-state truth table. Each state has a defined output and stale-frame rule:
+
+| # | State | Capability output | Stale-frame discipline |
+|---|---|---|---|
+| 1 | cold-boot, no successful dispatch yet | `UNKNOWN` | n/a |
+| 2 | post-first-success steady state | `AVAILABLE` | n/a |
+| 3 | disconnect during ACTIVE session | `TRANSPORT_DOWN` (literal) | in-flight requests fail TRANSPORT_DOWN; no late mutation |
+| 4 | reconnect, before first post-reconnect dispatch | `UNKNOWN` (NOT sticky AVAILABLE) | reset to UNKNOWN regardless of pre-disconnect state |
+| 5 | reconnect, post-first-success-after-reconnect | `AVAILABLE` | n/a |
+| 6 | timeout/NAK/CRC during dispatch | `UPSTREAM_RPC_FAILED` to caller; capability stays last-known | n/a |
+| 7 | session-expiry detected | `EXPIRED` internal → AD14 1-retry → `AVAILABLE` OR `TRANSPORT_DOWN` literal | n/a |
+| 8 | stale in-flight completion across epoch rollover | n/a — frame discarded | reply/NAK/timeout from epoch N arriving after reconnect to epoch N+1 MUST be discarded; MUST NOT mutate capability to AVAILABLE; MUST NOT satisfy any post-reconnect waiter |
+
+Forbidden states: sticky `AVAILABLE` after transport loss; premature `AVAILABLE` before first real dispatch; silent fallback to `UNKNOWN` once `TRANSPORT_DOWN` is knowable. Implementation contract: every B503 dispatch request MUST capture the current `Manager.epoch` into an in-flight request record at issue-time. Reply/NAK/timeout completion paths MUST compare against the stored epoch BEFORE waking waiters or mutating capability state. Epoch comparison is request-side metadata, not derived from `Manager` at receive time. M6 acceptance MUST include one separate test per truth-table row; missing-coverage = automatic merge-gate block.
+
+RESOLUTION: APPROVED. Provenance: amend1 R1 A3 + R2 A1 + R3 A2.
+
+### AD19 — Portal device-centric topology (amendment-1)
+
+B503 is a per-target capability surface, not a global pane. The portal Vaillant B503 surface MUST accept a per-target selector and render distinct `B503Availability` state per device. Section `section-projection` is the canonical device-centric entry point; per-protocol planes (B503, L7 Standard, etc.) MUST be discoverable via Projection plane cards when capability=`AVAILABLE` for the selected device. Cross-linking from plane cards to per-protocol panes preserves direct-access while making device topology the primary navigation axis. Threading target through every B503 GraphQL query is invariant; query/cache keys MUST include target address as a first-class component; in-flight responses with mismatched target ARE discarded by the result handler before state mutation. M8 acceptance MUST include target-switch in-flight invalidation tests (M8-TGT-01..04 — capability, ownership, history, and enable-handshake) and a 4-step composite epoch-rollover frontend test (active → transport-down → unknown-pre-success → available-after-success).
+
+RESOLUTION: APPROVED. Provenance: amend1 R4 A2 + R4 A3 + R5 A1.
+
 ## Adversarial round log
+
+### v1.0 baseline (2026-04-22)
 
 | Round | Attacks (H/M/L) | Outcome |
 |---|---|---|
@@ -135,5 +180,17 @@ Routing annotations on every milestone (docs-researcher / codex-dev / claude-dev
 | R2 | 6 (3/3/0) | all integrated into v2; DAG tightened, session epoch, doc-gate widened |
 | R3 | 2 (1/1/0) | both integrated into v3 |
 | R4 | 0 blocker; 3 residual (0/1/2) | CONSENSUS; residuals folded into plan |
+
+No ESCALATE_TO_OPERATOR.
+
+### v1.1 amendment-1 (2026-04-25)
+
+| Round | Attacks (H/M/L) | Outcome |
+|---|---|---|
+| R1 | 5 (2/3/0) | all integrated; M0b added, 4-test concurrency split, truth-table introduced, BENCH-REPLACE dual gate, transport-gate row coverage |
+| R2 | 5 (2/2/1) | all integrated; AD18 8th row (stale-epoch), per-timing concurrency cases, M0b scope trim, label ownership, lane subtype |
+| R3 | 3 (0/2/1) | declared CONSENSUS; lock-tracer + epoch-as-metadata + M7-blocked-until-M6 invariant integrated inline |
+| R4 | 3 (0/3/0) | testable rendering contract per state, target-switch invalidation, frontend epoch-rollover; M8 → LANE A |
+| R5 | 1 (0/1/0) | CONSENSUS; M8-TGT-04 target-switch-during-enable added; amendment locked |
 
 No ESCALATE_TO_OPERATOR.

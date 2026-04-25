@@ -1,11 +1,45 @@
 slug: vaillant-b503-namespace-w17-26
 title: Vaillant B503 Diagnostic/Service/Live-Monitor Protocol Namespace
-state: maintenance
+state: implementing
 implementation_started_on: 2026-04-22
-completed_on: 2026-04-23
-final_milestone: M3_PORTAL  # last of 7 merged 2026-04-23T02:01:37Z
-current_milestone: null  # plan complete; all 7 milestones merged
+completed_on: null  # rolled back 2026-04-25 — stub dispatcher merged; production wiring restant
+final_milestone: null  # M7_BENCH_REPLACE is the new terminal
+current_milestone: M0b_DOC_DISPATCHER_BRIDGE  # parallel docs companion; merge-blocks M6
 source_discussion: cruise-plan-2026-04-22-operator-prompt
+amendment_log:
+  - date: 2026-04-25
+    by: cruise-plan AMEND_PLAN
+    reason: |
+      Operator-detected stub-completion gap. Initial plan locked 2026-04-22 with
+      M0..M5 covering decoder, MCP, GraphQL, portal, HA, and matrix. All 7
+      milestones merged 2026-04-22..2026-04-23, BUT cmd/gateway/vaillant_b503_wiring.go
+      injects b503StubDispatcher{} which always returns errB503DispatcherNotWired.
+      Live MCP probes confirm UPSTREAM_RPC_FAILED on all 5 read tools and
+      vaillantCapabilities.b503 = { available: false, reason: UNKNOWN }.
+      Plan was incorrectly transitioned .implementing→.locked→.maintenance on
+      2026-04-23/2026-04-25 despite plan.yaml::post_implementation_obligations
+      flagging raw_frame_dispatcher and bench_replace as pending. Rolling back
+      to .implementing and adding 4 new milestones:
+        - M0b_DOC_DISPATCHER_BRIDGE (docs companion for production dispatcher
+          contract; merge-blocks M6 — added per amend1 R1 A1)
+        - M6_DISPATCHER_BRIDGE (production raw-frame dispatch via adaptermux
+          substrate; mandatory adversarial review; epoch-tagged in-flight +
+          mechanical lock tracer + 8 truth-table tests + 4 concurrency tests)
+        - M7_BENCH_REPLACE (operator-attested live-bus captures, matrix §9
+          [bridge-PASS]→[bridge-LIVE-PASS] flip; 3 concurrent attestation
+          gates: trailer + label + capture-artefact)
+        - M8_PORTAL_UX_GAPS (portal F1..F8 closure: per-target awareness,
+          full reason matrix, projection fold-in, session-state strip, history
+          sub-tab, AD02 banner, F7 cruise-consult REST-shim decision; LANE A)
+      Decision matrix extended with AD16..AD19. M7 and M8 both block plan
+      transition .implementing→.locked→.maintenance; M7 PR blocked until
+      M6 merged; M8 PR blocked until M6 merged.
+    new_milestones: [M0b_DOC_DISPATCHER_BRIDGE, M6_DISPATCHER_BRIDGE, M7_BENCH_REPLACE, M8_PORTAL_UX_GAPS]
+    new_decisions: [AD16, AD17, AD18, AD19]
+    new_repos: []  # all 4 milestones land in existing target_repos (docs-ebus + ebusgateway)
+    adversarial_required: true  # SIZE_THRESHOLD: 4 milestones, 4 ADs touching transport+UX classification
+    adversarial_rounds_executed: 5
+    adversarial_verdict: CONSENSUS
 target_repos:
   - helianthus-docs-ebus
   - helianthus-ebusgo
@@ -15,8 +49,8 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-22
-canonical_revision: v1.0-locked
-canonical_sha256: 896a82e720b33eefb449ea532570e0a962bfa76504519996825f13d92ec9bb28
+canonical_revision: v1.1-amend1
+canonical_sha256: 86495340799be9340dc191c371a49a958f65c357c76a1e0a2974502c8489b508
 adversarial_provenance:
   co_pilot: codex
   model: gpt-5.4
@@ -26,6 +60,18 @@ adversarial_provenance:
   verdict: CONSENSUS
   residual_concerns_folded: [R4-R1, R4-R2, R4-R3]
   escalations: []
+amendment_provenance:
+  amendment_id: amend1-w17-26
+  co_pilot: codex
+  model: gpt-5.4
+  reasoning_effort: high
+  rounds: 5
+  attacks_per_round: [5, 5, 3, 3, 1]   # H/M/L breakdown: R1 2/3/0, R2 2/2/1, R3 0/2/1, R4 0/3/0, R5 0/1/0
+  verdict: CONSENSUS
+  residual_concerns_folded: []
+  escalations: []
+  thread_id: 019dc567-b9fe-7e22-bb3d-93d157f5bad4
+  consensus_round: 5
 milestone_order:
   - M0_DOC_GATE
   - M1_DECODER
@@ -34,10 +80,25 @@ milestone_order:
   - M2b_GATEWAY_GRAPHQL
   - M3_PORTAL
   - M4_HA
+  - M0b_DOC_DISPATCHER_BRIDGE   # amendment-1 docs companion to M6
+  - M6_DISPATCHER_BRIDGE         # amendment-1
+  - M7_BENCH_REPLACE             # amendment-1
+  - M8_PORTAL_UX_GAPS            # amendment-1
 dag_invariants:
   m5_blocks_m2b: true
   mcp_before_graphql_before_consumers: true
-  adversarial_review_required: [M2a_GATEWAY_MCP, M5_TRANSPORT_MATRIX]
+  m0b_blocks_m6: true                       # docs-gate companion required before M6 merge
+  m6_blocks_m7: true                        # raw-frame dispatcher must land before live-bus captures
+  m6_blocks_m8: true                        # portal target-aware UX needs production capability semantics
+  m7_pr_blocked_until_m6_merged: true       # cruise-topology rejects M7 PR open/review until M6 on main (R3 A3)
+  m8_pr_blocked_until_m6_merged: true       # same for M8
+  m7_blocks_terminal: true                  # BENCH-REPLACE is one of two .implementing→.locked→.maintenance terminal gates
+  m8_blocks_terminal: true                  # portal UX gap closure also gates terminal
+  adversarial_review_required: [M2a_GATEWAY_MCP, M5_TRANSPORT_MATRIX, M6_DISPATCHER_BRIDGE]
+  m7_auto_merge_forbidden: true             # cruise-merge-gate WAIT_OPERATOR mandatory
+  m8_lane: A                                # user-visible-breaking — operator smoke-test mandatory
+  m7_attestation_gates: [trailer_on_head, label_bench_replace_signoff, capture_artefact_appendix]
+  m8_pre_dev_gate: cruise_consult_f7_rest_shim_decision
 v1_forbidden_surfaces:
   install_writes_anywhere: true
   cross_device_fxxx_public_contract: true
@@ -54,15 +115,6 @@ merged_milestones:
   - M4_HA             # ha-integration#188 squash d9355e5f @ 2026-04-23T01:56:41Z (2 Codex rounds, 4 comments resolved; complexity 4; DUC delegation + AD11 runtime teardown)
   - M3_PORTAL         # ebusgateway#522 squash 45846270 @ 2026-04-23T02:01:37Z (2 Codex rounds, 4 comments resolved; complexity 4; 6 new portal tests + 21 regression)
 post_implementation_obligations:
-  bench_replace:
-    description: "M5 matrix §6 BENCH-REPLACE — operator-attested live-bus captures (adapter-direct + ebusd_tcp) required to flip [~] rows to [x]; gates M2b GraphQL schema-stable publication per M5 §8"
-    status: pending_operator_bench
-    blocks_m2b_publication: true
-    artifact_location: "helianthus-ebusgateway/matrix/M6a-vaillant-b503.md §6"
-  raw_frame_dispatcher:
-    description: "Replace b503StubDispatcher in cmd/gateway/vaillant_b503_wiring.go with production raw-frame bridge (adaptermux/router substrate). Paired with BENCH-REPLACE execution."
-    status: pending
-    blocks: BENCH-REPLACE
   ebusstd_errsafetyclassdenied_restore:
     description: "internal/execution_policy/policy.go uses local ErrSafetyClassDenied sentinel (M2a interim fix after unbuildable origin/main break). Revert to ebusstd wrap once upstream helianthus-ebusreg exports the symbol."
     status: pending_upstream

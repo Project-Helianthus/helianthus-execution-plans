@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `896a82e720b33eefb449ea532570e0a962bfa76504519996825f13d92ec9bb28`
+Canonical-SHA256: `86495340799be9340dc191c371a49a958f65c357c76a1e0a2974502c8489b508`
 
 Depends on: [10-scope-decisions.md](./10-scope-decisions.md) and [11-execution-safety-and-surfaces.md](./11-execution-safety-and-surfaces.md). No milestone may merge without the AD01..AD15 invariants and the session model defined there being honoured.
 
@@ -202,6 +202,31 @@ Acceptance:
 |---|---|
 | docs-researcher | doc-gate checklist; companion-link tags |
 | codex-dev | bounded scope; Codex primary; Claude second-opinion on review |
+| codex-restricted | bounded scope + tighter narrowing; Claude pre-PR review |
 | claude-dev + adversarial review | Claude primary; Codex adversarial review; consultant escalation after 2 fail loops on same PR |
+| operator-attest | cruise-merge-gate WAIT_OPERATOR; merge after operator smoke-test |
 
-M2a and M5 are the only `claude-dev + adversarial review` milestones in this plan. All others are bounded enough for codex-dev.
+`M2a`, `M5`, and `M6` (amendment-1) are the `claude-dev + adversarial review` milestones in this plan. `M7` (amendment-1) is `operator-attest`. `M8` (amendment-1) is `codex-restricted` LANE A — WAIT_OPERATOR.
+
+## Amendment-1 milestones (v1.1, 2026-04-25)
+
+The four amendment-1 milestones (M0b, M6, M7, M8) are specified in detail in [13-amendment-1-dispatcher-portal-ux.md](./13-amendment-1-dispatcher-portal-ux.md). Brief summary:
+
+| Milestone | Repo | Routing | Complexity | Depends on |
+|---|---|---|---|---|
+| M0b_DOC_DISPATCHER_BRIDGE | helianthus-docs-ebus | docs-researcher | 4 | none (parallel; merge-blocking gate for M6) |
+| M6_DISPATCHER_BRIDGE | helianthus-ebusgateway | claude-dev + adversarial | 8 | M4_HA, M0b |
+| M7_BENCH_REPLACE | helianthus-ebusgateway | codex-dev + operator-attest | 5 | M6 |
+| M8_PORTAL_UX_GAPS | helianthus-ebusgateway | codex-restricted | 6 | M6 (parallel to M7) |
+
+DAG (v1.1): `M0 → M1 → M2a → M5 → M2b → {M3, M4} → M6 → {M7, M8} → terminal`. M0b parallel docs companion to M6. Both M7 and M8 block `.implementing → .locked → .maintenance` terminal.
+
+Cross-milestone invariants (v1.1 additions to v1.0):
+
+- M6 is mandatory adversarial review (joins M2a, M5).
+- M7 is auto-merge-FORBIDDEN — must transit cruise-merge-gate `WAIT_OPERATOR` with operator smoke-test.
+- M7 PR cannot be opened, reviewed, or lifted from draft until M6 merged on `main`.
+- M8 PR cannot be opened, reviewed, or lifted from draft until M6 merged on `main`.
+- M7 attestation requires three concurrent gates: trailer-on-HEAD + label `bench-replace-signoff` + capture-artefact appendix files.
+- M8 is LANE A (user-visible-breaking — modifies existing Vaillant pane semantics, alters navigation through Projection cross-linking).
+- M8 includes an F7 `cruise-consult` decision gate before dev work begins (REST-shim symmetry).

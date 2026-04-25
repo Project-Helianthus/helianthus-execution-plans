@@ -1,9 +1,10 @@
 # Vaillant B503 Namespace (`vaillant`)
 
-State: `locked`
+State: `implementing`
 Slug: `vaillant-b503-namespace-w17-26`
-Locked on: `2026-04-22`
-Canonical revision: `v1.0-locked`
+Locked on: `2026-04-22` (v1.0)
+Amendment-1 locked on: `2026-04-25` (v1.1)
+Canonical revision: `v1.1-amend1`
 
 ## Summary
 
@@ -105,29 +106,87 @@ See [12-milestones-issues-acceptance.md](./12-milestones-issues-acceptance.md)
 for the per-milestone scope, routing, complexity annotation, dependency
 ordering (including M5 blocking M2b), and acceptance criteria.
 
-Milestone summary:
+Milestone summary (v1.0 baseline + v1.1 amendment-1):
 
-| Milestone | Repo | Routing | Complexity |
-|---|---|---|---|
-| M0_DOC_GATE | helianthus-docs-ebus | docs-researcher (Claude) | 5 |
-| M1_DECODER | helianthus-ebusgo | codex-dev | 4 |
-| M2a_GATEWAY_MCP | helianthus-ebusgateway | claude-dev + adversarial review | 8 |
-| M5_TRANSPORT_MATRIX | helianthus-ebusgateway | claude-dev | 7 |
-| M2b_GATEWAY_GRAPHQL | helianthus-ebusgateway | codex-dev | 5 |
-| M3_PORTAL | helianthus-ebusgateway | codex-dev | 4 |
-| M4_HA | helianthus-ha-integration | codex-dev | 4 |
+| Milestone | Repo | Routing | Complexity | State |
+|---|---|---|---|---|
+| M0_DOC_GATE | helianthus-docs-ebus | docs-researcher (Claude) | 5 | merged 2026-04-22 |
+| M1_DECODER | helianthus-ebusgo | codex-dev | 4 | merged 2026-04-22 |
+| M2a_GATEWAY_MCP | helianthus-ebusgateway | claude-dev + adversarial | 8 | merged 2026-04-22 |
+| M5_TRANSPORT_MATRIX | helianthus-ebusgateway | claude-dev + adversarial | 7 | merged 2026-04-23 |
+| M2b_GATEWAY_GRAPHQL | helianthus-ebusgateway | codex-dev | 5 | merged 2026-04-23 |
+| M3_PORTAL | helianthus-ebusgateway | codex-dev | 4 | merged 2026-04-23 |
+| M4_HA | helianthus-ha-integration | codex-dev | 4 | merged 2026-04-23 |
+| **M0b_DOC_DISPATCHER_BRIDGE** | helianthus-docs-ebus | docs-researcher (Claude) | 4 | not started (amendment-1) |
+| **M6_DISPATCHER_BRIDGE** | helianthus-ebusgateway | claude-dev + adversarial | 8 | not started (amendment-1) |
+| **M7_BENCH_REPLACE** | helianthus-ebusgateway | codex-dev + operator-attest | 5 | not started (amendment-1) |
+| **M8_PORTAL_UX_GAPS** | helianthus-ebusgateway | codex-restricted (LANE A) | 6 | not started (amendment-1) |
 
-Dependency DAG: `M0 → M1 → M2a → M5 → M2b → {M3, M4}`.
-`M2a` and `M5` are mandatory adversarial-review milestones with consultant
-escalation after 2 fail loops.
+Dependency DAG (v1.1):
+
+```text
+M0 → M1 → M2a → M5 → M2b → {M3, M4} → M6 → {M7, M8} → terminal
+                                ▲
+                                │
+                              M0b (docs-gate companion to M6)
+```
+
+Mandatory adversarial-review milestones: `M2a`, `M5`, `M6` (consultant
+escalation after 2 fail loops). `M7` is operator-attest (cruise-merge-gate
+WAIT_OPERATOR). `M8` is LANE A user-visible-breaking (modifies existing
+Vaillant pane semantics) — also WAIT_OPERATOR.
+
+`M7` and `M8` are both `_blocks_terminal: true`. Plan transition
+`.implementing → .locked → .maintenance` is gated on both being merged.
+
+## Amendment-1 (v1.1) — Production dispatcher + portal UX gaps
+
+Locked on `2026-04-25` after R1..R5 adversarial CONSENSUS with Codex
+`gpt-5.4` reasoning=high.
+
+**Trigger.** All 7 baseline milestones merged 2026-04-22..23, but
+`cmd/gateway/vaillant_b503_wiring.go` installs `b503StubDispatcher{}`
+which always returns `errB503DispatcherNotWired`. Live gateway probes
+(192.168.100.4) confirmed `vaillantCapabilities.b503 = {available: false,
+reason: UNKNOWN}` and `UPSTREAM_RPC_FAILED` on every read tool. Plan
+was incorrectly transitioned to `.maintenance` on 2026-04-25; rolled
+back to `.implementing` and amendment-1 codifies the production-wiring
++ live-bus + portal-UX gap closure as 4 new milestones.
+
+**New decisions.** AD16 (dispatcher contract), AD17 (BENCH-REPLACE
+attestation), AD18 (capability-signal 8-state truth table including
+stale-epoch discipline), AD19 (portal device-centric topology). See
+[10-scope-decisions.md](./10-scope-decisions.md) §AD16..AD19.
+
+**Forbidden post-amendment.** Stub dispatcher fallback in production
+wiring. Sticky AVAILABLE after transport loss. Premature AVAILABLE
+before first real dispatch. Stale-epoch frame mutation of capability or
+session state. Auto-merge of M7 BENCH-REPLACE PRs.
+
+**Detail chunk:** [13-amendment-1-dispatcher-portal-ux.md](./13-amendment-1-dispatcher-portal-ux.md).
 
 ## Adversarial provenance
 
-The plan converged at R4 (Codex `gpt-5.4`, reasoning=high). Rounds log:
+### v1.0 baseline (2026-04-22) — converged at R4
+
+Codex `gpt-5.4`, reasoning=high. Rounds log:
 
 - R1: 6 attacks (4 high, 1 med), 2 concessions — ebusreg-leak fix, MCP→GraphQL→consumer ordering, semantic-lock narrowing, live-monitor serialization, transport-gate expansion, acceptance criteria concreteness.
 - R2: 6 attacks (3 high, 3 med) — DAG tightening (M5 blocks M2b), HA capability signal, session epoch semantics, doc-gate operational contract breadth, B524 regression rows, per-milestone routing table.
 - R3: 2 attacks (1 high, 1 med) — HA permanent-vs-transient unavailability split, EXPIRED normalization rule.
 - R4: CONSENSUS with 3 residual concerns (1 med, 2 low) folded into plan as clarifications (entity-unavailable-during-hysteresis, refresh-outcome non-collapse, poll cadence pinning).
 
-No ESCALATE_TO_OPERATOR decisions outstanding.
+No ESCALATE_TO_OPERATOR decisions outstanding for v1.0.
+
+### v1.1 amendment-1 (2026-04-25) — converged at R5
+
+Codex `gpt-5.4`, reasoning=high. Mode `AMENDMENT_REVIEW` (delta-bounded;
+baseline plan attacks out of scope). Rounds log:
+
+- R1: 5 attacks (2 high, 3 med), 2 concessions — missing doc-gate companion (→ M0b added), mixed-traffic concurrency under-specified (→ 4-test split), capability-signal truth table needed, BENCH-REPLACE-SIGNOFF placement ambiguity, transport-gate row coverage explicit.
+- R2: 5 attacks (2 high, 2 med, 1 low), 2 concessions — stale-epoch in-flight completion (→ AD18 8th row added), per-timing concurrency case split (→ M6-CONC-01..04), M0b scope-creep trim, label ownership assignment, lane subtype clarification.
+- R3: 3 attacks (0 high, 2 med, 1 low), 2 concessions, declared CONSENSUS — mechanical lock-order verification mechanism, explicit epoch-as-request-side-metadata, M7 PR topology invariant. Inline fixes integrated.
+- R4: 3 attacks (0 high, 3 med), 3 concessions — actionable-copy non-falsifiable (→ data-testid contract per state), target-switch in-flight invalidation, frontend epoch-rollover acceptance. R4 also recommended classifying M8 as LANE A (accepted).
+- R5: 1 attack (0 high, 1 med), 3 concessions, CONSENSUS — target-switch-during-enable contract added (M8-TGT-04). Amendment locked.
+
+No ESCALATE_TO_OPERATOR decisions outstanding for v1.1.
