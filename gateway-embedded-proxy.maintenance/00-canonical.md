@@ -2,7 +2,12 @@
 
 Revision: `v1.0-locked`
 Date: `2026-04-09`
-Status: `Locked`
+Status: `Maintenance`
+Maintenance since: `2026-04-11`
+
+Lifecycle note: the primary implementation wave is merged and deployed. Open
+evidence-packaging items such as gateway #476 / docs #250 are maintenance
+follow-ups and do not move the plan back to implementing.
 
 ## Summary
 

@@ -1,6 +1,6 @@
 # Status
 
-State: `locked` (TERMINAL) — all 9 milestones merged 2026-04-25.
+State: `maintenance` — all 9 milestones merged 2026-04-25.
 
 Adversarial rounds: 5 (fully converged on R5). Zero blockers at lock.
 
@@ -45,6 +45,12 @@ degraded_no_events` because the deployment uses adapter-direct
 multiplexer mode which the classifier correctly rejects (AD11) and
 routes to static-fallback (AD13). Joiner does NOT run in this
 configuration.
+
+Accepted deviation: the locked M7 acceptance text expected a non-degraded
+join path, but cruise-run #20 accepted the adapter-direct live deployment as
+terminal evidence because adapter-direct unwrapping is a narrow follow-up, not
+a blocker for the main startup-admission wave. The lifecycle state is therefore
+maintenance with the follow-up carried below.
 
 ## Follow-up tasks (carried into post-cruise plans)
 

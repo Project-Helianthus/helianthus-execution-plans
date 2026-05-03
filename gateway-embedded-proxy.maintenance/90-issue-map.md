@@ -1,5 +1,9 @@
 # Issue Map
 
+Lifecycle state: `maintenance`. Execution-plan issue #11 is closed; remaining
+formal evidence packaging is tracked as maintenance follow-up, not active
+implementation.
+
 This plan is anchored on one EPIC and a fixed cross-repo issue set.
 
 Status legend:

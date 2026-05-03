@@ -2,7 +2,12 @@
 
 Revision: `v1.0-locked`
 Date: `2026-03-29`
-Status: `Locked`
+Status: `Maintenance`
+Maintenance since: `2026-03-29`
+
+Lifecycle note: the locked plan has been implemented and merged across gateway,
+add-on, HA integration, and docs. `plan.yaml.wave_outcome` records the completed
+main wave; `current_milestone` is maintenance.
 
 ## Summary
 

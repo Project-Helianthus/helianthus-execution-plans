@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `eb11742d60722b1389dca6822b956c15ddee542aacf95901299fefcd1a27dfcf`
+Canonical-SHA256: `76c6f0a556c875861b57aa709c0ddcca3381e8245cc87cdc7d527c9fcae17f0b`
 
 Depends on: None. This chunk defines the evidence model, the problem statement,
 and the locked architectural decisions for the NM model and wire behaviour.

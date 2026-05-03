@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `415745ffb6cd371c55f10fe486de24a355e6e140c0645e20b78f783f57b6cd20`
+Canonical-SHA256: `956d6ad2957f09906a4eee3f3be733059c0a24d34af4d56ebf61c0553aaeac86`
 
 Depends on: Execution Plans 01-04. This chunk mirrors imported defaults only
 when needed for isolated review.

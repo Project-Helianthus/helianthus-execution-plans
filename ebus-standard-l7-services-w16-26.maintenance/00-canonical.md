@@ -1,8 +1,9 @@
 # eBUS Standard L7 Services Namespace (`ebus_standard`)
 
-State: `locked`
+State: `maintenance`
 Slug: `ebus-standard-l7-services-w16-26`
 Locked on: `2026-04-18`
+Maintenance since: `2026-04-20`
 Canonical revision: `v1.0-locked`
 
 ## Summary

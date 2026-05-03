@@ -1,8 +1,13 @@
 # Observe-First eBUS Watch Registry + Bus Observability
 
-Revision: `v0.20-hardening-draft`
+Revision: `v1.0-maintenance-reconciled`
 Date: `2026-03-09`
-Status: `Draft (convergence hardening)`
+Status: `Maintenance`
+Maintenance since: `2026-03-29`
+
+Lifecycle note: all non-deferred milestones are complete. M8/tinyebus was
+re-homed to `common-firmware-rewrite.locked`; record-only remains the canonical
+default after the GW-16 non-promotion/default-state decision.
 
 ## Summary
 

@@ -1,6 +1,6 @@
 slug: startup-admission-discovery-w17-26
 title: Startup Bus Admission + Discovery Remediation (Joiner-admission before active traffic; passive-first bounded discovery)
-state: locked
+state: maintenance
 source_discussion: dual-ai-cruise-run-2026-04-23
 target_repos:
   - helianthus-ebusreg
@@ -14,8 +14,9 @@ completed_on: 2026-04-25
 completion_cruise_run: "Project-Helianthus/helianthus-execution-plans#20"
 final_milestone: M7_GATEWAY_INTEGRATION_ACCEPTANCE  # squash aa9263a via ebusgateway#545
 current_milestone: null  # plan complete; all 9 milestones merged
+maintenance_since: 2026-04-25
 canonical_revision: v1.0-locked
-canonical_sha256: 345445f1cedfc21e6c35d6e0f21513979fbf7ff3a520978932f0dd82e65c1b3d
+canonical_sha256: c3b2fb00c75c8ebc02de12ba6c7526b216f714f2be4a38d77890e4776c5f4fcf
 parent_plan:
   slug: ebus-good-citizen-network-management
   state: maintenance

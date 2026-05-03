@@ -1,20 +1,24 @@
 # Milestone Map
 
+Lifecycle state: `maintenance`. Milestones below are archival from the locked
+plan; active execution was superseded by `ebus-standard-l7-services-w16-26` and
+the extracted `startup-admission-discovery-w17-26` plan.
+
 | Milestone | Scope | Primary repos | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | `M0` | Docs integration of official NM + OSI 7 services into Helianthus normative docs | `helianthus-docs-ebus` | none | locked-ready |
-| `M1` | Raw wire primitives and bounded read-only substrate | `helianthus-ebusgo` | `M0` | queued |
-| `M2a` | MCP raw capture, frame listing, replay/decode-friendly evidence | `helianthus-ebusgateway` | `M1` | queued |
-| `M2b` | Active raw read-only transceive, conditional on contention proof | `helianthus-ebusgateway` | `M2a`, `ISSUE-GW-00` | queued |
-| `M3` | Identity model refactor for `PhysicalDevice`, `BusFace`, and companion pairs | `helianthus-ebusreg`, `helianthus-ebusgateway` | `M1` | queued |
-| `M4` | Gateway NM runtime: local address-pair authority, target configuration, cycle times, event bridge, self-monitoring, status chart, net status | `helianthus-ebusgateway` | `M3`, `ISSUE-GW-JOIN-01` | queued |
-| `M5` | NM-aligned discovery integration + MCP NM surfaces + face-parity fixes | `helianthus-ebusgateway`, `helianthus-ebusreg` | `M4` | queued |
-| `M6` | Broadcast lane: `FF 00` on join/reset, `FF 02` on failure | `helianthus-ebusgateway` | `M4` | queued |
+| `M1` | Raw wire primitives and bounded read-only substrate | `helianthus-ebusgo` | `M0` | superseded |
+| `M2a` | MCP raw capture, frame listing, replay/decode-friendly evidence | `helianthus-ebusgateway` | `M1` | superseded |
+| `M2b` | Active raw read-only transceive, conditional on contention proof | `helianthus-ebusgateway` | `M2a`, `ISSUE-GW-00` | superseded |
+| `M3` | Identity model refactor for `PhysicalDevice`, `BusFace`, and companion pairs | `helianthus-ebusreg`, `helianthus-ebusgateway` | `M1` | superseded |
+| `M4` | Gateway NM runtime: local address-pair authority, target configuration, cycle times, event bridge, self-monitoring, status chart, net status | `helianthus-ebusgateway` | `M3`, `ISSUE-GW-JOIN-01` | adopted/extracted |
+| `M5` | NM-aligned discovery integration + MCP NM surfaces + face-parity fixes | `helianthus-ebusgateway`, `helianthus-ebusreg` | `M4` | adopted/extracted |
+| `M6` | Broadcast lane: `FF 00` on join/reset, `FF 02` on failure | `helianthus-ebusgateway` | `M4` | adopted |
 | `M7a` | Responder feasibility spike | `helianthus-ebusgo` | `M1` | parallel-spike |
 | `M7b` | Local participant responder: `07 04` + `FF 03/04/05/06` | `helianthus-ebusgateway`, `helianthus-ebusgo` | `M4`, `M7a` | blocked-on-feasibility |
 | `M8` | Optional-later broadcast lane: `FF 01`, `07 FF`, policy hardening | `helianthus-ebusgateway` | `M6` | optional |
 | `M9` | GraphQL/HA optional consumer parity | `helianthus-ebusgateway`, `helianthus-ha-integration` | `M5` | optional |
-| `M10` | Real-bus validation, transport matrix, rollback criteria | all touched repos | `M6`, `M7b` if pursued, `M8` if pursued | queued |
+| `M10` | Real-bus validation, transport matrix, rollback criteria | all touched repos | `M6`, `M7b` if pursued, `M8` if pursued | superseded |
 
 ## Ordering Rules
 

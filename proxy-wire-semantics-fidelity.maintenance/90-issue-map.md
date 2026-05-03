@@ -1,5 +1,8 @@
 # Issue Map
 
+Lifecycle state: `maintenance`. EPIC #5 and PLAN-01 #6 are closed; M6 follow-up
+#7 remains open by design as deferred, non-blocking work.
+
 This plan is anchored on one EPIC and a fixed cross-repo issue set.
 
 Status legend:

@@ -1,12 +1,12 @@
 # Status
 
-State: `locked`
+State: `maintenance`
 
 ## Current Position
 
-- `eBUS Good-Citizen Network Management + Raw MCP` now has a canonical locked
-  home in `helianthus-execution-plans`.
-- Current slug state: `ebus-good-citizen-network-management.locked`
+- `eBUS Good-Citizen Network Management + Raw MCP` is retained as a frozen
+  enrichment source in `helianthus-execution-plans`.
+- Current slug state: `ebus-good-citizen-network-management.maintenance`
 - The plan converged through a multi-round adversarial review loop before
   promotion from `_drafts/`.
 - The locked plan includes:
@@ -28,20 +28,19 @@ State: `locked`
   payload-less `FF02`, cadence evidence, `MessageReceived` meaning,
   disconnect semantics, and `Init_NM` triggers
 
-## Active Focus
+## Maintenance Position
 
-- Keep the plan in `locked` until the first implementation PR opens in a target
-  repo.
-- Translate canonical issue IDs into real GitHub issues in milestone order.
-- Start with `M0` in `helianthus-docs-ebus`.
+- The plan is superseded/adopted, not actively implementing.
+- `ebus-standard-l7-services-w16-26.maintenance` adopted the authoritative NM
+  docs and runtime design.
+- `startup-admission-discovery-w17-26.maintenance` extracted and completed the
+  narrow `ISSUE-GW-JOIN-01` startup-admission lane.
 
 ## Blockers
 
-- None. The plan is converged and implementation-ready.
+- None. The plan is in maintenance.
 
 ## Next Actions
 
-1. Create GitHub issues for `M0` and `M1` in the primary repos.
-2. Preserve `M7a` as a parallel feasibility spike, not as a blocker for the
-   internal NM runtime.
-3. Rename the plan to `.implementing` when the first code PR opens.
+None. Future work should open a new narrow plan or attach to the superseding
+maintenance plans above.

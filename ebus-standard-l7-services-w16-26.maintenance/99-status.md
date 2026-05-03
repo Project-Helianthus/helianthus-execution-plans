@@ -1,7 +1,8 @@
 # Status
 
-State: `implementing`
+State: `maintenance`
 Implementation started: `2026-04-19`
+Maintenance since: `2026-04-20`
 
 ## Current Position
 
@@ -25,11 +26,11 @@ Implementation started: `2026-04-19`
 - **fix_silent_failures_sweep** merged 2026-04-20 (squash `af50fda5` via helianthus-ebusgateway#512; 37 catalog + 16 extras per-site judgment; closeOrLog helper + 2 production log.Printf; 0 bugs surfaced on SA4011 investigation; LANE B internal-additive)
 - **M4D_responder_capability_lock** merged 2026-04-20 (squash `2fe399af` via helianthus-docs-ebus#279; `architecture/ebus_standard/13-responder-capability-signal.md` 484 lines 12 §; 7 consumer rules incl. rule 7 scope-override for unknown active.transport; reason enum 3 values — transport_mux_bypass from producer-drift; Interpretation A shared-runtime downgrade)
 - **M6a_transport_matrix_artifact** merged 2026-04-20 (squash `686dfaf0` via helianthus-ebusgateway#514; `matrix/M6a-transport-matrix.md` 176 lines 8 §; 14-row conformance matrix + 5-subsection rollback criteria + §7 BENCH-REPLACE carry-forward; forward-compat golden folded-in; clean first-pass 0 Codex rounds)
-- Current milestone target: `M6b_docs_publication_and_closeout` (matrix publication în docs-ebus + NM plan `.maintenance` transition + issue-map reconciliation)
-- **BENCH-REPLACE obligation pending operator** — blocks M6a issue CLOSED state (but M6a artifact MERGED): `responderAckBudget=15ms` placeholder pe ebusgo + ebusgateway; operator MUST run harness pe BASV2 live bus, commit measured value, flip `matrix/M6a-transport-matrix.md` §7 PLACEHOLDER → MEASURED, bump go.mod pins per decision §7.1(1)
-- Plan slug: `ebus-standard-l7-services-w16-26.implementing`
+- **M6b_docs_publication_and_closeout** merged 2026-04-20 (squash `17399095` via helianthus-docs-ebus#281; final close-out, matrix publication, NM plan `.maintenance` transition)
+- **BENCH-REPLACE obligation pending operator** — manual follow-up, not lifecycle-blocking: `responderAckBudget=15ms` placeholder pe ebusgo + ebusgateway; operator MUST run harness pe BASV2 live bus, commit measured value, flip `matrix/M6a-transport-matrix.md` §7 PLACEHOLDER → MEASURED, bump go.mod pins per decision §7.1(1)
+- Plan slug: `ebus-standard-l7-services-w16-26.maintenance`
 - Canonical revision: `v1.0-locked`
-- Canonical-SHA256: `23d973c55172df381adbee0c12ace33482cacf1627b5dfed994ef3ec82084a89`
+- Canonical-SHA256: `0273627cc3e9a63cf5d4bda3b26e07a662e422b30e364f169ff18dd32a3bd85c`
 
 ## Merged Deliverables
 
@@ -53,6 +54,7 @@ Implementation started: `2026-04-19`
 | fix_silent_failures_sweep | helianthus-ebusgateway | [#511](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/511) | [#512](https://github.com/Project-Helianthus/helianthus-ebusgateway/pull/512) | `af50fda5` | 37 cataloged + 16 identical-pattern extras = 53 sites per-site judgment: 2 production log-lane (main.go proxyListener + envelope.go QF1012 Fprintf) + 48 test-teardown via closeOrLog(t, c, what) helper + 3 staticcheck style (QF1007/QF1011/SA4011 labeled break). SA4011 investigation concluded: NO true bug surfaced (test-loop inefficiency only). 0 Codex review rounds (clean first-pass THUMBS_UP). LANE B internal-additive. Operator overrides: TRANSPORT_GATE + PASSIVE_SMOKE_GATE (standard pattern for area-trigger gates on log-only diff) |
 | M4D_responder_capability_lock | helianthus-docs-ebus | [#278](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/278) | [#279](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/279) | `2fe399af` | Normative freeze of `meta.capabilities.responder` shape at `contract.minor=1`. New chapter `architecture/ebus_standard/13-responder-capability-signal.md` (484 lines, 12 §sections). §3 invariants I1-I8 (incl. I3 shared-runtime downgrade Interpretation A); §4 consumer rule with 7 fail-closed MUST (rule 7 newly added — unknown active.transport scope-override precedence closing forward-minor gap); §5 enum catalogue (surfaces/reason/state/scope; reason=3 values incl. producer-drift transport_mux_bypass; policy_denied excluded for audit-channel separation); §6 subtree version orthogonal to contract.minor; §8 audit outcomes responded/suppressed_by_capability/policy_denied distinct channels. 1 Codex P2 APPLY (§6.2 rule 7 gap). Supersedes decision doc §4 forward-spec framing |
 | M6a_transport_matrix_artifact | helianthus-ebusgateway | [#513](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/513) | [#514](https://github.com/Project-Helianthus/helianthus-ebusgateway/pull/514) | `686dfaf0` | Deployment-grade proof: `matrix/M6a-transport-matrix.md` (176 lines, 8 §sections, new top-level matrix/ dir distinct de internal/matrix/ runtime runner). §2 14-row conformance matrix (FC-1..FC-7 forward-compat + CM-01..CM-12 conformance); §3 Vaillant 0xB5 regression catalog (BAI00/BASV2/VR_71/SOL00/NETX3); §4 NM wire regression ref; §5 07 FF cadence floor ref; §6 rollback criteria per repo (5 concrete subsections cu specific SHAs + feature-flag triggers); §7 BENCH-REPLACE carry-forward cu status=PLACEHOLDER + 4-step operator procedure; §8 sign-off conditions (MERGED vs CLOSED distinction). Forward-compat golden `forward_compat_unknown_active_transport_v1_1.golden.json` folded-in cu 4 tests (GoldenParses/ProducerEmits/HashStable/ConsumerFailsClosed cu inline rule-7 canonical consumer). 0 Codex review rounds (clean first-pass THUMBS_UP) |
+| M6b_docs_publication_and_closeout | helianthus-docs-ebus | [#280](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/280) | [#281](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/281) | `17399095` | Final close-out: matrix publication cross-reference, issue-map reconciliation, and `ebus-good-citizen-network-management` maintenance transition. |
 
 ## Parallel Spike
 
@@ -70,14 +72,14 @@ Implementation started: `2026-04-19`
 
 ## Deprecation Obligation
 
-- `ebus-good-citizen-network-management.locked` superseded via adopt-and-extend.
+- `ebus-good-citizen-network-management.maintenance` superseded via adopt-and-extend.
 - Merged NM docs `#251/#253/#256` remain authoritative (M0 preserves them unmodified).
-- `.maintenance` transition deferred until `M6b` reconciliation.
+- `.maintenance` transition completed by `M6b` reconciliation.
 
 ## Active Focus
 
-- **M6b_docs_publication_and_closeout** — docs-ebus publication of the matrix artifact cross-reference + `ebus-good-citizen-network-management.locked` plan `.maintenance` transition + issue-map reconciliation (final close-out).
-- **BENCH-REPLACE operator follow-up** — manual, separat. Operator runs timing harness pe BASV2 live bus; commits measured `responderAckBudget` în ebusgo + ebusgateway; flips `matrix/M6a-transport-matrix.md` §7 status PLACEHOLDER → MEASURED; bumps go.mod pins. Decision §7.1(1). Blocks M6a issue CLOSED state (but M6a artifact deja MERGED; unchained).
+- Plan is in maintenance. All main-wave milestones through `M6b` are merged.
+- **BENCH-REPLACE operator follow-up** — manual, separat. Operator runs timing harness pe BASV2 live bus; commits measured `responderAckBudget` în ebusgo + ebusgateway; flips `matrix/M6a-transport-matrix.md` §7 status PLACEHOLDER → MEASURED; bumps go.mod pins. Decision §7.1(1). This is unchained and non-blocking for lifecycle state.
 
 ## Blockers
 
@@ -85,6 +87,4 @@ Implementation started: `2026-04-19`
 
 ## Next Actions
 
-1. **M6b_docs_publication_and_closeout** dispatch în helianthus-docs-ebus — publish matrix artifact cross-reference (point to `helianthus-ebusgateway/matrix/M6a-transport-matrix.md` as the canonical location); reconcile issue map (90-issue-map.md + 91-milestone-map.md) across all 17 merged milestones; transition `ebus-good-citizen-network-management.locked` plan to `.maintenance` per deprecation obligation în canonical plan.
-2. **BENCH-REPLACE** operator follow-up (manual, separate; unchained from cruise-control FSM): run timing harness pe BASV2 live bus, commit measured `responderAckBudget` în ebusgo + ebusgateway, flip matrix §7 status PLACEHOLDER → MEASURED, bump go.mod pins per decision §7.1(1) + matrix §7 4-step procedure.
-3. Post-M6b: plan dir rename `.implementing` → `.locked` per execution-plans convention once all milestones fully closed (M6a CLOSED after BENCH-REPLACE).
+1. **BENCH-REPLACE** operator follow-up (manual, separate; unchained from cruise-control FSM): run timing harness pe BASV2 live bus, commit measured `responderAckBudget` în ebusgo + ebusgateway, flip matrix §7 status PLACEHOLDER → MEASURED, bump go.mod pins per decision §7.1(1) + matrix §7 4-step procedure.

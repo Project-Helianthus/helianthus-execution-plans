@@ -1,8 +1,9 @@
 # Startup Bus Admission + Discovery Remediation
 
-State: `locked`
+State: `maintenance`
 Slug: `startup-admission-discovery-w17-26`
 Locked on: `2026-04-23`
+Maintenance since: `2026-04-25`
 Canonical revision: `v1.0-locked`
 Parent plan: `ebus-good-citizen-network-management.maintenance` (adopted-and-extended; ISSUE-GW-JOIN-01 extracted as narrow-scope execution per `feedback_deprecation_enrichment.md`)
 
@@ -328,7 +329,7 @@ as part of the plan-lock commit in `helianthus-execution-plans` (when
 one-line addition under ISSUE-GW-JOIN-01 in
 `ebus-good-citizen-network-management.maintenance/11-runtime-discovery-and-policy.md`:
 "Extracted and superseded by `startup-admission-discovery-w17-26`; see
-`helianthus-execution-plans/startup-admission-discovery-w17-26.locked/`."
+`helianthus-execution-plans/startup-admission-discovery-w17-26.maintenance/`."
 Parent plan state stays `.maintenance` (no promotion). This is a
 single-repo edit in `helianthus-execution-plans` and does not cross the
 one-issue/one-PR-per-repo invariant.

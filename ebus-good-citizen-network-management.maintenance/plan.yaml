@@ -13,6 +13,11 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-10
-current_milestone: M0
+maintenance_since: 2026-04-20
+current_milestone: maintenance
+superseded_by:
+  - ebus-standard-l7-services-w16-26.maintenance
+  - startup-admission-discovery-w17-26.maintenance
+supersession_note: "Adopted as normative enrichment; no active implementation milestones remain in this plan."
 canonical_revision: v1.0-locked
-canonical_sha256: eb11742d60722b1389dca6822b956c15ddee542aacf95901299fefcd1a27dfcf
+canonical_sha256: 76c6f0a556c875861b57aa709c0ddcca3381e8245cc87cdc7d527c9fcae17f0b

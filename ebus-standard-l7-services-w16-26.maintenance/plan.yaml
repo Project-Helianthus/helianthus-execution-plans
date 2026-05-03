@@ -1,7 +1,8 @@
 slug: ebus-standard-l7-services-w16-26
 title: eBUS Standard L7 Services Namespace (ebus_standard)
-state: locked
+state: maintenance
 completed_on: 2026-04-20
+maintenance_since: 2026-04-20
 completion_cruise_run: "Project-Helianthus/helianthus-execution-plans#14"
 final_milestone: M6b_docs_publication_and_closeout  # squash 17399095 via docs-ebus#281
 source_discussion: dual-ai-working-thread-2026-04-18
@@ -20,14 +21,14 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-18
 implementation_started_at: 2026-04-19
-current_milestone: null  # plan complete; all milestones merged
+current_milestone: maintenance
 canonical_revision: v1.0-locked
-canonical_sha256: 23d973c55172df381adbee0c12ace33482cacf1627b5dfed994ef3ec82084a89
+canonical_sha256: 0273627cc3e9a63cf5d4bda3b26e07a662e422b30e364f169ff18dd32a3bd85c
 bench_replace_obligation:
   description: "responderAckBudget=15ms placeholder pe ebusgo/protocol/responder/timing_harness.go + ebusgateway runtime; operator MUST run harness pe BASV2 live bus înainte de deployment; M6a §7 status flip PLACEHOLDER → MEASURED gated pe această măsurătoare"
   decision_ref: "decisions/m4b2-responder-go-no-go.md §7.1(1); matrix/M6a-transport-matrix.md §7"
   status: pending_operator_bench
-  blocks_m6a_closed_state: true  # M6a MERGED but issue not CLOSED until bench lands
+  lifecycle_blocking: false  # manual follow-up; M6a/M6b are merged and plan is in maintenance
 follow_up_tasks: []  # forward_compat_synthetic_v1_1.golden.json follow-up folded into M6a
 merged_milestones:
   - M0_DOC_GATE
@@ -48,3 +49,4 @@ merged_milestones:
   - fix_silent_failures_sweep  # 37 errcheck+staticcheck + 16 extras per-site judgment (ebusgateway#512 @ af50fda5)
   - M4D_responder_capability_lock  # normative freeze of meta.capabilities.responder shape (docs-ebus#279 @ 2fe399af)
   - M6a_transport_matrix_artifact  # live-bus matrix + rollback criteria + forward-compat golden + BENCH-REPLACE §7 carry-forward (ebusgateway#514 @ 686dfaf0)
+  - M6b_docs_publication_and_closeout  # matrix publication + NM plan maintenance transition (docs-ebus#281 @ 17399095)

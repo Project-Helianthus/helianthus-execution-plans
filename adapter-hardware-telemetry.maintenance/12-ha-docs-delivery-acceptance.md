@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `0f9d24008521a5cf918a0959cd2a30e1ee559092f149416c75b8e7ca545d7391`
+Canonical-SHA256: `bb4d05e2a963dd76ac2185183eb4640c3b2e05fae1157046457f47ee8570911d`
 
 Depends on: Plans 01-02. Transport API and gateway semantic model must be
 defined before HA integration can consume them. Documentation references the

@@ -1,5 +1,8 @@
 # Milestone Map
 
+Lifecycle state: `maintenance` as of 2026-04-20. All main-wave milestones are
+merged; BENCH-REPLACE remains manual maintenance work.
+
 | Milestone | Scope | Primary repo | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | `M0_DOC_GATE` | Normative catalog + type rules + safety policy + adopt-and-extend preface | `helianthus-docs-ebus` | none | **merged** squash `b85e7084` (docs-ebus#267) |
@@ -45,4 +48,4 @@
 
 ## BENCH-REPLACE operator follow-up (unchained from plan close-out)
 
-The `responderAckBudget = 15 * time.Millisecond` placeholder is intentionally deferred to an operator-manual follow-up chain. See `matrix/M6a-transport-matrix.md` §7 and `90-issue-map.md` for the 4-step procedure. Plan close-out (this map → all milestones merged; plan dir → `.locked`) does NOT block on BENCH-REPLACE.
+The `responderAckBudget = 15 * time.Millisecond` placeholder is intentionally deferred to an operator-manual follow-up chain. See `matrix/M6a-transport-matrix.md` §7 and `90-issue-map.md` for the 4-step procedure. Plan close-out (this map → all milestones merged; plan dir → `.maintenance`) does NOT block on BENCH-REPLACE.

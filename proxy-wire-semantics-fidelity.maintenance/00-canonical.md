@@ -1,8 +1,12 @@
 # Proxy Wire-Semantics Fidelity and Local Target Emulation
 
-Revision: `v1.1-implementing-reconcile`
+Revision: `v1.2-maintenance-reconciled`
 Date: `2026-04-09`
-Status: `Implementing`
+Status: `Maintenance`
+Maintenance since: `2026-04-11`
+
+Lifecycle note: M1-M5 are merged and the plan is in maintenance. M6 remains a
+deferred, non-blocking ESERA passive validation follow-up.
 
 ## Summary
 

@@ -1,5 +1,9 @@
 # Milestone Map
 
+Lifecycle state: `maintenance` as of 2026-04-25. All milestones below were
+merged during cruise-run #20; follow-up tasks are tracked outside the main
+wave.
+
 Dependency order (merge): `M0 → M1 → M2 → M2a → M3 → M4 → M5 → M6 → M7`.
 
 `merge_depends_on` uses transitive closure over the stack per AD14.

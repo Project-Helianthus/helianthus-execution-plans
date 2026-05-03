@@ -1,5 +1,8 @@
 # Milestone Map
 
+Lifecycle state: `maintenance`. M0-M5 are closed/merged; M6 is deferred and
+non-blocking.
+
 | Milestone | Scope | Primary repos | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | `M0` | Spec lock, docs lock, harness scaffolding (no proxy behavior changes) | `helianthus-execution-plans`, `helianthus-docs-ebus` | none | reconciling |

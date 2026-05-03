@@ -1,9 +1,15 @@
 # eBUS Good-Citizen Network Management + Raw MCP
 
-State: `locked`
+State: `maintenance`
 Slug: `ebus-good-citizen-network-management`
 Locked on: `2026-04-10`
+Maintenance since: `2026-04-20`
 Canonical revision: `v1.0-locked`
+
+Lifecycle note: this plan is frozen as adopted/superseded normative
+enrichment. `ebus-standard-l7-services-w16-26.maintenance` adopted the
+authoritative NM artifacts, and `startup-admission-discovery-w17-26.maintenance`
+executed the extracted `ISSUE-GW-JOIN-01` lane.
 
 ## Summary
 

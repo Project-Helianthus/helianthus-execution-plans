@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `345445f1cedfc21e6c35d6e0f21513979fbf7ff3a520978932f0dd82e65c1b3d`
+Canonical-SHA256: `c3b2fb00c75c8ebc02de12ba6c7526b216f714f2be4a38d77890e4776c5f4fcf`
 
 Depends on: None. This chunk establishes the problem statement, scope,
 hard out-of-scope guards, and the frozen normative anchors.

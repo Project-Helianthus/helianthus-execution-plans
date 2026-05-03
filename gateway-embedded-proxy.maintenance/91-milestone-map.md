@@ -1,5 +1,8 @@
 # Milestone Map
 
+Lifecycle state: `maintenance`. All primary milestones are complete; open
+evidence packaging remains maintenance follow-up.
+
 | Milestone | Scope | Primary repos | Depends on | Status |
 | --- | --- | --- | --- | --- |
 | `M0` | Spec lock, architecture doc, AD01..AD12 definitions | `helianthus-execution-plans`, `helianthus-docs-ebus` | none | active |

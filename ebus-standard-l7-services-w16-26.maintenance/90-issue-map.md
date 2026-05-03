@@ -1,5 +1,8 @@
 # Issue Map
 
+Lifecycle state: `maintenance` as of 2026-04-20. All main-wave rows below are
+merged; BENCH-REPLACE remains a manual, non-lifecycle-blocking follow-up.
+
 This plan uses canonical issue identifiers. GitHub issue and PR linkage is
 backfilled here as it lands. Canonical IDs remain the stable mapping
 surface for the workstream.
@@ -90,6 +93,6 @@ M4c2 gateway runtime) awaits a live BASV2-rig bench measurement per
 decision doc §7.1(1) and `helianthus-ebusgateway/matrix/M6a-transport-matrix.md`
 §7 (4-step operator procedure). This obligation is intentionally **unchained**
 from the cruise-control FSM — it may land via a separate operator-manual
-PR chain at any time. M6a issue #513 is MERGED but remains open in its
-repo until the BENCH-REPLACE follow-up flips the matrix §7 status from
-`PLACEHOLDER` to `MEASURED`.
+PR chain at any time. M6a issue #513 and PR #514 are merged/closed; the
+BENCH-REPLACE follow-up remains tracked as operator maintenance work until the
+matrix §7 status flips from `PLACEHOLDER` to `MEASURED`.

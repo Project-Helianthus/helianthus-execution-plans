@@ -1,5 +1,8 @@
 # Adapter Hardware Telemetry — Milestone Map
 
+Lifecycle state: `maintenance`. All milestones are merged; HA follow-up PRs
+#176 and #178 are part of the closed M5 lane.
+
 ## Milestone Sequence
 
 | Milestone | Repo | Issues | Description | Dependencies |

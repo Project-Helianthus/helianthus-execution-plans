@@ -2,7 +2,12 @@
 
 Revision: `v1.0-converged`
 Date: `2026-03-10`
-Status: `Converged (5 adversarial rounds, Codex gpt-5.4 xhigh)`
+Status: `Maintenance`
+Maintenance since: `2026-03-29`
+
+Lifecycle note: this document is the converged locked design plus archival
+execution record. All primary milestones are merged; no blocking follow-up
+remains for this plan.
 
 ## Summary
 

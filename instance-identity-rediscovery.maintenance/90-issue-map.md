@@ -1,5 +1,8 @@
 # Stable Helianthus Instance Identity — Issue Map
 
+Lifecycle state: `maintenance`. PR #4 merged the plan on 2026-03-29; tracking
+issue #3 closed later on 2026-04-23.
+
 ## Issue Catalog
 
 | Lane | Repo | Milestone | Issue | PR | Merge Commit | Status |

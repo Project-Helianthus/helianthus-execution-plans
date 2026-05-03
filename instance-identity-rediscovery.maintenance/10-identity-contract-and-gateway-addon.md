@@ -1,7 +1,7 @@
 # Stable Helianthus Instance Identity — Contract, Gateway, Add-on
 
 Source: [00-canonical.md](./00-canonical.md)
-Canonical-SHA256: `ed01a3a04a1ea93979803ce4aab5bcf5c9ce0894d1d6c20336135781905c574a`
+Canonical-SHA256: `1d501312433ef888f2447cc6fd7fb48babbb9a0f4b2fd9bd3cf398e98d3bcdf6`
 
 Depends on: None. This chunk defines the canonical `instanceGuid` identity,
 the add-on ownership contract, and the gateway surfaces that later HA work
