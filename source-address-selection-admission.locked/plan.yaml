@@ -1,0 +1,158 @@
+slug: source-address-selection-admission
+title: Source Address Selection Admission
+state: locked
+source_discussion: operator-live-bus-2026-05-03
+target_repos:
+  - helianthus-execution-plans
+  - helianthus-docs-ebus
+  - helianthus-ebusgo
+  - helianthus-ebusgateway
+  - helianthus-ha-addon
+  - helianthus-ebusreg
+  - helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-05-03
+current_milestone: M0
+canonical_revision: v0.1-draft
+parent_plan:
+  slug: startup-admission-discovery-w17-26
+  state: maintenance
+  relationship: follow-up; replaces legacy join terminology and selection policy with explicit source address selection plus validation
+primary_planner: codex-gpt-5.5-high
+orchestrator: codex
+doc_gate: required
+transport_gate: required
+topology_nodes:
+  - id: SAS-00
+    repo: helianthus-execution-plans
+    milestone: M0
+    depends_on: []
+    doc_gate: self
+    transport_gate: none
+  - id: SAS-01
+    repo: helianthus-docs-ebus
+    milestone: M1
+    depends_on: [SAS-00]
+    doc_gate: self
+    transport_gate: none
+  - id: SAS-02
+    repo: helianthus-ebusgo
+    milestone: M2
+    depends_on: [SAS-01]
+    doc_gate: satisfied_by:SAS-01
+    transport_gate: none
+  - id: SAS-02A
+    repo: helianthus-ha-addon
+    milestone: M2a
+    depends_on: [SAS-01]
+    doc_gate: companion:SAS-01
+    transport_gate: none
+  - id: SAS-03A
+    repo: helianthus-ebusgateway
+    milestone: M3a
+    depends_on: [SAS-01, SAS-02, SAS-02A]
+    doc_gate: companion:SAS-01
+    transport_gate: sas_required
+  - id: SAS-03B
+    repo: helianthus-ebusgateway
+    milestone: M3b
+    depends_on: [SAS-03A]
+    doc_gate: companion:SAS-01
+    transport_gate: sas_required
+  - id: SAS-04
+    repo: helianthus-ha-integration
+    milestone: M6
+    depends_on: [SAS-03B]
+    doc_gate: companion:SAS-01
+    transport_gate: none
+    may_develop_after: SAS-03B-pr-head-artifact
+  - id: SAS-05
+    repo: helianthus-ebusgateway
+    milestone: M4
+    depends_on: [SAS-03B, SAS-04]
+    doc_gate: companion:SAS-07
+    transport_gate: sas_required
+  - id: SAS-06
+    repo: helianthus-ebusgo
+    milestone: M4
+    depends_on: [SAS-03B, SAS-04]
+    doc_gate: companion:SAS-07
+    transport_gate: none
+  - id: SAS-07
+    repo: helianthus-docs-ebus
+    milestone: M4
+    depends_on: [SAS-03B, SAS-04]
+    doc_gate: self
+    transport_gate: none
+  - id: SAS-08
+    repo: helianthus-ha-integration
+    milestone: M4
+    depends_on: [SAS-03B, SAS-04]
+    doc_gate: companion:SAS-07
+    transport_gate: none
+  - id: SAS-08A
+    repo: helianthus-ha-addon
+    milestone: M4
+    depends_on: [SAS-02A, SAS-03B, SAS-04]
+    doc_gate: companion:SAS-07
+    transport_gate: none
+  - id: SAS-09
+    repo: helianthus-ebusreg
+    milestone: M5
+    depends_on: [SAS-02]
+    doc_gate: satisfied_by:SAS-01
+    transport_gate: none
+    satisfaction: merged_pr_or_noop_decision_artifact
+  - id: SAS-10
+    repo: helianthus-execution-plans
+    milestone: M7
+    depends_on: [SAS-03B, SAS-04, SAS-05, SAS-06, SAS-07, SAS-08, SAS-08A, SAS-09]
+    doc_gate: self
+    transport_gate: sas_required
+merge_order:
+  - helianthus-execution-plans
+  - helianthus-docs-ebus
+  - helianthus-ebusgo
+  - helianthus-ha-addon
+  - helianthus-ebusgateway-m3a-mcp-artifact-contract
+  - helianthus-ebusgateway-m3b-graphql-parity
+  - helianthus-ha-integration
+  - coordinated-public-api-removal-gateway-docs-ha-ebusgo
+  - helianthus-ebusreg-if-boundary-pr-needed
+  - helianthus-execution-plans
+milestones_planned:
+  - M0_PLAN_DRAFT_AND_LOCK
+  - M1_DOCS_SOURCE_ADDRESS_SELECTION
+  - M2_EBUSGO_SELECTION_API
+  - M2A_HA_ADDON_WRAPPER_SOURCE_CONFIG_MIGRATION
+  - M3A_MCP_AND_ARTIFACT_CONTRACT
+  - M3B_GRAPHQL_PARITY
+  - M6_HA_DIAGNOSTICS_AND_EMPTY_PAYLOAD_GUARD
+  - M4_PUBLIC_API_AND_LEGACY_TERMINOLOGY_REMOVAL
+  - M5_EBUSREG_NOOP_BOUNDARY_PROOF
+  - M7_LIVE_ROLLOUT_AND_COEXISTENCE_EVIDENCE
+merge_blockers:
+  - helianthus-docs-ebus source-address table and gateway default policy must be merged before ebusgo API PR merges
+  - helianthus-ebusgo selection API must merge before gateway migration
+  - helianthus-ha-addon wrapper source-config migration must merge before M3a binary override or runtime validation
+  - M1 docs must supersede all current normative join-era docs before M2 merges
+  - source-address docs CI must compare the frozen table against local official specs before M2 merges
+  - M3 transport baseline must be captured at parent SHA before gateway code edits begin
+  - M3 full T01..T88 uses per-case expected eBUSd/proxy state; M3 no-eBUSd admission evidence is a separate submatrix with proxy listener disabled or guarded
+  - M3a MCP/artifact source-selection contract must freeze before M3b GraphQL parity and HA work
+  - M6 HA may develop against M3b PR-head schema artifacts but may merge only after M3b has merged
+  - every gateway-owned bus-reaching MCP, GraphQL, semantic writer, scheduler, poller, and HA-driven path must fail closed until active_probe_passed, then use the admitted source; no fixed 0x71, fallback 0x31, or caller-selected normal source authority may remain
+  - B503 dispatcher/bridge, NM runtime emits, and Portal explorer source handling must be explicitly migrated and tested as admitted-source-only gateway-owned paths
+  - only transport-specific diagnostic MCP requests may use an explicit user source override for one non-persistent request; Portal explorer is not an override surface
+  - adaptermux/proxy external clients such as the Python helianthus-vrc-explorer application and ebusd are outside gateway source authority and may use their own per-session source without mutating admitted source
+  - Portal explorer is not a source-override exception; request/query/default source overrides must be rejected or removed
+  - adapter-direct ENS live evidence, explicit 0x71 success, cold boot/power-cycle evidence, and before/after transport matrix are merge blockers for gateway admission migration
+  - eBUSd must remain stopped for M3/M7 baseline evidence unless the operator explicitly approves a separate coexistence run
+  - proxy listener exposure, adapter upstream ownership, and adaptermux external sessions must be mechanically proven safe before M3/M7 no-eBUSd evidence
+  - M3a must implement a SAS-specific transport evidence validator, locked parent expected-failure inventory, and PX01..PX12 adjunct evidence for any proxy/coexistence run
+  - transport tooling wrapper must exist before M3 baseline capture; use go run ./cmd/matrix-runner plus scripts/transport_gate.sh until cruise transport gate supports the repo-specific wrapper
+  - HA integration degraded/empty-payload guard must be green against the M3b GraphQL parity schema artifact before public legacy/camelCase admission fields are removed or production rollout proceeds
+  - public API migration matrix must be complete before M3 implementation, while old-field rejection belongs to M4 after M6 is green
+  - known-defect RED matrix must be captured before implementation starts
