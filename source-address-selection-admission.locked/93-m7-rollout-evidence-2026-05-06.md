@@ -188,6 +188,29 @@ checks: terminology PASS, build PASS, test PASS, lint PASS
 review threads: 0 unresolved
 ```
 
+Post-rollout PR audit:
+
+```text
+Audited recent SAS PRs:
+- helianthus-ebusgateway #559, #558, #556, #555
+- helianthus-ebusgo #147, #145
+- helianthus-docs-ebus #294, #292, #291
+- helianthus-ha-addon #123, #121
+- helianthus-ha-integration #193, #191
+
+Finding: helianthus-ha-integration #193 had one post-merge unresolved Codex
+review thread on indirect write payload gate coverage.
+
+Fix: helianthus-ha-integration #194 merged as
+`d9e788d18d6506e582ce93a27c86ceaee6cdc32e`; it follows local `params`
+assignments before checking GraphQL write variables and adds regression
+coverage for indirect `params.source`.
+
+Final audit after #194:
+- helianthus-ha-integration #194, #193, #191: 0 unresolved current threads
+- all other audited SAS PRs: 0 unresolved current threads
+```
+
 ## Rollback
 
 Remove the gateway binary override and restart the add-on:

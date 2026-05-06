@@ -188,6 +188,10 @@ Completed and merged:
   `93-m7-rollout-evidence-2026-05-06.md`; gateway rollout blocker fix merged
   in `helianthus-ebusgateway` as
   `29c1aab1e8d99783c064f843a2a8de43095b36f2`.
+- Post-rollout PR audit: one post-merge unresolved HA integration review
+  thread from `#193` was fixed in `helianthus-ha-integration#194`
+  (`d9e788d18d6506e582ce93a27c86ceaee6cdc32e`); the final audit reports zero
+  unresolved current threads across the recent SAS PR set.
 
 Review/CI state at M4 closure:
 
