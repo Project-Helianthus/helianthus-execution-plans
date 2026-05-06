@@ -1,0 +1,110 @@
+slug: address-table-registry-w19-26
+title: Address-Table Registry — Network Management
+state: locked
+source_discussion: operator-live-bus-2026-05-06
+target_repos:
+  - helianthus-execution-plans
+  - helianthus-docs-ebus
+  - helianthus-ebusreg
+  - helianthus-ebusgo
+  - helianthus-ebusgateway
+  - helianthus-ebus-vaillant-productids
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-05-06
+current_milestone: M0_DOC_SPEC
+canonical_revision: v0.1-draft
+canonical_sha256: eb2cb53c7d9ad2e05cc384db6b7537067e739f62a8a359f1e89e62aca35b367b
+parent_plan:
+  slug: ebus-good-citizen-network-management
+  state: maintenance
+  relationship: completes deferred M3 (PhysicalDevice + BusFace + companion-pair identity refactor); leverages adopted/extracted artifacts as enrichment
+predecessor_prs:
+  - repo: helianthus-ebusgateway
+    pr: 560
+    title: structural Vaillant target seed + B524 root augmentation
+    state: merged
+  - repo: helianthus-ebusgateway
+    pr: 562
+    title: runtime passive-promotion pipeline (late-arrival devices)
+    state: merged
+primary_planner: codex-gpt-5.5-high
+adversarial_rounds: 3
+ready_to_lock_round: 3
+orchestrator: claude-opus-4-7
+doc_gate: required
+transport_gate: required
+phase_split:
+  phase_a_target: 2h_wall_clock
+  phase_a_milestones:
+    - M0_DOC_SPEC
+    - M0A_TRANSPORT_BASELINE
+    - M0B_TDD_GATE
+    - M1_REGISTRY_ARRAY_REFACTOR
+    - M2_COMPANION_PURE_FUNC
+    - M2A_OBSERVATION_CORRELATOR_SPEC
+    - M3_FIRST_OBSERVATION
+    - M4_COMPANION_INSERT_WITH_CORROBORATION
+    - M5A_SEED_API_CONTRACT
+    - M5_STATIC_SEED_TABLE
+    - M8_LIVE_VALIDATION
+    - M9_TRANSPORT_VERIFY
+    - M0C_DOC_EVIDENCE_UPDATE
+  phase_b_deferred:
+    - M6_ENRICHMENT_MERGE
+    - M7_EVIDENCEBUFFER_MIGRATION
+topology_nodes:
+  - id: ATR-00
+    repo: helianthus-execution-plans
+    milestone: M0_DOC_SPEC
+  - id: ATR-01
+    repo: helianthus-docs-ebus
+    milestone: M0_DOC_SPEC
+  - id: ATR-02
+    repo: helianthus-ebusgateway
+    milestone: M0A_TRANSPORT_BASELINE
+  - id: ATR-03
+    repo: helianthus-ebusreg
+    milestone: M0B_TDD_GATE
+  - id: ATR-04
+    repo: helianthus-ebusgo
+    milestone: M0B_TDD_GATE
+  - id: ATR-05
+    repo: helianthus-ebus-vaillant-productids
+    milestone: M0B_TDD_GATE
+  - id: ATR-06
+    repo: helianthus-ebusgateway
+    milestone: M0B_TDD_GATE
+  - id: ATR-07
+    repo: helianthus-ebusreg
+    milestone: M1_REGISTRY_ARRAY_REFACTOR
+  - id: ATR-08
+    repo: helianthus-ebusgo
+    milestone: M2_COMPANION_PURE_FUNC
+  - id: ATR-09
+    repo: helianthus-ebusgateway
+    milestone: M2A_OBSERVATION_CORRELATOR_SPEC
+  - id: ATR-10
+    repo: helianthus-ebusgateway
+    milestone: M3_FIRST_OBSERVATION
+  - id: ATR-11
+    repo: helianthus-ebusgateway
+    milestone: M4_COMPANION_INSERT_WITH_CORROBORATION
+  - id: ATR-12
+    repo: helianthus-ebus-vaillant-productids
+    milestone: M5A_SEED_API_CONTRACT
+  - id: ATR-13
+    repo: helianthus-ebus-vaillant-productids
+    milestone: M5_STATIC_SEED_TABLE
+  - id: ATR-14
+    repo: helianthus-ebusgateway
+    milestone: M8_LIVE_VALIDATION
+  - id: ATR-15
+    repo: helianthus-ebusgateway
+    milestone: M9_TRANSPORT_VERIFY
+  - id: ATR-16
+    repo: helianthus-docs-ebus
+    milestone: M0C_DOC_EVIDENCE_UPDATE
+sha256_chunks:
+  "00-canonical.md": eb2cb53c7d9ad2e05cc384db6b7537067e739f62a8a359f1e89e62aca35b367b
