@@ -22,7 +22,8 @@ State: `implementing` (Phase A complete + Phase A.5 runtime wire-up merged; Phas
 | M5A_SEED_API_CONTRACT | merged | ebusreg#131 | LoadSeedTable + StaticSeedEntry |
 | M5_STATIC_SEED_TABLE | merged | ebusreg#131 | NETX3 + BASV2 entries |
 | M3.5_RUNTIME_WIREUP (Phase A.5) | merged | gateway#565 | inserter instantiated + admission-gated subscription wired into cmd/gateway/main.go |
-| M8_LIVE_VALIDATION | partial | gateway#565 deploy | post-merge live: source-selection active_probe_passed source=0x7F companion=0x84; existing devices stable; P1 awaits organic NETX3 0xF1 traffic; P2/P3 N/A by default flag |
+| M3.6_SRC_INSERTION (Phase A.6) | merged | gateway#566 | spec-compliance fix per AD05 Address Eligibility — request src now inserted as initiator (PR #564 missed this; live evidence: 0xF1→0x15 frame seen but 0xF1 absent from registry) |
+| M8_LIVE_VALIDATION | partial | gateway#565+#566 deploy | post-merge live: source-selection active_probe_passed source=0x7F companion=0x84; existing devices stable; wire-up + src-insertion semantics verified by unit tests; P1 live confirmation pending organic NETX3 0xF1 emission (bus is quiet for non-gateway initiators in current window); P2/P3 N/A by default flag |
 | M9_TRANSPORT_VERIFY | merged | post-merge dry-run | 88-case dry-run on main matches M0A baseline (0 diffs) |
 | M0C_DOC_EVIDENCE_UPDATE | open | docs-ebus#296 | Phase A.5 evidence + follow-ups appended to 07-live-validation-acceptance.md |
 
