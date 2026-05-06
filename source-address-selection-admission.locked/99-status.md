@@ -2,7 +2,7 @@
 
 State: `locked`
 
-Current milestone: `M0_PLAN_DRAFT_AND_LOCK`
+Current milestone: `M7_LIVE_ROLLOUT_AND_COEXISTENCE_EVIDENCE`
 
 This plan was created on `2026-05-03` after live-bus investigation showed
 that source `0xF7` could be selected but fail active probing, while explicit
@@ -150,5 +150,49 @@ The planner recommended:
 
 ## Blockers
 
-The plan must not be promoted to `.locked` until the next fresh adversarial round
-reviews the patched current documentation and returns `NO FINDINGS`.
+No planning blockers remain.
+
+M7 still requires post-merge rollout/rollback evidence on the live HA runtime.
+
+## Execution Progress
+
+Updated: `2026-05-06`
+
+Completed and merged:
+
+- M0 / SAS-00: plan locked in `helianthus-execution-plans`.
+- M1 / SAS-01: source-address docs and protocol table merged in
+  `helianthus-docs-ebus`.
+- M2 / SAS-02: source-address selection API and `0xFF -> 0x04` companion fix
+  merged in `helianthus-ebusgo`.
+- M2a / SAS-02A: add-on wrapper source-config migration merged in
+  `helianthus-ha-addon`.
+- M3a/M3b / SAS-03A/SAS-03B: gateway active-probed source-selection admission,
+  MCP/artifact contract, and GraphQL parity merged in `helianthus-ebusgateway`.
+- M6 / SAS-04: HA integration degraded/empty-payload guard and new admission
+  schema consumption merged in `helianthus-ha-integration`.
+- M4 / SAS-05: gateway public API cleanup merged as
+  `3efe87abfc1a8a850139c3b268ea71df8a5e5c3a`.
+- M4 / SAS-06: ebusgo public selector cleanup gate merged as
+  `51c57f4325aee38e09175a5a457cc58462a4bf7e`.
+- M4 / SAS-07: docs public migration cleanup merged as
+  `457378b15d6eedf5412b3f968841f012a55f924c`.
+- M4 / SAS-08: HA legacy admission dependency proof merged as
+  `b90f9b16e7f257d24b16a49ef001221743f27424`.
+- M4 / SAS-08A: add-on source config cleanup proof merged as
+  `1c4988103ff402adffd11643733bb3a73a6d7007`.
+- M5 / SAS-09: ebusreg no-op boundary proof captured in
+  `92-ebusreg-noop-boundary-proof.md`; no ebusreg PR was opened and abandoned
+  PR129 was not reused.
+
+Review/CI state at M4 closure:
+
+- All M4 PR review threads were addressed and resolved.
+- Gateway, docs, add-on, ebusgo, and HA GitHub checks were green at merge.
+- Fresh Codex review comments on gateway, docs, and add-on reported no major
+  issues after the final fixes.
+
+Next:
+
+- M7 / SAS-10: capture live rollout/rollback evidence and coexistence/proxy
+  guard state against the merged `main` heads.

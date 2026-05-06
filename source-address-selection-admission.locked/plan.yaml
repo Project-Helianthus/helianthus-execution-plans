@@ -14,7 +14,7 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-05-03
-current_milestone: M0
+current_milestone: M7
 canonical_revision: v0.1-draft
 parent_plan:
   slug: startup-admission-discovery-w17-26
