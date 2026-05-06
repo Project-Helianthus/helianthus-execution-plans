@@ -2,7 +2,7 @@
 
 State: `locked`
 
-Current milestone: `M7_LIVE_ROLLOUT_AND_COEXISTENCE_EVIDENCE`
+Current milestone: `COMPLETE`
 
 This plan was created on `2026-05-03` after live-bus investigation showed
 that source `0xF7` could be selected but fail active probing, while explicit
@@ -152,7 +152,7 @@ The planner recommended:
 
 No planning blockers remain.
 
-M7 still requires post-merge rollout/rollback evidence on the live HA runtime.
+No execution blockers remain for the baseline source-selection rollout.
 
 ## Execution Progress
 
@@ -184,6 +184,10 @@ Completed and merged:
 - M5 / SAS-09: ebusreg no-op boundary proof captured in
   `92-ebusreg-noop-boundary-proof.md`; no ebusreg PR was opened and abandoned
   PR129 was not reused.
+- M7 / SAS-10: live HA rollout evidence captured in
+  `93-m7-rollout-evidence-2026-05-06.md`; gateway rollout blocker fix merged
+  in `helianthus-ebusgateway` as
+  `29c1aab1e8d99783c064f843a2a8de43095b36f2`.
 
 Review/CI state at M4 closure:
 
@@ -194,5 +198,4 @@ Review/CI state at M4 closure:
 
 Next:
 
-- M7 / SAS-10: capture live rollout/rollback evidence and coexistence/proxy
-  guard state against the merged `main` heads.
+- No remaining baseline source-selection admission milestones.
