@@ -23,7 +23,19 @@ State: `implementing` (Phase A complete + Phase A.5 runtime wire-up merged; Phas
 | M5_STATIC_SEED_TABLE | merged | ebusreg#131 | NETX3 + BASV2 entries |
 | M3.5_RUNTIME_WIREUP (Phase A.5) | merged | gateway#565 | inserter instantiated + admission-gated subscription wired into cmd/gateway/main.go |
 | M3.6_SRC_INSERTION (Phase A.6) | merged | gateway#566 | spec-compliance fix per AD05 Address Eligibility — request src now inserted as initiator (PR #564 missed this; live evidence: 0xF1→0x15 frame seen but 0xF1 absent from registry) |
-| M8_LIVE_VALIDATION | mechanism-green; F1-specific-pending | gateway#565+#566 deploy | post-merge live (50+ min uptime): source-selection active_probe_passed source=0x7F companion=0x84. Registry grew from 3 to 5 devices: 0x10 (master companion of BASV2) and 0x38 inserted as passive_observed initiators after observing positive-ACK traffic — confirming end-to-end that wire-up + AD05 src-insertion fire correctly in runtime. NETX3 specific (0xF1, 0xF6) still pending — 0 frames from src=0xF1 in 1024-message window (50 min). Operator path: trigger NETX3 via KNX setting change to confirm 0xF1+0xF6 specifically; or wait for next NETX3 enrichment cycle. P2/P3 N/A by default flag |
+| M8_LIVE_VALIDATION | mechanism-green; tap-SYN-drop is upstream-blocker | post-final-deploy (md5 993387ab) | A.7-A.9+M6+M6.1+wires deployed. Registry shows CORRECT canonical aliasing live: BAI 0x03↔0x08 + BASV2 0x10↔0x15 collapsed into 1 DeviceEntry each (via entry.Addresses() multi-address). 0x38 false-positive ELIMINATED. 0x64 + 0xA0 emerge as new fp's. NETX3 (0xF1/0xF6/0x04/0xFF) still absent because A.8 forensic logs revealed root cause: passive tap loses SYN delimiter bytes between frames → reconstructor consumes mid-frame bytes as new frame start → impossible src classifications (e.g. 0x26 as initiator) → corrupted_request before M2A correlator runs. Affects ALL src=0xF1 frames + creates new false-positives. Real fix is upstream in adaptermux/tap. P2/P3 N/A by default flag |
+| A.7a_CANONICAL_API | merged | ebusgo#149 c2b8efb | CompanionOfSource/SourceOfCompanion/IsCanonicalSource/IsCanonicalCompanion/SourceTier/IsFreeUseSource derived from sourceAddressTableV1 |
+| A.7b_PAIR_ALIASING | merged | gateway#567 2586f23 | maybeAliasCanonicalCompanion + MCP/GraphQL parity for Addresses field |
+| A.7c_AUDIT_LOG | merged | gateway#568 c468c14 | INFO log on insert + alias for runtime audit trail |
+| A.7d_TIER_LABELS | merged | gateway#569 438a270 | PriorityTier + FreeUse propagation to AddressSlot |
+| A.7e_CANONICAL_SNAPSHOT | merged | gateway#570 7115281 | CanonicalAddressTableSnapshot with observation state |
+| A.8_FORENSIC_LOGGING | merged | gateway#571 d1474dc | passive_reconstructor abandon log with raw bytes — REVEALED tap SYN drop root cause |
+| A.9_ABANDON_COUNTERS | merged | gateway#572 f3549a8 | ebus_passive_reconstructor_abandons_total per-reason Prometheus counter |
+| M6.1_MARKSLOT_API | merged | ebusreg#132 b3f2f1a | thread-safe MarkSlotPassiveObserved API |
+| M6_IDENTITY_MERGE | merged | ebusreg#133 856f3a1 | identity-merge contract tests for passive→enrichment timeline |
+| MARKSLOT_USE_SITE | merged | gateway#573 a62aec2 | inserter switched from direct slot mutation to MarkSlotPassiveObserved |
+| ENRICHMENT_TRIGGER | merged | gateway#574 9e38183 | post-passive-insertion semanticPoller.EnqueueDiscoveryRefresh wires M6 trigger |
+| TAP_SYN_FIX | not-started | adaptermux | UPSTREAM blocker — tap loses SYN bytes between frames; reconstructor sees mid-frame as frame-start → false src classifications (0x26 initiator, etc) and corrupted_request blocking ALL 0xF1 detection. Out of scope for this locked plan; tracked for next adaptermux work |
 | M9_TRANSPORT_VERIFY | merged | post-merge dry-run | 88-case dry-run on main matches M0A baseline (0 diffs) |
 | M0C_DOC_EVIDENCE_UPDATE | open | docs-ebus#296 | Phase A.5 evidence + follow-ups appended to 07-live-validation-acceptance.md |
 
