@@ -55,9 +55,9 @@ State: `implementing` (Phase A complete + Phase A.5 runtime wire-up merged; Phas
 | M-C6c | merged | ebusreg#135 (squash 77b56516) | `DeviceEntry.Address()` REMOVED (BREAKING) — build-break safety net dry-run from gateway/main (post-#576) confirmed zero missed callers (per AD30: removal NOW, no deprecation window) |
 | M-C6d | merged | gateway#578 (squash e9fc5f73) | post-M-C6c `go.mod` bump activating the build-break safety net on `main`; GH Actions 4/4 green + local CI exit 0 prove M-C6b's caller migration was exhaustive |
 | M-C7 | merged | gateway#577 (squash c2f4bbf5) | explicit `Frame.FrameType` at every active send site (19 sites total): 14 strict `FrameTypeInitiatorTarget` (smoke.go ×2, cmd/gateway/semantic_vaillant.go ×8, cmd/gateway/vaillant_b503_dispatcher.go ×1, smoke 0x07/0x04 ×1, unknown_device_dump strict ×0 left, portal/explorer strict ×0 left, plus 2 cleanups) + 8 probe sites with `FrameTypeForTarget` (3 in unknown_device_dump.go + 5 in portal/explorer.go); 2 Codex P2 review iterations (845fc67 + a7ca594) refined probe-vs-known-slave classification |
-| M-C8 | pending | (live HA validation) | post-deploy validation: aliased BAI 0x03↔0x08 routes M2S to 0x08; misrouted M2S sends fail Validate with `ErrInvalidFrameAddress` and increment `InvalidFrameAddressTotal`; runbook `/tmp/m_c8_live_validation.sh` |
+| M-C8 | merged | live HA validation 2026-05-08 (binary SHA256 11491e49…) | post-deploy validation PASSED: 7 active gateway M2S sends route to slave bytes (0x08, 0x15, 0x26) only; zero sends to 0x03/0x10 (master bytes); zero ErrInvalidFrameAddress events; FrameType labels in metrics correctly show `initiator_target`/`broadcast` |
 | M-C9 | merged | post-#576 dry-run (in-tree m9-gen) | 88-case post-Phase-C topology byte-identical to M-C0A baseline; SHA256 `46431e22d8ed3909db19a34196df72575df8afb7ae03658be32cde0f2734a143` matches both `baseline_topology.json` and `post_phase_c_topology.json`; verified post-#576-main and M-C7 branch — internal/matrix/ untouched by Phase C, zero-diff structurally guaranteed |
-| M-C10 | this-PR | plans (this commit) | Phase C evidence rollup |
+| M-C10 | merged | plans#25 (squash 49b78cdd) + docs-ebus#299 (squash 741ddba8) | Phase C evidence rollup: plan-status milestones table + 07-live-validation-acceptance.md appended with M-C8 + M-C9 evidence |
 
 ## Phase B milestones (deferred)
 
