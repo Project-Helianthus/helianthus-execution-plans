@@ -14,7 +14,7 @@ DAG validation and `cruise-state-sync` for run-time tracking.
 | M1_TDD_RED_ADDON | helianthus-ha-addon | RTS-04 | RTS-01 |
 | M2_GATEWAY_LOADER | helianthus-ebusgateway | RTS-05 | RTS-03 |
 | M3_GATEWAY_PERSISTER | helianthus-ebusgateway | RTS-06 | RTS-05 |
-| M4_JOINER_HINT | helianthus-ebusgateway | RTS-07 | RTS-06 |
+| M4_SOURCE_SELECTION_HINT | helianthus-ebusgateway | RTS-07 | RTS-06 |
 | M5_ADDRESS_TABLE_REVALIDATE | helianthus-ebusgateway | RTS-08 | RTS-07 |
 | M6_HA_ADDON_MIGRATION | helianthus-ha-addon | RTS-09 | RTS-04, RTS-05 |
 | M7_LIVE_VALIDATION | helianthus-ebusgateway | RTS-10 | RTS-08, RTS-09 |
@@ -43,7 +43,7 @@ RTS-05 ← RTS-09  (cross-edge: addon depends on loader contract)
 
 ```
 M0_PLAN_LOCK → M0_DOC_GATE → M1_TDD_RED_GATEWAY → M2_LOADER →
-M3_PERSISTER → M4_JOINER_HINT → M5_REVALIDATE → M7_LIVE_VALIDATION
+M3_PERSISTER → M4_SOURCE_SELECTION_HINT → M5_REVALIDATE → M7_LIVE_VALIDATION
 ```
 
 8 milestones, gateway-heavy. Add-on lane (M1_TDD_RED_ADDON → M6) joins at

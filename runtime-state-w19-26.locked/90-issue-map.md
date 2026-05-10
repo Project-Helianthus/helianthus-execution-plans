@@ -29,7 +29,7 @@ M0_PLAN_LOCK execution time; this map is the seed.
   EXDEV path, fault-injection, concurrent-write serialization (M1).
 - **RTS-GW-02** — Loader implementation (M2).
 - **RTS-GW-03** — Persister implementation per AD13 contract (M3).
-- **RTS-GW-04** — Joiner-hint integration + AD24 invariant test (M4).
+- **RTS-GW-04** — SourceAddressSelector-hint integration + AD24 invariant test (M4).
 - **RTS-GW-05** — Address-table revalidate burst + cap=32 + ordering +
   no-reply telemetry (M5).
 - **RTS-GW-07** — Live validation P1..P6 + N1..N4 (M7).

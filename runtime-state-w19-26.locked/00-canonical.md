@@ -43,9 +43,9 @@ state file under `/data/runtime_state.json` that:
    while preserving the locked rediscovery-plan invariants (add-on owns
    generation; HA `config_entry.unique_id == instanceGuid`; identity stable
    across restarts).
-2. Caches the most recent successful Joiner result (`ebus.self.last_join_initiator`,
-   `last_join_at`, `join_method`, `companion_target`) to use as a HINT for
-   subsequent Joiner sessions. The cache never bypasses Joiner validation.
+2. Caches the most recent successful SourceAddressSelection result (`ebus.self.last_admitted_source`,
+   `last_admitted_at`, `selection_method`, `companion_target`) to use as a HINT for
+   subsequent SourceAddressSelection sessions. The cache never bypasses SourceAddressSelector validation.
 3. Caches observed bus members (`ebus.known_bus_members[]`) for startup
    acceleration via bounded directed `07 04` re-validation. Cache is wiped
    per-startup of any non-responder; verified responders' confidence is
@@ -67,12 +67,12 @@ In scope (v1):
   `santhosh-tekuri/jsonschema/cmd/jv` (Go-native; same module the daemon
   could link if it ever runtime-validates).
 - Gateway loader, persister, eager `meta.instance_guid` first-second
-  persist, 15-min jittered ticker, shutdown hook, `JoinResult.Initiator`
+  persist, 15-min jittered ticker, shutdown hook, `SourceAddressSelection.Source`
   change subscriber.
-- Gateway: cached `ebus.self.last_join_initiator` becomes a hint to the
-  Joiner's bid selection (locked startup-admission plan invariant: Joiner
+- Gateway: cached `ebus.self.last_admitted_source` becomes a hint to the
+  SourceAddressSelector's bid selection (locked startup-admission plan invariant: SourceAddressSelector
   always validates; cache never bypasses warmup).
-- Gateway: post-Joiner-warmup directed `07 04` revalidation of cached
+- Gateway: post-SourceAddressSelector warmup directed `07 04` revalidation of cached
   known_bus_members[] via `helianthus-ebusreg.ScanDirected`, bounded to 32
   probes per cycle, ordered by `last_seen_at` DESC.
 - HA add-on: AD09b read precedence; AD09a deploy-error guardrail
@@ -127,7 +127,7 @@ references.
   best-effort. EXDEV treated as write failure preserving old file (no
   non-atomic fallback path; consultant + Codex R5 A2).
 - **AD14** write cadence: shutdown + 15-min jittered ticker (±30s) + on
-  `JoinResult.Initiator` change. Jitter avoids synchronized fsync storms
+  `SourceAddressSelection.Source` change. Jitter avoids synchronized fsync storms
   across multi-instance HA installs.
 - **AD15 / AD16**: `confidence` and `last_source` enums for cached
   members. Persisted enums exclude `cached` and `directed_07_04_no_reply`
@@ -140,7 +140,7 @@ references.
   consultant SF-1 / Codex R2 A2: confidence reflects address-presence
   verification only; identity completeness is orthogonal).
 - **AD24** `ebus.self` is HISTORICAL HINT ONLY: current admitted source
-  is exclusively current-session `JoinResult.Initiator` after validation.
+  is exclusively current-session `SourceAddressSelection.Source` after validation.
   No surface (GraphQL/MCP/metrics) reports cached value as "current"
   pre-validation.
 - **AD27** compat-first v1: gateway accepts bare `-instance-guid` as
@@ -161,9 +161,9 @@ references.
   "ebus": {
     "schema_version": 1,
     "self": {
-      "last_join_initiator": 247,
-      "last_join_at": "2026-05-10T19:38:55Z",
-      "join_method": "joiner-warmup",
+      "last_admitted_source": 247,
+      "last_admitted_at": "2026-05-10T19:38:55Z",
+      "selection_method": "source_selection_warmup",
       "companion_target": 252
     },
     "known_bus_members": [
@@ -193,7 +193,7 @@ plus negative fixtures (out-of-range addr, invalid UUIDv4, missing required
 ## Phase milestones
 
 `M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANSPORT_BASELINE → M1_TDD_RED_GATEWAY (parallel
-M1_TDD_RED_ADDON) → M2_GATEWAY_LOADER → M3_GATEWAY_PERSISTER → M4_JOINER_HINT →
+M1_TDD_RED_ADDON) → M2_GATEWAY_LOADER → M3_GATEWAY_PERSISTER → M4_SOURCE_SELECTION_HINT →
 M5_ADDRESS_TABLE_REVALIDATE → M6_HA_ADDON_MIGRATION → M7_LIVE_VALIDATION →
 M8_TRANSPORT_VERIFY`
 
@@ -207,7 +207,7 @@ After M5 + M6 merge + live deploy:
 **Positive (P1–P6):**
 
 - **P1** Instance identity stable across gateway restart: `runtime_state.json[meta][instance_guid]` matches HA `config_entry.unique_id` (no regen).
-- **P2** Cached known_bus_members for `{0x08, 0x15, 0x26}` are re-identified via directed `07 04` within 5s of Joiner warmup completion.
+- **P2** Cached known_bus_members for `{0x08, 0x15, 0x26}` are re-identified via directed `07 04` within 5s of SourceAddressSelector warmup completion.
 - **P3** Phantom address (operator manually plants `0x99` in cache) is dropped from cache after first failed `07 04` (no_reply outcome → immediate eviction + telemetry; no persisted no-reply state per AD23).
 - **P4** Manual JSON corruption results in gateway start with empty cache + `runtime_state.json.corrupt-<ISO8601>` rename, no crash.
 - **P5** 88-case transport matrix vs M0A baseline shows 0 unexpected fail/xpass deltas.
@@ -239,8 +239,8 @@ This plan extends locked plans rather than rewriting them, per
   inserter at `confidence=cached` (lower than `passive_observed`); first
   passive observation OR directed `07 04` confirms promote to `verified`.
 - `startup-admission-discovery-w17-26.maintenance` is consumed but not
-  modified: cached `ebus.self.last_join_initiator` is a hint to the
-  Joiner; Joiner always validates per locked invariant; M5 directed
+  modified: cached `ebus.self.last_admitted_source` is a hint to the
+  SourceAddressSelector; SourceAddressSelector always validates per locked invariant; M5 directed
   revalidation uses `helianthus-ebusreg.ScanDirected` (locked API).
 - `ebus-good-citizen-network-management.maintenance` is consumed: M5
   startup burst is bounded startup-window activity (≤32 probes, ~2.7s

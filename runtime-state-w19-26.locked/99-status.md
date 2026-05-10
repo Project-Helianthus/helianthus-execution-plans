@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d`
+Canonical-SHA256: `5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede`
 
 Depends on: [91-milestone-map.md](./91-milestone-map.md).
 

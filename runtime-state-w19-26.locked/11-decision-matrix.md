@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d`
+Canonical-SHA256: `5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede`
 
 Depends on: [10-architecture-overview.md](./10-architecture-overview.md), [12-milestones.md](./12-milestones.md), [13-acceptance-falsifiability-cross-plan.md](./13-acceptance-falsifiability-cross-plan.md).
 
@@ -69,13 +69,13 @@ Coverage: Full decision matrix.
 
 ## Cadence
 
-- **AD14** Write cadence: **shutdown** + **15-min jittered ticker** (±30s; jitter avoids synchronized fsync storms across multi-instance HA installs on shared NAS storage; per consultant NH-4) + on **`JoinResult.Initiator` change**. Tunable via internal const, not exposed to operator config in v1.
+- **AD14** Write cadence: **shutdown** + **15-min jittered ticker** (±30s; jitter avoids synchronized fsync storms across multi-instance HA installs on shared NAS storage; per consultant NH-4) + on **`SourceAddressSelection.Source` change**. Tunable via internal const, not exposed to operator config in v1.
 
 ## Cache enums
 
 - **AD15** `confidence` enum (persisted): `verified` | `corroborated` | `unidentified`. Reflects ADDRESS PRESENCE verification only (verified = directed `07 04` reply this session OR ≥2 corroborating passive samples; corroborated = single passive observation; unidentified = seen but no protocol-level reply). Identity completeness is orthogonal (per AD22).
 - **AD16** `last_source` enum (persisted): `passive_observed` | `directed_07_04` | `nm_event`. **Excludes** `cached` (load-time provenance preserves original source) and `directed_07_04_no_reply` (no-reply members are dropped immediately, never persisted; per Codex R1 A6).
-- **AD17** `join_method` enum (persisted): `joiner-warmup` | `override` | `override-validate` | `ebusd-tcp-fallback`.
+- **AD17** `selection_method` enum (persisted): `source_selection_warmup` | `explicit_validate_only` | `ebusd-tcp-fallback`.
 
 ## Capacity
 
@@ -106,11 +106,11 @@ Coverage: Full decision matrix.
 
 ## Hint vs source-of-truth
 
-- **AD24** `runtime_state.ebus.self` is **HISTORICAL HINT ONLY**. The current admitted source is exclusively the in-memory `JoinResult.Initiator` from the current session, AFTER Joiner validation succeeds. No surface (loader, GraphQL, MCP, metrics) may expose `runtime_state.ebus.self` as the current admitted source until the current session's Joiner validation passes. M4 includes a test asserting that pre-validation cached initiator is NOT reported as current/admitted via any surface.
+- **AD24** `runtime_state.ebus.self` is **HISTORICAL HINT ONLY**. The current admitted source is exclusively the in-memory `SourceAddressSelection.Source` from the current session, AFTER SourceAddressSelector validation succeeds. No surface (loader, GraphQL, MCP, metrics) may expose `runtime_state.ebus.self` as the current admitted source until the current session's SourceAddressSelector validation passes. M4 includes a test asserting that pre-validation cached initiator is NOT reported as current/admitted via any surface.
 
 ## Fresh-identity diagnostics
 
-- **AD25** On AD09b case (3) "both files absent, fresh uuid4 generated", add-on emits ONE structured warn log line with stable token `HELIANTHUS_FRESH_IDENTITY` and the actionable message ("Fresh instance_guid generated; if you have a prior HA integration entry for Helianthus, re-pair manually"). Metric `helianthus_runtime_state_identity_source_total{source}` increments once per startup. v1 does NOT persist identity-source in runtime_state.json or in `ebus.self.join_method` (those are eBUS-domain semantics, not identity-domain — per Codex R5 A2). Persistence of identity-source under `meta.instance_guid_source` and v2-side surface exposure (GraphQL/MCP) deferred to v2 to preserve MCP-first invariant (per Codex R4 A1).
+- **AD25** On AD09b case (3) "both files absent, fresh uuid4 generated", add-on emits ONE structured warn log line with stable token `HELIANTHUS_FRESH_IDENTITY` and the actionable message ("Fresh instance_guid generated; if you have a prior HA integration entry for Helianthus, re-pair manually"). Metric `helianthus_runtime_state_identity_source_total{source}` increments once per startup. v1 does NOT persist identity-source in runtime_state.json or in `ebus.self.selection_method` (those are eBUS-domain semantics, not identity-domain — per Codex R5 A2). Persistence of identity-source under `meta.instance_guid_source` and v2-side surface exposure (GraphQL/MCP) deferred to v2 to preserve MCP-first invariant (per Codex R4 A1).
 
 ## Add-on read robustness
 

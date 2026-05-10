@@ -12,8 +12,22 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-05-10
 current_milestone: M0_PLAN_LOCK
-canonical_revision: v1.0-locked
-canonical_sha256: f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d
+canonical_revision: v1.1-amendment-source-selection-naming
+canonical_sha256: 5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede
+amendments:
+  - revision: v1.1
+    locked_on: 2026-05-10
+    reason: |
+      AD17 selection_method enum + ebus.self field names migrated from legacy
+      SourceAddressSelector terminology to source-address-selection-admission.locked
+      SourceAddressSelection terminology. Discovered when
+      source_selection_m4_gate.py flagged "source_selection-warmup" string literal in the
+      M1_TDD_RED_GATEWAY PR. Substitutions: last_join_initiator -> last_admitted_source;
+      last_join_at -> last_admitted_at; join_method -> selection_method;
+      source_selection-warmup -> source_selection_warmup; override-validate -> explicit_validate_only;
+      JoinResult -> SourceAddressSelection; Joiner -> SourceAddressSelector.
+      Companion helianthus-docs-ebus + helianthus-ebusgateway PRs land in
+      lockstep.
 
 parent_plans:
   - slug: instance-identity-rediscovery
@@ -24,7 +38,7 @@ parent_plans:
     relationship: consumed (cached known_bus_members seed inserter at startup; M5 uses ScanDirected from sibling startup-admission API)
   - slug: startup-admission-discovery-w17-26
     state: maintenance
-    relationship: consumed (cached ebus.self.last_join_initiator is hint to Joiner; AD24 enforces hint-vs-source-of-truth boundary)
+    relationship: consumed (cached ebus.self.last_admitted_source is hint to SourceAddressSelector; AD24 enforces hint-vs-source-of-truth boundary)
   - slug: ebus-good-citizen-network-management
     state: maintenance
     relationship: consumed (M5 burst is bounded startup-window activity, NM cycle-time monitoring starts after M5 completes)
@@ -60,8 +74,8 @@ milestones:
     blocks: [M3_GATEWAY_PERSISTER, M6_HA_ADDON_MIGRATION]
   - id: M3_GATEWAY_PERSISTER
     repo: helianthus-ebusgateway
-    blocks: [M4_JOINER_HINT]
-  - id: M4_JOINER_HINT
+    blocks: [M4_SOURCE_SELECTION_HINT]
+  - id: M4_SOURCE_SELECTION_HINT
     repo: helianthus-ebusgateway
     blocks: [M5_ADDRESS_TABLE_REVALIDATE]
   - id: M5_ADDRESS_TABLE_REVALIDATE
@@ -109,7 +123,7 @@ topology_nodes:
     milestone: M3_GATEWAY_PERSISTER
   - id: RTS-07
     repo: helianthus-ebusgateway
-    milestone: M4_JOINER_HINT
+    milestone: M4_SOURCE_SELECTION_HINT
   - id: RTS-08
     repo: helianthus-ebusgateway
     milestone: M5_ADDRESS_TABLE_REVALIDATE
@@ -124,4 +138,4 @@ topology_nodes:
     milestone: M8_TRANSPORT_VERIFY
 
 sha256_chunks:
-  "00-canonical.md": f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d
+  "00-canonical.md": 5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede
