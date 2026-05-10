@@ -1,6 +1,7 @@
 slug: address-table-registry-w19-26
 title: Address-Table Registry — Network Management
-state: locked
+state: maintenance
+maintenance_since: 2026-05-10
 source_discussion: operator-live-bus-2026-05-06
 target_repos:
   - helianthus-execution-plans
@@ -13,7 +14,7 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-05-06
-current_milestone: M0_DOC_SPEC
+current_milestone: maintenance
 canonical_revision: v0.1-draft
 canonical_sha256: eb2cb53c7d9ad2e05cc384db6b7537067e739f62a8a359f1e89e62aca35b367b
 parent_plan:

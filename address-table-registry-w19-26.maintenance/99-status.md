@@ -2,7 +2,8 @@
 
 Canonical-SHA256: `eb2cb53c7d9ad2e05cc384db6b7537067e739f62a8a359f1e89e62aca35b367b`
 
-State: `implementing` (Phase A complete + Phase A.5 runtime wire-up merged; Phase B deferred per AD14)
+State: `maintenance` (Phase A + A.5 + A.6 + A.7..A.9 + M6.1 + M6 + ENRICHMENT_TRIGGER + M0C all merged; Phase B deferred per AD14; TAP_SYN_FIX tracked as upstream-blocker out of scope)
+Maintenance since: `2026-05-10`
 
 ## Phase A milestones
 
@@ -37,7 +38,7 @@ State: `implementing` (Phase A complete + Phase A.5 runtime wire-up merged; Phas
 | ENRICHMENT_TRIGGER | merged | gateway#574 9e38183 | post-passive-insertion semanticPoller.EnqueueDiscoveryRefresh wires M6 trigger |
 | TAP_SYN_FIX | not-started | adaptermux | UPSTREAM blocker — tap loses SYN bytes between frames; reconstructor sees mid-frame as frame-start → false src classifications (0x26 initiator, etc) and corrupted_request blocking ALL 0xF1 detection. Out of scope for this locked plan; tracked for next adaptermux work |
 | M9_TRANSPORT_VERIFY | merged | post-merge dry-run | 88-case dry-run on main matches M0A baseline (0 diffs) |
-| M0C_DOC_EVIDENCE_UPDATE | open | docs-ebus#296 | Phase A.5 evidence + follow-ups appended to 07-live-validation-acceptance.md |
+| M0C_DOC_EVIDENCE_UPDATE | merged | docs-ebus#303 (rebased successor to #296; #296 closed as superseded) | Phase A.5 + A.6 evidence appended to 07-live-validation-acceptance.md (commit 308c628) |
 
 ## Phase C milestones (frame-type-aware transport, AD24..AD30)
 
