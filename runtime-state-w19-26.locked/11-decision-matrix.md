@@ -75,7 +75,7 @@ Coverage: Full decision matrix.
 
 - **AD15** `confidence` enum (persisted): `verified` | `corroborated` | `unidentified`. Reflects ADDRESS PRESENCE verification only (verified = directed `07 04` reply this session OR ≥2 corroborating passive samples; corroborated = single passive observation; unidentified = seen but no protocol-level reply). Identity completeness is orthogonal (per AD22).
 - **AD16** `last_source` enum (persisted): `passive_observed` | `directed_07_04` | `nm_event`. **Excludes** `cached` (load-time provenance preserves original source) and `directed_07_04_no_reply` (no-reply members are dropped immediately, never persisted; per Codex R1 A6).
-- **AD17** `selection_method` enum (persisted): `source_selection_warmup` | `override` | `explicit_validate_only` | `ebusd-tcp-fallback`.
+- **AD17** `selection_method` enum (persisted): `source_selection_warmup` | `explicit_validate_only` | `ebusd-tcp-fallback`.
 
 ## Capacity
 

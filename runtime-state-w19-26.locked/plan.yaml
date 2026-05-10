@@ -38,7 +38,7 @@ parent_plans:
     relationship: consumed (cached known_bus_members seed inserter at startup; M5 uses ScanDirected from sibling startup-admission API)
   - slug: startup-admission-discovery-w17-26
     state: maintenance
-    relationship: consumed (cached ebus.self.last_join_initiator is hint to Joiner; AD24 enforces hint-vs-source-of-truth boundary)
+    relationship: consumed (cached ebus.self.last_admitted_source is hint to Joiner; AD24 enforces hint-vs-source-of-truth boundary)
   - slug: ebus-good-citizen-network-management
     state: maintenance
     relationship: consumed (M5 burst is bounded startup-window activity, NM cycle-time monitoring starts after M5 completes)
