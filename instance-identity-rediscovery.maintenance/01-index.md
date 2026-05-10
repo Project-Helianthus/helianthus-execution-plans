@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `1d501312433ef888f2447cc6fd7fb48babbb9a0f4b2fd9bd3cf398e98d3bcdf6`
+Canonical-SHA256: `8ac8c738c46de9fe9173521f7dd1285ca6f2acba6c3ac45951ee4d1a8826398c`
 
 This directory contains the canonical stable-identity plan plus a lossless split
 into execution-sized chunks.

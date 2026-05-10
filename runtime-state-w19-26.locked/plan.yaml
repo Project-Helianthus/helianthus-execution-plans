@@ -1,0 +1,127 @@
+slug: runtime-state-w19-26
+title: Runtime State File — /data/runtime_state.json
+state: locked
+source_discussion: operator-runtime-state-design-2026-05-10
+target_repos:
+  - helianthus-execution-plans
+  - helianthus-docs-ebus
+  - helianthus-ebusgateway
+  - helianthus-ha-addon
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-05-10
+current_milestone: M0_PLAN_LOCK
+canonical_revision: v1.0-locked
+canonical_sha256: f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d
+
+parent_plans:
+  - slug: instance-identity-rediscovery
+    state: maintenance
+    relationship: extended via back-reference (file-path migration AD21); locked-plan invariants preserved
+  - slug: address-table-registry-w19-26
+    state: maintenance
+    relationship: consumed (cached known_bus_members seed inserter at startup; M5 uses ScanDirected from sibling startup-admission API)
+  - slug: startup-admission-discovery-w17-26
+    state: maintenance
+    relationship: consumed (cached ebus.self.last_join_initiator is hint to Joiner; AD24 enforces hint-vs-source-of-truth boundary)
+  - slug: ebus-good-citizen-network-management
+    state: maintenance
+    relationship: consumed (M5 burst is bounded startup-window activity, NM cycle-time monitoring starts after M5 completes)
+
+primary_planner: codex-gpt-5.5-high
+adversarial_rounds: 6
+ready_to_lock_round: 6
+consultant_pass: claude-consultant-second-opinion-per-agents-md-8.4
+consultant_recommendation: GO_with_3_MUST_FIX_patches_integrated
+orchestrator: claude-opus-4-7
+
+doc_gate: required
+transport_gate: required
+
+milestones:
+  - id: M0_PLAN_LOCK
+    repo: helianthus-execution-plans
+    blocks: [M0_DOC_GATE]
+  - id: M0_DOC_GATE
+    repo: helianthus-docs-ebus
+    blocks: [M0A_TRANSPORT_BASELINE, M1_TDD_RED_GATEWAY, M1_TDD_RED_ADDON]
+  - id: M0A_TRANSPORT_BASELINE
+    repo: helianthus-ebusgateway
+    blocks: [M5_ADDRESS_TABLE_REVALIDATE]
+  - id: M1_TDD_RED_GATEWAY
+    repo: helianthus-ebusgateway
+    blocks: [M2_GATEWAY_LOADER]
+  - id: M1_TDD_RED_ADDON
+    repo: helianthus-ha-addon
+    blocks: [M6_HA_ADDON_MIGRATION]
+  - id: M2_GATEWAY_LOADER
+    repo: helianthus-ebusgateway
+    blocks: [M3_GATEWAY_PERSISTER, M6_HA_ADDON_MIGRATION]
+  - id: M3_GATEWAY_PERSISTER
+    repo: helianthus-ebusgateway
+    blocks: [M4_JOINER_HINT]
+  - id: M4_JOINER_HINT
+    repo: helianthus-ebusgateway
+    blocks: [M5_ADDRESS_TABLE_REVALIDATE]
+  - id: M5_ADDRESS_TABLE_REVALIDATE
+    repo: helianthus-ebusgateway
+    blocks: [M7_LIVE_VALIDATION, M8_TRANSPORT_VERIFY]
+  - id: M6_HA_ADDON_MIGRATION
+    repo: helianthus-ha-addon
+    blocks: [M7_LIVE_VALIDATION]
+  - id: M7_LIVE_VALIDATION
+    repo: helianthus-ebusgateway
+    blocks: []
+  - id: M8_TRANSPORT_VERIFY
+    repo: helianthus-ebusgateway
+    blocks: []
+
+deferred_to_v2:
+  - graphql_mcp_identity_source_surface
+  - stale_verified_pruning
+  - stable_schema_url
+  - usb_hot_disconnect_live_test
+  - hard_rejection_of_bare_instance_guid_flag
+  - persistence_of_meta_instance_guid_source
+
+topology_nodes:
+  - id: RTS-00
+    repo: helianthus-execution-plans
+    milestone: M0_PLAN_LOCK
+  - id: RTS-01
+    repo: helianthus-docs-ebus
+    milestone: M0_DOC_GATE
+  - id: RTS-02
+    repo: helianthus-ebusgateway
+    milestone: M0A_TRANSPORT_BASELINE
+  - id: RTS-03
+    repo: helianthus-ebusgateway
+    milestone: M1_TDD_RED_GATEWAY
+  - id: RTS-04
+    repo: helianthus-ha-addon
+    milestone: M1_TDD_RED_ADDON
+  - id: RTS-05
+    repo: helianthus-ebusgateway
+    milestone: M2_GATEWAY_LOADER
+  - id: RTS-06
+    repo: helianthus-ebusgateway
+    milestone: M3_GATEWAY_PERSISTER
+  - id: RTS-07
+    repo: helianthus-ebusgateway
+    milestone: M4_JOINER_HINT
+  - id: RTS-08
+    repo: helianthus-ebusgateway
+    milestone: M5_ADDRESS_TABLE_REVALIDATE
+  - id: RTS-09
+    repo: helianthus-ha-addon
+    milestone: M6_HA_ADDON_MIGRATION
+  - id: RTS-10
+    repo: helianthus-ebusgateway
+    milestone: M7_LIVE_VALIDATION
+  - id: RTS-11
+    repo: helianthus-ebusgateway
+    milestone: M8_TRANSPORT_VERIFY
+
+sha256_chunks:
+  "00-canonical.md": f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d

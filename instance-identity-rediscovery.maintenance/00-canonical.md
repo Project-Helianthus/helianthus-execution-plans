@@ -220,3 +220,47 @@ The first-wave durability guarantee is scoped to the HA add-on lifecycle.
 - Adapter hardware ID as identity: wrong layer, breaks on adapter swap
 - mDNS-only rebinding: unsafe without active verification
 - Generic registry: overbuilt for the failure being solved
+
+## 11. Amendment — File-Path Migration to runtime_state.json (2026-05-10)
+
+Per `feedback_deprecation_enrichment.md` (extend, do not rewrite):
+the canonical persistence path for `instance_guid` is migrated by the
+`runtime-state-w19-26.locked` plan from the standalone file
+`/data/instance_guid` to a namespaced field
+`/data/runtime_state.json[meta][instance_guid]` in a new gateway-owned
+runtime state file.
+
+The locked-plan invariants in §3, §4, and §8 of this canonical survive
+unchanged:
+
+- The HA add-on still owns `instance_guid` GENERATION (UUIDv4 on first
+  start with empty `/data`).
+- HA `config_entry.unique_id == instanceGuid` remains the rebind anchor.
+- Active GraphQL verification of `gatewayIdentity.instanceGuid` on
+  rediscovery is preserved.
+
+What changes:
+
+- The HA add-on no longer WRITES `/data/instance_guid`. Generation still
+  happens add-on-side; the chosen value is passed to the gateway via the
+  existing `-instance-guid` flag, and the gateway persists it eagerly
+  (within the first second of startup) to
+  `/data/runtime_state.json[meta][instance_guid]`. Sole writer of
+  `runtime_state.json` is the gateway.
+- The add-on reads `meta.instance_guid` from `runtime_state.json` at
+  startup with the precedence documented in
+  `runtime-state-w19-26.locked/11-decision-matrix.md` (AD09b).
+- Migration is hard-cut, no read-fallback in code (operator-locked
+  decision: manual deploy step). A guardrail (AD09a) prevents silent
+  identity regeneration when legacy `/data/instance_guid` is detected
+  alongside a missing `runtime_state.json`: the add-on emits the stable
+  log token `HELIANTHUS_MIGRATION_REQUIRED`, writes a marker file
+  `/data/.helianthus_migration_required`, and exits with code 1.
+- On legacy/runtime mismatch (which should not occur post-migration),
+  `runtime_state.json` is authoritative; legacy `/data/instance_guid` is
+  treated as a post-migration audit artifact only.
+
+Forward reference: see
+[`runtime-state-w19-26.locked/00-canonical.md`](../runtime-state-w19-26.locked/00-canonical.md)
+for the full schema, decision matrix, and falsifiability gate. This
+canonical is not invalidated by that plan; it is extended.
