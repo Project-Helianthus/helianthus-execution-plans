@@ -43,9 +43,9 @@ state file under `/data/runtime_state.json` that:
    while preserving the locked rediscovery-plan invariants (add-on owns
    generation; HA `config_entry.unique_id == instanceGuid`; identity stable
    across restarts).
-2. Caches the most recent successful Joiner result (`ebus.self.last_admitted_source`,
+2. Caches the most recent successful SourceAddressSelection result (`ebus.self.last_admitted_source`,
    `last_admitted_at`, `selection_method`, `companion_target`) to use as a HINT for
-   subsequent Joiner sessions. The cache never bypasses SourceAddressSelector validation.
+   subsequent SourceAddressSelection sessions. The cache never bypasses SourceAddressSelector validation.
 3. Caches observed bus members (`ebus.known_bus_members[]`) for startup
    acceleration via bounded directed `07 04` re-validation. Cache is wiped
    per-startup of any non-responder; verified responders' confidence is
@@ -70,7 +70,7 @@ In scope (v1):
   persist, 15-min jittered ticker, shutdown hook, `SourceAddressSelection.Source`
   change subscriber.
 - Gateway: cached `ebus.self.last_admitted_source` becomes a hint to the
-  Joiner's bid selection (locked startup-admission plan invariant: Joiner
+  SourceAddressSelector's bid selection (locked startup-admission plan invariant: SourceAddressSelector
   always validates; cache never bypasses warmup).
 - Gateway: post-SourceAddressSelector warmup directed `07 04` revalidation of cached
   known_bus_members[] via `helianthus-ebusreg.ScanDirected`, bounded to 32
@@ -193,7 +193,7 @@ plus negative fixtures (out-of-range addr, invalid UUIDv4, missing required
 ## Phase milestones
 
 `M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANSPORT_BASELINE → M1_TDD_RED_GATEWAY (parallel
-M1_TDD_RED_ADDON) → M2_GATEWAY_LOADER → M3_GATEWAY_PERSISTER → M4_JOINER_HINT →
+M1_TDD_RED_ADDON) → M2_GATEWAY_LOADER → M3_GATEWAY_PERSISTER → M4_SOURCE_SELECTION_HINT →
 M5_ADDRESS_TABLE_REVALIDATE → M6_HA_ADDON_MIGRATION → M7_LIVE_VALIDATION →
 M8_TRANSPORT_VERIFY`
 
@@ -240,7 +240,7 @@ This plan extends locked plans rather than rewriting them, per
   passive observation OR directed `07 04` confirms promote to `verified`.
 - `startup-admission-discovery-w17-26.maintenance` is consumed but not
   modified: cached `ebus.self.last_admitted_source` is a hint to the
-  Joiner; Joiner always validates per locked invariant; M5 directed
+  SourceAddressSelector; SourceAddressSelector always validates per locked invariant; M5 directed
   revalidation uses `helianthus-ebusreg.ScanDirected` (locked API).
 - `ebus-good-citizen-network-management.maintenance` is consumed: M5
   startup burst is bounded startup-window activity (≤32 probes, ~2.7s

@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9bd219258d7f447eab7398d3953c9bcc99bacc14979e6529a3448e2a08d23a8f`
+Canonical-SHA256: `5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede`
 
 Depends on: [11-decision-matrix.md](./11-decision-matrix.md), [13-acceptance-falsifiability-cross-plan.md](./13-acceptance-falsifiability-cross-plan.md).
 
@@ -12,7 +12,7 @@ Idempotence contract: Each milestone has a stable identifier. Acceptance criteri
 
 Falsifiability gate: Reviewer rejects a milestone PR if (a) acceptance is not satisfied; (b) the PR diff exceeds the documented scope without an amendment commit; (c) cross-plan invariants are violated (verified via `review-execution-plans` skill on plan-side PRs).
 
-Coverage: 12 milestones in DAG order: M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANSPORT_BASELINE → (M1_TDD_RED_GATEWAY ∥ M1_TDD_RED_ADDON) → M2_GATEWAY_LOADER → M3_GATEWAY_PERSISTER → M4_JOINER_HINT → M5_ADDRESS_TABLE_REVALIDATE → M6_HA_ADDON_MIGRATION → M7_LIVE_VALIDATION → M8_TRANSPORT_VERIFY.
+Coverage: 12 milestones in DAG order: M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANSPORT_BASELINE → (M1_TDD_RED_GATEWAY ∥ M1_TDD_RED_ADDON) → M2_GATEWAY_LOADER → M3_GATEWAY_PERSISTER → M4_SOURCE_SELECTION_HINT → M5_ADDRESS_TABLE_REVALIDATE → M6_HA_ADDON_MIGRATION → M7_LIVE_VALIDATION → M8_TRANSPORT_VERIFY.
 
 ## M0_PLAN_LOCK
 
@@ -30,7 +30,7 @@ Coverage: 12 milestones in DAG order: M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANS
 - **Repo:** `helianthus-docs-ebus`
 - **Scope:** Normative schema doc ("Runtime State File") + JSON Schema artifact (`runtime_state.schema.json`) covering `meta` + `ebus.{self, known_bus_members[]}` v1 namespaces. Documents AD13 atomicity contract, AD09a/b add-on lifecycle, AD24 hint-vs-source-of-truth invariant. Cross-link from `instance-identity-rediscovery` doc section. Adds `make validate-schemas` target (using `santhosh-tekuri/jsonschema/cmd/jv`) wired into docs-ebus CI workflow. Validates the example payload AND ≥3 negative fixtures (out-of-range addr, invalid UUIDv4, missing required `meta.instance_guid`). 00-canonical doc-side notes the rationale for confidence/identity decoupling (per consultant NH-2).
 - **Depends on:** M0_PLAN_LOCK
-- **Blocks:** M1_TDD_RED_GATEWAY, M1_TDD_RED_ADDON, M2_GATEWAY_LOADER, M3_GATEWAY_PERSISTER, M4_JOINER_HINT, M5_ADDRESS_TABLE_REVALIDATE, M6_HA_ADDON_MIGRATION
+- **Blocks:** M1_TDD_RED_GATEWAY, M1_TDD_RED_ADDON, M2_GATEWAY_LOADER, M3_GATEWAY_PERSISTER, M4_SOURCE_SELECTION_HINT, M5_ADDRESS_TABLE_REVALIDATE, M6_HA_ADDON_MIGRATION
 - **Acceptance:**
   - Schema doc merged on docs-ebus main.
   - JSON Schema validates the example payload.
@@ -99,10 +99,10 @@ Coverage: 12 milestones in DAG order: M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANS
   - fsync verified via FS-abstraction unit tests (no strace dependency per consultant MF-2).
   - Live HA validation records observed `/data` mount type (overlayfs / ext4-loopback / virtiofs / tmpfs); informational, not pass/fail.
 
-## M4_JOINER_HINT
+## M4_SOURCE_SELECTION_HINT
 
 - **Repo:** `helianthus-ebusgateway`
-- **Scope:** Cached `ebus.self.last_admitted_source` becomes a HINT to the Joiner's bid-selection logic on direct transports. SourceAddressSelector ALWAYS validates per locked `startup-admission-discovery-w17-26.maintenance` invariant; cache never bypasses warmup. On `SourceAddressSelection` success, write back to `ebus.self`. AD24 invariant test: pre-Joiner-validation, GraphQL `gatewayIdentity` and metric `helianthus_admitted_source` MUST report "not yet admitted" (or equivalent), NEVER the cached value.
+- **Scope:** Cached `ebus.self.last_admitted_source` becomes a HINT to the SourceAddressSelector's bid-selection logic on direct transports. SourceAddressSelector ALWAYS validates per locked `startup-admission-discovery-w17-26.maintenance` invariant; cache never bypasses warmup. On `SourceAddressSelection` success, write back to `ebus.self`. AD24 invariant test: pre-SourceAddressSelector-validation, GraphQL `gatewayIdentity` and metric `helianthus_admitted_source` MUST report "not yet admitted" (or equivalent), NEVER the cached value.
 - **Depends on:** M3_GATEWAY_PERSISTER
 - **Acceptance:**
   - SourceAddressSelector test: cache → hint → validate → accept (record back) succeeds.
@@ -120,7 +120,7 @@ Coverage: 12 milestones in DAG order: M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANS
   - **(e)** Responder → confidence=verified, last_source=directed_07_04, identity refreshed via address-table inserter normal path.
   - **Ordering:** cached members sorted by `last_seen_at` DESC (most recently active first), tie-break by `addr` ASC.
   - **Postponement:** members beyond cap=32 stay cached at unchanged confidence; revalidation resumes them in the NEXT 15-min cycle.
-- **Depends on:** M4_JOINER_HINT
+- **Depends on:** M4_SOURCE_SELECTION_HINT
 - **Acceptance:**
   - Live HA: cached BAI00/BASV2/VR_71 re-identified within 5s of SourceAddressSelector warmup completion.
   - Counter `ebus_runtime_state_revalidate_total{outcome=responder|no_reply|skipped_passive_refresh}` increments correctly.
@@ -163,7 +163,7 @@ M0_PLAN_LOCK
          ├── M1_TDD_RED_GATEWAY
          │     └── M2_GATEWAY_LOADER
          │           └── M3_GATEWAY_PERSISTER
-         │                 └── M4_JOINER_HINT
+         │                 └── M4_SOURCE_SELECTION_HINT
          │                       └── M5_ADDRESS_TABLE_REVALIDATE
          │                             ├── M7_LIVE_VALIDATION
          │                             └── M8_TRANSPORT_VERIFY

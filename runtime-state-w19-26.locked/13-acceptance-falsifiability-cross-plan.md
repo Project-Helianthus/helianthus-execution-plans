@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9bd219258d7f447eab7398d3953c9bcc99bacc14979e6529a3448e2a08d23a8f`
+Canonical-SHA256: `5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede`
 
 Depends on: [10-architecture-overview.md](./10-architecture-overview.md), [11-decision-matrix.md](./11-decision-matrix.md), [12-milestones.md](./12-milestones.md).
 
@@ -96,7 +96,7 @@ This plan extends locked plans rather than rewriting them, per
 
 ### `startup-admission-discovery-w17-26.maintenance` (consumed; not modified)
 
-- **Integration:** Cached `ebus.self.last_admitted_source` is a HINT to the Joiner's bid-selection logic (M4). SourceAddressSelector ALWAYS validates per locked invariant; cache never bypasses warmup.
+- **Integration:** Cached `ebus.self.last_admitted_source` is a HINT to the SourceAddressSelector's bid-selection logic (M4). SourceAddressSelector ALWAYS validates per locked invariant; cache never bypasses warmup.
 - **AD24 enforcement:** Pre-validation, no surface (loader, GraphQL, MCP, metrics) reports cached `last_admitted_source` as the current admitted source. Current admitted source = current-session `SourceAddressSelection.Source` after validation.
 - **M5 directed revalidation** uses `helianthus-ebusreg.ScanDirected` (locked API from startup-admission). M5 burst is bounded startup-window activity (cap=32, ~2.7s) — not steady-state polling.
 
@@ -121,7 +121,7 @@ This plan extends locked plans rather than rewriting them, per
 If any P1..P6 fails or any N1..N4 is violated post-deploy at M7:
 
 1. Revert M5 PR (gateway directed revalidation) — closes the directed `07 04` burst risk.
-2. Revert M4 PR (Joiner hint) — restores SourceAddressSelector default policy.
+2. Revert M4 PR (SourceAddressSelector hint) — restores SourceAddressSelector default policy.
 3. Revert M3 PR (persister) — gateway no longer writes runtime_state.json (file may exist from prior runs; gateway treats it as input only).
 4. Revert M2 PR (loader) — gateway ignores runtime_state.json entirely.
 5. Revert M6 PR (add-on migration) — add-on resumes legacy `/data/instance_guid` write semantics.

@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9bd219258d7f447eab7398d3953c9bcc99bacc14979e6529a3448e2a08d23a8f`
+Canonical-SHA256: `5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede`
 
 Depends on: [10-architecture-overview.md](./10-architecture-overview.md), [12-milestones.md](./12-milestones.md), [13-acceptance-falsifiability-cross-plan.md](./13-acceptance-falsifiability-cross-plan.md).
 
