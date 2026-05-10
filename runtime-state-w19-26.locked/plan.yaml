@@ -12,8 +12,22 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-05-10
 current_milestone: M0_PLAN_LOCK
-canonical_revision: v1.0-locked
-canonical_sha256: f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d
+canonical_revision: v1.1-amendment-source-selection-naming
+canonical_sha256: 9bd219258d7f447eab7398d3953c9bcc99bacc14979e6529a3448e2a08d23a8f
+amendments:
+  - revision: v1.1
+    locked_on: 2026-05-10
+    reason: |
+      AD17 selection_method enum + ebus.self field names migrated from legacy
+      Joiner terminology to source-address-selection-admission.locked
+      SourceAddressSelection terminology. Discovered when
+      source_selection_m4_gate.py flagged "joiner-warmup" string literal in the
+      M1_TDD_RED_GATEWAY PR. Substitutions: last_join_initiator -> last_admitted_source;
+      last_join_at -> last_admitted_at; join_method -> selection_method;
+      joiner-warmup -> source_selection_warmup; override-validate -> explicit_validate_only;
+      JoinResult -> SourceAddressSelection; Joiner -> SourceAddressSelector.
+      Companion helianthus-docs-ebus + helianthus-ebusgateway PRs land in
+      lockstep.
 
 parent_plans:
   - slug: instance-identity-rediscovery
@@ -124,4 +138,4 @@ topology_nodes:
     milestone: M8_TRANSPORT_VERIFY
 
 sha256_chunks:
-  "00-canonical.md": f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d
+  "00-canonical.md": 9bd219258d7f447eab7398d3953c9bcc99bacc14979e6529a3448e2a08d23a8f

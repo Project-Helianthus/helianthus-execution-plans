@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d`
+Canonical-SHA256: `9bd219258d7f447eab7398d3953c9bcc99bacc14979e6529a3448e2a08d23a8f`
 
 Depends on: [11-decision-matrix.md](./11-decision-matrix.md), [13-acceptance-falsifiability-cross-plan.md](./13-acceptance-falsifiability-cross-plan.md).
 
@@ -102,27 +102,27 @@ Coverage: 12 milestones in DAG order: M0_PLAN_LOCK → M0_DOC_GATE → M0A_TRANS
 ## M4_JOINER_HINT
 
 - **Repo:** `helianthus-ebusgateway`
-- **Scope:** Cached `ebus.self.last_join_initiator` becomes a HINT to the Joiner's bid-selection logic on direct transports. Joiner ALWAYS validates per locked `startup-admission-discovery-w17-26.maintenance` invariant; cache never bypasses warmup. On `JoinResult` success, write back to `ebus.self`. AD24 invariant test: pre-Joiner-validation, GraphQL `gatewayIdentity` and metric `helianthus_admitted_source` MUST report "not yet admitted" (or equivalent), NEVER the cached value.
+- **Scope:** Cached `ebus.self.last_admitted_source` becomes a HINT to the Joiner's bid-selection logic on direct transports. SourceAddressSelector ALWAYS validates per locked `startup-admission-discovery-w17-26.maintenance` invariant; cache never bypasses warmup. On `SourceAddressSelection` success, write back to `ebus.self`. AD24 invariant test: pre-Joiner-validation, GraphQL `gatewayIdentity` and metric `helianthus_admitted_source` MUST report "not yet admitted" (or equivalent), NEVER the cached value.
 - **Depends on:** M3_GATEWAY_PERSISTER
 - **Acceptance:**
-  - Joiner test: cache → hint → validate → accept (record back) succeeds.
-  - Joiner test: cache → hint → reject → fall back to default policy (no cache mutation).
-  - AD24 invariant test: pre-validation surfaces report not-yet-admitted, never the cached `last_join_initiator`.
+  - SourceAddressSelector test: cache → hint → validate → accept (record back) succeeds.
+  - SourceAddressSelector test: cache → hint → reject → fall back to default policy (no cache mutation).
+  - AD24 invariant test: pre-validation surfaces report not-yet-admitted, never the cached `last_admitted_source`.
 
 ## M5_ADDRESS_TABLE_REVALIDATE
 
 - **Repo:** `helianthus-ebusgateway`
-- **Scope:** After Joiner warmup completes (or NMNormal entry per `ebus-good-citizen-network-management.maintenance`), gateway issues directed `07 04` against cached `known_bus_members[*].addr` via `helianthus-ebusreg.ScanDirected`. Constraints:
+- **Scope:** After SourceAddressSelector warmup completes (or NMNormal entry per `ebus-good-citizen-network-management.maintenance`), gateway issues directed `07 04` against cached `known_bus_members[*].addr` via `helianthus-ebusreg.ScanDirected`. Constraints:
   - **(a)** Skip members already passively re-observed during warmup.
   - **(b)** Bounded concurrency inherited from startup-admission rate limits.
-  - **(c)** Cap = 32 startup probes per cycle (configurable internal const). **Cap rationale:** `07 04` directed probe is ~5-byte request + ~16-byte reply ≈ 21 bytes per round-trip; eBUS bus rate ~250 bytes/s under contention → ~84ms wall-clock per probe (conservative; ebusd defaults `--receivetimeout=25ms`, typical Vaillant slave responses single-digit ms; 84ms accounts for arbitration retries at 2400 baud); cap=32 → ~2.7s peak burst, well under Joiner warmup tail latency. Plan accepts that this estimate may be revised downward post-implementation if logic-analyzer measurement shows lower (consultant SF-3).
+  - **(c)** Cap = 32 startup probes per cycle (configurable internal const). **Cap rationale:** `07 04` directed probe is ~5-byte request + ~16-byte reply ≈ 21 bytes per round-trip; eBUS bus rate ~250 bytes/s under contention → ~84ms wall-clock per probe (conservative; ebusd defaults `--receivetimeout=25ms`, typical Vaillant slave responses single-digit ms; 84ms accounts for arbitration retries at 2400 baud); cap=32 → ~2.7s peak burst, well under SourceAddressSelector warmup tail latency. Plan accepts that this estimate may be revised downward post-implementation if logic-analyzer measurement shows lower (consultant SF-3).
   - **(d)** No-reply outcome → AD23 immediate eviction + `ebus_runtime_state_revalidate_total{outcome="no_reply"}` telemetry.
   - **(e)** Responder → confidence=verified, last_source=directed_07_04, identity refreshed via address-table inserter normal path.
   - **Ordering:** cached members sorted by `last_seen_at` DESC (most recently active first), tie-break by `addr` ASC.
   - **Postponement:** members beyond cap=32 stay cached at unchanged confidence; revalidation resumes them in the NEXT 15-min cycle.
 - **Depends on:** M4_JOINER_HINT
 - **Acceptance:**
-  - Live HA: cached BAI00/BASV2/VR_71 re-identified within 5s of Joiner warmup completion.
+  - Live HA: cached BAI00/BASV2/VR_71 re-identified within 5s of SourceAddressSelector warmup completion.
   - Counter `ebus_runtime_state_revalidate_total{outcome=responder|no_reply|skipped_passive_refresh}` increments correctly.
   - Synthetic test with 64 cached members confirms cap behavior: first 32 by `last_seen_at` probed; remaining 32 untouched but cached; next cycle probes them.
   - T01..T88 dry-run vs M0A baseline shows 0 unexpected fail/xpass deltas (transport-gate compliance per AD20).

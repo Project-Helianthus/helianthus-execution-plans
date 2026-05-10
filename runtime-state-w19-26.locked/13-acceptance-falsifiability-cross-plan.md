@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `f1129d0c442d3b2704f6f7e7eed2042c05df3f83e21ad57ccebdd6884f42241d`
+Canonical-SHA256: `9bd219258d7f447eab7398d3953c9bcc99bacc14979e6529a3448e2a08d23a8f`
 
 Depends on: [10-architecture-overview.md](./10-architecture-overview.md), [11-decision-matrix.md](./11-decision-matrix.md), [12-milestones.md](./12-milestones.md).
 
@@ -23,9 +23,9 @@ After M5 + M6 merge + live deploy:
 - **Procedure:** Restart gateway. Compare `runtime_state.json[meta][instance_guid]` to HA `config_entry.unique_id` for the Helianthus integration.
 - **Expected:** Identical (no regen).
 
-### P2 — Cached members re-identified within 5s of Joiner warmup completion
+### P2 — Cached members re-identified within 5s of SourceAddressSelector warmup completion
 
-- **Procedure:** With cached `known_bus_members[]` containing `{0x08, 0x15, 0x26}` (BAI00, BASV2, VR_71), restart gateway. Observe time from Joiner warmup completion (log) to all three appearing as `confidence=verified, last_source=directed_07_04` in registry / GraphQL `devices`.
+- **Procedure:** With cached `known_bus_members[]` containing `{0x08, 0x15, 0x26}` (BAI00, BASV2, VR_71), restart gateway. Observe time from SourceAddressSelector warmup completion (log) to all three appearing as `confidence=verified, last_source=directed_07_04` in registry / GraphQL `devices`.
 - **Expected:** ≤ 5 seconds.
 - **Telemetry:** `ebus_runtime_state_revalidate_total{outcome="responder"}` increments by ≥3.
 
@@ -96,8 +96,8 @@ This plan extends locked plans rather than rewriting them, per
 
 ### `startup-admission-discovery-w17-26.maintenance` (consumed; not modified)
 
-- **Integration:** Cached `ebus.self.last_join_initiator` is a HINT to the Joiner's bid-selection logic (M4). Joiner ALWAYS validates per locked invariant; cache never bypasses warmup.
-- **AD24 enforcement:** Pre-validation, no surface (loader, GraphQL, MCP, metrics) reports cached `last_join_initiator` as the current admitted source. Current admitted source = current-session `JoinResult.Initiator` after validation.
+- **Integration:** Cached `ebus.self.last_admitted_source` is a HINT to the Joiner's bid-selection logic (M4). SourceAddressSelector ALWAYS validates per locked invariant; cache never bypasses warmup.
+- **AD24 enforcement:** Pre-validation, no surface (loader, GraphQL, MCP, metrics) reports cached `last_admitted_source` as the current admitted source. Current admitted source = current-session `SourceAddressSelection.Source` after validation.
 - **M5 directed revalidation** uses `helianthus-ebusreg.ScanDirected` (locked API from startup-admission). M5 burst is bounded startup-window activity (cap=32, ~2.7s) — not steady-state polling.
 
 ### `ebus-good-citizen-network-management.maintenance` (consumed; cross-plan note in AD20)
@@ -121,7 +121,7 @@ This plan extends locked plans rather than rewriting them, per
 If any P1..P6 fails or any N1..N4 is violated post-deploy at M7:
 
 1. Revert M5 PR (gateway directed revalidation) — closes the directed `07 04` burst risk.
-2. Revert M4 PR (Joiner hint) — restores Joiner default policy.
+2. Revert M4 PR (Joiner hint) — restores SourceAddressSelector default policy.
 3. Revert M3 PR (persister) — gateway no longer writes runtime_state.json (file may exist from prior runs; gateway treats it as input only).
 4. Revert M2 PR (loader) — gateway ignores runtime_state.json entirely.
 5. Revert M6 PR (add-on migration) — add-on resumes legacy `/data/instance_guid` write semantics.
