@@ -25,7 +25,7 @@ amendments:
       M1_TDD_RED_GATEWAY PR. Substitutions: last_join_initiator -> last_admitted_source;
       last_join_at -> last_admitted_at; join_method -> selection_method;
       source_selection-warmup -> source_selection_warmup; override-validate -> explicit_validate_only;
-      JoinResult -> SourceAddressSelection; SourceAddressSelector -> SourceAddressSelector.
+      JoinResult -> SourceAddressSelection; Joiner -> SourceAddressSelector.
       Companion helianthus-docs-ebus + helianthus-ebusgateway PRs land in
       lockstep.
 
