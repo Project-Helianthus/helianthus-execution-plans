@@ -1,0 +1,28 @@
+slug: proxy-v0699-synth-stress-baseline
+title: Proxy v0.6.99 Synthetic & Stress-Test Baseline
+state: locked
+source_discussion: orchestrator-session-2026-05-11-proxy-v0699-synth-stress-baseline
+target_repos:
+  - helianthus-ebus-adapter-proxy
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-05-11
+current_milestone: M0
+release_anchor: v0.6.5
+release_target: v0.6.99
+sha256_chunks:
+  canonical: 6f9d935e93bdf69b56928090d4f72b1fb85eed3b932549a8f0c5a615c6e19d0d
+adversarial_rounds:
+  - round: R1
+    co_pilot: codex-gpt-5.5
+    thread_id: 019e185d-17d0-79e3-9685-e14190b17347
+    verdict: CONTINUE
+    fixes_applied:
+      - reordered_milestones_so_schema_precedes_scenarios
+      - split_M5_fidelity_into_M2_min_and_M8_full
+      - added_M0_release_anchor_and_bit_identical_watchdog
+      - per_milestone_doc_gate_classifier
+    escalations_resolved:
+      - AD07_always_on_pprof_in_admin
+      - AD08_synthetic_mandatory_live_best_effort
