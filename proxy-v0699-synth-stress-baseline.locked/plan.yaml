@@ -9,6 +9,7 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-05-11
 current_milestone: M0
+meta_issue: 29
 release_anchor: v0.6.5
 release_target: v0.6.99
 sha256_chunks:

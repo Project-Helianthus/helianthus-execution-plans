@@ -9,9 +9,11 @@ each milestone transitions.
 ## Current State
 
 - **Plan state**: locked (post-adversarial-R1, awaiting first execution).
+- **Meta-issue**: [Project-Helianthus/helianthus-execution-plans#29](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/29) (pinned).
+- **Cruise-state truth source**: [issuecomment-4423934432](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/29#issuecomment-4423934432).
 - **Current milestone**: `M0` (release anchor).
 - **Active skill**: cruise-preflight (handed off from cruise-plan).
-- **Blocked on**: v0.6.5 tag (separate operator session).
+- **Blocked on**: v0.6.5 tag (separate operator session). AD09 escalates 2026-05-14 if unavailable.
 
 ## Milestone Progress
 

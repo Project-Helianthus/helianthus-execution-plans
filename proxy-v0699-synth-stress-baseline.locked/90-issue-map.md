@@ -15,7 +15,7 @@ is opened.
 
 | Repo                            | Issue | Title                                                    |
 |---------------------------------|-------|----------------------------------------------------------|
-| helianthus-execution-plans      | _TBD_ | meta: proxy v0.6.99 — synthetic & stress-test baseline   |
+| helianthus-execution-plans      | [#29](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/29) | meta: proxy v0.6.99 — synthetic & stress-test baseline   |
 
 ## Milestone Issues (target repo: `helianthus-ebus-adapter-proxy`)
 
