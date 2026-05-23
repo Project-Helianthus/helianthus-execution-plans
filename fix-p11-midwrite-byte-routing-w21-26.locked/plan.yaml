@@ -1,0 +1,48 @@
+slug: fix-p11-midwrite-byte-routing-w21-26
+title: Fix P11 mid-write byte-routing gate over-suppression (first-byte arbitration revalidation)
+state: locked
+source_discussion: dual-ai-cruise-plan-2026-05-22-w21
+target_repos:
+  - helianthus-ebusgateway
+  - helianthus-ha-addon
+  - helianthus-docs-ebus
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-05-22
+current_milestone: M0
+canonical_revision: v1.0-locked
+canonical_sha256: ddd1786c883f07395e417d63c71607b46f92b8968126363fd11c55b8e0d8de7d
+sha256_chunks:
+  "00-canonical.md": ddd1786c883f07395e417d63c71607b46f92b8968126363fd11c55b8e0d8de7d
+locked_at: 2026-05-23T04:40:00Z
+adversarial_rounds:
+  - reviewer: codex-gpt-5.5
+    round: 1
+    converged: true
+  - reviewer: claude-opus-angry-tester
+    round: 1
+    converged: false
+    artifact: _work_adaptermux_audit/codex/adversarial-r1-opus-fresh.json
+  - reviewer: claude-opus-angry-tester
+    round: 2
+    converged: true
+    artifact: _work_adaptermux_audit/codex/adversarial-r2-opus-vs-codex.json
+    target_of_attack: codex-r1
+decision_matrix:
+  AD01: refined-direction-C-forward-not-drop
+  AD02: matchCount==0 && writeCount==1 && AddressClassMaster && symbol!=preMatchHead
+  AD03: mux-forwards-bytego-classifies-collision-retry
+  AD04: assert-ErrBusCollision-within-200ms
+  AD05: post_grant_ack-rate-le-10-per-hour-absolute
+  AD06: mode-B-deferred-followup
+  AD07: PR1-ebusgo-cond-SKIPPED-then-PR2-gateway-then-PR3-addon
+  AD08: transport-gate-REQUIRED
+  AD09: no-matchEcho-mismatch-branch-reuse
+  AD10: plain-transport-escape-pair-verified
+falsifiability_outcomes:
+  - O1: 60s-plane-population-gate
+  - O2: 60s-b524-root-discovery-gate
+  - O3: round9-slope-zero
+  - O4: post_grant_ack-le-10-per-hour
+  - O5: collision-rate-le-1.5x-baseline
