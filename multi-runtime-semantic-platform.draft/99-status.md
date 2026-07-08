@@ -84,25 +84,36 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
   #11 merged in `helianthus-eebusreg` at
   `82f8f3cfd42d8e5c830d1e8e4e9e029614c14a7e`; evidence recorded in
   `98-msp-03b-toolchain-boundary-evidence.md`.
+- MSP-03C HA add-on proof gate issue #166 and PR #167 merged in
+  `helianthus-ha-addon` at
+  `b3c9930ca244dfe636f79356b8d482c6c84e043c`; canonical docs PR #338 merged
+  in `helianthus-docs-ebus` at
+  `c1fc6bde5a273fdd1ccbe1826479769fe0731a71`; evidence recorded in
+  `98-msp-03c-ha-network-proof-gate-evidence.md`.
 
 ## Not Yet Done
 
-- File concrete GitHub issues for MSP-03C and later M3 rows from the M0 matrix
-  after predecessor gates are accepted and repo serialization is clear.
+- Collect and accept the MSP-03C redacted `lab_run` artifact for EEBUS-G05
+  through EEBUS-G09. The merged contract fixture is not lab evidence.
+- File concrete GitHub issues for MSP-03D and later M3 rows from the M0 matrix
+  only after MSP-03C `lab_run` evidence is accepted and repo serialization is
+  clear.
 - Attach gateway `0.4.0` baseline evidence bundle.
-- Run implementation-time gates for `eebus-go`, HA networking, VR940f lab
-  smoke, trust store, MCP contract, evidence recorder, and leaf promotion.
+- Run implementation-time gates for VR940f lab smoke, trust store, MCP
+  contract, evidence recorder, and leaf promotion.
 - Promote to `.locked/`.
 
 ## Operational Notes
 
 - M0, M1, and M2 seed artifacts are accepted and merged.
-- Runtime feasibility has started. MSP-03A and MSP-03B are accepted; MSP-03C is
-  the next ready M3 row and remains scoped to HA runtime LAN-side networking,
+- Runtime feasibility has started. MSP-03A and MSP-03B are accepted. MSP-03C
+  has a merged add-on proof gate and canonical docs, but remains blocked on a
+  redacted `lab_run` artifact for HA runtime LAN-side networking,
   mDNS/Avahi/DBus cases, manual endpoint fallback, and proof credential
   persistence.
 - M3 is not complete and no end-of-M3 architecture review is claimed until
-  MSP-03D completes black-box fake peer and live VR940f smoke gates.
+  MSP-03C lab evidence and MSP-03D black-box fake peer/live VR940f smoke gates
+  complete.
 - Durable protocol knowledge remains canonical in `helianthus-docs-ebus`.
 - `helianthus-docs-eebus` is the eeBUS-native workbench/docs repo and must
   cross-seed publishable durable conclusions back to `helianthus-docs-ebus`.
