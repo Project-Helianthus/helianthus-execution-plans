@@ -80,10 +80,14 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
   `helianthus-eebusreg` at
   `2b5b06315bd873dc214f602e9c5e9d0d6922208b`; evidence recorded in
   `98-msp-03a-facade-spike-evidence.md`.
+- MSP-03B local and build-container module/toolchain boundary issue #10 and PR
+  #11 merged in `helianthus-eebusreg` at
+  `82f8f3cfd42d8e5c830d1e8e4e9e029614c14a7e`; evidence recorded in
+  `98-msp-03b-toolchain-boundary-evidence.md`.
 
 ## Not Yet Done
 
-- File concrete GitHub issues for MSP-03B and later M3 rows from the M0 matrix
+- File concrete GitHub issues for MSP-03C and later M3 rows from the M0 matrix
   after predecessor gates are accepted and repo serialization is clear.
 - Attach gateway `0.4.0` baseline evidence bundle.
 - Run implementation-time gates for `eebus-go`, HA networking, VR940f lab
@@ -93,9 +97,10 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
 ## Operational Notes
 
 - M0, M1, and M2 seed artifacts are accepted and merged.
-- Runtime feasibility has started. MSP-03A is accepted; MSP-03B is the next
-  ready `helianthus-eebusreg` row and remains scoped to local and actual
-  build-container module/toolchain boundary proof.
+- Runtime feasibility has started. MSP-03A and MSP-03B are accepted; MSP-03C is
+  the next ready M3 row and remains scoped to HA runtime LAN-side networking,
+  mDNS/Avahi/DBus cases, manual endpoint fallback, and proof credential
+  persistence.
 - M3 is not complete and no end-of-M3 architecture review is claimed until
   MSP-03D completes black-box fake peer and live VR940f smoke gates.
 - Durable protocol knowledge remains canonical in `helianthus-docs-ebus`.
