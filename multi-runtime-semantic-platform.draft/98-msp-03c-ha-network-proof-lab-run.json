@@ -1,0 +1,154 @@
+{
+  "contract": "helianthus.eebus.ha-network-proof.v0",
+  "issue": "MSP-03C",
+  "repo": "Project-Helianthus/helianthus-ha-addon",
+  "generated_at": "2026-07-08T18:22:10Z",
+  "mode": "lab_run",
+  "result": "PASS",
+  "required_cases": [
+    "EEBUS-G05",
+    "EEBUS-G06",
+    "EEBUS-G07",
+    "EEBUS-G08",
+    "EEBUS-G09"
+  ],
+  "topology": {
+    "ha_addon": {
+      "host_network": true,
+      "host_dbus": false,
+      "same_container_or_bridge_only": false,
+      "network_namespace_ref": "msp03c-ha-host-network-namespace"
+    },
+    "lan_peer": {
+      "scope": "external_lan",
+      "same_host": false,
+      "address_ref": "msp03c-external-lan-peer-redacted"
+    }
+  },
+  "security": {
+    "wildcard_bind_allowed": false,
+    "unexpected_bridge_exposure": false,
+    "ingress_reachable": false,
+    "web_ui_reachable": false,
+    "vendor_restricted": false,
+    "admin_surface": "none"
+  },
+  "credential_store": {
+    "path": "/data/eebus-proof",
+    "class": "disposable_proof",
+    "production_trust_written": false,
+    "persistent_across_restart": true,
+    "symlink_checked": true,
+    "path_traversal_checked": true,
+    "permissions": {
+      "directory": "0700",
+      "files": "0600"
+    },
+    "pre_restart_identity_ref": "sha256:65988afdc3a8",
+    "post_restart_identity_ref": "sha256:65988afdc3a8"
+  },
+  "cases": [
+    {
+      "id": "EEBUS-G05",
+      "status": "PASS",
+      "evidence": [
+        "listener bound to the configured LAN interface address",
+        "external LAN peer reached the proof endpoint over TCP",
+        "wildcard and bridge-only exposure were not used"
+      ],
+      "listener": {
+        "bind_policy": "configured_interface",
+        "wildcard_bind": false,
+        "unexpected_bridge_exposure": false,
+        "lan_tcp_reachable": true
+      }
+    },
+    {
+      "id": "EEBUS-G06",
+      "status": "PASS",
+      "evidence": [
+        "external LAN peer browsed and resolved the advertised SHIP service"
+      ],
+      "mdns": {
+        "lan_peer_resolved": true,
+        "peer_scope": "external_lan",
+        "service_type": "_ship._tcp"
+      }
+    },
+    {
+      "id": "EEBUS-G07",
+      "status": "PASS",
+      "evidence": [
+        "mDNS disabled case produced absent SHIP service",
+        "host DBus/Avahi was unavailable and recorded as an explicit degraded state",
+        "closed proof window produced absent or TTL-expired advertisement"
+      ],
+      "negative": {
+        "mdns_disabled_absent": true,
+        "avahi_dbus_state": "degraded_explicit",
+        "pairing_closed_absent_or_ttl_expired": true
+      }
+    },
+    {
+      "id": "EEBUS-G08",
+      "status": "PASS",
+      "evidence": [
+        "manual endpoint reached the proof peer with discovery unavailable"
+      ],
+      "manual_endpoint": {
+        "configured": true,
+        "requires_discovery": false,
+        "reaches_peer_when_discovery_unavailable": true,
+        "source": "operator_config"
+      }
+    },
+    {
+      "id": "EEBUS-G09",
+      "status": "PASS",
+      "evidence": [
+        "disposable proof credential identity survived proof restart"
+      ],
+      "credential_persistence": {
+        "store_path": "/data/eebus-proof",
+        "disposable_only": true,
+        "survives_restart": true,
+        "production_trust_written": false
+      }
+    }
+  ],
+  "lab": {
+    "repo_branch": "main",
+    "repo_commit": "b3c9930ca244dfe636f79356b8d482c6c84e043c",
+    "addon_build_id": "msp03c-addon-main-lab",
+    "collector_command_log_ref": "msp03c-command-log-lab-accepted",
+    "external_lan_peer_namespace_ref": "msp03c-external-lan-peer-br0-redacted",
+    "listener_socket_ref": "msp03c-listener-configured-interface",
+    "mdns_browse_ref": "msp03c-mdns-browse-positive",
+    "mdns_resolve_ref": "msp03c-mdns-resolve-positive",
+    "restart_ref": "msp03c-proof-store-restart",
+    "collected_at": "2026-07-08T18:22:10Z",
+    "configured_interface_ref": "msp03c-ha-lan-interface-redacted",
+    "case_evidence_ids": {
+      "EEBUS-G05": [
+        "msp03c-g05-listener-interface",
+        "msp03c-g05-lan-tcp"
+      ],
+      "EEBUS-G06": [
+        "msp03c-g06-mdns-ptr",
+        "msp03c-g06-mdns-srv",
+        "msp03c-g06-mdns-a"
+      ],
+      "EEBUS-G07": [
+        "msp03c-g07-mdns-absent",
+        "msp03c-g07-dbus-degraded"
+      ],
+      "EEBUS-G08": [
+        "msp03c-g08-manual-endpoint"
+      ],
+      "EEBUS-G09": [
+        "msp03c-g09-store-permissions",
+        "msp03c-g09-identity-restart"
+      ]
+    }
+  }
+}
