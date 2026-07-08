@@ -90,11 +90,17 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
   in `helianthus-docs-ebus` at
   `c1fc6bde5a273fdd1ccbe1826479769fe0731a71`; evidence recorded in
   `98-msp-03c-ha-network-proof-gate-evidence.md`.
+- MSP-03C first lab attempt recorded in
+  `98-msp-03c-lab-attempt-2026-07-08.md`; manual TCP fallback passed but
+  external-peer mDNS browse/resolve failed, so no `lab_run` acceptance is
+  claimed.
 
 ## Not Yet Done
 
 - Collect and accept the MSP-03C redacted `lab_run` artifact for EEBUS-G05
   through EEBUS-G09. The merged contract fixture is not lab evidence.
+- Diagnose MSP-03C external-peer mDNS failure or explicitly record a degraded
+  discovery decision before starting MSP-03D.
 - File concrete GitHub issues for MSP-03D and later M3 rows from the M0 matrix
   only after MSP-03C `lab_run` evidence is accepted and repo serialization is
   clear.
@@ -110,7 +116,8 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
   has a merged add-on proof gate and canonical docs, but remains blocked on a
   redacted `lab_run` artifact for HA runtime LAN-side networking,
   mDNS/Avahi/DBus cases, manual endpoint fallback, and proof credential
-  persistence.
+  persistence. The first live attempt reached the temporary proof endpoint via
+  direct TCP but failed external-peer mDNS browse/resolve.
 - M3 is not complete and no end-of-M3 architecture review is claimed until
   MSP-03C lab evidence and MSP-03D black-box fake peer/live VR940f smoke gates
   complete.
