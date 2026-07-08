@@ -3,15 +3,15 @@
 State: `draft`
 Started: `2026-04-12`
 Last revised: `2026-07-08`
-Current milestone: `M1 - Documentation Grounding`
+Current milestone: `M3 - eeBUS Runtime Feasibility`
 Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
 This draft records the owner-approved direction for Helianthus as a
 multi-runtime semantic platform and the adversarially refined raw-first eeBUS
-VR940f execution path. M0 is accepted; the plan remains `.draft/` until M1
-platform documentation grounding is accepted and the lock step can run.
+VR940f execution path. M0, M1, and M2 are accepted. The plan remains `.draft/`
+until the remaining pre-lock baseline and feasibility evidence are recorded.
 
 ## Completed In This Draft
 
@@ -63,14 +63,24 @@ platform documentation grounding is accepted and the lock step can run.
   raw identity/snapshot/evidence drafts.
 - `helianthus-docs-eebus` PR #3 merged to make the VR940f promotion note
   summary-only and link canonical platform ownership.
-- MSP-02A issue body prepared locally as `prepared-not-filed`; it is explicitly
-  blocked until docs-ebus #334 merges.
+- MSP-02A issue body was prepared locally while blocked on docs-ebus #334, then
+  filed after the M0/M1/MSP-020 gates were accepted.
+- `helianthus-docs-ebus` PR #334 merged at
+  `55f5482e0513ceb3bed8ddd5f2656d3b3ae7be41`; MSP-01A issue #333 closed.
+- MSP-02A raw runtime identity issue #4 and PR #5 merged in
+  `helianthus-eebusreg` at `28d2f8162b67ea274c089ed1686c9ce84b054e7d`.
+- MSP-02B raw snapshot/evidence envelope issue #6 and PR #7 merged in
+  `helianthus-eebusreg` at `c064c0d1d19cd0c392734bede136f55040b76c67`.
+- MSP-02C raw correlation and Leaf Promotion Dossier issue #335 and PR #336
+  merged in `helianthus-docs-ebus` at
+  `70a4921f287116f539cb4ce522ee9809cd9bf3c6`.
+- M2 architecture review recorded in
+  `97-m2-raw-contracts-architecture-review.md`.
 
 ## Not Yet Done
 
-- Merge the MSP-01A docs platform PR after formal approval.
-- File concrete GitHub issues for MSP-02A and later M2 rows from the M0
-  matrix after predecessor gates are accepted.
+- File concrete GitHub issues for MSP-03A and later M3 rows from the M0 matrix
+  after predecessor gates are accepted and repo serialization is clear.
 - Attach gateway `0.4.0` baseline evidence bundle.
 - Run implementation-time gates for `eebus-go`, HA networking, VR940f lab
   smoke, trust store, MCP contract, evidence recorder, and leaf promotion.
@@ -78,9 +88,9 @@ platform documentation grounding is accepted and the lock step can run.
 
 ## Operational Notes
 
-- M0 seed artifacts are accepted and merged.
-- Runtime implementation must not start before MSP-01A establishes the platform
-  docs ownership gate through merged docs-ebus #334.
+- M0, M1, and M2 seed artifacts are accepted and merged.
+- Runtime feasibility may start with MSP-03A only, scoped to an internal
+  `eebus-go v0.7.0` facade spike and toolchain/module boundary evidence.
 - Durable protocol knowledge remains canonical in `helianthus-docs-ebus`.
 - `helianthus-docs-eebus` is the eeBUS-native workbench/docs repo and must
   cross-seed publishable durable conclusions back to `helianthus-docs-ebus`.
