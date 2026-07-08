@@ -80,6 +80,9 @@ intentional and outside the current active-plan validator.
 - [98-msp-03b-toolchain-boundary-evidence.md](./98-msp-03b-toolchain-boundary-evidence.md)
   records the accepted MSP-03B local and build-container module/toolchain
   proof, CI evidence, and GPT-only review ledger.
+- [98-msp-03c-ha-network-proof-gate-evidence.md](./98-msp-03c-ha-network-proof-gate-evidence.md)
+  records the merged MSP-03C HA add-on proof gate and docs gate, with lab-run
+  evidence still pending.
 
 ## Coverage Matrix
 

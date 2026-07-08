@@ -65,6 +65,15 @@ allows them.
 | MSP-03A | `helianthus-eebusreg` | [#8](https://github.com/Project-Helianthus/helianthus-eebusreg/issues/8) | [#9](https://github.com/Project-Helianthus/helianthus-eebusreg/pull/9) | `2b5b06315bd873dc214f602e9c5e9d0d6922208b` |
 | MSP-03B | `helianthus-eebusreg` | [#10](https://github.com/Project-Helianthus/helianthus-eebusreg/issues/10) | [#11](https://github.com/Project-Helianthus/helianthus-eebusreg/pull/11) | `82f8f3cfd42d8e5c830d1e8e4e9e029614c14a7e` |
 
+## Merged Gate Harness Links
+
+These rows are merged implementation gates, not final milestone acceptance.
+
+| Draft ID | Repo | Issue | PR | Merge commit | Remaining gate |
+| --- | --- | --- | --- | --- | --- |
+| MSP-03C | `helianthus-ha-addon` | [#166](https://github.com/Project-Helianthus/helianthus-ha-addon/issues/166) | [#167](https://github.com/Project-Helianthus/helianthus-ha-addon/pull/167) | `b3c9930ca244dfe636f79356b8d482c6c84e043c` | Redacted `lab_run` artifact for EEBUS-G05..G09 |
+| MSP-03C doc-gate | `helianthus-docs-ebus` | [#337](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/337) | [#338](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/338) | `c1fc6bde5a273fdd1ccbe1826479769fe0731a71` | Covered by MSP-03C `lab_run` |
+
 ## Mandatory Per-Issue Checklist
 
 Every future issue must include:
