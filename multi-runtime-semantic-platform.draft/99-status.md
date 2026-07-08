@@ -3,15 +3,15 @@
 State: `draft`
 Started: `2026-04-12`
 Last revised: `2026-07-08`
-Current milestone: `M0 - Control Plane And Issue Matrix`
+Current milestone: `M1 - Documentation Grounding`
 Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
 This draft records the owner-approved direction for Helianthus as a
 multi-runtime semantic platform and the adversarially refined raw-first eeBUS
-VR940f execution path. It remains `.draft/` until M0 converts the plan into
-concrete, serialized cross-repo issues.
+VR940f execution path. M0 is accepted; the plan remains `.draft/` until M1
+platform documentation grounding is accepted and the lock step can run.
 
 ## Completed In This Draft
 
@@ -35,8 +35,10 @@ concrete, serialized cross-repo issues.
   and MSP-00C.
 - GitHub issues filed for MSP-00A, MSP-00B, and MSP-00C in
   `Project-Helianthus/helianthus-execution-plans`.
-- Draft PR #35 opened in `Project-Helianthus/helianthus-execution-plans` for
-  the M0 control-plane plan update.
+- PR #35 merged in `Project-Helianthus/helianthus-execution-plans` for the M0
+  control-plane plan update at
+  `2860d742e2682fbc42d1a5d98906031a0ff3e45d`; MSP-00A/MSP-00B/MSP-00C issues
+  #33/#32/#34 are closed.
 - Local M1 docs bootstrap completed in `helianthus-docs-ebus` and
   `helianthus-docs-eebus`; evidence recorded in
   `94-m1-docs-bootstrap-evidence.md`.
@@ -62,11 +64,11 @@ concrete, serialized cross-repo issues.
 - `helianthus-docs-eebus` PR #3 merged to make the VR940f promotion note
   summary-only and link canonical platform ownership.
 - MSP-02A issue body prepared locally as `prepared-not-filed`; it is explicitly
-  blocked until PR #35 and docs-ebus #334 merge.
+  blocked until docs-ebus #334 merges.
 
 ## Not Yet Done
 
-- Merge the MSP-01A docs platform PR after review.
+- Merge the MSP-01A docs platform PR after formal approval.
 - File concrete GitHub issues for MSP-02A and later M2 rows from the M0
   matrix after predecessor gates are accepted.
 - Attach gateway `0.4.0` baseline evidence bundle.
@@ -76,11 +78,9 @@ concrete, serialized cross-repo issues.
 
 ## Operational Notes
 
-- The draft now has M0 seed artifacts and is ready for concrete issue creation
-  and doc-gate bootstrap.
-- Runtime implementation must not start before MSP-00A/B/C are converted into
-  concrete issues and accepted, and MSP-01A establishes the platform docs
-  ownership gate.
+- M0 seed artifacts are accepted and merged.
+- Runtime implementation must not start before MSP-01A establishes the platform
+  docs ownership gate through merged docs-ebus #334.
 - Durable protocol knowledge remains canonical in `helianthus-docs-ebus`.
 - `helianthus-docs-eebus` is the eeBUS-native workbench/docs repo and must
   cross-seed publishable durable conclusions back to `helianthus-docs-ebus`.

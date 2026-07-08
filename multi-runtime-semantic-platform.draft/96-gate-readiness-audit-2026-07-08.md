@@ -1,6 +1,6 @@
 # Gate Readiness Audit - 2026-07-08
 
-Status: `ready-for-review-not-accepted`
+Status: `m0-accepted-m1-review-blocked`
 Date: `2026-07-08`
 
 ## Scope
@@ -21,21 +21,24 @@ MSP-020 into MSP-02A.
 
 `helianthus-execution-plans` PR #35:
 
-- State: open
+- State: merged
 - Draft: no
-- Merge state: clean
+- Merge state: merged by squash
 - CI: pass
-- Review decision: empty
-- Reviews: none observed
+- Merge commit: `2860d742e2682fbc42d1a5d98906031a0ff3e45d`
+- Reviews: Codex comments addressed; active review threads reached zero before
+  merge
 
 `helianthus-docs-ebus` PR #334:
 
 - State: open
 - Draft: no
-- Merge state: clean
+- Merge state: blocked by branch policy/formal approval
 - Docs CI: pass
 - Review decision: empty
-- Reviews: none observed
+- Reviews: Codex re-review reported no major issues
+- Active review threads: zero
+- Current head: `89ebd1393991db9a97a962be929d2afa51cba729`
 
 `helianthus-eebusreg`:
 
@@ -57,7 +60,6 @@ MSP-02A is **not yet cleared to start as an implementation PR**.
 
 Reasons:
 
-- PR #35 has not been merged, so MSP-00A/B/C are not accepted.
 - PR #334 has not been merged, so MSP-01A has not established the platform docs
   ownership gate.
 - The plan explicitly requires MSP-02A to wait for MSP-020 plus M0/M1
@@ -67,8 +69,8 @@ Reasons:
 
 Allowed:
 
-- review PR #35 and PR #334;
-- address review comments;
+- review PR #334;
+- address any new review comments;
 - refresh gate evidence;
 - keep `helianthus-eebusreg` bootstrap CI green;
 - prepare, but not file, MSP-02A issue text until predecessor gates are
@@ -145,7 +147,7 @@ Actions taken:
 
 ## Current Verdict
 
-Mechanical readiness is good after the `helianthus-eebusreg` and
-`helianthus-docs-eebus` PR #3 merges, but predecessor acceptance is still
-missing. The next required action is review/merge of PR #35 and PR #334, not
-MSP-02A runtime work.
+M0 is accepted and mechanical readiness is good after the
+`helianthus-eebusreg` and `helianthus-docs-eebus` PR #3 merges, but M1
+predecessor acceptance is still missing. The next required action is formal
+approval and merge of PR #334, not MSP-02A runtime work.

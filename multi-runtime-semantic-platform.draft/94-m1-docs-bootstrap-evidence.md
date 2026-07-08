@@ -20,9 +20,10 @@ Filed M0 issues:
 - MSP-00B: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/32
 - MSP-00C: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/34
 
-Execution-plan draft PR:
+Execution-plan M0 PR:
 
 - https://github.com/Project-Helianthus/helianthus-execution-plans/pull/35
+- Merged at `2860d742e2682fbc42d1a5d98906031a0ff3e45d`
 
 Filed M1 issues:
 
@@ -35,9 +36,13 @@ Filed M1 issues:
 `helianthus-docs-ebus`:
 
 - Issue: https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/333
-- Draft PR: https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/334
+- PR: https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/334
 - Bootstrap-order fix commit in PR #334:
   `b6af8ef291b124e7ffe6488303f04e20f72de3e4`
+- Review-feedback fix commit in PR #334:
+  `89ebd1393991db9a97a962be929d2afa51cba729`
+- Current PR state: Docs Checks pass, active review threads zero, blocked by
+  formal review/branch policy.
 - `docs/platform/README.md`
 - `docs/platform/ownership-and-doc-gates.md`
 - `docs/platform/eebus-raw-first-contract.md`
@@ -72,7 +77,8 @@ PATH="$(go env GOPATH)/bin:$PATH" ./scripts/ci_local.sh
 Result in `helianthus-docs-ebus`: PASS after installing the documented
 `jv v0.7.0` checker with `go install`.
 
-Result for updated PR #334 after adding the MSP-020 order: PASS.
+Result for updated PR #334 after adding the MSP-020 order and review-feedback
+fixes: PASS.
 
 ```bash
 ./scripts/ci_local.sh
