@@ -1,6 +1,6 @@
 # Semantic Fact Graph And Integration
 
-Canonical-SHA256: `f7c48073085d32dbe1de9e352f454a29fa60b6b7ac05954c5f253cb9593dccdc`
+Canonical-SHA256: `de84f3f35afecd3317e2a62089fdaa78150adb4b62110771296b7fd7c7ab24df`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`; eBUS and eeBUS runtimes may implement
@@ -20,7 +20,7 @@ show provenance and either choose a value by explicit policy or mark the field
 as conflicted.
 
 Coverage:
-Covers M4, M8, and the semantic portions of M9-M10.
+Covers M7, M8, M8.5, and the semantic portions of M9.
 
 ## Semantic Fact Contract
 
@@ -36,9 +36,13 @@ Minimum fact metadata:
 - native evidence reference;
 - confidence;
 - status.
+- promotion dossier reference when promoted.
 
 The implementation may choose exact type names later, but it must not expose
 stable consumer values without this information available internally.
+
+M7 facts are draft candidate facts only. They do not promote leaves and they do
+not drive GraphQL, Portal, Home Assistant, or command routing.
 
 ## Status Vocabulary
 
@@ -52,6 +56,16 @@ Use this conservative vocabulary until a locked plan refines it:
 
 Candidate, conflicted, and withheld values must not become Home Assistant
 entities.
+
+Negative results are terminal withheld states until retested:
+
+- `NO_SIGNAL`
+- `CLOUD_ONLY`
+- `CONFLICT`
+- `NOT_TESTED`
+
+They may be visible only on raw/debug surfaces with reason code, evidence
+bundle, and retest trigger.
 
 ## Integration Rule
 
@@ -90,3 +104,8 @@ Until precedence is explicit, the semantic fact must be `CONFLICTED` or
 - Portal may expose raw and candidate states as a reverse-engineering
   workbench.
 - Home Assistant receives only promoted semantic entities and diagnostics.
+
+No consumer work may start until M8.5 locks the relevant leaf promotion
+dossier. Each dossier must include source-family identity, comparator
+pass/fail parameters, coexistence evidence, replay regeneration, terminal
+negative-state handling, and redacted hashes.

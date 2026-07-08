@@ -18,8 +18,12 @@ external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
 
-The first extension target is eeBUS through a new `helianthus-eebusreg` repo
-using `enbility/eebus-go`. The same architecture must later support Gree VRF
+The first extension target is raw eeBUS visibility for the
+VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo
+bootstrap is raw runtime/evidence plumbing only; the M3 facade spike introduces
+`enbility/eebus-go v0.7.0` behind internal packages. The repo name is accepted
+only after an ADR states that it is raw runtime/evidence plumbing, not a
+semantic registry fork. The same architecture must later support Gree VRF
 CAN-BUS, Gree VRF UART, Viessmann KM-Bus, SunSPEC over Modbus RTU/TCP, Huawei
 SUN2000 over Modbus RTU/TCP, and Growatt over Modbus RTU/TCP.
 
@@ -50,7 +54,7 @@ SUN2000 over Modbus RTU/TCP, and Growatt over Modbus RTU/TCP.
 ### Unknown
 
 - The exact eeBUS/SPINE feature subset exposed by the Vaillant VR940f in the
-  local lab until it is paired and inspected.
+  local lab until it is paired and inspected through raw MCP.
 - The first non-Vaillant eBUS vendor profile to implement.
 - The final precedence policy for conflicts between eBUS, eeBUS, and future
   Modbus-derived semantic facts.
@@ -170,95 +174,130 @@ stable values.
 
 ## Milestones
 
-### M0 - Gateway 0.4.0 Baseline Lock
+### M0 - Control Plane And Issue Matrix
 
-Freeze gateway `0.4.0` as the no-proxy direct eBUS baseline. Capture invariants
-for the direct eBUS runtime, adapter ownership, active/passive behavior,
-startup scan, observe-first behavior, and Vaillant semantic behavior.
+Create the execution control plane before code. Every issue must record
+complexity, model lane, repo, predecessor edges, doc owner, doc gate,
+transport/security gate, rollback ledger, review ledger, and one-PR-per-repo
+serialization.
 
-Gate: gateway `0.4.0` can be built, deployed, and smoke-tested on the real
-HA/RPi4 lab without the external eBUS proxy.
+Gate: no implementation issue may start until the issue matrix is complete and
+the `eebus-transport-gate v0` definition exists.
 
-### M1 - Platform Vocabulary ADR
+### M1 - Documentation Grounding
 
-Document `Transport / BaseProtocol / Profile / RuntimeInstance /
-NativeRegistry / SemanticProjection / SemanticIntegration` as the mandatory
-classification vocabulary for future protocol work.
+Create the platform ownership ADR under `helianthus-docs-ebus/docs/platform/`
+first, then bootstrap `helianthus-docs-eebus`, then add the eeBUS provenance
+and publication policy.
 
-Gate: future protocol plans can classify every component without ambiguity.
+Gate: eeBUS-native facts and cross-protocol platform contracts have one
+canonical owner each, with summary-only non-owning pages.
 
-### M2 - eBUS Runtime Boundary
+### M2 - Raw Identity, Snapshot, Evidence, And Correlation Drafts
 
-Wrap the current direct eBUS implementation as `EBusRuntimeAdapter` with zero
-public behavior change. Keep eBUS adapter and mux internals private to the
-eBUS runtime.
+Bootstrap `helianthus-eebusreg` as a raw runtime/evidence repo, then draft raw
+identity, snapshot envelope, evidence object, and raw correlation contracts.
+This milestone does not freeze final MCP v1 and does not create semantic
+parity.
 
-Gate: existing `ebus.v1.*` MCP, GraphQL, Portal, and Home Assistant behavior
-remain unchanged.
+Gate: the raw contracts are reviewable, versioned, and explicitly mark unknown
+eeBUS/SPINE fields as unknown rather than silently normalizing them.
 
-### M3 - eBUS Base/Profile Split
+### M3 - eeBUS Runtime Feasibility
 
-Split generic eBUS framing, discovery, and raw surfaces from Vaillant-specific
-language. Move Vaillant behavior behind `VaillantProfile`.
+Spike `enbility/eebus-go v0.7.0` behind internal facades, prove toolchain and
+module boundaries, prove HA runtime networking from a LAN peer, and run
+black-box fake-peer plus live VR940f smoke. M3 uses only disposable proof
+credentials and makes no production trust guarantee.
 
-Gate: raw/classic eBUS remains available even when no Vaillant profile is
-active.
+Gate: the facade compiles and the VR940f can be discovered, paired for proof,
+inspected, and reconnected before any persistent gateway import is allowed.
 
-### M4 - Semantic Provenance v1
+### M3.5 - Raw Runtime Contract Freeze
 
-Every semantic fact must carry runtime, transport, base protocol, profile,
-device profile, evidence reference, confidence, and status.
+Freeze only raw identity, raw snapshot envelope, and evidence object shapes.
+Trust, pairing, admin state, and final MCP v1 remain unfrozen until M4/M6.
 
-Gate: semantic consumers can distinguish facts from eBUS Vaillant, classic
-eBUS, eeBUS, Modbus/SunSPEC, and vendor-private Modbus profiles.
+Gate: raw snapshot and evidence fixtures replay deterministically.
 
-### M5 - helianthus-eebusreg
+### M4 - Production Trust, First-Trust, And Security
 
-Create the new eeBUS registry repo over `enbility/eebus-go`. It owns
-SHIP/SPINE lifecycle, pairing, trust store, raw service graph, snapshots, and
-VR940f discovery.
+Implement the production trust-state model, hardened `/data/eebus` store,
+first-trust flow, admin-local boundary, backup/restore behavior, quarantine,
+and repair flows.
 
-Gate: no GraphQL, Portal, or Home Assistant dependency is required for initial
-eeBUS visibility.
+Gate: no production listener can open unless eeBUS is enabled, interface/subnet
+are explicit, the store is valid, and the trust state permits listening.
 
-### M6 - eeBUS MCP Raw First
+### M4.5 - Trust And Admin State Freeze
 
-Add raw MCP tools for runtime status, sessions, services, topology, discovery,
-snapshots, and pairing diagnostics.
+Freeze trust, pairing, admin-local, restore/clone, quarantine, and repair state
+semantics after M4 tests pass.
 
-Gate: the operator can bind VR940f and see what was discovered before semantic
-mapping exists.
+Gate: MCP and gateway code can consume the state model without making security
+decisions ad hoc.
 
-### M7 - eeBUS Semantic Candidate
+### M5 - Gateway Sidecar Integration
 
-Add candidate projections for devices, system, zones, and DHW. Keep circuits,
-energy totals, and command routing withheld until evidence is sufficient.
+Add isolated eeBUS configuration and a disabled-by-default
+`EEBusRuntimeAdapter` sidecar. It is a sibling runtime and must not modify
+`transportFromConn`, `protocol.Bus`, `router.BusEventRouter`, or eBUS registry
+semantics.
 
-Gate: candidate, promoted, and withheld status is visible through MCP.
+Gate: disabled default opens no eeBUS sockets, creates no trust files, and
+leaves existing eBUS MCP, GraphQL, Portal, HA, and transport-matrix behavior
+unchanged.
+
+### M6 - Read-Only eeBUS MCP v1
+
+Freeze final read-only `eebus.v1.*` MCP after raw identity and trust/admin
+state are composed. Stable tools expose runtime status, services, sessions,
+topology, snapshots, and pairing status only.
+
+Gate: snapshot, hash, auth/mask binding, error precedence, drop, evolution, and
+anti-leak tests pass.
+
+### M6.5 - Synchronized Evidence Recorder
+
+Record synchronized eeBUS, eBUS, and myVaillant/myPyllant evidence using
+existing read-only eBUS surfaces only. If exact B509/B524/B555 source identity
+is absent, the result is `WITHHELD` or `NOT_TESTED`.
+
+Gate: replay regenerates the same raw evidence, timestamps, redacted hashes,
+and candidate inputs without live network or cloud access.
+
+### M7 - Draft Candidate Fact Graph
+
+Create draft candidate facts only. M7 cannot promote leaves and cannot drive
+GraphQL, Portal, HA, or command routing.
+
+Gate: candidate facts retain raw evidence, comparator drafts, negative result
+states, and source identity.
 
 ### M8 - Multi-Runtime Coexistence
 
-Run direct eBUS and eeBUS concurrently in the gateway. Keep raw surfaces
-separate.
+Run eBUS and eeBUS concurrently with separate raw surfaces. Promoted eBUS
+leaves remain authoritative; eeBUS candidate or conflict facts never override
+existing consumer-visible output.
 
-Gate: semantic core can display multiple facts for the same physical concept
-with explicit provenance and conflicts.
+Gate: coexistence fixtures prove no eBUS output drift and conflict visibility
+is raw/debug only.
 
-### M9 - GraphQL, Portal, HA
+### M8.5 - Leaf Promotion Lock
 
-Add GraphQL only after MCP stabilizes. Extend Portal first as the internal
-reverse-engineering workbench. Extend Home Assistant only after GraphQL
-stability and semantic promotion.
+Lock individual leaf promotions only after coexistence evidence is present.
+Each dossier must include comparator results, source-family identity,
+terminal negative states, replay regeneration, and redacted hashes.
 
-Gate: Home Assistant never exposes entities for candidate, conflicted, or
-withheld fields.
+Gate: no leaf can enter GraphQL, Portal, or HA without a locked dossier.
 
-### M10 - Next Runtime Families
+### M9 - GraphQL, Portal, And HA Consumers
 
-Add Modbus RTU/TCP profile stack, Gree VRF CAN/UART, and Viessmann KM-Bus using
-the same runtime/profile/semantic contracts.
+Split consumer work by repo: gateway GraphQL first, Portal second, Home
+Assistant third. Consumers expose only promoted leaves.
 
-Gate: no new protocol is allowed to bypass MCP raw-first delivery.
+Gate: GraphQL schema/value snapshots, HA entity identity/class/unit/availability
+snapshots, and MCP/debug compatibility prove no unapproved drift.
 
 ## Execution Rules
 
@@ -268,12 +307,23 @@ Gate: no new protocol is allowed to bypass MCP raw-first delivery.
   native registry, semantic projection, MCP, GraphQL, Portal, or Home
   Assistant.
 - If an issue needs two layers, split it.
+- Complexity/model routing is fixed for this plan:
+  - complexity 1-2: `GPT-5.3-Codex-Spark` for fast smoke, checklist, and
+    mechanical gap checks;
+  - complexity 3-4: `gpt-5.4-mini` for small doc-gate, issue-splitting,
+    acceptance-criteria, and consistency tasks;
+  - complexity 5: `GPT-5.5 medium` owner, with Spark or `gpt-5.4-mini` review;
+  - complexity 6-7: `GPT-5.5 high` owner with adversarial review;
+  - complexity 8-10: `GPT-5.5 xhigh` owner and independent review before merge.
 - Do not promote any semantic field to consumers without raw evidence and
   provenance.
 - Do not rename or generalize eBUS public API namespaces until compatibility
   and migration are explicitly planned.
-- Capture durable protocol knowledge in `helianthus-docs-ebus`; this repo
-  tracks execution intent.
+- Keep durable protocol knowledge canonical in `helianthus-docs-ebus`.
+  `helianthus-docs-eebus` is the eeBUS-native workbench/docs repo and must
+  cross-seed publishable conclusions back to `helianthus-docs-ebus`.
+  Cross-protocol platform contracts remain in `helianthus-docs-ebus/docs/platform/`
+  until a future docs-platform repo is created.
 
 ## Acceptance
 
