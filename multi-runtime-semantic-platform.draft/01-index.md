@@ -70,8 +70,10 @@ intentional and outside the current active-plan validator.
   records the current gate decision before MSP-02A: mechanical checks pass, but
   PR #35 and PR #334 still require review/merge acceptance.
 - [issues/MSP-02A-raw-runtime-identity-contract.md](./issues/MSP-02A-raw-runtime-identity-contract.md)
-  is a prepared-not-filed handoff for the raw runtime identity contract. It is
-  explicitly blocked until the M0/M1/MSP-020 hardening PRs merge.
+  was the handoff body for the raw runtime identity contract.
+- [97-m2-raw-contracts-architecture-review.md](./97-m2-raw-contracts-architecture-review.md)
+  records the accepted M2 raw identity, evidence envelope, raw-correlation
+  policy, and end-of-milestone architecture review.
 
 ## Coverage Matrix
 
