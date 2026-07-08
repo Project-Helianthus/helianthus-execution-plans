@@ -94,15 +94,15 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
   `98-msp-03c-lab-attempt-2026-07-08.md`; manual TCP fallback passed but
   external-peer mDNS browse/resolve failed, so no `lab_run` acceptance is
   claimed.
+- MSP-03C accepted lab run recorded in
+  `98-msp-03c-lab-acceptance-2026-07-08.md`, with redacted artifact
+  `98-msp-03c-ha-network-proof-lab-run.json`; EEBUS-G05 through EEBUS-G09
+  passed against the merged add-on validator.
 
 ## Not Yet Done
 
-- Collect and accept the MSP-03C redacted `lab_run` artifact for EEBUS-G05
-  through EEBUS-G09. The merged contract fixture is not lab evidence.
-- Diagnose MSP-03C external-peer mDNS failure or explicitly record a degraded
-  discovery decision before starting MSP-03D.
 - File concrete GitHub issues for MSP-03D and later M3 rows from the M0 matrix
-  only after MSP-03C `lab_run` evidence is accepted and repo serialization is
+  now that MSP-03C `lab_run` evidence is accepted and repo serialization is
   clear.
 - Attach gateway `0.4.0` baseline evidence bundle.
 - Run implementation-time gates for VR940f lab smoke, trust store, MCP
@@ -113,14 +113,14 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
 
 - M0, M1, and M2 seed artifacts are accepted and merged.
 - Runtime feasibility has started. MSP-03A and MSP-03B are accepted. MSP-03C
-  has a merged add-on proof gate and canonical docs, but remains blocked on a
-  redacted `lab_run` artifact for HA runtime LAN-side networking,
-  mDNS/Avahi/DBus cases, manual endpoint fallback, and proof credential
-  persistence. The first live attempt reached the temporary proof endpoint via
-  direct TCP but failed external-peer mDNS browse/resolve.
+  has a merged add-on proof gate, canonical docs, and an accepted redacted
+  `lab_run` artifact for HA runtime LAN-side networking, mDNS/Avahi/DBus
+  cases, manual endpoint fallback, and proof credential persistence. The first
+  live attempt failed external-peer mDNS browse/resolve with a `zeroconf`
+  harness; the accepted rerun used a controlled stdlib DNS-SD responder and
+  proves the runtime network path, not future `eebus-go` interface selection.
 - M3 is not complete and no end-of-M3 architecture review is claimed until
-  MSP-03C lab evidence and MSP-03D black-box fake peer/live VR940f smoke gates
-  complete.
+  MSP-03D black-box fake peer/live VR940f smoke gates complete.
 - Durable protocol knowledge remains canonical in `helianthus-docs-ebus`.
 - `helianthus-docs-eebus` is the eeBUS-native workbench/docs repo and must
   cross-seed publishable durable conclusions back to `helianthus-docs-ebus`.

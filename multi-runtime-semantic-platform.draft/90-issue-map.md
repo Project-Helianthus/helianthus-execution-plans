@@ -71,7 +71,7 @@ These rows are merged implementation gates, not final milestone acceptance.
 
 | Draft ID | Repo | Issue | PR | Merge commit | Remaining gate |
 | --- | --- | --- | --- | --- | --- |
-| MSP-03C | `helianthus-ha-addon` | [#166](https://github.com/Project-Helianthus/helianthus-ha-addon/issues/166) | [#167](https://github.com/Project-Helianthus/helianthus-ha-addon/pull/167) | `b3c9930ca244dfe636f79356b8d482c6c84e043c` | Redacted `lab_run` artifact for EEBUS-G05..G09 |
+| MSP-03C | `helianthus-ha-addon` | [#166](https://github.com/Project-Helianthus/helianthus-ha-addon/issues/166), [execution-plans #48](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/48) | [#167](https://github.com/Project-Helianthus/helianthus-ha-addon/pull/167) | `b3c9930ca244dfe636f79356b8d482c6c84e043c` | None for MSP-03C; accepted `lab_run` recorded in `98-msp-03c-ha-network-proof-lab-run.json` |
 | MSP-03C doc-gate | `helianthus-docs-ebus` | [#337](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/337) | [#338](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/338) | `c1fc6bde5a273fdd1ccbe1826479769fe0731a71` | Covered by MSP-03C `lab_run` |
 
 ## Mandatory Per-Issue Checklist
