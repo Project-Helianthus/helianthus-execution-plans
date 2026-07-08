@@ -77,6 +77,9 @@ intentional and outside the current active-plan validator.
 - [98-msp-03a-facade-spike-evidence.md](./98-msp-03a-facade-spike-evidence.md)
   records the accepted MSP-03A internal `eebus-go v0.7.0` facade spike,
   boundary evidence, verification results, and GPT-only review ledger.
+- [98-msp-03b-toolchain-boundary-evidence.md](./98-msp-03b-toolchain-boundary-evidence.md)
+  records the accepted MSP-03B local and build-container module/toolchain
+  proof, CI evidence, and GPT-only review ledger.
 
 ## Coverage Matrix
 
