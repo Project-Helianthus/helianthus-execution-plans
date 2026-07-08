@@ -1,17 +1,20 @@
 slug: multi-runtime-semantic-platform
 title: Helianthus Multi-Runtime Semantic Platform
 state: draft
-source_discussion: owner-override-direct-main-draft-2026-04-12
+source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
 target_repos:
   - helianthus-execution-plans
   - helianthus-docs-ebus
+  - helianthus-docs-eebus
   - helianthus-ebusgateway
   - helianthus-ebusreg
   - helianthus-eebusreg
   - helianthus-ha-integration
   - helianthus-ha-addon
 knowledge_repo: helianthus-docs-ebus
+protocol_knowledge_repo: helianthus-docs-ebus
+protocol_native_docs_repo: helianthus-docs-eebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-12
-current_milestone: M0
+current_milestone: M0-control-plane
