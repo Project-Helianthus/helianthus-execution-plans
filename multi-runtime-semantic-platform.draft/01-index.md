@@ -74,6 +74,9 @@ intentional and outside the current active-plan validator.
 - [97-m2-raw-contracts-architecture-review.md](./97-m2-raw-contracts-architecture-review.md)
   records the accepted M2 raw identity, evidence envelope, raw-correlation
   policy, and end-of-milestone architecture review.
+- [98-msp-03a-facade-spike-evidence.md](./98-msp-03a-facade-spike-evidence.md)
+  records the accepted MSP-03A internal `eebus-go v0.7.0` facade spike,
+  boundary evidence, verification results, and GPT-only review ledger.
 
 ## Coverage Matrix
 
