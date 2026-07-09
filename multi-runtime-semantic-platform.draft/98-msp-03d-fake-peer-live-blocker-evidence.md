@@ -88,6 +88,24 @@ gateway secret, or pairing-history evidence is published by this artifact.
 The final local post-commit reports were generated from PR head
 `35b0408f35d1d22cb79f99eebbe308cebeb1c641`.
 
+After the operator clarified that a real live run must execute on the Home
+Assistant host rather than from the development workstation or a LAN peer, the
+harness was built as a Linux arm64 binary and run from persistent HA storage on
+the HA LAN interface. The temporary binary was removed after the run. The
+operator-provided VR940 SKI was used only as local command input and is not
+published in this artifact.
+
+HA-host rerun result:
+
+- EEBUS-G01 fake-peer handshake: PASS.
+- EEBUS-G17 live VR940f smoke: BLOCKED with
+  `live-vr940f-mdns-probe-attempted`,
+  `live-vr940f-no-ship-service-visible`, `records_ref=records-0`, and
+  `error=no_visible_ship_service`.
+
+This correction means the earlier local and LAN-peer probes are preflight
+evidence only. The authoritative current live result is the HA-host rerun above.
+
 ## Review Ledger
 
 The intended GPT-only reviewers were assigned but the agent runtime was
