@@ -98,12 +98,19 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
   `98-msp-03c-lab-acceptance-2026-07-08.md`, with redacted artifact
   `98-msp-03c-ha-network-proof-lab-run.json`; EEBUS-G05 through EEBUS-G09
   passed against the merged add-on validator.
+- MSP-03D fake-peer harness slice issue #12 and PR #13 merged in
+  `helianthus-eebusreg` at
+  `0e58327dfdb86ef243a19e18d590564813feaa00`; evidence recorded in
+  `98-msp-03d-fake-peer-live-blocker-evidence.md`. EEBUS-G01 fake peer is
+  accepted, but issue #12 is reopened because EEBUS-G17 live VR940f remains
+  BLOCKED on no visible `_ship._tcp` service.
 
 ## Not Yet Done
 
-- File concrete GitHub issues for MSP-03D and later M3 rows from the M0 matrix
-  now that MSP-03C `lab_run` evidence is accepted and repo serialization is
-  clear.
+- Finish MSP-03D EEBUS-G17 live VR940f discovery/pairing/session/feature graph
+  smoke against a visible `_ship._tcp` service and approved remote SKI.
+- File concrete GitHub issues for MSP-035 and later rows from the M0 matrix
+  only after MSP-03D is fully accepted.
 - Attach gateway `0.4.0` baseline evidence bundle.
 - Run implementation-time gates for VR940f lab smoke, trust store, MCP
   contract, evidence recorder, and leaf promotion.
@@ -119,8 +126,13 @@ until the remaining pre-lock baseline and feasibility evidence are recorded.
   live attempt failed external-peer mDNS browse/resolve with a `zeroconf`
   harness; the accepted rerun used a controlled stdlib DNS-SD responder and
   proves the runtime network path, not future `eebus-go` interface selection.
+- MSP-03D has a merged internal fake-peer harness and accepted EEBUS-G01
+  fake-peer result, but live VR940f discovery still reports no visible
+  `_ship._tcp` service. This is an explicit BLOCKED state, not empty success.
 - M3 is not complete and no end-of-M3 architecture review is claimed until
-  MSP-03D black-box fake peer/live VR940f smoke gates complete.
+  MSP-03D black-box fake peer/live VR940f smoke gates complete. MSP-035,
+  production trust, gateway sidecar import, and read-only MCP work remain
+  blocked.
 - Durable protocol knowledge remains canonical in `helianthus-docs-ebus`.
 - `helianthus-docs-eebus` is the eeBUS-native workbench/docs repo and must
   cross-seed publishable durable conclusions back to `helianthus-docs-ebus`.

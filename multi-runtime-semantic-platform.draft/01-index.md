@@ -81,10 +81,15 @@ intentional and outside the current active-plan validator.
   records the accepted MSP-03B local and build-container module/toolchain
   proof, CI evidence, and GPT-only review ledger.
 - [98-msp-03c-ha-network-proof-gate-evidence.md](./98-msp-03c-ha-network-proof-gate-evidence.md)
-  records the merged MSP-03C HA add-on proof gate and docs gate, with lab-run
-  evidence still pending.
+  records the merged MSP-03C HA add-on proof gate and docs gate.
 - [98-msp-03c-lab-attempt-2026-07-08.md](./98-msp-03c-lab-attempt-2026-07-08.md)
   records the first MSP-03C live lab attempt and the mDNS degraded result.
+- [98-msp-03c-lab-acceptance-2026-07-08.md](./98-msp-03c-lab-acceptance-2026-07-08.md)
+  records the accepted MSP-03C HA runtime LAN-side proof and links the redacted
+  lab-run JSON artifact.
+- [98-msp-03d-fake-peer-live-blocker-evidence.md](./98-msp-03d-fake-peer-live-blocker-evidence.md)
+  records the merged MSP-03D fake-peer harness slice, EEBUS-G01 PASS, and
+  remaining EEBUS-G17 live VR940f blocker.
 
 ## Coverage Matrix
 
