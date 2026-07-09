@@ -73,6 +73,7 @@ These rows are merged implementation gates, not final milestone acceptance.
 | --- | --- | --- | --- | --- | --- |
 | MSP-03C | `helianthus-ha-addon` | [#166](https://github.com/Project-Helianthus/helianthus-ha-addon/issues/166), [execution-plans #48](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/48) | [#167](https://github.com/Project-Helianthus/helianthus-ha-addon/pull/167) | `b3c9930ca244dfe636f79356b8d482c6c84e043c` | None for MSP-03C; accepted `lab_run` recorded in `98-msp-03c-ha-network-proof-lab-run.json` |
 | MSP-03C doc-gate | `helianthus-docs-ebus` | [#337](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/337) | [#338](https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/338) | `c1fc6bde5a273fdd1ccbe1826479769fe0731a71` | Covered by MSP-03C `lab_run` |
+| MSP-03D partial | `helianthus-eebusreg` | [#12](https://github.com/Project-Helianthus/helianthus-eebusreg/issues/12), [execution-plans #50](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/50) | [#13](https://github.com/Project-Helianthus/helianthus-eebusreg/pull/13) | `0e58327dfdb86ef243a19e18d590564813feaa00` | EEBUS-G01 fake peer accepted; EEBUS-G17 live VR940f remains blocked on no visible `_ship._tcp` service, so MSP-03D and M3 are still open |
 
 ## Mandatory Per-Issue Checklist
 
