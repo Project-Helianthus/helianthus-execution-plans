@@ -106,6 +106,31 @@ HA-host rerun result:
 This correction means the earlier local and LAN-peer probes are preflight
 evidence only. The authoritative current live result is the HA-host rerun above.
 
+A later coordinated broadcast attempt tested the hypothesis that the
+VR940/myVaillant flow scans for a peer advertised by the gateway rather than
+being discoverable first. The HA host advertised a temporary `_ship._tcp` peer
+for 10 minutes with `register=true`, a conforming `/ship/` path, a dummy local
+SKI, and a TCP listener on the advertised SHIP port. During that window, the
+operator tried the myVaillant Connect add/pairing flow.
+
+Coordinated attempt result:
+
+- HA host sent 680 `_ship._tcp` announcements during the 600 second window.
+- The listener observed 86 `_ship` queries total, 74 from LAN peers.
+- Router-side packet capture confirmed the HA host's `_ship._tcp` PTR/SRV/TXT/A
+  responses were present on the LAN.
+- Router-side packet capture also observed the VR940 publishing its own `_ship`
+  TXT with the expected remote SKI.
+- myVaillant Connect did not list the temporary peer as available.
+- Home Assistant's mDNS UI did not list `_ship` during the attempt.
+- No TCP connection was opened to the advertised SHIP port.
+- No production trust store, pairing state, or credential persistence was
+  written.
+
+This keeps EEBUS-G17 blocked, but narrows the failure: raw DNS-SD packets are
+leaving the HA host and the VR940 is present on `_ship`; a dummy DNS-SD/TCP
+announcer is insufficient to make myVaillant Connect initiate a SHIP session.
+
 ## Review Ledger
 
 The intended GPT-only reviewers were assigned but the agent runtime was
