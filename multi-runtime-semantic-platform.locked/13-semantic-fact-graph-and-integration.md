@@ -1,6 +1,6 @@
 # Semantic Fact Graph And Integration
 
-Canonical-SHA256: `de84f3f35afecd3317e2a62089fdaa78150adb4b62110771296b7fd7c7ab24df`
+Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`; eBUS and eeBUS runtimes may implement
@@ -42,7 +42,9 @@ The implementation may choose exact type names later, but it must not expose
 stable consumer values without this information available internally.
 
 M7 facts are draft candidate facts only. They do not promote leaves and they do
-not drive GraphQL, Portal, Home Assistant, or command routing.
+not drive GraphQL, Portal, Home Assistant, raw writes, or command routing.
+Feature graph completeness and reconnect durability are proven by MSP-055/M6
+before semantic candidates can depend on them; they are not G17 evidence.
 
 ## Status Vocabulary
 

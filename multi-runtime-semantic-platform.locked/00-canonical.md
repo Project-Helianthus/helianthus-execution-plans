@@ -1,8 +1,13 @@
 # Helianthus Multi-Runtime Semantic Platform
 
-Revision: `v0.1-draft`
-Date: `2026-04-12`
-Status: `Draft`
+Revision: `v1.0-locked`
+Date: `2026-07-10`
+Status: `Locked`
+Cruise phase: `RECOVERY_RECONCILIATION`
+Current milestone: `RECOVERY_RECONCILIATION`
+Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
+Dirty rescue candidate: `true`
+Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
 Baseline: `Gateway 0.4.0`
 
 ## Summary
@@ -17,6 +22,11 @@ Gateway `0.4.0` is the baseline for the direct eBUS runtime without the
 external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
+
+This locked plan records five accepted adversarial rounds. It preserves the
+true historical evidence through M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and
+the merged MSP-03D EEBUS-G01 fake-peer harness slice, but it does not claim
+dirty rescue code as accepted plan evidence.
 
 The first extension target is raw eeBUS visibility for the
 VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo
@@ -60,6 +70,42 @@ SUN2000 over Modbus RTU/TCP, and Growatt over Modbus RTU/TCP.
   Modbus-derived semantic facts.
 - Whether all future Modbus vendor-private maps can share one registry package
   or need profile-specific repos.
+
+## Recovery Reconciliation Lock State
+
+The plan is locked while runtime execution is paused in
+`RECOVERY_RECONCILIATION`.
+
+- `accepted_through` is exactly `MSP-03C plus merged MSP-03D EEBUS-G01
+  fake-peer harness only`.
+- M3 and MSP-03D remain open. The merged fake-peer harness is useful evidence,
+  not completion of MSP-03D.
+- `dirty_rescue_candidate=true` records that useful local rescue work may
+  exist, but dirty code has no acceptance authority and unlocks no successors.
+- `successor_unlocks=false` until the reconciliation gates merge from clean
+  main.
+- Initial ready rows are limited to `MSP-R00` and `DOCS-VERIFY`.
+
+`MSP-R00` is an `helianthus-eebusreg` recovery row with no predecessor. It
+must complete before any clean-main runtime implementation begins. Its acceptance requires
+a taint/file split ledger, a secret scan, synthetic-fixture and redaction
+rules, a local never-pushed rescue branch, exactly one source-only forensic WIP
+commit, and a source-only git bundle SHA-256. Public git and public bundles
+must not contain packet captures, raw transcripts, keys, PEM blocks, tokens,
+trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial values.
+Full-fidelity material is either stored encrypted outside git with mode `0600`
+or discarded. It produces a redacted ledger candidate but does not publish
+that ledger. Preflight must be fully green before any recovery mutation.
+
+`MSP-R00-L` is the serialized `helianthus-execution-plans` publication row. It
+depends on MSP-R00, reviews and publishes only the redacted ledger, and must
+merge before MSP-03D-R can start. The source bundle and local rescue branch
+remain outside public git.
+
+`DOCS-VERIFY` is a blocking `helianthus-docs-eebus` check. It verifies license,
+canonical owners, issue template compliance, path layout, and cross-seeding
+from `helianthus-docs-eebus` back to `helianthus-docs-ebus` where durable
+cross-protocol facts exist.
 
 ## Platform Model
 
@@ -207,27 +253,52 @@ eeBUS/SPINE fields as unknown rather than silently normalizing them.
 
 Spike `enbility/eebus-go v0.7.0` behind internal facades, prove toolchain and
 module boundaries, prove HA runtime networking from a LAN peer, and run
-black-box fake-peer plus live VR940f smoke. M3 uses only disposable proof
-credentials and makes no production trust guarantee.
+black-box fake-peer plus revised live VR940f access gates. M3 uses only
+disposable proof credentials and makes no production trust guarantee.
 
-Gate: the facade compiles and the VR940f can be discovered, paired for proof,
-inspected, and reconnected before any persistent gateway import is allowed.
+Gate: the facade compiles, MSP-03C remains accepted, EEBUS-G01 remains
+accepted, and clean-main MSP-03D-R passes both revised G17 and G19 with owner
+acceptance. Revised G17 proves configured local SHIP advertisement/discovery,
+myVaillant trust visibility, and negative/TTL behavior; it is not evidence
+that the VR940f advertises a server. G19 proves direct outbound VR940f
+TCP/TLS/WebSocket/SHIP access completion plus first post-access SPINE data.
+Feature graph completeness and reconnect durability belong to MSP-055/M6, not
+G17.
 
 ### M3.5 - Raw Runtime Contract Freeze
 
-Freeze only raw identity, raw snapshot envelope, and evidence object shapes.
-Trust, pairing, admin state, and final MCP v1 remain unfrozen until M4/M6.
+After MSP-R00-L, DOCS-VERIFY, and MSP-03D-R merge from clean main, freeze only
+raw identity, raw snapshot envelope, and evidence object shapes in MSP-035.
+Trust, pairing, admin state, lifecycle authority, availability guarantees, and
+final MCP v1 remain unfrozen until later rows.
 
 Gate: raw snapshot and evidence fixtures replay deterministically.
 
-### M4 - Production Trust, First-Trust, And Security
+### M4 - Store, Raw View, Lifecycle Facade, And Trust Security
 
-Implement the production trust-state model, hardened `/data/eebus` store,
-first-trust flow, admin-local boundary, backup/restore behavior, quarantine,
-and repair flows.
+The clean-main serialized eebusreg sequence is:
+
+1. `MSP-03D-R`: G17+G19 harness and canonical recovery evidence.
+2. `MSP-035`: raw identity/snapshot/evidence freeze.
+3. `MSP-04A`: internal persistent store/schema only.
+4. `MSP-036`: public immutable raw view only.
+5. `MSP-055`: disabled-by-default read-only lifecycle facade.
+6. `MSP-04B`: first-trust/OOB/admin-local gated flow.
+7. `MSP-04C`: restore, revocation, quarantine, and repair.
+
+`MSP-036` can export only versioned immutable raw snapshot/view fields. It
+must not export semantic device IDs, lifecycle authority, trust/pairing
+mutation, or an availability guarantee. It depends on the internal store schema
+and migration/conformance tests.
+
+`MSP-055` is disabled by default. Its public lifecycle facade is read-only.
+Outbound sockets require explicit configuration plus pre-seeded trust or an
+allowlist. Public trust and pairing mutations are forbidden. First-trust, OOB
+confirmation, and admin mutation remain later admin-local gated work.
 
 Gate: no production listener can open unless eeBUS is enabled, interface/subnet
-are explicit, the store is valid, and the trust state permits listening.
+are explicit, the store is valid, pre-seeded trust or allowlist permits the
+operation, and the relevant later trust state permits listening.
 
 ### M4.5 - Trust And Admin State Freeze
 
@@ -244,9 +315,10 @@ Add isolated eeBUS configuration and a disabled-by-default
 `transportFromConn`, `protocol.Bus`, `router.BusEventRouter`, or eBUS registry
 semantics.
 
-Gate: disabled default opens no eeBUS sockets, creates no trust files, and
-leaves existing eBUS MCP, GraphQL, Portal, HA, and transport-matrix behavior
-unchanged.
+Gate: gateway import is blocked until prior canonical docs and eebusreg
+contracts merge. Disabled default opens no eeBUS sockets, creates no trust
+files, and leaves existing eBUS MCP, GraphQL, Portal, HA, and transport-matrix
+behavior unchanged.
 
 ### M6 - Read-Only eeBUS MCP v1
 
@@ -324,14 +396,26 @@ snapshots, and MCP/debug compatibility prove no unapproved drift.
   cross-seed publishable conclusions back to `helianthus-docs-ebus`.
   Cross-protocol platform contracts remain in `helianthus-docs-ebus/docs/platform/`
   until a future docs-platform repo is created.
+- `helianthus-docs-ebus/docs/platform/` owns cross-protocol ADRs and the
+  eebusreg-vs-shared-registry boundary/conformance contract.
+- `helianthus-docs-eebus` owns eeBUS protocol identity and eeBUS-native
+  protocol docs.
+- Code repo docs are summary/local usage only and link to canonical sources.
+- Every milestone ends with a complete architecture review. Final execution
+  adds one extra code-structure review.
 
 ## Acceptance
 
-The draft is acceptable when:
+The locked plan is acceptable when:
 
-- The draft directory exists with standard plan layout.
+- The locked directory exists with standard plan layout.
 - The canonical plan states gateway `0.4.0` as the baseline.
 - The plan uses gateway `0.4.0` as the only baseline reference.
 - Chunks are reviewable in isolation and include the required proof headers.
-- Existing active plan validation remains green.
-- The `.draft` directory is intentionally ignored by the active-plan validator.
+- Historical evidence remains preserved without claiming dirty rescue code is
+  accepted.
+- Recovery, docs verification, clean-main runtime reconciliation, trust,
+  gateway, MCP, evidence, candidate, coexistence, promotion, and consumer rows
+  are explicit and acyclic.
+- Active plan validation remains green after the directory is renamed to
+  `.locked/`.

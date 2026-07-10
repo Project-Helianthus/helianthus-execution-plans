@@ -1,6 +1,6 @@
 # eeBUS VR940f Raw-First Track
 
-Canonical-SHA256: `de84f3f35afecd3317e2a62089fdaa78150adb4b62110771296b7fd7c7ab24df`
+Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`, the gateway `0.4.0` baseline
@@ -23,8 +23,8 @@ through MCP, then restart and verify stable raw state without promoting a
 single semantic field.
 
 Coverage:
-Covers M2 through M8.5 for eeBUS raw runtime, MCP, evidence, candidate facts,
-and leaf-promotion locking.
+Covers recovery reconciliation, M3 completion, M3.5 through M8.5 for eeBUS raw
+runtime, MCP, evidence, candidate facts, and leaf-promotion locking.
 
 ## Repository And Boundary
 
@@ -47,7 +47,8 @@ is allowed.
 
 ## Runtime API
 
-The pre-M4.5 public runtime API is intentionally read-only plus lifecycle:
+The pre-MSP-055 public runtime API is intentionally internal or read-only.
+The first public lifecycle facade is disabled by default and read-only:
 
 - `Start(ctx)`
 - `Shutdown()`
@@ -90,15 +91,30 @@ Required M3 proof artifacts:
   same data volume;
 - fake peer is a wire-level black-box harness independent of the facade under
   test;
-- live VR940f smoke covers discovery, pairing/session establishment, feature
-  graph extraction, and reconnect after restart.
+- G17 covers configured local SHIP advertisement/discovery, myVaillant trust
+  visibility, and negative/TTL behavior; it is not evidence that the VR940f
+  advertises a server;
+- G19 covers direct outbound VR940f TCP/TLS/WebSocket/SHIP access completion
+  plus first post-access SPINE data;
+- canonical G19 evidence records exact repo, branch, commit, commands,
+  redacted JSON, transcript hashes, environment/tool versions, topology,
+  timestamps, trust preconditions, deterministic replay fixtures,
+  denied-access negative cases, reconnect-failure negative cases, separate
+  `operator_live_proof` and `ci_replay_authority` fields, and no public device
+  identity leakage.
 
-Gateway may not gain a persistent `helianthus-eebusreg` import until these
-proofs pass and M3.5 freezes the raw contract.
+Gateway may not gain a persistent `helianthus-eebusreg` import until recovery
+reconciliation, DOCS-VERIFY, MSP-03D-R, raw contract freeze, immutable raw
+view, read-only lifecycle facade, and trust/admin contracts merge.
 
 ## Trust And Pairing
 
-Production trust is owned by M4 and frozen at M4.5. Trust states are:
+Production trust is owned by M4 and frozen at M4.5. MSP-04A is internal
+persistent store/schema only. MSP-036 exports only versioned immutable raw
+snapshot/view fields and has no semantic device ID, lifecycle authority,
+trust/pairing mutation, or availability guarantee. MSP-055 is disabled by
+default, exposes a read-only lifecycle facade, and opens outbound sockets only
+with explicit config plus pre-seeded trust or allowlist. Trust states are:
 
 - `NO_LOCAL_IDENTITY`
 - `UNPAIRED_LOCKED`
@@ -150,7 +166,8 @@ The eeBUS sidecar must not modify:
 - eBUS registry semantics in `helianthus-ebusreg`
 
 Disabled-default acceptance requires no eeBUS sockets, no trust files, no eBUS
-config regression, and unchanged eBUS CI and transport matrix.
+config regression, and unchanged eBUS CI and transport matrix. Gateway import
+is blocked until prior canonical docs and eebusreg contracts merge.
 
 ## MCP Raw v1
 
@@ -230,7 +247,8 @@ eeBUS, and cloud observations, measured max drift/latency, pre/action/post
 windows bound to that clock, and replay using captured timestamps only.
 
 M7 creates draft candidate facts only. M8 proves coexistence. M8.5 locks leaf
-promotion after coexistence evidence exists.
+promotion after coexistence evidence exists. Feature graph completeness and
+reconnect durability are MSP-055/M6 concerns, not G17 acceptance.
 
 Each Leaf Promotion Dossier includes:
 
