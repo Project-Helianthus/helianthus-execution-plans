@@ -73,16 +73,16 @@ PY
 - Unique IDs: `43`
 - Missing predecessor references: `[]`
 - Cycles: `[]`
-- Initial ready set: `["MSP-R00-L", "DOCS-VERIFY"]`
+- Current ready set: `["MSP-DOCS-API-SCHEMA"]`
 - Model-lane mismatches: `[]`
 - Dormant conditional cleanup row with `MSP-055` cross-repo blocker:
   `MSP-DOCS-CANDIDATE-CLEANUP`
 
-The two ready rows target different serialization groups:
-`helianthus-execution-plans` and `helianthus-docs-eebus`. `MSP-R00` is already
-completed locally with no code acceptance and no runtime successor unlock.
-MSP-R00-L publishes only the opaque public ledger. The documentation chain then
-runs API-SCHEMA -> PLATFORM -> E2 -> CLEAN before MSP-03D-R.
+`MSP-R00-L` and `DOCS-VERIFY` are complete. The current ready set contains only
+`MSP-DOCS-API-SCHEMA` in `helianthus-docs-eebus`. `MSP-R00` remains completed
+locally with no code acceptance and no runtime successor unlock. The serialized
+documentation chain then runs API-SCHEMA -> PLATFORM -> E2 -> CLEAN before
+MSP-03D-R.
 
 After MSP-036, MSP-DOCS-API-CANDIDATE is the explicit pre-merge gate for the
 single MSP-055 source PR. The source PR may be prepared and pinned, but remains

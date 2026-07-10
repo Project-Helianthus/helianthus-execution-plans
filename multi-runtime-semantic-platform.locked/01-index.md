@@ -88,6 +88,8 @@ and the serialized docs/API freeze gates.
 - [103-ad-docs-01-amendment.md](./103-ad-docs-01-amendment.md) records the
   accepted external-only-documentation amendment after five GPT-5.5 xhigh
   amendment rounds.
+- [104-msp-r00-l-public-redacted-ledger.json](./104-msp-r00-l-public-redacted-ledger.json)
+  records the MSP-R00-L public-safe redacted recovery ledger.
 - [99-status.md](./99-status.md) records the locked current state.
 
 ## Coverage Matrix

@@ -443,7 +443,8 @@ issues:
     review_ledger: independent redaction and recovery traceability review
     tdd_mode: plan_preflight
     smoke_scope: opaque ledger schema and leak scan
-    acceptance_state: ready
+    acceptance_state: accepted
+    completion_note: completes only when execution-plans PR #62 merges; because the ledger and state surfaces merge atomically, the post-merge state is complete and the MSP-R00-L predecessor is satisfied
     acceptance:
       - the redacted ledger is reviewed in a dedicated execution-plans PR
       - the ledger maps each opaque public evidence ID to a clean-main issue, public_redacted disposition, private_restricted disposition, or discarded disposition
@@ -467,7 +468,8 @@ issues:
     review_ledger: docs ownership and public-source review
     tdd_mode: docs_checklist
     smoke_scope: license, owners, issue template, path layout, cross-seeding
-    acceptance_state: ready
+    acceptance_state: accepted
+    completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353
     coordination_note: verify helianthus-docs-ebus platform ownership read-only; any required platform-doc correction becomes a separately serialized docs-ebus issue
     acceptance:
       - helianthus-docs-ebus/docs/platform owns language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary, and promotion/consumer rules
@@ -496,7 +498,8 @@ issues:
     review_ledger: API schema, normalization, and fixture review
     tdd_mode: docs_schema_red_green
     smoke_scope: schema validation, canonical normalization, and golden positive/negative fixtures
-    acceptance_state: proposed
+    acceptance_state: ready
+    readiness_note: ready after execution-plans PR #62 merges; DOCS-VERIFY is already complete via Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353
     acceptance:
       - helianthus.eebus.api-surface.v1 schema is merged in helianthus-docs-eebus/api
       - deterministic extraction and normalization rules are canonical before extractor consumption
@@ -520,6 +523,7 @@ issues:
     tdd_mode: docs_manifest_contract
     smoke_scope: platform manifest validation and cross-runtime ownership lint
     acceptance_state: proposed
+    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied and this row remains blocked only on MSP-DOCS-API-SCHEMA
     acceptance:
       - language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary, and promotion/consumer rules live under docs/platform
       - docs/platform/manifests/eebus-doc-ownership.yaml is machine-readable and authoritative
