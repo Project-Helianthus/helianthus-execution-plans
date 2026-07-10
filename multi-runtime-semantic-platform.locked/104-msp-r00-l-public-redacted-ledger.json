@@ -1,0 +1,19 @@
+{
+  "artifact_kind": "msp_r00_l_public_redacted_recovery_ledger",
+  "entries": [
+    {
+      "opaque_public_id": "845fdc27-ae1c-4989-9cd5-4139f989410d",
+      "clean_main_issue_ref": "Project-Helianthus/helianthus-eebusreg#14",
+      "public_class": "public_redacted",
+      "disposition": "public_redacted",
+      "redaction_categories": {
+        "origin_locator": "redacted",
+        "runtime_identity": "redacted",
+        "evidence_payload": "redacted",
+        "integrity_preimage": "redacted",
+        "quantity_observation": "redacted",
+        "temporal_observation": "redacted"
+      }
+    }
+  ]
+}
