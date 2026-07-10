@@ -301,6 +301,24 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
                 with self.assertRaises(validator.ValidationError):
                     validator.validate_plan_state_surfaces(root)
 
+    def test_rejects_extra_cleanup_conditional_field_without_reflection(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            candidate = "/Users/alice/private/raw-capture/secret.bundle"
+            matrix.write_text(
+                matrix.read_text(encoding="utf-8").replace(
+                    "      initially_ready: false",
+                    f"      initially_ready: false\n      candidate_path: {candidate}",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError) as caught:
+                validator.validate_plan_state_surfaces(root)
+            self.assertNotIn(candidate, str(caught.exception))
+
     def test_rejects_platform_advance_before_api_schema_completion(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

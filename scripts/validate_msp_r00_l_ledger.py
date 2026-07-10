@@ -315,8 +315,16 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
 
     cleanup_row = rows_by_id.get("MSP-DOCS-CANDIDATE-CLEANUP")
     cleanup = cleanup_row.get("conditional") if isinstance(cleanup_row, dict) else None
+    cleanup_keys = {
+        "activates_when",
+        "initially_ready",
+        "required_predecessor_for_normal_successors",
+        "preempts_same_repo_successors",
+        "blocks_cross_repo_source_rows",
+    }
     cleanup_ok = (
         isinstance(cleanup, dict)
+        and set(cleanup) == cleanup_keys
         and cleanup_row.get("acceptance_state") == "dormant_conditional"
         and cleanup.get("activates_when") == "candidate expires or source PR closes unmerged"
         and cleanup.get("initially_ready") is False
