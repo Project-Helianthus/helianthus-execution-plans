@@ -11,7 +11,8 @@ Amendment verdict: `PASS`
 
 - five fresh GPT-5.5 xhigh adversarial rounds;
 - final local architecture and routing review after the plan rewrite;
-- structured validation of all 42 issue rows after AD-DOCS-01;
+- structured validation of all 43 issue rows after AD-DOCS-01 and its
+  pre-merge API-candidate review correction;
 - canonical hash and split-chunk synchronization;
 - DAG cycle, orphan, initial-ready, and repo-serialization checks.
 
@@ -35,7 +36,7 @@ Amendment verdict: `PASS`
 
 ## Falsification Results
 
-- Missing required issue fields across 42 rows: none.
+- Missing required issue fields across 43 rows: none.
 - Missing predecessor references: none.
 - Dependency cycles: none.
 - Model-lane mismatches: none.
