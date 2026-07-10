@@ -9,17 +9,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "scripts" / "validate_msp_r00_l_ledger.py"
-LEDGER_PATH = (
-    ROOT
-    / "multi-runtime-semantic-platform.locked"
-    / "104-msp-r00-l-public-redacted-ledger.json"
-)
 VALIDATE_REPO_SCRIPT = ROOT / "scripts" / "validate_plans_repo.sh"
 
 spec = importlib.util.spec_from_file_location("validate_msp_r00_l_ledger", MODULE_PATH)
 assert spec is not None and spec.loader is not None
 validator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(validator)
+
+LEDGER_PATH = validator.resolve_default_ledger(ROOT)
 
 
 class MspR00LLedgerValidatorTests(unittest.TestCase):
@@ -90,6 +87,18 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             expected = self.write_temp_ledger(root, "maintenance")
             self.assertEqual(validator.resolve_default_ledger(root), expected)
             validator.validate_ledger(root=root)
+
+    def test_temp_ledger_helper_supports_non_locked_lifecycle_states(self) -> None:
+        for state in ("implementing", "maintenance"):
+            with self.subTest(state=state), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                expected = self.write_temp_ledger(root, state)
+                self.assertEqual(
+                    expected,
+                    root / f"{validator.PLAN_SLUG}.{state}" / validator.LEDGER_FILENAME,
+                )
+                self.assertEqual(validator.resolve_default_ledger(root), expected)
+                validator.validate_ledger(root=root)
 
     def test_rejects_missing_default_ledger(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
