@@ -43,16 +43,18 @@ PY
 
 ## Result
 
-- Row count: `35`
-- Unique IDs: `35`
+- Row count: `36`
+- Unique IDs: `36`
 - Missing predecessor references: `[]`
 - Cycles: `[]`
 - Initial ready set: `["MSP-R00", "DOCS-VERIFY"]`
 
 The two ready rows target different serialization groups:
 `helianthus-eebusreg` and `helianthus-docs-eebus`. Recovery mutation is
-therefore preflighted against the repo it changes; execution-plans receives
-only the redacted companion ledger.
+therefore preflighted against the repo it changes. The redacted ledger is
+published only by downstream MSP-R00-L in execution-plans. MSP-03D-R depends
+on MSP-R00-L, so recovery cannot appear complete before that public ledger is
+reviewed and merged.
 
 Historical accepted rows with no predecessors are not ready rows and do not
 unlock successors. Runtime successors remain blocked until the recovery/docs

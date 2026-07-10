@@ -6,8 +6,8 @@ Current milestone: `RECOVERY_RECONCILIATION`
 
 | Milestone | Primary repo(s) | Depends on | Gate |
 | --- | --- | --- | --- |
-| RECOVERY_RECONCILIATION | helianthus-eebusreg, helianthus-docs-eebus, helianthus-execution-plans | none | MSP-R00 and DOCS-VERIFY are the only initial ready rows, are routed to different repos, and may not treat dirty rescue code as successor-unlock authority. |
-| M3 - eeBUS Runtime Feasibility | helianthus-eebusreg | RECOVERY_RECONCILIATION, MSP-03C, MSP-03D-G01 | MSP-03D-R passes revised G17 and G19 with owner acceptance. M3 remains open until then. |
+| RECOVERY_RECONCILIATION | helianthus-eebusreg, helianthus-docs-eebus, helianthus-execution-plans | none | MSP-R00 and DOCS-VERIFY are the only initial ready rows; MSP-R00-L then publishes the redacted ledger as a separate serialized PR. Dirty rescue code has no successor-unlock authority. |
+| M3 - eeBUS Runtime Feasibility | helianthus-eebusreg | MSP-R00-L, DOCS-VERIFY, MSP-03C, MSP-03D-G01 | MSP-03D-R passes revised G17 and G19 with owner acceptance. M3 remains open until then. |
 | M3.5 - Raw Runtime Contract Freeze | helianthus-eebusreg | M3 | Raw identity, snapshot envelope, and evidence object replay deterministically; no trust/lifecycle/availability authority is frozen. |
 | M4 - Store, Raw View, Lifecycle Facade, And Trust Security | helianthus-eebusreg | M3.5 | MSP-04A internal store/schema, MSP-036 immutable raw view, MSP-055 disabled read-only lifecycle facade, then first-trust/OOB/admin and repair flows. |
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
@@ -22,8 +22,9 @@ Current milestone: `RECOVERY_RECONCILIATION`
 ## Parallelism
 
 Only MSP-R00 and DOCS-VERIFY are initially ready. They target different repos;
-the recovery source mutation is preflighted in `helianthus-eebusreg`, while
-only its redacted ledger is published in execution-plans. After they pass, eebusreg
+the recovery source mutation is preflighted in `helianthus-eebusreg`; its
+redacted ledger is published later through MSP-R00-L in execution-plans. After
+that row and DOCS-VERIFY pass, eebusreg
 rows are serialized one PR at a time: MSP-03D-R, MSP-035, MSP-04A, MSP-036,
 MSP-055, MSP-04B, MSP-04C, MSP-045. Gateway, MCP, evidence, candidate,
 coexistence, promotion, and consumer work remain downstream.

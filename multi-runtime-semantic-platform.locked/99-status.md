@@ -7,7 +7,7 @@ Current milestone: `RECOVERY_RECONCILIATION`
 Cruise phase: `RECOVERY_RECONCILIATION`
 Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
 Dirty rescue candidate: `true`
-Successor unlocks: `false until MSP-R00 and MSP-03D-R merge from clean main`
+Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
 Baseline: `Gateway 0.4.0`
 
 ## Current Position
@@ -28,7 +28,7 @@ The final plan-lock architecture review is recorded in
 - `MSP-R00`: eebusreg taint/file split, secret scan,
   synthetic-fixture/redaction rules, local never-pushed rescue branch, one
   source-only forensic WIP commit, source-only git bundle SHA-256, and a
-  redacted companion ledger in execution-plans.
+  redacted ledger candidate for MSP-R00-L.
 - `DOCS-VERIFY`: docs-eebus license, owners, issue template, path layout, and
   docs-eebus to docs-ebus cross-seeding verification.
 
@@ -63,7 +63,8 @@ No runtime repo mutation may start until MSP-R00 preflight is fully green.
 
 ## Open Work
 
-- Complete MSP-R00 and DOCS-VERIFY.
+- Complete MSP-R00 and DOCS-VERIFY, then publish the redacted ledger through
+  MSP-R00-L.
 - Re-run clean-main MSP-03D-R with revised G17 and G19.
 - Close MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, and MSP-045 in
   one eebusreg PR at a time.

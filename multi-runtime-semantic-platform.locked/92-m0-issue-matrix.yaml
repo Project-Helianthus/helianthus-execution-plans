@@ -7,7 +7,7 @@ current_milestone: RECOVERY_RECONCILIATION
 accepted_through: MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only
 dirty_rescue_candidate: true
 successor_unlocks: false
-successor_unlock_condition: MSP-R00 and MSP-03D-R reconciliation gates merged from clean main
+successor_unlock_condition: MSP-R00-L and MSP-03D-R reconciliation gates merged from clean main
 purpose: >
   Machine-readable locked control-plane matrix for the eeBUS VR940f
   raw-first plan after five accepted adversarial rounds.
@@ -26,6 +26,7 @@ model_lanes:
 
 serialization:
   rule: one_active_pr_per_repo
+  recovery_sequence: [MSP-R00, MSP-R00-L, MSP-03D-R]
   eebusreg_sequence: [MSP-03D-R, MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, MSP-045]
   initial_ready_set: [MSP-R00, DOCS-VERIFY]
   dirty_code_unlocks_successors: false
@@ -353,7 +354,7 @@ issues:
     tdd_mode: plan_preflight
     smoke_scope: secret scan, taint split, source-only bundle hash
     acceptance_state: ready
-    coordination_note: publish only the redacted recovery ledger in helianthus-execution-plans; the local rescue branch and source-only bundle remain unpushed
+    coordination_note: hand the redacted ledger candidate to MSP-R00-L; the local rescue branch and source-only bundle remain unpushed
     acceptance:
       - preflight is fully green before any recovery mutation
       - taint/file split ledger exists
@@ -364,7 +365,30 @@ issues:
       - source-only git bundle SHA-256 is recorded
       - public git and public bundle contain no packet captures, raw transcripts, keys, PEM, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial
       - full-fidelity material is encrypted outside git with mode 0600 or discarded
-      - only a redacted ledger is public
+      - a redacted ledger candidate is produced for MSP-R00-L
+
+  - id: MSP-R00-L
+    title: Review and publish the redacted recovery ledger
+    repo: helianthus-execution-plans
+    milestone: RECOVERY_RECONCILIATION
+    complexity: 4
+    model_lane: gpt-5.4-mini
+    predecessors: [MSP-R00]
+    docs_owner: helianthus-execution-plans
+    doc_gate: none
+    transport_gate: none
+    security_gate: required
+    rollback_ledger: revert the public redacted ledger only
+    review_ledger: independent redaction and recovery traceability review
+    tdd_mode: plan_preflight
+    smoke_scope: redacted ledger schema, bundle hash reference, and leak scan
+    acceptance_state: proposed
+    acceptance:
+      - the redacted ledger is reviewed in a dedicated execution-plans PR
+      - the ledger maps every rescued source path to a clean-main issue or discard decision
+      - only source-bundle hashes and non-sensitive metadata are published
+      - no rescue commit, bundle, packet capture, transcript, key, credential, trust store, or device identity is published
+      - MSP-03D-R remains blocked until this row merges
 
   - id: DOCS-VERIFY
     title: Verify docs ownership, license, template, and path layout
@@ -397,7 +421,7 @@ issues:
     milestone: M3
     complexity: 9
     model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-R00, DOCS-VERIFY, MSP-03C, MSP-03D-G01]
+    predecessors: [MSP-R00-L, DOCS-VERIFY, MSP-03C, MSP-03D-G01]
     docs_owner: helianthus-docs-eebus
     doc_gate: required
     transport_gate: eebus_v0

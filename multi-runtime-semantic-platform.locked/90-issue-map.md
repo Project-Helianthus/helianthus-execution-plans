@@ -4,7 +4,7 @@ Status: `Locked`
 Baseline: `Gateway 0.4.0`
 Current milestone: `RECOVERY_RECONCILIATION`
 Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
-Successor unlocks: `false until MSP-R00 and MSP-03D-R merge from clean main`
+Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
 
 This map preserves historical evidence without treating dirty rescue code as
 accepted. Future runtime work resumes from clean main, with one active PR per
@@ -22,9 +22,10 @@ repo and one `helianthus-eebusreg` PR at a time.
 
 | ID | Repo | Milestone | Cx | Model lane | Depends on | Gate focus | What |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| MSP-R00 | helianthus-eebusreg | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | none | recovery/security | Secret scan, synthetic fixtures, local never-pushed rescue branch, source-only forensic WIP commit and bundle SHA-256; publish only a redacted companion ledger in execution-plans. |
+| MSP-R00 | helianthus-eebusreg | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | none | recovery/security | Secret scan, synthetic fixtures, local never-pushed rescue branch, source-only forensic WIP commit and bundle SHA-256; emit a redacted ledger candidate. |
+| MSP-R00-L | helianthus-execution-plans | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | MSP-R00 | recovery/security | Review and publish only the redacted recovery ledger; keep source bundle and full-fidelity evidence outside public git. |
 | DOCS-VERIFY | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | none | doc | Verify license, canonical owners, issue template, path layout, and docs-eebus cross-seeding to docs-ebus. |
-| MSP-03D-R | helianthus-eebusreg | M3 | 9 | GPT-5.5 xhigh | MSP-R00, DOCS-VERIFY, MSP-03C, MSP-03D-G01 | transport/security | Clean-main G17+G19 harness and canonical recovery evidence. |
+| MSP-03D-R | helianthus-eebusreg | M3 | 9 | GPT-5.5 xhigh | MSP-R00-L, DOCS-VERIFY, MSP-03C, MSP-03D-G01 | transport/security | Clean-main G17+G19 harness and canonical recovery evidence. |
 | MSP-035 | helianthus-eebusreg | M3.5 | 8 | GPT-5.5 xhigh | MSP-03D-R | raw-contract | Freeze raw identity, snapshot envelope, and evidence object only. |
 | MSP-04A | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-035 | store/security | Internal persistent store/schema only. |
 | MSP-036 | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04A | raw-view | Public immutable raw snapshot/view only; no lifecycle, trust, semantic ID, or availability authority. |

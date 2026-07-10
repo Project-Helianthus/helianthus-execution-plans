@@ -28,7 +28,7 @@ m3_status: open
 msp_03d_status: open
 dirty_rescue_candidate: true
 successor_unlocks: false
-successor_unlock_condition: MSP-R00 and MSP-03D-R reconciliation gates merged from clean main
+successor_unlock_condition: MSP-R00-L and MSP-03D-R reconciliation gates merged from clean main
 initial_ready_set:
   - MSP-R00
   - DOCS-VERIFY

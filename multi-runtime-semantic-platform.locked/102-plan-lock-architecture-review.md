@@ -19,14 +19,15 @@ Scope: locked control plane before cruise meta-issue registration
 3. Recovery artifacts have an explicit secret, identity, and transcript
    quarantine policy.
 4. MSP-R00 is routed to `helianthus-eebusreg`, the repo whose local rescue
-   branch it mutates; only a redacted ledger reaches execution-plans.
+   branch it mutates; MSP-R00-L separately reviews and publishes only the
+   redacted ledger in execution-plans.
 5. DOCS-VERIFY is routed to `helianthus-docs-eebus`; platform ownership is
    verified in `helianthus-docs-ebus` without hiding a cross-repo correction.
 6. The clean-main sequence is serialized and gateway import remains blocked.
 
 ## Falsification Results
 
-- Missing required issue fields: none.
+- Missing required issue fields across 36 rows: none.
 - Missing predecessor references: none.
 - Dependency cycles: none.
 - Model-lane mismatches: none.

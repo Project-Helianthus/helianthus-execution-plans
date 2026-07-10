@@ -7,7 +7,7 @@ Cruise phase: `RECOVERY_RECONCILIATION`
 Current milestone: `RECOVERY_RECONCILIATION`
 Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
 Dirty rescue candidate: `true`
-Successor unlocks: `false until MSP-R00 and MSP-03D-R merge from clean main`
+Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
 Baseline: `Gateway 0.4.0`
 
 ## Summary
@@ -86,17 +86,21 @@ The plan is locked while runtime execution is paused in
   main.
 - Initial ready rows are limited to `MSP-R00` and `DOCS-VERIFY`.
 
-`MSP-R00` is an `helianthus-eebusreg` recovery row with no predecessor and a
-redacted companion ledger in `helianthus-execution-plans`. It must complete
-before any clean-main runtime implementation begins. Its acceptance requires
+`MSP-R00` is an `helianthus-eebusreg` recovery row with no predecessor. It
+must complete before any clean-main runtime implementation begins. Its acceptance requires
 a taint/file split ledger, a secret scan, synthetic-fixture and redaction
 rules, a local never-pushed rescue branch, exactly one source-only forensic WIP
 commit, and a source-only git bundle SHA-256. Public git and public bundles
 must not contain packet captures, raw transcripts, keys, PEM blocks, tokens,
 trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial values.
 Full-fidelity material is either stored encrypted outside git with mode `0600`
-or discarded. Only a redacted ledger may be public. Preflight must be fully
-green before any recovery mutation.
+or discarded. It produces a redacted ledger candidate but does not publish
+that ledger. Preflight must be fully green before any recovery mutation.
+
+`MSP-R00-L` is the serialized `helianthus-execution-plans` publication row. It
+depends on MSP-R00, reviews and publishes only the redacted ledger, and must
+merge before MSP-03D-R can start. The source bundle and local rescue branch
+remain outside public git.
 
 `DOCS-VERIFY` is a blocking `helianthus-docs-eebus` check. It verifies license,
 canonical owners, issue template compliance, path layout, and cross-seeding
@@ -263,7 +267,7 @@ G17.
 
 ### M3.5 - Raw Runtime Contract Freeze
 
-After MSP-R00, DOCS-VERIFY, and MSP-03D-R merge from clean main, freeze only
+After MSP-R00-L, DOCS-VERIFY, and MSP-03D-R merge from clean main, freeze only
 raw identity, raw snapshot envelope, and evidence object shapes in MSP-035.
 Trust, pairing, admin state, lifecycle authority, availability guarantees, and
 final MCP v1 remain unfrozen until later rows.

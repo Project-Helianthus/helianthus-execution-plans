@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `71bd97f3eb9939bfb7e1f472f9e8aa79bd01a195a9917b0e1740eeaf0d42dfcc`
+Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
 
 Depends on:
 All previous chunks.
@@ -61,14 +61,13 @@ No other model lane is valid for this plan.
 
 Historical M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D
 EEBUS-G01 fake-peer harness slice remain preserved evidence. They do not let
-M3 close without MSP-R00, DOCS-VERIFY, and MSP-03D-R.
+M3 close without MSP-R00-L, DOCS-VERIFY, and MSP-03D-R.
 
 ## Initial Ready Rows
 
 The initial ready set after lock is only:
 
-- `MSP-R00` in `helianthus-eebusreg`, with a redacted companion ledger in
-  `helianthus-execution-plans` and no predecessor;
+- `MSP-R00` in `helianthus-eebusreg`, with no predecessor;
 - `DOCS-VERIFY` in `helianthus-docs-eebus`, with no predecessor.
 
 `MSP-R00` is the recovery reconciliation gate. It requires a taint/file split
@@ -77,8 +76,12 @@ rescue branch, one source-only forensic WIP commit, and a source-only git
 bundle SHA-256. Public git and public bundles must not contain packet captures,
 raw transcripts, keys, PEM blocks, tokens, trust stores, raw SKI, raw SHIPID,
 raw IP/MAC address, or raw serial values. Full fidelity is encrypted outside
-git with mode `0600` or discarded. Only a redacted ledger is public. Preflight
-must be fully green before recovery mutation.
+git with mode `0600` or discarded. Preflight must be fully green before
+recovery mutation.
+
+`MSP-R00-L` is the separately serialized execution-plans publication row. It
+depends on MSP-R00 and publishes only the reviewed redacted ledger; it never
+publishes the source bundle, rescue commit, or full-fidelity evidence.
 
 `DOCS-VERIFY` blocks runtime successors until license, canonical owners, issue
 template compliance, path layout, and cross-seeding to `helianthus-docs-ebus`
@@ -86,17 +89,18 @@ are verified.
 
 ## Clean-Main Serialized Sequence
 
-After the initial ready rows merge, eebusreg work is serialized one PR at a
-time:
+After the initial ready rows and MSP-R00-L merge, eebusreg work is serialized
+one PR at a time:
 
-1. `MSP-03D-R` - G17+G19 harness and canonical recovery evidence.
-2. `MSP-035` - raw identity/snapshot/evidence freeze.
-3. `MSP-04A` - internal persistent store/schema only.
-4. `MSP-036` - public immutable raw snapshot/view only.
-5. `MSP-055` - disabled-by-default read-only lifecycle facade.
-6. `MSP-04B` - first-trust, OOB confirmation, and admin-local boundary.
-7. `MSP-04C` - restore, revocation, quarantine, and repair.
-8. `MSP-045` - trust and admin state freeze.
+1. `MSP-R00-L` - publish the reviewed redacted recovery ledger.
+2. `MSP-03D-R` - G17+G19 harness and canonical recovery evidence.
+3. `MSP-035` - raw identity/snapshot/evidence freeze.
+4. `MSP-04A` - internal persistent store/schema only.
+5. `MSP-036` - public immutable raw snapshot/view only.
+6. `MSP-055` - disabled-by-default read-only lifecycle facade.
+7. `MSP-04B` - first-trust, OOB confirmation, and admin-local boundary.
+8. `MSP-04C` - restore, revocation, quarantine, and repair.
+9. `MSP-045` - trust and admin state freeze.
 
 Gateway M5, MCP M6, evidence/candidates/coexistence/promotion, and consumers
 remain blocked until the prior canonical docs and eebusreg contracts merge.

@@ -1,6 +1,6 @@
 # eBUS 0.4.0 Baseline And Profile Split
 
-Canonical-SHA256: `71bd97f3eb9939bfb7e1f472f9e8aa79bd01a195a9917b0e1740eeaf0d42dfcc`
+Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`.
