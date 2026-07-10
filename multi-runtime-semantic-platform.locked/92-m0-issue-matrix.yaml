@@ -95,6 +95,7 @@ ownership_contract:
     pr: combined-ref CI verifies proposed source and docs branches together
     main: expiry CI fails stale planned/candidate entries
     uniqueness: owner/source pairs are globally unique
+    source_merge: exact head match, state candidate, expires_at after trusted gate time, and no active cleanup are all required
 
 public_evidence_privacy:
   r00_l_public_ids: random nonsemantic per-publication IDs only
@@ -604,13 +605,16 @@ issues:
       initially_ready: false
       required_predecessor_for_normal_successors: false
       preempts_same_repo_successors: true
+      blocks_cross_repo_source_rows: [MSP-055]
     acceptance:
       - row is ignored by normal topology readiness until activated
       - activation preempts every same-repo successor
+      - activation blocks the bound MSP-055 source PR even if its manifest still exact-matches
       - affected candidate entries move to withdrawn
       - candidate artifacts are removed from hidden candidate areas
       - stable navigation, search, sitemap, versioned bundles, and release bundles stay clean
       - docs main is restored green before same-repo successors resume
+      - MSP-055 remains blocked until a fresh candidate cycle merges and passes candidate-state and expiry checks
 
   - id: MSP-03D-R
     title: Reconcile G17 and G19 from clean main
@@ -721,6 +725,7 @@ issues:
       - after MSP-036, the single MSP-055 source PR may be prepared on an org-owned branch and pinned at an immutable candidate-ready head, but it remains unmerged
       - the normalized Go AST/API manifest and GitHub OIDC DSSE/in-toto attestation bind exactly to that source head
       - docs-eebus commits and merges the candidate manifest copy, provenance, and hidden candidate API pages before the source PR may merge
+      - the manifest records state candidate and expires_at from trusted GitHub timestamps
       - candidate content is excluded from stable navigation, search, sitemap, versioned bundles, release bundles, and README links
       - any source push invalidates the candidate, re-blocks MSP-055, and requires a new candidate preparation cycle
       - an abandoned or expired source PR activates MSP-DOCS-CANDIDATE-CLEANUP
@@ -744,6 +749,8 @@ issues:
     acceptance:
       - the same single source issue, branch, and PR prepared for MSP-DOCS-API-CANDIDATE is used; no second eebusreg PR is opened
       - the merge gate verifies that the merged docs-eebus candidate manifest and provenance exactly match the current source head and attestation
+      - the merge gate requires manifest state candidate, expires_at later than trusted gate evaluation time, and no active MSP-DOCS-CANDIDATE-CLEANUP row
+      - candidate state withdrawn or expired blocks merge even when source head and manifest digest still match
       - facade is disabled by default
       - public lifecycle facade is read-only
       - outbound sockets require explicit config plus pre-seeded trust or allowlist

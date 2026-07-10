@@ -31,13 +31,15 @@ After DOCS-VERIFY, documentation is serialized:
 MSP-DOCS-API-SCHEMA -> MSP-DOCS-PLATFORM -> MSP-DOCS-E2 ->
 MSP-DOCS-CLEAN. `MSP-DOCS-CANDIDATE-CLEANUP` is dormant and activates only
 when a candidate expires or a source PR closes unmerged; it is not initially
-ready and is not a normal predecessor.
+ready and is not a normal predecessor. Once active, it also blocks the bound
+cross-repo source merge until a fresh candidate cycle completes.
 
 After MSP-DOCS-CLEAN, eebusreg rows are serialized one PR at a time:
 MSP-03D-R, MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, MSP-045.
 After MSP-036, the single MSP-055 source PR is prepared but remains unmerged;
 MSP-DOCS-API-CANDIDATE merges the exact-head candidate first. MSP-055 then
-passes its exact-match merge gate, and MSP-DOCS-API-FREEZE runs before MSP-04B. Gateway, MCP,
+passes exact-match, candidate-state, expiry, and no-active-cleanup gates, and
+MSP-DOCS-API-FREEZE runs before MSP-04B. Gateway, MCP,
 evidence, candidate, coexistence, promotion, and consumer work remain
 downstream.
 

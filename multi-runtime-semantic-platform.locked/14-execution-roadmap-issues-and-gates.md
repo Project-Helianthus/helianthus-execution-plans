@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `0d706f67b2c469775856447d134db265d9fb52fa24b2adbff3228f8be09adec5`
+Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
 
 Depends on:
 All previous chunks.
@@ -112,9 +112,9 @@ source PR after `MSP-036` does not make `MSP-055` complete or merge-eligible.
 `MSP-DOCS-CANDIDATE-CLEANUP` is a dormant conditional row after
 `MSP-DOCS-E2`. It is not initially ready and is not a required predecessor for
 normal successors. It activates only when a candidate expires or the source PR
-closes unmerged. Once activated, it preempts same-repo successors, marks the
-candidate `withdrawn`, removes candidate artifacts, and restores docs main
-green.
+closes unmerged. Once activated, it preempts same-repo successors, blocks the
+bound cross-repo source PR, marks the candidate `withdrawn`, removes candidate
+artifacts, and restores docs main green before a new candidate cycle.
 
 ## Clean-Main Serialized Sequence
 
@@ -236,8 +236,11 @@ Candidate API handshake rules:
 - docs-eebus commits the candidate manifest copy plus provenance and merges
   first;
 - eebusreg merge gate requires an exact match to the current source head, and
-  any source push invalidates the candidate and re-blocks `MSP-055`;
-- abandoned or expired candidates trigger cleanup.
+  manifest state `candidate` with `expires_at` later than trusted gate time;
+- any source push invalidates the candidate and re-blocks `MSP-055`;
+- active cleanup or candidate state `withdrawn`/expired blocks the source merge;
+- abandoned or expired candidates trigger cleanup and require a fresh
+  candidate cycle before `MSP-055` can merge.
 
 ## Transport And Security Gates
 

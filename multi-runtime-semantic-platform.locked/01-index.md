@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `0d706f67b2c469775856447d134db265d9fb52fa24b2adbff3228f8be09adec5`
+Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in

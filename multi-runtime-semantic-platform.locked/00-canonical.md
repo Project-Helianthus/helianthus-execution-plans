@@ -170,10 +170,13 @@ Candidate API documentation uses an explicit handshake:
 - `helianthus-docs-eebus` commits the candidate manifest copy plus provenance
   and merges first;
 - `MSP-DOCS-API-CANDIDATE` must complete before `MSP-055`; the eebusreg merge
-  gate requires an exact match to the current source head, and any source push
-  invalidates the candidate and re-blocks the source PR;
+  gate requires an exact match to the current source head, manifest state
+  `candidate`, an unexpired `expires_at` at gate evaluation, and no active
+  cleanup row; any source push invalidates the candidate and re-blocks the
+  source PR;
 - abandoned or expired candidates activate the cleanup row, move entries to
-  `withdrawn`, remove candidate artifacts, and restore docs main green.
+  `withdrawn`, remove candidate artifacts, block the cross-repo source merge,
+  and restore docs main green before a new candidate cycle.
 
 The extractor implementation lives in `helianthus-eebusreg/internal/apiboundary`.
 Schema and specification docs live in `helianthus-docs-eebus/api`. The

@@ -86,5 +86,5 @@ canonical hash, and no private recovery-data leak.
 - Candidate API docs depend on exact attestation and source immutability.
 - Cross-repo CI must remain portable across Linux and macOS or casefold
   emulation.
-- The dormant cleanup row must preempt same-repo successors if a candidate is
-  abandoned or expires.
+- The dormant cleanup row must preempt same-repo successors and block the bound
+  cross-repo source merge if a candidate is abandoned or expires.

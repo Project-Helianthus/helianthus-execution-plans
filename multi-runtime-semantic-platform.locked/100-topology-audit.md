@@ -61,6 +61,7 @@ cleanup_ok = (
     cleanup["acceptance_state"] == "dormant_conditional"
     and cleanup.get("conditional", {}).get("initially_ready") is False
     and cleanup.get("conditional", {}).get("required_predecessor_for_normal_successors") is False
+    and cleanup.get("conditional", {}).get("blocks_cross_repo_source_rows") == ["MSP-055"]
 )
 print(len(ids), len(set(ids)), missing, cycles, ready, lanes, cleanup_ok)
 PY
@@ -74,7 +75,8 @@ PY
 - Cycles: `[]`
 - Initial ready set: `["MSP-R00-L", "DOCS-VERIFY"]`
 - Model-lane mismatches: `[]`
-- Dormant conditional cleanup row: `MSP-DOCS-CANDIDATE-CLEANUP`
+- Dormant conditional cleanup row with `MSP-055` cross-repo blocker:
+  `MSP-DOCS-CANDIDATE-CLEANUP`
 
 The two ready rows target different serialization groups:
 `helianthus-execution-plans` and `helianthus-docs-eebus`. `MSP-R00` is already
@@ -90,7 +92,8 @@ provenance. MSP-055 then depends on that merged candidate.
 `MSP-DOCS-CANDIDATE-CLEANUP` is deliberately dormant. It is not initially
 ready and is not a normal required predecessor; it activates only when a
 candidate expires or a source PR closes unmerged, then preempts same-repo
-successors until cleanup restores docs main green.
+successors and blocks the bound `MSP-055` source merge until cleanup and a
+fresh candidate cycle restore eligibility.
 
 Historical accepted rows with no predecessors are not ready rows and do not
 unlock successors. Runtime successors remain blocked until the recovery/docs
