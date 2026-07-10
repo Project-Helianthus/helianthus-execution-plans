@@ -2,13 +2,15 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
+Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in
 `RECOVERY_RECONCILIATION`: M3/MSP-03D remain open, accepted evidence stops at
 MSP-03C plus the merged MSP-03D EEBUS-G01 fake-peer harness slice, and dirty
-rescue code has no successor-unlock authority.
+rescue code has no successor-unlock authority. AD-DOCS-01 amends the locked
+plan with external-only eeBUS documentation ownership, public evidence privacy,
+and the serialized docs/API freeze gates.
 
 ## Split Rules
 
@@ -83,6 +85,9 @@ rescue code has no successor-unlock authority.
 - [102-plan-lock-architecture-review.md](./102-plan-lock-architecture-review.md)
   records the final post-adversarial architecture, routing, security, and DAG
   review before cruise registration.
+- [103-ad-docs-01-amendment.md](./103-ad-docs-01-amendment.md) records the
+  accepted external-only-documentation amendment after five GPT-5.5 xhigh
+  amendment rounds.
 - [99-status.md](./99-status.md) records the locked current state.
 
 ## Coverage Matrix
@@ -101,6 +106,8 @@ The locked plan is ready for preflight when reviewers can falsify:
 
 - whether recovery/docs verification is the only initial ready set;
 - whether dirty rescue code is prevented from unlocking successors;
+- whether AD-DOCS-01 keeps substantive eeBUS docs out of `helianthus-eebusreg`;
+- whether public recovery evidence uses only opaque IDs/classes/dispositions;
 - whether G17/G18/G19 meanings are mechanically distinct;
 - whether `helianthus-eebusreg` remains raw runtime/evidence plumbing rather
   than a semantic registry fork;

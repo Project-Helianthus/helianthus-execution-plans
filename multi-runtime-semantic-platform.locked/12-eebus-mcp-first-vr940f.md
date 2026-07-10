@@ -1,6 +1,6 @@
 # eeBUS VR940f Raw-First Track
 
-Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
+Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`, the gateway `0.4.0` baseline
@@ -38,12 +38,26 @@ runtime and evidence plumbing, not a semantic registry fork. Public package and
 export names must use `eebusruntime`, `eebusraw`, or `eebusevidence`. Public
 API names must not use `registry`, `reg`, `projection`, or `semantic`.
 
+AD-DOCS-01 makes the code-repo documentation boundary absolute:
+`helianthus-eebusreg` and clean-main branches contain no `docs/` directory and
+own no substantive protocol, architecture, API, harness, test, or user
+documentation. Only exact minimal README entry/status/build pointers and
+concise Go package metadata comments may remain, linking only to
+manifest-state `active` pages or pre-existing stable landing pages.
+
 Only `helianthus-eebusreg/internal/...` may directly import
 `github.com/enbility/*`, SHIP, or SPINE packages. Direct imports from gateway,
 shared packages, and public `helianthus-eebusreg` packages are forbidden.
 Exported public API signatures must not expose `enbility`, SHIP, or SPINE
 types. Transitive dependency on `enbility/*` hidden behind the internal facade
 is allowed.
+
+The public API extractor implementation lives in
+`helianthus-eebusreg/internal/apiboundary`. Its schema and specification live
+in `helianthus-docs-eebus/api`; the normalized manifest is a CI artifact, never
+code-local documentation. Version 1 normalization is deterministic over
+package, symbol, type, and signature with stable ordering and no formatting,
+internal, or unexported noise.
 
 ## Runtime API
 
@@ -104,8 +118,29 @@ Required M3 proof artifacts:
   identity leakage.
 
 Gateway may not gain a persistent `helianthus-eebusreg` import until recovery
-reconciliation, DOCS-VERIFY, MSP-03D-R, raw contract freeze, immutable raw
-view, read-only lifecycle facade, and trust/admin contracts merge.
+reconciliation, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
+MSP-DOCS-E2, MSP-DOCS-CLEAN, MSP-03D-R, raw contract freeze, immutable raw
+view, read-only lifecycle facade, API freeze, and trust/admin contracts merge.
+
+## Candidate API Handshake
+
+Candidate API documentation is prepared only from org-owned
+`Project-Helianthus` branches. Forks are rejected. Once docs preparation
+starts, force-push is forbidden.
+
+`helianthus-eebusreg` CI produces the normalized API manifest and a GitHub OIDC
+DSSE/in-toto attestation. Verification binds issuer, workflow identity, org
+repo, ref, immutable head SHA, run id, run attempt, extractor version, schema
+version, clean checkout, and manifest digest. `helianthus-docs-eebus` commits
+the candidate manifest copy plus provenance and merges first. The eebusreg
+merge gate requires exact match against that candidate. Any source push
+invalidates the candidate and requires re-preparation.
+
+Candidate API pages are hidden from stable navigation, search, sitemap,
+versioned bundles, and release bundles until MSP-DOCS-API-FREEZE promotes
+them to `active`. If the source PR closes unmerged or the candidate expires,
+MSP-DOCS-CANDIDATE-CLEANUP moves the entry to `withdrawn`, removes candidate
+artifacts, and restores docs main green before same-repo successors resume.
 
 ## Trust And Pairing
 

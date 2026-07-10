@@ -1,10 +1,12 @@
 # Helianthus Multi-Runtime Semantic Platform
 
-Revision: `v1.0-locked`
+Revision: `v1.1-locked-amended`
 Date: `2026-07-10`
 Status: `Locked`
 Cruise phase: `RECOVERY_RECONCILIATION`
 Current milestone: `RECOVERY_RECONCILIATION`
+Amendment count: `1`
+Amendment: `AD-DOCS-01 external-only-documentation`
 Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
 Dirty rescue candidate: `true`
 Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
@@ -23,10 +25,11 @@ external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
 
-This locked plan records five accepted adversarial rounds. It preserves the
-true historical evidence through M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and
-the merged MSP-03D EEBUS-G01 fake-peer harness slice, but it does not claim
-dirty rescue code as accepted plan evidence.
+This locked plan records five accepted adversarial rounds plus the accepted
+AD-DOCS-01 amendment. It preserves the true historical evidence through M0,
+M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D EEBUS-G01 fake-peer
+harness slice, but it does not claim dirty rescue code as accepted plan
+evidence.
 
 The first extension target is raw eeBUS visibility for the
 VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo
@@ -84,28 +87,116 @@ The plan is locked while runtime execution is paused in
   exist, but dirty code has no acceptance authority and unlocks no successors.
 - `successor_unlocks=false` until the reconciliation gates merge from clean
   main.
-- Initial ready rows are limited to `MSP-R00` and `DOCS-VERIFY`.
+- `MSP-R00` is completed locally with no code acceptance, no successor unlock,
+  issue `Project-Helianthus/helianthus-eebusreg#14`, and architecture review
+  `PASS`.
+- Initial ready rows are limited to `MSP-R00-L` and `DOCS-VERIFY`.
 
 `MSP-R00` is an `helianthus-eebusreg` recovery row with no predecessor. It
-must complete before any clean-main runtime implementation begins. Its acceptance requires
-a taint/file split ledger, a secret scan, synthetic-fixture and redaction
-rules, a local never-pushed rescue branch, exactly one source-only forensic WIP
-commit, and a source-only git bundle SHA-256. Public git and public bundles
-must not contain packet captures, raw transcripts, keys, PEM blocks, tokens,
-trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial values.
-Full-fidelity material is either stored encrypted outside git with mode `0600`
-or discarded. It produces a redacted ledger candidate but does not publish
-that ledger. Preflight must be fully green before any recovery mutation.
+completed locally and produced only a candidate input for public ledger review.
+It gives no code acceptance and unlocks no runtime successor. Public plan
+artifacts must not publish the local commit SHA, private paths, raw HMAC
+mapping, source-bundle details, packet captures, raw transcripts, keys, PEM
+blocks, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, raw
+serial values, or raw hashes.
 
 `MSP-R00-L` is the serialized `helianthus-execution-plans` publication row. It
-depends on MSP-R00, reviews and publishes only the redacted ledger, and must
-merge before MSP-03D-R can start. The source bundle and local rescue branch
-remain outside public git.
+depends on MSP-R00, reviews and publishes only the public-safe redacted ledger,
+and must merge before documentation migration and MSP-03D-R can start. Public
+evidence uses random nonsemantic per-publication opaque IDs only. The only
+public classes are `public_redacted`, `private_restricted`, and `discarded`.
+Public commitment covers opaque IDs, classes, dispositions, and redaction
+metadata only. Raw HMACs and opaque-ID mappings stay private. No public ledger
+may expose raw or identifying paths, volume, sizes, timestamps, byte counts,
+deterministic IDs, raw hashes, rescue commits, source bundles, packet captures,
+transcripts, credentials, trust stores, or device identities.
 
 `DOCS-VERIFY` is a blocking `helianthus-docs-eebus` check. It verifies license,
 canonical owners, issue template compliance, path layout, and cross-seeding
 from `helianthus-docs-eebus` back to `helianthus-docs-ebus` where durable
 cross-protocol facts exist.
+
+## AD-DOCS-01 External-Only Documentation Invariant
+
+`helianthus-eebusreg` and its clean-main branches must contain no `docs/`
+directory and must own no substantive protocol, architecture, API, harness,
+test, or user documentation. Only exact minimal README entry/status/build
+pointers and concise Go package metadata comments may remain. Those pointers
+may link only to manifest-state `active` pages or pre-existing stable landing
+pages.
+
+Documentation ownership is exclusive:
+
+- `helianthus-docs-eebus/protocols/` owns eeBUS/SHIP/SPINE protocol behavior.
+- `helianthus-docs-eebus/architecture/` owns eeBUS runtime, adapter, trust,
+  persistence, and lifecycle architecture.
+- `helianthus-docs-eebus/api/` owns eeBUS-specific Go public API schema,
+  reference, and examples.
+- `helianthus-docs-eebus/devices/`, `evidence/`, and `re-notes/` remain valid
+  native roots for device notes, public-safe evidence, and reverse-engineering
+  notes.
+- `helianthus-docs-ebus/docs/platform/` owns language-neutral cross-runtime
+  envelopes, hash/auth binding, shared registry boundary, and
+  promotion/consumer rules.
+
+Every page has `canonical_source`. Duplication is forbidden.
+
+The ownership manifest supports four states:
+
+- `planned`: the path may be absent, is noncanonical and nonlinkable, records a
+  source issue/PR, and expires after 14 days.
+- `candidate`: the path exists only in a candidate area, is hidden from stable
+  outputs, records source PR/head/hash, and expires after 30 days.
+- `active`: the path exists and is approved/frozen.
+- `withdrawn`: the path is excluded and mandatory cleanup removes artifacts.
+
+PR CI uses combined refs across source and docs repos. Main CI enforces
+expiry. Owner/source pairs are globally unique. Cross-repo checks use clean
+clones, explicit refs, pinned tools, and no absolute paths. Platform pages
+merge first without forward links; eeBUS pages link only merged active platform
+pages. README links point only to active/stable targets.
+
+Candidate API documentation uses an explicit handshake:
+
+- only org-owned `Project-Helianthus` branches are valid; forks are rejected;
+- after `MSP-036`, the single `MSP-055` source PR may be prepared and pinned at
+  an immutable candidate-ready head, but it remains merge-blocked;
+- no force-push may occur after docs preparation;
+- `helianthus-eebusreg` CI produces a normalized manifest plus GitHub OIDC
+  DSSE/in-toto attestation;
+- predicate verification binds issuer, workflow identity, org repo, ref,
+  immutable head SHA, run id, run attempt, extractor version, schema version,
+  clean checkout, and manifest digest;
+- `helianthus-docs-eebus` commits the candidate manifest copy plus provenance
+  and merges first;
+- `MSP-DOCS-API-CANDIDATE` must complete before `MSP-055`; the eebusreg merge
+  gate requires an exact match to the current source head, manifest state
+  `candidate`, an unexpired `expires_at` at gate evaluation, and no active
+  cleanup row; any source push invalidates the candidate and re-blocks the
+  source PR;
+- abandoned or expired candidates activate the cleanup row, move entries to
+  `withdrawn`, remove candidate artifacts, block the cross-repo source merge,
+  and restore docs main green before a new candidate cycle.
+
+The extractor implementation lives in `helianthus-eebusreg/internal/apiboundary`.
+Schema and specification docs live in `helianthus-docs-eebus/api`. The
+manifest is a CI artifact, never code-local documentation. Version 1
+normalization is deterministic over package, symbol, type, and signature, with
+stable ordering and no formatting, internal, or unexported noise.
+
+`MSP-DOCS-CLEAN` is mechanical and portable. It rejects tracked or untracked
+`docs/**`, symlinks, absolute paths, traversal, casefold collisions, extra
+Markdown beyond the allowlist, non-template README content, and substantive
+package comments through AST allow/deny rules. It includes positive and
+negative fixtures and runs on Linux plus macOS or portable casefold emulation.
+Path-safety and `canonical_source` gates are mirrored in the docs-owned roots.
+
+Rollback is forward-only. `docs/` is never restored to eebusreg main. Any
+break-glass restoration needs explicit owner approval, blocks all successors,
+and creates cleanup work.
+
+Recovered dirty docs are not facts. Publishable evidence IDs are required; if
+they are absent, material is only candidate or hypothesis with a falsifier.
 
 ## Platform Model
 
@@ -267,7 +358,8 @@ G17.
 
 ### M3.5 - Raw Runtime Contract Freeze
 
-After MSP-R00-L, DOCS-VERIFY, and MSP-03D-R merge from clean main, freeze only
+After MSP-R00-L, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
+MSP-DOCS-E2, MSP-DOCS-CLEAN, and MSP-03D-R merge from clean main, freeze only
 raw identity, raw snapshot envelope, and evidence object shapes in MSP-035.
 Trust, pairing, admin state, lifecycle authority, availability guarantees, and
 final MCP v1 remain unfrozen until later rows.
@@ -278,13 +370,19 @@ Gate: raw snapshot and evidence fixtures replay deterministically.
 
 The clean-main serialized eebusreg sequence is:
 
-1. `MSP-03D-R`: G17+G19 harness and canonical recovery evidence.
-2. `MSP-035`: raw identity/snapshot/evidence freeze.
-3. `MSP-04A`: internal persistent store/schema only.
-4. `MSP-036`: public immutable raw view only.
-5. `MSP-055`: disabled-by-default read-only lifecycle facade.
-6. `MSP-04B`: first-trust/OOB/admin-local gated flow.
-7. `MSP-04C`: restore, revocation, quarantine, and repair.
+1. `MSP-DOCS-CLEAN`: delete any code-repo docs and install ownership/API gates.
+2. `MSP-03D-R`: G17+G19 harness and canonical recovery evidence.
+3. `MSP-035`: raw identity/snapshot/evidence freeze.
+4. `MSP-04A`: internal persistent store/schema only.
+5. `MSP-036`: public immutable raw view only.
+6. `MSP-DOCS-API-CANDIDATE`: merge hidden candidate API docs and the exact-head
+   manifest/provenance while the single `MSP-055` source PR remains unmerged.
+7. `MSP-055`: merge the disabled-by-default read-only lifecycle facade only
+   after its current head exactly matches the merged candidate.
+8. `MSP-DOCS-API-FREEZE`: promote the exact public Go API docs from candidate
+   to active.
+9. `MSP-04B`: first-trust/OOB/admin-local gated flow.
+10. `MSP-04C`: restore, revocation, quarantine, and repair.
 
 `MSP-036` can export only versioned immutable raw snapshot/view fields. It
 must not export semantic device IDs, lifecycle authority, trust/pairing
@@ -391,16 +489,15 @@ snapshots, and MCP/debug compatibility prove no unapproved drift.
   provenance.
 - Do not rename or generalize eBUS public API namespaces until compatibility
   and migration are explicitly planned.
-- Keep durable protocol knowledge canonical in `helianthus-docs-ebus`.
-  `helianthus-docs-eebus` is the eeBUS-native workbench/docs repo and must
-  cross-seed publishable conclusions back to `helianthus-docs-ebus`.
-  Cross-protocol platform contracts remain in `helianthus-docs-ebus/docs/platform/`
-  until a future docs-platform repo is created.
-- `helianthus-docs-ebus/docs/platform/` owns cross-protocol ADRs and the
-  eebusreg-vs-shared-registry boundary/conformance contract.
-- `helianthus-docs-eebus` owns eeBUS protocol identity and eeBUS-native
-  protocol docs.
-- Code repo docs are summary/local usage only and link to canonical sources.
+- Keep only language-neutral platform contracts canonical in
+  `helianthus-docs-ebus/docs/platform/`. eeBUS protocol, runtime architecture,
+  trust/lifecycle, and public API knowledge is canonical in the corresponding
+  `helianthus-docs-eebus/protocols/`, `architecture/`, or `api/` owner defined
+  by the AD-DOCS-01 matrix.
+- `helianthus-docs-ebus/docs/platform/` owns only language-neutral
+  cross-runtime platform contracts.
+- `helianthus-eebusreg` owns no substantive docs and must keep any README or
+  package comments minimal and pointer-only.
 - Every milestone ends with a complete architecture review. Final execution
   adds one extra code-structure review.
 
@@ -414,6 +511,8 @@ The locked plan is acceptable when:
 - Chunks are reviewable in isolation and include the required proof headers.
 - Historical evidence remains preserved without claiming dirty rescue code is
   accepted.
+- AD-DOCS-01 external-only documentation rules are encoded in canonical text,
+  matrix rows, topology, and review artifacts.
 - Recovery, docs verification, clean-main runtime reconciliation, trust,
   gateway, MCP, evidence, candidate, coexistence, promotion, and consumer rows
   are explicit and acyclic.

@@ -5,6 +5,7 @@ Baseline: `Gateway 0.4.0`
 Current milestone: `RECOVERY_RECONCILIATION`
 Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
 Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
+Amendment: `AD-DOCS-01 external-only-documentation`
 
 This map preserves historical evidence without treating dirty rescue code as
 accepted. Future runtime work resumes from clean main, with one active PR per
@@ -22,15 +23,22 @@ repo and one `helianthus-eebusreg` PR at a time.
 
 | ID | Repo | Milestone | Cx | Model lane | Depends on | Gate focus | What |
 | --- | --- | --- | ---: | --- | --- | --- | --- |
-| MSP-R00 | helianthus-eebusreg | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | none | recovery/security | Secret scan, synthetic fixtures, local never-pushed rescue branch, source-only forensic WIP commit and bundle SHA-256; emit a redacted ledger candidate. |
-| MSP-R00-L | helianthus-execution-plans | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | MSP-R00 | recovery/security | Review and publish only the redacted recovery ledger; keep source bundle and full-fidelity evidence outside public git. |
-| DOCS-VERIFY | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | none | doc | Verify license, canonical owners, issue template, path layout, and docs-eebus cross-seeding to docs-ebus. |
-| MSP-03D-R | helianthus-eebusreg | M3 | 9 | GPT-5.5 xhigh | MSP-R00-L, DOCS-VERIFY, MSP-03C, MSP-03D-G01 | transport/security | Clean-main G17+G19 harness and canonical recovery evidence. |
+| MSP-R00 | helianthus-eebusreg | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | none | recovery/security | Completed locally for issue #14 with architecture review PASS, no code acceptance, no public local SHA/path/HMAC/source-bundle detail, and no runtime successor unlock. |
+| MSP-R00-L | helianthus-execution-plans | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | MSP-R00 | recovery/security | Ready. Review and publish only opaque public ledger IDs/classes/dispositions/redaction metadata. |
+| DOCS-VERIFY | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | none | doc | Ready. Verify license, canonical owners, issue template, path layout, docs-eebus roots, and docs-eebus cross-seeding to docs-ebus. |
+| MSP-DOCS-API-SCHEMA | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | DOCS-VERIFY | api-doc/schema | Merge `helianthus.eebus.api-surface.v1`, normalization rules, and golden positive/negative fixtures before extractor consumption. |
+| MSP-DOCS-PLATFORM | helianthus-docs-ebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-R00-L, MSP-DOCS-API-SCHEMA | platform-doc | Add platform contracts and `docs/platform/manifests/eebus-doc-ownership.yaml`. |
+| MSP-DOCS-E2 | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-DOCS-PLATFORM | eebus-doc | Create `architecture/` and `api/`; migrate only supported claims; hide candidate API pages from stable outputs. |
+| MSP-DOCS-CLEAN | helianthus-eebusreg | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | MSP-DOCS-E2 | docs-clean/api-boundary | From clean main, delete `docs/` if present, trim README/comments, and install local+GitHub ownership and API extractor gates. |
+| MSP-DOCS-CANDIDATE-CLEANUP | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | MSP-DOCS-E2 | conditional-cleanup | Dormant. On expiry/abandonment, withdraws candidate artifacts and blocks the bound source merge until a fresh candidate cycle. |
+| MSP-03D-R | helianthus-eebusreg | M3 | 9 | GPT-5.5 xhigh | MSP-DOCS-CLEAN, MSP-03C, MSP-03D-G01 | transport/security | Clean-main G17+G19 harness and canonical recovery evidence. |
 | MSP-035 | helianthus-eebusreg | M3.5 | 8 | GPT-5.5 xhigh | MSP-03D-R | raw-contract | Freeze raw identity, snapshot envelope, and evidence object only. |
 | MSP-04A | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-035 | store/security | Internal persistent store/schema only. |
 | MSP-036 | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04A | raw-view | Public immutable raw snapshot/view only; no lifecycle, trust, semantic ID, or availability authority. |
-| MSP-055 | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-036 | lifecycle/security | Disabled-by-default read-only lifecycle facade with explicit config plus pre-seeded trust/allowlist. |
-| MSP-04B | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-055 | security | First-trust, OOB confirmation, admin-local boundary, and no public trust mutation. |
+| MSP-DOCS-API-CANDIDATE | helianthus-docs-eebus | M4 | 7 | GPT-5.5 high | MSP-036, MSP-DOCS-E2 | api-doc/pre-merge | Merge hidden API candidate pages plus the exact source-head manifest and provenance while the single MSP-055 source PR remains unmerged. |
+| MSP-055 | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-036, MSP-DOCS-API-CANDIDATE | lifecycle/security | Merge only when the current head exactly matches a non-expired candidate-state manifest and no cleanup is active. |
+| MSP-DOCS-API-FREEZE | helianthus-docs-eebus | M4 | 7 | GPT-5.5 high | MSP-055 | api-doc/freeze | Against exact merged source commit, compile examples, compare Go AST/API manifest, verify attestation, and promote candidate API docs to active. |
+| MSP-04B | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-DOCS-API-FREEZE | security | First-trust, OOB confirmation, admin-local boundary, and no public trust mutation. |
 | MSP-04C | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04B | security | Restore, revocation, quarantine, repair, and rollback semantics. |
 | MSP-045 | helianthus-eebusreg | M4.5 | 8 | GPT-5.5 xhigh | MSP-04C | security/contract | Freeze trust, pairing, admin-local, restore, and quarantine state model. |
 | MSP-05A | helianthus-ebusgateway | M5 | 4 | gpt-5.4-mini | MSP-045 | config | Disabled eeBUS config scaffold; no runtime import. |
@@ -64,10 +72,14 @@ repo and one `helianthus-eebusreg` PR at a time.
 
 ## Hard Blockers
 
-- No recovery mutation before MSP-R00 preflight is fully green.
+- No publication of MSP-R00 private details: local SHA, private path, raw HMAC
+  mapping, source-bundle detail, raw paths, volume, sizes, timestamps, bytes,
+  deterministic IDs, raw hashes, or sensitive evidence.
 - No runtime successor unlock from dirty code existence.
 - No public artifact may contain packet captures, raw transcripts, keys, PEM,
   tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial.
+- No `helianthus-eebusreg/docs/` on clean main and no substantive code-repo
+  protocol, architecture, API, harness, test, or user documentation.
 - No gateway import before canonical docs and eebusreg contracts merge.
 - No GraphQL, Portal, HA, command routing, raw writes, or promoted semantics
   before the later milestone and per-leaf lock.

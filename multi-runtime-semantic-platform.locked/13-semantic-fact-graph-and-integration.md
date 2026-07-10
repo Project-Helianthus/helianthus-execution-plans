@@ -1,6 +1,6 @@
 # Semantic Fact Graph And Integration
 
-Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
+Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`; eBUS and eeBUS runtimes may implement
@@ -40,6 +40,11 @@ Minimum fact metadata:
 
 The implementation may choose exact type names later, but it must not expose
 stable consumer values without this information available internally.
+
+Recovered dirty documentation is not evidence by itself and is not a fact.
+Publishable evidence IDs are required before material can be treated as
+supported. If a publishable evidence ID is absent, the material remains only a
+candidate or hypothesis and must carry a falsifier.
 
 M7 facts are draft candidate facts only. They do not promote leaves and they do
 not drive GraphQL, Portal, Home Assistant, raw writes, or command routing.
@@ -110,4 +115,6 @@ Until precedence is explicit, the semantic fact must be `CONFLICTED` or
 No consumer work may start until M8.5 locks the relevant leaf promotion
 dossier. Each dossier must include source-family identity, comparator
 pass/fail parameters, coexistence evidence, replay regeneration, terminal
-negative-state handling, and redacted hashes.
+negative-state handling, and public-safe redaction metadata. R00-L public
+evidence commitments use random opaque IDs and never raw paths, timestamps,
+sizes, byte counts, deterministic IDs, or raw hashes.
