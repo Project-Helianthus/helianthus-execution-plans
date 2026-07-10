@@ -60,7 +60,7 @@ The accepted artifact was validated with the merged add-on gate:
 
 ```bash
 python3 scripts/check_eebus_ha_network_proof.py \
-  --artifact ../helianthus-execution-plans/multi-runtime-semantic-platform.draft/98-msp-03c-ha-network-proof-lab-run.json \
+  --artifact ../helianthus-execution-plans/multi-runtime-semantic-platform.locked/98-msp-03c-ha-network-proof-lab-run.json \
   --mode lab
 ```
 
