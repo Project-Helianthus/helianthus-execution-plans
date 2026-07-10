@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PYTHONDONTWRITEBYTECODE=1
 
 python3 "$ROOT/scripts/validate_msp_r00_l_ledger.py"
 python3 -m unittest discover -s "$ROOT/tests" -p "test*.py"

@@ -14,6 +14,7 @@ LEDGER_PATH = (
     / "multi-runtime-semantic-platform.locked"
     / "104-msp-r00-l-public-redacted-ledger.json"
 )
+VALIDATE_REPO_SCRIPT = ROOT / "scripts" / "validate_plans_repo.sh"
 
 spec = importlib.util.spec_from_file_location("validate_msp_r00_l_ledger", MODULE_PATH)
 assert spec is not None and spec.loader is not None
@@ -57,6 +58,17 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         before = LEDGER_PATH.read_bytes()
         validator.validate_ledger(LEDGER_PATH)
         self.assertEqual(before, LEDGER_PATH.read_bytes())
+
+    def test_repo_validator_disables_python_bytecode_before_python_invocations(self) -> None:
+        lines = VALIDATE_REPO_SCRIPT.read_text(encoding="utf-8").splitlines()
+        export_index = lines.index("export PYTHONDONTWRITEBYTECODE=1")
+        python_invocations = [
+            index
+            for index, line in enumerate(lines)
+            if line.startswith("python3 ") or '"$TOKEN_VENV/bin/python"' in line
+        ]
+        self.assertGreaterEqual(len(python_invocations), 2)
+        self.assertLess(export_index, min(python_invocations))
 
     def test_discovers_default_locked_ledger(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
