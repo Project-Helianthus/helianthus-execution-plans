@@ -179,6 +179,36 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_plan_state_surfaces(root)
 
+    def test_rejects_invalid_matrix_yaml(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            matrix.write_text(
+                "invalid: [\n" + matrix.read_text(encoding="utf-8"),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_complexity_outside_model_lane_table(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            text = matrix.read_text(encoding="utf-8").replace(
+                "    complexity: 7\n"
+                "    model_lane: GPT-5.5 high\n"
+                "    predecessors: [DOCS-VERIFY]",
+                "    complexity: 11\n"
+                "    model_lane: GPT-5.5 xhigh\n"
+                "    predecessors: [DOCS-VERIFY]",
+                1,
+            )
+            matrix.write_text(text, encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
     def test_accepts_monotonic_downstream_progress(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -284,6 +314,17 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertEqual(output.getvalue(), f"validated {validator.LEDGER_FILENAME}\n")
         self.assertNotIn(str(ROOT), output.getvalue())
+
+    def test_failure_output_does_not_expose_validation_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "invalid-ledger.json"
+            path.write_text("{", encoding="utf-8")
+            error = io.StringIO()
+            with contextlib.redirect_stderr(error):
+                result = validator.main([str(MODULE_PATH), str(path)])
+            self.assertEqual(result, 1)
+            self.assertIn(path.name, error.getvalue())
+            self.assertNotIn(str(path.parent), error.getvalue())
 
     def test_discovers_default_locked_ledger(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

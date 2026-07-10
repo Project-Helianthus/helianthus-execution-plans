@@ -8,6 +8,8 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 ROOT_KEYS = frozenset({"artifact_kind", "entries"})
 ENTRY_KEYS = frozenset(
     {
@@ -80,8 +82,32 @@ class ValidationError(ValueError):
     pass
 
 
+class _UniqueKeySafeLoader(yaml.SafeLoader):
+    pass
+
+
 def _fail(message: str) -> None:
     raise ValidationError(message)
+
+
+def _construct_unique_yaml_mapping(
+    loader: _UniqueKeySafeLoader,
+    node: yaml.MappingNode,
+    deep: bool = False,
+) -> dict[Any, Any]:
+    mapping: dict[Any, Any] = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in mapping:
+            _fail(f"{MATRIX_FILENAME}: duplicate YAML key {key!r}")
+        mapping[key] = loader.construct_object(value_node, deep=deep)
+    return mapping
+
+
+_UniqueKeySafeLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    _construct_unique_yaml_mapping,
+)
 
 
 def resolve_default_ledger(root: Path = ROOT) -> Path:
@@ -96,11 +122,11 @@ def resolve_default_ledger(root: Path = ROOT) -> Path:
             f"{'|'.join(ACTIVE_STATES)}"
         )
     if len(candidates) > 1:
-        formatted = ", ".join(str(path) for path in candidates)
+        formatted = ", ".join(path.name for path in candidates)
         _fail(f"multiple active {PLAN_SLUG} directories found: {formatted}")
     ledger = candidates[0] / LEDGER_FILENAME
     if not ledger.is_file():
-        _fail(f"{candidates[0]}: missing {LEDGER_FILENAME}")
+        _fail(f"{candidates[0].name}: missing {LEDGER_FILENAME}")
     return ledger
 
 
@@ -125,12 +151,12 @@ def _load_json_without_duplicate_keys(path: Path) -> Any:
             object_pairs_hook=_reject_duplicate_object_keys,
         )
     except json.JSONDecodeError as exc:
-        raise ValidationError(f"{path}: invalid JSON: {exc}") from exc
+        raise ValidationError(f"{path.name}: invalid JSON: {exc}") from exc
 
 
 def _read_required_text(path: Path) -> str:
     if not path.is_file():
-        _fail(f"{path}: missing required file")
+        _fail(f"{path.name}: missing required file")
     return path.read_text(encoding="utf-8")
 
 
@@ -157,14 +183,22 @@ def _acceptance_state(row: str, row_id: str) -> str:
 
 
 def _validate_topology_ready_set(matrix: str, topology: str) -> None:
-    rows: list[tuple[str, str]] = []
-    pattern = re.compile(r"(?ms)^  - id: (?P<id>[^\n]+)\n(?P<row>.*?)(?=^  - id: |\Z)")
-    for match in pattern.finditer(matrix):
-        rows.append((match.group("id"), match.group("row")))
-    if not rows:
-        _fail(f"{MATRIX_FILENAME}: no issue rows")
+    try:
+        document = yaml.load(matrix, Loader=_UniqueKeySafeLoader)
+    except yaml.YAMLError as exc:
+        raise ValidationError(f"{MATRIX_FILENAME}: invalid YAML") from exc
+    if not isinstance(document, dict) or not isinstance(document.get("issues"), list):
+        _fail(f"{MATRIX_FILENAME}: issues must be a list")
+    rows = document["issues"]
+    if not rows or not all(isinstance(row, dict) for row in rows):
+        _fail(f"{MATRIX_FILENAME}: issues must contain mappings")
 
-    row_ids = [row_id for row_id, _ in rows]
+    row_ids: list[str] = []
+    for row in rows:
+        row_id = row.get("id")
+        if not isinstance(row_id, str) or not row_id:
+            _fail(f"{MATRIX_FILENAME}: every issue requires a non-empty string id")
+        row_ids.append(row_id)
     if len(set(row_ids)) != len(row_ids):
         _fail(f"{MATRIX_FILENAME}: duplicate issue IDs")
 
@@ -172,18 +206,24 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
     predecessors: dict[str, list[str]] = {}
     model_lanes: dict[str, str] = {}
     complexities: dict[str, int] = {}
-    for row_id, row in rows:
-        states[row_id] = _acceptance_state(row, row_id)
-        matches = re.findall(r"(?m)^    predecessors: \[(.*)\]$", row)
-        if len(matches) != 1:
-            _fail(f"{row_id} matrix row: expected exactly one predecessors field")
-        predecessors[row_id] = [item.strip() for item in matches[0].split(",") if item.strip()]
-        lane_matches = re.findall(r"(?m)^    model_lane: (.+)$", row)
-        complexity_matches = re.findall(r"(?m)^    complexity: (\d+)$", row)
-        if len(lane_matches) != 1 or len(complexity_matches) != 1:
-            _fail(f"{row_id} matrix row: expected exactly one model_lane and complexity")
-        model_lanes[row_id] = lane_matches[0]
-        complexities[row_id] = int(complexity_matches[0])
+    rows_by_id = dict(zip(row_ids, rows, strict=True))
+    for row_id, row in rows_by_id.items():
+        state = row.get("acceptance_state")
+        deps = row.get("predecessors")
+        lane = row.get("model_lane")
+        complexity = row.get("complexity")
+        if not isinstance(state, str):
+            _fail(f"{row_id} matrix row: acceptance_state must be a string")
+        if not isinstance(deps, list) or not all(isinstance(dep, str) for dep in deps):
+            _fail(f"{row_id} matrix row: predecessors must be a string list")
+        if not isinstance(lane, str):
+            _fail(f"{row_id} matrix row: model_lane must be a string")
+        if type(complexity) is not int or not 1 <= complexity <= 10:
+            _fail(f"{row_id} matrix row: complexity must be an integer from 1 through 10")
+        states[row_id] = state
+        predecessors[row_id] = deps
+        model_lanes[row_id] = lane
+        complexities[row_id] = complexity
 
     missing = [
         [row_id, dep]
@@ -220,7 +260,7 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
     }
     ready = [
         row_id
-        for row_id, _ in rows
+        for row_id in row_ids
         if states[row_id] == "ready"
         and all(states.get(dep) in accepted for dep in predecessors[row_id])
     ]
@@ -266,14 +306,16 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
         if reported != expected:
             _fail(f"{TOPOLOGY_FILENAME}: {label} is {reported!r}, expected {expected!r}")
 
-    cleanup_row = dict(rows).get("MSP-DOCS-CANDIDATE-CLEANUP", "")
-    cleanup_fragments = (
-        "acceptance_state: dormant_conditional",
-        "initially_ready: false",
-        "required_predecessor_for_normal_successors: false",
-        "blocks_cross_repo_source_rows: [MSP-055]",
+    cleanup_row = rows_by_id.get("MSP-DOCS-CANDIDATE-CLEANUP")
+    cleanup = cleanup_row.get("conditional") if isinstance(cleanup_row, dict) else None
+    cleanup_ok = (
+        isinstance(cleanup, dict)
+        and cleanup_row.get("acceptance_state") == "dormant_conditional"
+        and cleanup.get("initially_ready") is False
+        and cleanup.get("required_predecessor_for_normal_successors") is False
+        and cleanup.get("blocks_cross_repo_source_rows") == ["MSP-055"]
     )
-    if not all(fragment in cleanup_row for fragment in cleanup_fragments):
+    if not cleanup_ok:
         _fail("MSP-DOCS-CANDIDATE-CLEANUP matrix row: conditional contract drift")
     _require_contains(
         topology,

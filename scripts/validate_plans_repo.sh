@@ -4,14 +4,14 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONDONTWRITEBYTECODE=1
 
-python3 "$ROOT/scripts/validate_msp_r00_l_ledger.py"
-python3 -m unittest discover -s "$ROOT/tests" -p "test*.py"
-
 TOKEN_VENV="${TMPDIR:-/tmp}/helianthus-plans-tokenenv"
 if [ ! -x "$TOKEN_VENV/bin/python" ]; then
   python3 -m venv "$TOKEN_VENV"
   "$TOKEN_VENV/bin/pip" install -q pyyaml tiktoken >/dev/null
 fi
+
+"$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_msp_r00_l_ledger.py"
+"$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
 
 NODE_DIR="${TMPDIR:-/tmp}/helianthus-plans-node"
 if [ ! -d "$NODE_DIR/node_modules/@anthropic-ai/tokenizer" ]; then
