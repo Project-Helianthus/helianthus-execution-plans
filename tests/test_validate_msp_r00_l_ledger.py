@@ -24,6 +24,14 @@ spec.loader.exec_module(validator)
 class MspR00LLedgerValidatorTests(unittest.TestCase):
     def setUp(self) -> None:
         self.ledger = json.loads(LEDGER_PATH.read_text(encoding="utf-8"))
+        self.ledger_bytes = LEDGER_PATH.read_bytes()
+
+    def write_temp_ledger(self, root: Path, state: str) -> Path:
+        plan_dir = root / f"{validator.PLAN_SLUG}.{state}"
+        plan_dir.mkdir()
+        ledger_path = plan_dir / validator.LEDGER_FILENAME
+        ledger_path.write_bytes(self.ledger_bytes)
+        return ledger_path
 
     def assert_rejects(self, mutated: dict) -> None:
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json") as handle:
@@ -44,6 +52,52 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
 
     def test_accepts_public_redacted_ledger(self) -> None:
         validator.validate_ledger(LEDGER_PATH)
+
+    def test_explicit_cli_path_validation_preserves_ledger_bytes(self) -> None:
+        before = LEDGER_PATH.read_bytes()
+        validator.validate_ledger(LEDGER_PATH)
+        self.assertEqual(before, LEDGER_PATH.read_bytes())
+
+    def test_discovers_default_locked_ledger(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            expected = self.write_temp_ledger(root, "locked")
+            self.assertEqual(validator.resolve_default_ledger(root), expected)
+            validator.validate_ledger(root=root)
+
+    def test_discovers_default_implementing_ledger(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            expected = self.write_temp_ledger(root, "implementing")
+            self.assertEqual(validator.resolve_default_ledger(root), expected)
+            validator.validate_ledger(root=root)
+
+    def test_discovers_default_maintenance_ledger(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            expected = self.write_temp_ledger(root, "maintenance")
+            self.assertEqual(validator.resolve_default_ledger(root), expected)
+            validator.validate_ledger(root=root)
+
+    def test_rejects_missing_default_ledger(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(validator.ValidationError):
+                validator.resolve_default_ledger(Path(tmp))
+
+    def test_rejects_active_directory_without_default_ledger(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / f"{validator.PLAN_SLUG}.locked").mkdir()
+            with self.assertRaises(validator.ValidationError):
+                validator.resolve_default_ledger(root)
+
+    def test_rejects_ambiguous_default_ledgers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_temp_ledger(root, "locked")
+            self.write_temp_ledger(root, "implementing")
+            with self.assertRaises(validator.ValidationError):
+                validator.resolve_default_ledger(root)
 
     def test_rejects_extra_root_key(self) -> None:
         mutated = copy.deepcopy(self.ledger)

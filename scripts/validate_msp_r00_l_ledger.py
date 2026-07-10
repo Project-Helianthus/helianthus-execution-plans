@@ -32,11 +32,10 @@ ARTIFACT_KIND = "msp_r00_l_public_redacted_recovery_ledger"
 ALLOWED_ISSUE_REF = "Project-Helianthus/helianthus-eebusreg#14"
 ALLOWED_ENUMS = frozenset({"public_redacted", "private_restricted", "discarded"})
 REDACTION_VALUE = "redacted"
-DEFAULT_LEDGER = (
-    Path(__file__).resolve().parents[1]
-    / "multi-runtime-semantic-platform.locked"
-    / "104-msp-r00-l-public-redacted-ledger.json"
-)
+ROOT = Path(__file__).resolve().parents[1]
+PLAN_SLUG = "multi-runtime-semantic-platform"
+ACTIVE_STATES = ("locked", "implementing", "maintenance")
+LEDGER_FILENAME = "104-msp-r00-l-public-redacted-ledger.json"
 
 FORBIDDEN_KEY_FRAGMENTS = (
     "bundle",
@@ -79,6 +78,26 @@ class ValidationError(ValueError):
 
 def _fail(message: str) -> None:
     raise ValidationError(message)
+
+
+def resolve_default_ledger(root: Path = ROOT) -> Path:
+    candidates = [
+        root / f"{PLAN_SLUG}.{state}"
+        for state in ACTIVE_STATES
+        if (root / f"{PLAN_SLUG}.{state}").is_dir()
+    ]
+    if not candidates:
+        _fail(
+            f"no active {PLAN_SLUG} directory found for states "
+            f"{'|'.join(ACTIVE_STATES)}"
+        )
+    if len(candidates) > 1:
+        formatted = ", ".join(str(path) for path in candidates)
+        _fail(f"multiple active {PLAN_SLUG} directories found: {formatted}")
+    ledger = candidates[0] / LEDGER_FILENAME
+    if not ledger.is_file():
+        _fail(f"{candidates[0]}: missing {LEDGER_FILENAME}")
+    return ledger
 
 
 def _reject_duplicate_object_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -142,7 +161,9 @@ def _scan_value(value: Any, where: str) -> None:
             _fail(f"{where}: forbidden public value")
 
 
-def validate_ledger(path: Path = DEFAULT_LEDGER) -> None:
+def validate_ledger(path: Path | None = None, root: Path = ROOT) -> None:
+    if path is None:
+        path = resolve_default_ledger(root)
     data = _load_json_without_duplicate_keys(path)
 
     _require_exact_keys(data, ROOT_KEYS, "$")
@@ -183,8 +204,8 @@ def validate_ledger(path: Path = DEFAULT_LEDGER) -> None:
 
 
 def main(argv: list[str]) -> int:
-    path = Path(argv[1]) if len(argv) == 2 else DEFAULT_LEDGER
     try:
+        path = Path(argv[1]) if len(argv) == 2 else resolve_default_ledger()
         validate_ledger(path)
     except ValidationError as exc:
         print(exc, file=sys.stderr)
