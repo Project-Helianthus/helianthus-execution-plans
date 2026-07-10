@@ -39,6 +39,7 @@ LEDGER_FILENAME = "104-msp-r00-l-public-redacted-ledger.json"
 MATRIX_FILENAME = "92-m0-issue-matrix.yaml"
 ISSUE_MAP_FILENAME = "90-issue-map.md"
 STATUS_FILENAME = "99-status.md"
+TOPOLOGY_FILENAME = "100-topology-audit.md"
 
 FORBIDDEN_KEY_FRAGMENTS = (
     "bundle",
@@ -155,11 +156,53 @@ def _acceptance_state(row: str, row_id: str) -> str:
     return states[0]
 
 
+def _validate_topology_ready_set(matrix: str, topology: str) -> None:
+    rows: list[tuple[str, str]] = []
+    pattern = re.compile(r"(?ms)^  - id: (?P<id>[^\n]+)\n(?P<row>.*?)(?=^  - id: |\Z)")
+    for match in pattern.finditer(matrix):
+        rows.append((match.group("id"), match.group("row")))
+    if not rows:
+        _fail(f"{MATRIX_FILENAME}: no issue rows")
+
+    states: dict[str, str] = {}
+    predecessors: dict[str, list[str]] = {}
+    for row_id, row in rows:
+        states[row_id] = _acceptance_state(row, row_id)
+        matches = re.findall(r"(?m)^    predecessors: \[(.*)\]$", row)
+        if len(matches) != 1:
+            _fail(f"{row_id} matrix row: expected exactly one predecessors field")
+        predecessors[row_id] = [item.strip() for item in matches[0].split(",") if item.strip()]
+
+    accepted = {
+        "accepted",
+        "accepted_partial_no_successor_unlock",
+        "completed_local_no_code_acceptance",
+    }
+    ready = [
+        row_id
+        for row_id, _ in rows
+        if states[row_id] == "ready"
+        and all(states.get(dep) in accepted for dep in predecessors[row_id])
+    ]
+    match = re.search(r"(?m)^- Current ready set: `(?P<ready>\[[^\n]*\])`$", topology)
+    if match is None:
+        _fail(f"{TOPOLOGY_FILENAME}: missing current ready set")
+    try:
+        reported = json.loads(match.group("ready"))
+    except json.JSONDecodeError as exc:
+        raise ValidationError(f"{TOPOLOGY_FILENAME}: invalid ready-set JSON") from exc
+    if reported != ready:
+        _fail(f"{TOPOLOGY_FILENAME}: reported ready set {reported!r}, expected {ready!r}")
+
+
 def validate_plan_state_surfaces(root: Path = ROOT) -> None:
     plan_dir = resolve_default_plan_dir(root)
     matrix = _read_required_text(plan_dir / MATRIX_FILENAME)
     issue_map = _read_required_text(plan_dir / ISSUE_MAP_FILENAME)
     status = _read_required_text(plan_dir / STATUS_FILENAME)
+    topology = _read_required_text(plan_dir / TOPOLOGY_FILENAME)
+
+    _validate_topology_ready_set(matrix, topology)
 
     r00l_row = _extract_matrix_row(matrix, "MSP-R00-L")
     _require_contains(r00l_row, "acceptance_state: accepted", "MSP-R00-L matrix row")

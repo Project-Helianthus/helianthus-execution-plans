@@ -61,6 +61,7 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             validator.MATRIX_FILENAME,
             validator.ISSUE_MAP_FILENAME,
             validator.STATUS_FILENAME,
+            validator.TOPOLOGY_FILENAME,
         ):
             source = LEDGER_PATH.parent / name
             target = plan_dir / name
@@ -197,7 +198,32 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
                 1,
             )
             matrix.write_text(text, encoding="utf-8")
+            topology = plan_dir / validator.TOPOLOGY_FILENAME
+            topology.write_text(
+                topology.read_text(encoding="utf-8").replace(
+                    '- Current ready set: `["MSP-DOCS-API-SCHEMA"]`',
+                    '- Current ready set: `["MSP-DOCS-PLATFORM"]`',
+                    1,
+                ),
+                encoding="utf-8",
+            )
             validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_stale_topology_ready_set(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            topology = plan_dir / validator.TOPOLOGY_FILENAME
+            topology.write_text(
+                topology.read_text(encoding="utf-8").replace(
+                    '- Current ready set: `["MSP-DOCS-API-SCHEMA"]`',
+                    '- Current ready set: `["MSP-R00-L", "DOCS-VERIFY"]`',
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
 
     def test_rejects_platform_advance_before_api_schema_completion(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
