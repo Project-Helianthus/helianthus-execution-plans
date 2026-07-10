@@ -10,7 +10,7 @@ Amendment: `AD-DOCS-01 external-only-documentation`
 | RECOVERY_RECONCILIATION | helianthus-execution-plans, helianthus-docs-eebus, helianthus-docs-ebus, helianthus-eebusreg | completed local MSP-R00 | Initial ready rows are exactly MSP-R00-L and DOCS-VERIFY. MSP-R00 is local completed/no-code-acceptance. The serialized docs chain is API-SCHEMA -> PLATFORM -> E2 -> CLEAN. Dirty rescue code has no runtime successor-unlock authority. |
 | M3 - eeBUS Runtime Feasibility | helianthus-eebusreg | MSP-DOCS-CLEAN, MSP-03C, MSP-03D-G01 | MSP-03D-R passes revised G17 and G19 with owner acceptance. M3 remains open until then. |
 | M3.5 - Raw Runtime Contract Freeze | helianthus-eebusreg | M3 | Raw identity, snapshot envelope, and evidence object replay deterministically; no trust/lifecycle/availability authority is frozen. |
-| M4 - Store, Raw View, Lifecycle Facade, And Trust Security | helianthus-eebusreg, helianthus-docs-eebus | M3.5 | MSP-04A internal store/schema, MSP-036 immutable raw view, MSP-055 disabled read-only lifecycle facade, MSP-DOCS-API-FREEZE active API docs, then first-trust/OOB/admin and repair flows. |
+| M4 - Store, Raw View, Lifecycle Facade, And Trust Security | helianthus-eebusreg, helianthus-docs-eebus | M3.5 | MSP-04A internal store/schema, MSP-036 immutable raw view, exact-head MSP-DOCS-API-CANDIDATE before MSP-055 source merge, MSP-DOCS-API-FREEZE active API docs, then first-trust/OOB/admin and repair flows. |
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
 | M5 - Gateway Sidecar Integration | helianthus-ebusgateway | M4.5 | Gateway import only after canonical docs and eebusreg contracts merge; disabled default opens no sockets and causes no eBUS drift. |
 | M6 - Read-Only eeBUS MCP v1 | helianthus-ebusgateway | M5 | Read-only `eebus.v1.*` tools pass deterministic snapshot/hash/auth/error/anti-leak tests. |
@@ -35,7 +35,9 @@ ready and is not a normal predecessor.
 
 After MSP-DOCS-CLEAN, eebusreg rows are serialized one PR at a time:
 MSP-03D-R, MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, MSP-045.
-MSP-DOCS-API-FREEZE runs after MSP-055 and before MSP-04B. Gateway, MCP,
+After MSP-036, the single MSP-055 source PR is prepared but remains unmerged;
+MSP-DOCS-API-CANDIDATE merges the exact-head candidate first. MSP-055 then
+passes its exact-match merge gate, and MSP-DOCS-API-FREEZE runs before MSP-04B. Gateway, MCP,
 evidence, candidate, coexistence, promotion, and consumer work remain
 downstream.
 

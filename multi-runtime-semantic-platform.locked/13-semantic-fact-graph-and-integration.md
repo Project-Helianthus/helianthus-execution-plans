@@ -1,6 +1,6 @@
 # Semantic Fact Graph And Integration
 
-Canonical-SHA256: `7a4e2cd5f7bd1de6b319a0fc624b30c8cb3cfa2c9b5a50b7732b7001b3ee7ded`
+Canonical-SHA256: `0d706f67b2c469775856447d134db265d9fb52fa24b2adbff3228f8be09adec5`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`; eBUS and eeBUS runtimes may implement

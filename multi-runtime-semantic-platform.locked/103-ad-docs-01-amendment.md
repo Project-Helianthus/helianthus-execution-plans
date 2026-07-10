@@ -37,8 +37,11 @@ private paths, raw HMAC mappings, source-bundle details, or sensitive evidence.
    `MSP-DOCS-CLEAN -> MSP-03D-R`.
 8. `MSP-DOCS-CANDIDATE-CLEANUP` is dormant and conditional; it is not initially
    ready and is not a normal required predecessor.
-9. `MSP-055 -> MSP-DOCS-API-FREEZE -> MSP-04B` freezes API docs against the
-   exact merged source commit before first-trust work.
+9. `MSP-036 -> MSP-DOCS-API-CANDIDATE -> MSP-055 ->
+   MSP-DOCS-API-FREEZE -> MSP-04B` enforces a docs-first exact-head handshake:
+   the single source PR remains unmerged until its hidden candidate manifest
+   and provenance merge, then active docs freeze against the merged source
+   commit before first-trust work.
 
 ## Security Review
 
@@ -69,8 +72,11 @@ exact docs-eebus subtree while preserving only language-neutral MSP-035
 contracts in docs-ebus/platform.
 
 A second fresh-context verification after those fixes returned `PASS` with no
-findings: 42 unique rows, no cycles or missing dependencies, exact initial
-ready set, synchronized canonical hash, and no private recovery-data leak.
+findings. PR review then identified and closed two additional consistency
+gaps: the missing pre-merge API candidate row and the contradictory evidence-ID
+requirement for unsupported hypotheses. The amended matrix has 43 unique rows,
+no cycles or missing dependencies, the exact initial ready set, a synchronized
+canonical hash, and no private recovery-data leak.
 
 ## Residual Risks
 

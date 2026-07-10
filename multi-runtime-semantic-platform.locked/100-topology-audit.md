@@ -68,8 +68,8 @@ PY
 
 ## Result
 
-- Row count: `42`
-- Unique IDs: `42`
+- Row count: `43`
+- Unique IDs: `43`
 - Missing predecessor references: `[]`
 - Cycles: `[]`
 - Initial ready set: `["MSP-R00-L", "DOCS-VERIFY"]`
@@ -81,6 +81,11 @@ The two ready rows target different serialization groups:
 completed locally with no code acceptance and no runtime successor unlock.
 MSP-R00-L publishes only the opaque public ledger. The documentation chain then
 runs API-SCHEMA -> PLATFORM -> E2 -> CLEAN before MSP-03D-R.
+
+After MSP-036, MSP-DOCS-API-CANDIDATE is the explicit pre-merge gate for the
+single MSP-055 source PR. The source PR may be prepared and pinned, but remains
+unmerged until docs-eebus merges the exact-head candidate manifest and
+provenance. MSP-055 then depends on that merged candidate.
 
 `MSP-DOCS-CANDIDATE-CLEANUP` is deliberately dormant. It is not initially
 ready and is not a normal required predecessor; it activates only when a

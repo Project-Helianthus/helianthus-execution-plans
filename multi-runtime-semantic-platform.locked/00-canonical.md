@@ -159,6 +159,8 @@ pages. README links point only to active/stable targets.
 Candidate API documentation uses an explicit handshake:
 
 - only org-owned `Project-Helianthus` branches are valid; forks are rejected;
+- after `MSP-036`, the single `MSP-055` source PR may be prepared and pinned at
+  an immutable candidate-ready head, but it remains merge-blocked;
 - no force-push may occur after docs preparation;
 - `helianthus-eebusreg` CI produces a normalized manifest plus GitHub OIDC
   DSSE/in-toto attestation;
@@ -167,8 +169,9 @@ Candidate API documentation uses an explicit handshake:
   clean checkout, and manifest digest;
 - `helianthus-docs-eebus` commits the candidate manifest copy plus provenance
   and merges first;
-- the eebusreg merge gate requires exact match, and any source push invalidates
-  the candidate;
+- `MSP-DOCS-API-CANDIDATE` must complete before `MSP-055`; the eebusreg merge
+  gate requires an exact match to the current source head, and any source push
+  invalidates the candidate and re-blocks the source PR;
 - abandoned or expired candidates activate the cleanup row, move entries to
   `withdrawn`, remove candidate artifacts, and restore docs main green.
 
@@ -369,11 +372,14 @@ The clean-main serialized eebusreg sequence is:
 3. `MSP-035`: raw identity/snapshot/evidence freeze.
 4. `MSP-04A`: internal persistent store/schema only.
 5. `MSP-036`: public immutable raw view only.
-6. `MSP-055`: disabled-by-default read-only lifecycle facade.
-7. `MSP-DOCS-API-FREEZE`: promote the exact public Go API docs from candidate
+6. `MSP-DOCS-API-CANDIDATE`: merge hidden candidate API docs and the exact-head
+   manifest/provenance while the single `MSP-055` source PR remains unmerged.
+7. `MSP-055`: merge the disabled-by-default read-only lifecycle facade only
+   after its current head exactly matches the merged candidate.
+8. `MSP-DOCS-API-FREEZE`: promote the exact public Go API docs from candidate
    to active.
-8. `MSP-04B`: first-trust/OOB/admin-local gated flow.
-9. `MSP-04C`: restore, revocation, quarantine, and repair.
+9. `MSP-04B`: first-trust/OOB/admin-local gated flow.
+10. `MSP-04C`: restore, revocation, quarantine, and repair.
 
 `MSP-036` can export only versioned immutable raw snapshot/view fields. It
 must not export semantic device IDs, lifecycle authority, trust/pairing

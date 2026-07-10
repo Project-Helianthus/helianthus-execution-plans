@@ -35,7 +35,8 @@ repo and one `helianthus-eebusreg` PR at a time.
 | MSP-035 | helianthus-eebusreg | M3.5 | 8 | GPT-5.5 xhigh | MSP-03D-R | raw-contract | Freeze raw identity, snapshot envelope, and evidence object only. |
 | MSP-04A | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-035 | store/security | Internal persistent store/schema only. |
 | MSP-036 | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04A | raw-view | Public immutable raw snapshot/view only; no lifecycle, trust, semantic ID, or availability authority. |
-| MSP-055 | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-036 | lifecycle/security | Disabled-by-default read-only lifecycle facade with explicit config plus pre-seeded trust/allowlist. |
+| MSP-DOCS-API-CANDIDATE | helianthus-docs-eebus | M4 | 7 | GPT-5.5 high | MSP-036, MSP-DOCS-E2 | api-doc/pre-merge | Merge hidden API candidate pages plus the exact source-head manifest and provenance while the single MSP-055 source PR remains unmerged. |
+| MSP-055 | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-036, MSP-DOCS-API-CANDIDATE | lifecycle/security | Merge the disabled-by-default read-only lifecycle facade only after its current head exactly matches the merged candidate. |
 | MSP-DOCS-API-FREEZE | helianthus-docs-eebus | M4 | 7 | GPT-5.5 high | MSP-055 | api-doc/freeze | Against exact merged source commit, compile examples, compare Go AST/API manifest, verify attestation, and promote candidate API docs to active. |
 | MSP-04B | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-DOCS-API-FREEZE | security | First-trust, OOB confirmation, admin-local boundary, and no public trust mutation. |
 | MSP-04C | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04B | security | Restore, revocation, quarantine, repair, and rollback semantics. |

@@ -36,7 +36,7 @@ serialization:
   memory_guard: serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise
   recovery_sequence: [MSP-R00, MSP-R00-L, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM, MSP-DOCS-E2, MSP-DOCS-CLEAN, MSP-03D-R]
   eebusreg_sequence: [MSP-DOCS-CLEAN, MSP-03D-R, MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, MSP-045]
-  docs_eebus_sequence: [DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-E2, MSP-DOCS-API-FREEZE]
+  docs_eebus_sequence: [DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-E2, MSP-DOCS-API-CANDIDATE, MSP-DOCS-API-FREEZE]
   docs_ebus_sequence: [MSP-DOCS-PLATFORM]
   initial_ready_set: [MSP-R00-L, DOCS-VERIFY]
   dirty_code_unlocks_successors: false
@@ -550,7 +550,7 @@ issues:
       - api/ owns eeBUS-specific Go public API schema, reference, and examples
       - devices/, evidence/, and re-notes/ remain in their existing ownership roles
       - only supported claims are migrated as active; recovered dirty docs are never facts by themselves
-      - unsupported material is marked candidate or hypothesis with a falsifier and publishable evidence ID
+      - unsupported material without a publishable evidence ID remains candidate or hypothesis and carries a falsifier; only supported material with a publishable evidence ID may become active
       - candidate API pages are excluded from stable navigation, search, sitemap, versioned bundles, and release bundles
       - E2 links only merged active platform pages
 
@@ -701,13 +701,37 @@ issues:
       - no semantic device ID is exported
       - no lifecycle authority, trust/pairing mutation, or availability guarantee is exported
 
+  - id: MSP-DOCS-API-CANDIDATE
+    title: Stage the exact-head eeBUS Go public API candidate
+    repo: helianthus-docs-eebus
+    milestone: M4
+    complexity: 7
+    model_lane: GPT-5.5 high
+    predecessors: [MSP-036, MSP-DOCS-E2]
+    docs_owner: helianthus-docs-eebus/api
+    doc_gate: required
+    transport_gate: none
+    security_gate: required
+    rollback_ledger: withdraw the candidate and keep the source PR merge-blocked
+    review_ledger: exact-head candidate manifest, provenance, and pre-merge ordering review
+    tdd_mode: docs_schema_red_green
+    smoke_scope: candidate hiding, attestation verification, exact-head match, and source-push invalidation
+    acceptance_state: proposed
+    acceptance:
+      - after MSP-036, the single MSP-055 source PR may be prepared on an org-owned branch and pinned at an immutable candidate-ready head, but it remains unmerged
+      - the normalized Go AST/API manifest and GitHub OIDC DSSE/in-toto attestation bind exactly to that source head
+      - docs-eebus commits and merges the candidate manifest copy, provenance, and hidden candidate API pages before the source PR may merge
+      - candidate content is excluded from stable navigation, search, sitemap, versioned bundles, release bundles, and README links
+      - any source push invalidates the candidate, re-blocks MSP-055, and requires a new candidate preparation cycle
+      - an abandoned or expired source PR activates MSP-DOCS-CANDIDATE-CLEANUP
+
   - id: MSP-055
     title: Add disabled read-only lifecycle facade
     repo: helianthus-eebusreg
     milestone: M4
     complexity: 9
     model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-036]
+    predecessors: [MSP-036, MSP-DOCS-API-CANDIDATE]
     docs_owner: helianthus-docs-eebus/architecture
     doc_gate: required
     transport_gate: eebus_v0
@@ -718,6 +742,8 @@ issues:
     smoke_scope: disabled default, explicit config, pre-seeded trust/allowlist, feature graph/reconnect scope
     acceptance_state: proposed
     acceptance:
+      - the same single source issue, branch, and PR prepared for MSP-DOCS-API-CANDIDATE is used; no second eebusreg PR is opened
+      - the merge gate verifies that the merged docs-eebus candidate manifest and provenance exactly match the current source head and attestation
       - facade is disabled by default
       - public lifecycle facade is read-only
       - outbound sockets require explicit config plus pre-seeded trust or allowlist

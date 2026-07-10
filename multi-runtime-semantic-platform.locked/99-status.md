@@ -75,6 +75,9 @@ No runtime successor may start from dirty code or local recovery artifacts.
 - Re-run clean-main MSP-03D-R with revised G17 and G19 after DOCS-CLEAN.
 - Close MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, and MSP-045 in
   one eebusreg PR at a time.
+- After MSP-036, prepare and pin the single MSP-055 source PR, merge
+  MSP-DOCS-API-CANDIDATE against its exact head, then merge MSP-055 only after
+  the exact-match gate passes.
 - Run MSP-DOCS-API-FREEZE after MSP-055 and before MSP-04B.
 - Continue gateway M5, MCP M6, evidence, candidates, coexistence, promotion,
   and consumer work only after predecessor gates merge.

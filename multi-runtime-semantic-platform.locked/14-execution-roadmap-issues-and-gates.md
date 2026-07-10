@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `7a4e2cd5f7bd1de6b319a0fc624b30c8cb3cfa2c9b5a50b7732b7001b3ee7ded`
+Canonical-SHA256: `0d706f67b2c469775856447d134db265d9fb52fa24b2adbff3228f8be09adec5`
 
 Depends on:
 All previous chunks.
@@ -104,7 +104,10 @@ The recovery documentation chain is:
 6. `MSP-DOCS-CLEAN`, historical `MSP-03C`, and historical `MSP-03D-G01` ->
    `MSP-03D-R`.
 
-Later, `MSP-055` -> `MSP-DOCS-API-FREEZE` -> `MSP-04B`.
+Later, the single source PR follows a pre-merge handshake:
+`MSP-036` -> `MSP-DOCS-API-CANDIDATE` -> `MSP-055` ->
+`MSP-DOCS-API-FREEZE` -> `MSP-04B`. Preparing and pinning the `MSP-055`
+source PR after `MSP-036` does not make `MSP-055` complete or merge-eligible.
 
 `MSP-DOCS-CANDIDATE-CLEANUP` is a dormant conditional row after
 `MSP-DOCS-E2`. It is not initially ready and is not a required predecessor for
@@ -123,12 +126,16 @@ serialized one PR at a time:
 3. `MSP-035` - raw identity/snapshot/evidence freeze.
 4. `MSP-04A` - internal persistent store/schema only.
 5. `MSP-036` - public immutable raw snapshot/view only.
-6. `MSP-055` - disabled-by-default read-only lifecycle facade.
-7. `MSP-DOCS-API-FREEZE` - compile examples, compare exact Go AST/API
+6. `MSP-DOCS-API-CANDIDATE` - merge the hidden candidate API pages and
+   exact-head manifest/provenance while the single `MSP-055` source PR remains
+   unmerged.
+7. `MSP-055` - merge the disabled-by-default read-only lifecycle facade only
+   after its current source head exactly matches the merged candidate.
+8. `MSP-DOCS-API-FREEZE` - compile examples, compare exact Go AST/API
    manifest, and promote the candidate API docs to active.
-8. `MSP-04B` - first-trust, OOB confirmation, and admin-local boundary.
-9. `MSP-04C` - restore, revocation, quarantine, and repair.
-10. `MSP-045` - trust and admin state freeze.
+9. `MSP-04B` - first-trust, OOB confirmation, and admin-local boundary.
+10. `MSP-04C` - restore, revocation, quarantine, and repair.
+11. `MSP-045` - trust and admin state freeze.
 
 Gateway M5, MCP M6, evidence/candidates/coexistence/promotion, and consumers
 remain blocked until the prior canonical docs and eebusreg contracts merge.
@@ -192,6 +199,14 @@ uses positive and negative fixtures on Linux plus macOS or portable casefold
 emulation. Path-safety and `canonical_source` gates are mirrored in
 docs-eebus and docs-ebus owned roots.
 
+`MSP-DOCS-API-CANDIDATE` runs after `MSP-036`. The single `MSP-055` source PR
+may be prepared and pinned at an immutable candidate-ready head, but remains
+unmerged. Docs-eebus verifies the exact-head manifest and attestation, merges
+the hidden candidate pages and provenance first, and invalidates the candidate
+on any source push. `MSP-055` cannot merge until its current head exactly
+matches that merged candidate; the same issue, branch, and PR continue through
+the source merge gate.
+
 `MSP-DOCS-API-FREEZE` runs against the exact merged source commit. It compiles
 examples, compares the Go AST/API manifest, verifies provenance, and promotes
 candidate API docs to an active version.
@@ -210,6 +225,8 @@ otherwise content remains candidate or hypothesis.
 Candidate API handshake rules:
 
 - only org-owned `Project-Helianthus` branches are valid; forks are rejected;
+- after `MSP-036`, the single `MSP-055` source PR may be prepared and pinned,
+  but it remains merge-blocked until `MSP-DOCS-API-CANDIDATE` merges;
 - no force-push may happen after docs preparation;
 - eebusreg CI produces a normalized manifest and GitHub OIDC DSSE/in-toto
   attestation;
@@ -218,8 +235,8 @@ Candidate API handshake rules:
   checkout, and manifest digest;
 - docs-eebus commits the candidate manifest copy plus provenance and merges
   first;
-- eebusreg merge gate requires exact match, and source push invalidates the
-  candidate;
+- eebusreg merge gate requires an exact match to the current source head, and
+  any source push invalidates the candidate and re-blocks `MSP-055`;
 - abandoned or expired candidates trigger cleanup.
 
 ## Transport And Security Gates
