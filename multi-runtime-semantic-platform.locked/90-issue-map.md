@@ -27,8 +27,8 @@ repo and one `helianthus-eebusreg` PR at a time.
 | MSP-03D-R | helianthus-eebusreg | M3 | 9 | GPT-5.5 xhigh | MSP-R00, DOCS-VERIFY, MSP-03C, MSP-03D-G01 | transport/security | Clean-main G17+G19 harness and canonical recovery evidence. |
 | MSP-035 | helianthus-eebusreg | M3.5 | 8 | GPT-5.5 xhigh | MSP-03D-R | raw-contract | Freeze raw identity, snapshot envelope, and evidence object only. |
 | MSP-04A | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-035 | store/security | Internal persistent store/schema only. |
-| MSP-036 | helianthus-eebusreg | M3.6 | 8 | GPT-5.5 xhigh | MSP-04A | raw-view | Public immutable raw snapshot/view only; no lifecycle, trust, semantic ID, or availability authority. |
-| MSP-055 | helianthus-eebusreg | M5.5 | 9 | GPT-5.5 xhigh | MSP-036 | lifecycle/security | Disabled-by-default read-only lifecycle facade with explicit config plus pre-seeded trust/allowlist. |
+| MSP-036 | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04A | raw-view | Public immutable raw snapshot/view only; no lifecycle, trust, semantic ID, or availability authority. |
+| MSP-055 | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-036 | lifecycle/security | Disabled-by-default read-only lifecycle facade with explicit config plus pre-seeded trust/allowlist. |
 | MSP-04B | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-055 | security | First-trust, OOB confirmation, admin-local boundary, and no public trust mutation. |
 | MSP-04C | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04B | security | Restore, revocation, quarantine, repair, and rollback semantics. |
 | MSP-045 | helianthus-eebusreg | M4.5 | 8 | GPT-5.5 xhigh | MSP-04C | security/contract | Freeze trust, pairing, admin-local, restore, and quarantine state model. |

@@ -462,7 +462,7 @@ issues:
   - id: MSP-036
     title: Export immutable raw snapshot/view fields
     repo: helianthus-eebusreg
-    milestone: M3.6
+    milestone: M4
     complexity: 8
     model_lane: GPT-5.5 xhigh
     predecessors: [MSP-04A]
@@ -483,7 +483,7 @@ issues:
   - id: MSP-055
     title: Add disabled read-only lifecycle facade
     repo: helianthus-eebusreg
-    milestone: M5.5
+    milestone: M4
     complexity: 9
     model_lane: GPT-5.5 xhigh
     predecessors: [MSP-036]
