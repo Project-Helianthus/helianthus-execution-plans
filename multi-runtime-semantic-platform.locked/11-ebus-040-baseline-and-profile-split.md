@@ -1,6 +1,6 @@
 # eBUS 0.4.0 Baseline And Profile Split
 
-Canonical-SHA256: `de84f3f35afecd3317e2a62089fdaa78150adb4b62110771296b7fd7c7ab24df`
+Canonical-SHA256: `71bd97f3eb9939bfb7e1f472f9e8aa79bd01a195a9917b0e1740eeaf0d42dfcc`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`.
@@ -25,7 +25,7 @@ Covers M0, M2, and M3 from the canonical milestone list.
 ## Baseline
 
 Gateway `0.4.0` is the direct eBUS baseline without the external eBUS proxy.
-The draft treats that version as the compatibility reference for:
+The locked plan treats that version as the compatibility reference for:
 
 - direct adapter runtime behavior;
 - adapter ownership and arbitration behavior;

@@ -1,6 +1,6 @@
 # eeBUS Transport Gate v0
 
-Status: `Draft`
+Status: `Locked`
 Applies to: M3, M5, M6, M8, and any later issue that changes SHIP/SPINE
 runtime behavior, eeBUS listener behavior, eeBUS discovery, pairing, trust,
 snapshot/replay, or gateway eeBUS sidecar wiring.
@@ -50,8 +50,9 @@ Every gate run produces an artifact bundle with:
 | EEBUS-G14 snapshot auth/mask binding | M6 | Ref dereference requires exact runtime/contract/tool/scope/mask/auth binding. |
 | EEBUS-G15 drop/expiry | M6 | `snapshot.drop` returns `dropped` or `already_gone`; descendants fail `snapshot_gone`. |
 | EEBUS-G16 redaction | M4/M6 | Shareable outputs contain no PEM, key, token, full fingerprint, IP/MAC/serial, local identity, stable peer id, or pairing history. |
-| EEBUS-G17 VR940f live smoke | M3 | Live VR940f discovery, pairing/session establishment, feature graph extraction, and reconnect after restart pass. |
-| EEBUS-G18 coexistence no drift | M8 | Existing eBUS MCP, GraphQL, HA, and debug outputs remain unchanged with eeBUS candidate facts present. |
+| EEBUS-G17 configured local SHIP advertisement/discovery | M3 | Configured local SHIP advertisement/discovery, myVaillant trust visibility, and negative/TTL behavior pass. This is not evidence that the VR940f advertises a server. |
+| EEBUS-G18 coexistence no drift | M8 | Existing eBUS MCP, GraphQL, HA, and debug outputs remain unchanged with eeBUS candidate facts present. No G17/G19 meaning is attached to this case. |
+| EEBUS-G19 direct outbound VR940 access | M3 | Direct outbound VR940f TCP/TLS/WebSocket/SHIP access completes and first post-access SPINE data is captured in redacted, replayable evidence. |
 
 ## Failure Rules
 
@@ -59,8 +60,13 @@ Every gate run produces an artifact bundle with:
 - A failed redaction case blocks merge even if runtime behavior otherwise works.
 - A same-container or same-bridge networking proof is insufficient for cases
   that require LAN-side evidence.
-- Fake peer success is supporting evidence only; live VR940f smoke is required
-  before gateway import.
+- Fake peer success is supporting evidence only. MSP-03D closes only after both
+  revised G17 and G19 pass with owner acceptance.
+- Feature graph completeness and reconnect durability belong to MSP-055/M6, not
+  G17.
+- Public gate artifacts must not include packet captures, raw transcripts,
+  keys, PEM blocks, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC
+  address, or raw serial values.
 - If an issue touches eBUS transport or creates new B509/B524/B555 capture
   paths, run the eBUS transport gate in addition to this gate.
 
@@ -69,11 +75,27 @@ Every gate run produces an artifact bundle with:
 - MSP-03A: dependency/module evidence only; no fake-peer handshake case is
   required in the facade spike.
 - MSP-03C: EEBUS-G05, G06, G07, G08, G09.
-- MSP-03D: EEBUS-G01 and G17.
+- MSP-03D-R: EEBUS-G17 and G19 plus canonical recovery evidence.
 - MSP-04A/B/C: EEBUS-G02, G03, G04, G09, G10, G11, G16.
 - MSP-05B: EEBUS-G00, G05, and disabled-default eBUS no-drift proof.
 - MSP-06: EEBUS-G12, G13, G14, G15, G16.
 - MSP-08: EEBUS-G18.
+
+## G19 Canonical Evidence Minimum
+
+The public G19 artifact records:
+
+- exact repo, branch, commit, and commands;
+- redacted JSON outputs;
+- transcript hashes, not transcripts;
+- environment and tool versions;
+- topology, timestamps, and trust preconditions;
+- deterministic replay fixtures;
+- denied-access and reconnect-failure negative cases;
+- separate `operator_live_proof` and `ci_replay_authority` fields.
+
+Public artifacts must not leak device identity. Full-fidelity data is encrypted
+outside git with mode `0600` or discarded.
 
 ## Acceptance Language
 

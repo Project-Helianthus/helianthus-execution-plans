@@ -1,0 +1,40 @@
+slug: multi-runtime-semantic-platform
+title: Helianthus Multi-Runtime Semantic Platform
+state: locked
+cruise_phase: RECOVERY_RECONCILIATION
+source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
+target_repos:
+  - helianthus-execution-plans
+  - helianthus-docs-ebus
+  - helianthus-docs-eebus
+  - helianthus-ebusgateway
+  - helianthus-ebusreg
+  - helianthus-eebusreg
+  - helianthus-ha-integration
+  - helianthus-ha-addon
+knowledge_repo: helianthus-docs-ebus
+platform_docs_owner: helianthus-docs-ebus/docs/platform
+protocol_knowledge_repo: helianthus-docs-eebus
+protocol_native_docs_repo: helianthus-docs-eebus
+cross_seed_target_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: 2026-04-12
+locked_on: 2026-07-10
+current_milestone: RECOVERY_RECONCILIATION
+accepted_adversarial_rounds: 5
+accepted_through: MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only
+m3_status: open
+msp_03d_status: open
+dirty_rescue_candidate: true
+successor_unlocks: false
+successor_unlock_condition: MSP-R00 and MSP-03D-R reconciliation gates merged from clean main
+initial_ready_set:
+  - MSP-R00
+  - DOCS-VERIFY
+model_map:
+  complexity_1_2: GPT-5.3-Codex-Spark
+  complexity_3_4: gpt-5.4-mini
+  complexity_5: GPT-5.5 medium
+  complexity_6_7: GPT-5.5 high
+  complexity_8_10: GPT-5.5 xhigh

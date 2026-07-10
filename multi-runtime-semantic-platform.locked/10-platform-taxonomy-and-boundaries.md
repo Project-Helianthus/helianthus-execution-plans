@@ -1,13 +1,13 @@
 # Platform Taxonomy And Boundaries
 
-Canonical-SHA256: `de84f3f35afecd3317e2a62089fdaa78150adb4b62110771296b7fd7c7ab24df`
+Canonical-SHA256: `71bd97f3eb9939bfb7e1f472f9e8aa79bd01a195a9917b0e1740eeaf0d42dfcc`
 
 Depends on:
 None. This is the vocabulary root for the draft.
 
 Scope:
 Defines the platform layering that every runtime, protocol family, and vendor
-profile must use.
+profile must use in the locked plan.
 
 Idempotence contract:
 Re-reading or re-applying this taxonomy must not imply code changes by itself.
