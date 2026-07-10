@@ -33,14 +33,16 @@ The final plan-lock architecture review is recorded in
 
 ## Ready Rows
 
-- `DOCS-VERIFY`: docs-eebus license, owners, issue template, path layout, and
-  docs-eebus to docs-ebus cross-seeding verification.
+- `MSP-DOCS-API-SCHEMA`: ready after execution-plans PR #62 merges; its only
+  predecessor `DOCS-VERIFY` is already complete.
 
 ## Completed Recovery Publication
 
 - `MSP-R00-L`: completes only when execution-plans PR #62 merges. Because the
   redacted ledger and these state surfaces merge atomically, the post-merge
   state is complete and the MSP-R00-L predecessor is satisfied.
+- `DOCS-VERIFY`: completed in Project-Helianthus/helianthus-docs-eebus PR #5
+  at 954b6353.
 
 No runtime successor may start from dirty code or local recovery artifacts.
 
@@ -73,10 +75,9 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Complete DOCS-VERIFY.
-- Run MSP-DOCS-API-SCHEMA after DOCS-VERIFY completes.
-- Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; its MSP-R00-L
-  predecessor is satisfied after PR #62 merges.
+- Run MSP-DOCS-API-SCHEMA after execution-plans PR #62 merges.
+- Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; after
+  execution-plans PR #62 merges, its MSP-R00-L side is satisfied.
 - Continue the serialized docs chain with MSP-DOCS-E2 and MSP-DOCS-CLEAN only
   after their predecessors complete.
 - Re-run clean-main MSP-03D-R with revised G17 and G19 after DOCS-CLEAN.

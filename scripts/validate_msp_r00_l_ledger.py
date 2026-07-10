@@ -164,6 +164,27 @@ def validate_plan_state_surfaces(root: Path = ROOT) -> None:
         "MSP-R00-L matrix row",
     )
 
+    docs_verify_row = _extract_matrix_row(matrix, "DOCS-VERIFY")
+    _require_contains(docs_verify_row, "acceptance_state: accepted", "DOCS-VERIFY matrix row")
+    if "acceptance_state: ready" in docs_verify_row:
+        _fail("DOCS-VERIFY matrix row: stale ready state")
+    _require_contains(
+        docs_verify_row,
+        "completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353",
+        "DOCS-VERIFY matrix row",
+    )
+
+    api_schema_row = _extract_matrix_row(matrix, "MSP-DOCS-API-SCHEMA")
+    _require_contains(api_schema_row, "predecessors: [DOCS-VERIFY]", "MSP-DOCS-API-SCHEMA matrix row")
+    _require_contains(api_schema_row, "acceptance_state: ready", "MSP-DOCS-API-SCHEMA matrix row")
+    if "acceptance_state: accepted" in api_schema_row:
+        _fail("MSP-DOCS-API-SCHEMA matrix row: must not be complete")
+    _require_contains(
+        api_schema_row,
+        "readiness_note: ready after execution-plans PR #62 merges; DOCS-VERIFY is already complete via Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353",
+        "MSP-DOCS-API-SCHEMA matrix row",
+    )
+
     docs_platform_row = _extract_matrix_row(matrix, "MSP-DOCS-PLATFORM")
     _require_contains(
         docs_platform_row,
@@ -175,6 +196,13 @@ def validate_plan_state_surfaces(root: Path = ROOT) -> None:
         "acceptance_state: proposed",
         "MSP-DOCS-PLATFORM matrix row",
     )
+    if "acceptance_state: accepted" in docs_platform_row:
+        _fail("MSP-DOCS-PLATFORM matrix row: must not be complete")
+    _require_contains(
+        docs_platform_row,
+        "blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied and this row remains blocked only on MSP-DOCS-API-SCHEMA",
+        "MSP-DOCS-PLATFORM matrix row",
+    )
 
     _require_contains(
         issue_map,
@@ -183,12 +211,17 @@ def validate_plan_state_surfaces(root: Path = ROOT) -> None:
     )
     _require_contains(
         issue_map,
-        "| MSP-DOCS-API-SCHEMA | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | DOCS-VERIFY | api-doc/schema | Not ready until DOCS-VERIFY completes;",
+        "| DOCS-VERIFY | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | none | doc | Complete in Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353. |",
         ISSUE_MAP_FILENAME,
     )
     _require_contains(
         issue_map,
-        "| MSP-DOCS-PLATFORM | helianthus-docs-ebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-R00-L, MSP-DOCS-API-SCHEMA | platform-doc | MSP-R00-L predecessor is satisfied after PR #62 merges; still not ready until MSP-DOCS-API-SCHEMA completes.",
+        "| MSP-DOCS-API-SCHEMA | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | DOCS-VERIFY | api-doc/schema | Ready after execution-plans PR #62 merges; DOCS-VERIFY is already complete.",
+        ISSUE_MAP_FILENAME,
+    )
+    _require_contains(
+        issue_map,
+        "| MSP-DOCS-PLATFORM | helianthus-docs-ebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-R00-L, MSP-DOCS-API-SCHEMA | platform-doc | After execution-plans PR #62 merges, MSP-R00-L is satisfied and this row remains blocked only on MSP-DOCS-API-SCHEMA.",
         ISSUE_MAP_FILENAME,
     )
 
@@ -201,7 +234,17 @@ def validate_plan_state_surfaces(root: Path = ROOT) -> None:
     )
     _require_contains(
         status,
-        "Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; its MSP-R00-L",
+        "`DOCS-VERIFY`: completed in Project-Helianthus/helianthus-docs-eebus PR #5",
+        STATUS_FILENAME,
+    )
+    _require_contains(
+        status,
+        "`MSP-DOCS-API-SCHEMA`: ready after execution-plans PR #62 merges; its only",
+        STATUS_FILENAME,
+    )
+    _require_contains(
+        status,
+        "Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; after",
         STATUS_FILENAME,
     )
     _require_contains(

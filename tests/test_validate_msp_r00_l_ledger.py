@@ -54,6 +54,19 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
     def test_accepts_synchronized_msp_r00_l_state_surfaces(self) -> None:
         validator.validate_plan_state_surfaces(ROOT)
 
+    def copy_state_surfaces(self, root: Path) -> Path:
+        self.write_temp_ledger(root, "locked")
+        plan_dir = root / f"{validator.PLAN_SLUG}.locked"
+        for name in (
+            validator.MATRIX_FILENAME,
+            validator.ISSUE_MAP_FILENAME,
+            validator.STATUS_FILENAME,
+        ):
+            source = LEDGER_PATH.parent / name
+            target = plan_dir / name
+            target.write_bytes(source.read_bytes())
+        return plan_dir
+
     def test_explicit_cli_path_validation_preserves_ledger_bytes(self) -> None:
         before = LEDGER_PATH.read_bytes()
         validator.validate_ledger(LEDGER_PATH)
@@ -62,16 +75,7 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
     def test_rejects_msp_r00_l_matrix_state_drift(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            self.write_temp_ledger(root, "locked")
-            plan_dir = root / f"{validator.PLAN_SLUG}.locked"
-            for name in (
-                validator.MATRIX_FILENAME,
-                validator.ISSUE_MAP_FILENAME,
-                validator.STATUS_FILENAME,
-            ):
-                source = LEDGER_PATH.parent / name
-                target = plan_dir / name
-                target.write_bytes(source.read_bytes())
+            plan_dir = self.copy_state_surfaces(root)
             matrix = plan_dir / validator.MATRIX_FILENAME
             matrix.write_text(
                 matrix.read_text(encoding="utf-8").replace(
@@ -80,6 +84,88 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
                     "  - id: MSP-R00-L\n"
                     "    title: Review and publish the redacted recovery ledger\n"
                     "    acceptance_state: ready",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_docs_verify_state_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            matrix.write_text(
+                matrix.read_text(encoding="utf-8").replace(
+                    "  - id: DOCS-VERIFY\n"
+                    "    title: Verify docs ownership, license, template, and path layout\n"
+                    "    repo: helianthus-docs-eebus\n"
+                    "    milestone: RECOVERY_RECONCILIATION\n"
+                    "    complexity: 4\n"
+                    "    model_lane: gpt-5.4-mini\n"
+                    "    predecessors: []\n"
+                    "    docs_owner: helianthus-docs-ebus/docs/platform\n"
+                    "    doc_gate: verify\n"
+                    "    transport_gate: none\n"
+                    "    security_gate: required\n"
+                    "    rollback_ledger: revert verification row only\n"
+                    "    review_ledger: docs ownership and public-source review\n"
+                    "    tdd_mode: docs_checklist\n"
+                    "    smoke_scope: license, owners, issue template, path layout, cross-seeding\n"
+                    "    acceptance_state: accepted\n"
+                    "    completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353",
+                    "  - id: DOCS-VERIFY\n"
+                    "    title: Verify docs ownership, license, template, and path layout\n"
+                    "    repo: helianthus-docs-eebus\n"
+                    "    milestone: RECOVERY_RECONCILIATION\n"
+                    "    complexity: 4\n"
+                    "    model_lane: gpt-5.4-mini\n"
+                    "    predecessors: []\n"
+                    "    docs_owner: helianthus-docs-ebus/docs/platform\n"
+                    "    doc_gate: verify\n"
+                    "    transport_gate: none\n"
+                    "    security_gate: required\n"
+                    "    rollback_ledger: revert verification row only\n"
+                    "    review_ledger: docs ownership and public-source review\n"
+                    "    tdd_mode: docs_checklist\n"
+                    "    smoke_scope: license, owners, issue template, path layout, cross-seeding\n"
+                    "    acceptance_state: ready\n"
+                    "    completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_api_schema_state_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            matrix.write_text(
+                matrix.read_text(encoding="utf-8").replace(
+                    "    acceptance_state: ready\n"
+                    "    readiness_note: ready after execution-plans PR #62 merges;",
+                    "    acceptance_state: proposed\n"
+                    "    readiness_note: ready after execution-plans PR #62 merges;",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_platform_blocker_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            matrix.write_text(
+                matrix.read_text(encoding="utf-8").replace(
+                    "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied and this row remains blocked only on MSP-DOCS-API-SCHEMA",
+                    "    blocked_note: blocked on MSP-R00-L and MSP-DOCS-API-SCHEMA",
                     1,
                 ),
                 encoding="utf-8",
