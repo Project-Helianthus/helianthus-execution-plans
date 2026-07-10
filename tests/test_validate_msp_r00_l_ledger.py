@@ -51,10 +51,41 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
     def test_accepts_public_redacted_ledger(self) -> None:
         validator.validate_ledger(LEDGER_PATH)
 
+    def test_accepts_synchronized_msp_r00_l_state_surfaces(self) -> None:
+        validator.validate_plan_state_surfaces(ROOT)
+
     def test_explicit_cli_path_validation_preserves_ledger_bytes(self) -> None:
         before = LEDGER_PATH.read_bytes()
         validator.validate_ledger(LEDGER_PATH)
         self.assertEqual(before, LEDGER_PATH.read_bytes())
+
+    def test_rejects_msp_r00_l_matrix_state_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write_temp_ledger(root, "locked")
+            plan_dir = root / f"{validator.PLAN_SLUG}.locked"
+            for name in (
+                validator.MATRIX_FILENAME,
+                validator.ISSUE_MAP_FILENAME,
+                validator.STATUS_FILENAME,
+            ):
+                source = LEDGER_PATH.parent / name
+                target = plan_dir / name
+                target.write_bytes(source.read_bytes())
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            matrix.write_text(
+                matrix.read_text(encoding="utf-8").replace(
+                    "  - id: MSP-R00-L\n"
+                    "    title: Review and publish the redacted recovery ledger",
+                    "  - id: MSP-R00-L\n"
+                    "    title: Review and publish the redacted recovery ledger\n"
+                    "    acceptance_state: ready",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
 
     def test_repo_validator_disables_python_bytecode_before_python_invocations(self) -> None:
         lines = VALIDATE_REPO_SCRIPT.read_text(encoding="utf-8").splitlines()

@@ -36,6 +36,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PLAN_SLUG = "multi-runtime-semantic-platform"
 ACTIVE_STATES = ("locked", "implementing", "maintenance")
 LEDGER_FILENAME = "104-msp-r00-l-public-redacted-ledger.json"
+MATRIX_FILENAME = "92-m0-issue-matrix.yaml"
+ISSUE_MAP_FILENAME = "90-issue-map.md"
+STATUS_FILENAME = "99-status.md"
 
 FORBIDDEN_KEY_FRAGMENTS = (
     "bundle",
@@ -100,6 +103,11 @@ def resolve_default_ledger(root: Path = ROOT) -> Path:
     return ledger
 
 
+def resolve_default_plan_dir(root: Path = ROOT) -> Path:
+    ledger = resolve_default_ledger(root)
+    return ledger.parent
+
+
 def _reject_duplicate_object_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -117,6 +125,90 @@ def _load_json_without_duplicate_keys(path: Path) -> Any:
         )
     except json.JSONDecodeError as exc:
         raise ValidationError(f"{path}: invalid JSON: {exc}") from exc
+
+
+def _read_required_text(path: Path) -> str:
+    if not path.is_file():
+        _fail(f"{path}: missing required file")
+    return path.read_text(encoding="utf-8")
+
+
+def _extract_matrix_row(text: str, row_id: str) -> str:
+    pattern = re.compile(
+        rf"(?ms)^  - id: {re.escape(row_id)}\n(?P<row>.*?)(?=^  - id: |\Z)"
+    )
+    match = pattern.search(text)
+    if match is None:
+        _fail(f"{MATRIX_FILENAME}: missing row {row_id}")
+    return match.group("row")
+
+
+def _require_contains(text: str, needle: str, where: str) -> None:
+    if needle not in text:
+        _fail(f"{where}: missing {needle!r}")
+
+
+def validate_plan_state_surfaces(root: Path = ROOT) -> None:
+    plan_dir = resolve_default_plan_dir(root)
+    matrix = _read_required_text(plan_dir / MATRIX_FILENAME)
+    issue_map = _read_required_text(plan_dir / ISSUE_MAP_FILENAME)
+    status = _read_required_text(plan_dir / STATUS_FILENAME)
+
+    r00l_row = _extract_matrix_row(matrix, "MSP-R00-L")
+    _require_contains(r00l_row, "acceptance_state: accepted", "MSP-R00-L matrix row")
+    if "acceptance_state: ready" in r00l_row:
+        _fail("MSP-R00-L matrix row: stale ready state")
+    _require_contains(
+        r00l_row,
+        "completion_note: completes only when execution-plans PR #62 merges;",
+        "MSP-R00-L matrix row",
+    )
+
+    docs_platform_row = _extract_matrix_row(matrix, "MSP-DOCS-PLATFORM")
+    _require_contains(
+        docs_platform_row,
+        "predecessors: [MSP-R00-L, MSP-DOCS-API-SCHEMA]",
+        "MSP-DOCS-PLATFORM matrix row",
+    )
+    _require_contains(
+        docs_platform_row,
+        "acceptance_state: proposed",
+        "MSP-DOCS-PLATFORM matrix row",
+    )
+
+    _require_contains(
+        issue_map,
+        "| MSP-R00-L | helianthus-execution-plans | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | MSP-R00 | recovery/security | Complete when execution-plans PR #62 merges;",
+        ISSUE_MAP_FILENAME,
+    )
+    _require_contains(
+        issue_map,
+        "| MSP-DOCS-API-SCHEMA | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | DOCS-VERIFY | api-doc/schema | Not ready until DOCS-VERIFY completes;",
+        ISSUE_MAP_FILENAME,
+    )
+    _require_contains(
+        issue_map,
+        "| MSP-DOCS-PLATFORM | helianthus-docs-ebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-R00-L, MSP-DOCS-API-SCHEMA | platform-doc | MSP-R00-L predecessor is satisfied after PR #62 merges; still not ready until MSP-DOCS-API-SCHEMA completes.",
+        ISSUE_MAP_FILENAME,
+    )
+
+    _require_contains(status, "## Ready Rows", STATUS_FILENAME)
+    _require_contains(status, "## Completed Recovery Publication", STATUS_FILENAME)
+    _require_contains(
+        status,
+        "`MSP-R00-L`: completes only when execution-plans PR #62 merges.",
+        STATUS_FILENAME,
+    )
+    _require_contains(
+        status,
+        "Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; its MSP-R00-L",
+        STATUS_FILENAME,
+    )
+    _require_contains(
+        status,
+        "Continue the serialized docs chain with MSP-DOCS-E2 and MSP-DOCS-CLEAN only",
+        STATUS_FILENAME,
+    )
 
 
 def _require_exact_keys(value: Any, expected: frozenset[str], where: str) -> None:
@@ -207,6 +299,8 @@ def main(argv: list[str]) -> int:
     try:
         path = Path(argv[1]) if len(argv) == 2 else resolve_default_ledger()
         validate_ledger(path)
+        if len(argv) != 2:
+            validate_plan_state_surfaces()
     except ValidationError as exc:
         print(exc, file=sys.stderr)
         return 1

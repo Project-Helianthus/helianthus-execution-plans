@@ -443,7 +443,8 @@ issues:
     review_ledger: independent redaction and recovery traceability review
     tdd_mode: plan_preflight
     smoke_scope: opaque ledger schema and leak scan
-    acceptance_state: ready
+    acceptance_state: accepted
+    completion_note: completes only when execution-plans PR #62 merges; because the ledger and state surfaces merge atomically, the post-merge state is complete and the MSP-R00-L predecessor is satisfied
     acceptance:
       - the redacted ledger is reviewed in a dedicated execution-plans PR
       - the ledger maps each opaque public evidence ID to a clean-main issue, public_redacted disposition, private_restricted disposition, or discarded disposition

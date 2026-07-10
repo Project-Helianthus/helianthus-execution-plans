@@ -31,12 +31,16 @@ paths, volume, sizes, timestamps, bytes, deterministic IDs, and raw hashes.
 The final plan-lock architecture review is recorded in
 `102-plan-lock-architecture-review.md` with verdict `PASS`.
 
-## Initial Ready Rows
+## Ready Rows
 
-- `MSP-R00-L`: execution-plans publication of only opaque public evidence IDs,
-  classes, dispositions, and redaction metadata.
 - `DOCS-VERIFY`: docs-eebus license, owners, issue template, path layout, and
   docs-eebus to docs-ebus cross-seeding verification.
+
+## Completed Recovery Publication
+
+- `MSP-R00-L`: completes only when execution-plans PR #62 merges. Because the
+  redacted ledger and these state surfaces merge atomically, the post-merge
+  state is complete and the MSP-R00-L predecessor is satisfied.
 
 No runtime successor may start from dirty code or local recovery artifacts.
 
@@ -69,9 +73,12 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Complete MSP-R00-L and DOCS-VERIFY.
-- Run the serialized docs chain: MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
-  MSP-DOCS-E2, and MSP-DOCS-CLEAN.
+- Complete DOCS-VERIFY.
+- Run MSP-DOCS-API-SCHEMA after DOCS-VERIFY completes.
+- Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; its MSP-R00-L
+  predecessor is satisfied after PR #62 merges.
+- Continue the serialized docs chain with MSP-DOCS-E2 and MSP-DOCS-CLEAN only
+  after their predecessors complete.
 - Re-run clean-main MSP-03D-R with revised G17 and G19 after DOCS-CLEAN.
 - Close MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, and MSP-045 in
   one eebusreg PR at a time.
