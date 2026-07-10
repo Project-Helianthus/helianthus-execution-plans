@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 python3 "$ROOT/scripts/validate_msp_r00_l_ledger.py"
+python3 -m unittest discover -s "$ROOT/tests" -p "test*.py"
 
 TOKEN_VENV="${TMPDIR:-/tmp}/helianthus-plans-tokenenv"
 if [ ! -x "$TOKEN_VENV/bin/python" ]; then

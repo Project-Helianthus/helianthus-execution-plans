@@ -81,6 +81,25 @@ def _fail(message: str) -> None:
     raise ValidationError(message)
 
 
+def _reject_duplicate_object_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            _fail(f"duplicate JSON key {key!r}")
+        result[key] = value
+    return result
+
+
+def _load_json_without_duplicate_keys(path: Path) -> Any:
+    try:
+        return json.loads(
+            path.read_text(encoding="utf-8"),
+            object_pairs_hook=_reject_duplicate_object_keys,
+        )
+    except json.JSONDecodeError as exc:
+        raise ValidationError(f"{path}: invalid JSON: {exc}") from exc
+
+
 def _require_exact_keys(value: Any, expected: frozenset[str], where: str) -> None:
     if not isinstance(value, dict):
         _fail(f"{where}: expected object")
@@ -124,10 +143,7 @@ def _scan_value(value: Any, where: str) -> None:
 
 
 def validate_ledger(path: Path = DEFAULT_LEDGER) -> None:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        raise ValidationError(f"{path}: invalid JSON: {exc}") from exc
+    data = _load_json_without_duplicate_keys(path)
 
     _require_exact_keys(data, ROOT_KEYS, "$")
     if data["artifact_kind"] != ARTIFACT_KIND:
@@ -149,6 +165,8 @@ def validate_ledger(path: Path = DEFAULT_LEDGER) -> None:
             _fail(f"{where}.public_class: unexpected enum")
         if entry["disposition"] not in ALLOWED_ENUMS:
             _fail(f"{where}.disposition: unexpected enum")
+        if entry["public_class"] != entry["disposition"]:
+            _fail(f"{where}: public_class must match disposition")
 
         redaction = entry["redaction_categories"]
         _require_exact_keys(redaction, REDACTION_KEYS, f"{where}.redaction_categories")
