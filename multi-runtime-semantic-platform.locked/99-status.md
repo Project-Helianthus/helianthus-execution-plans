@@ -100,12 +100,15 @@ No runtime successor may start from dirty code or local recovery artifacts.
 GraphQL, Portal, Home Assistant, command routing, raw writes, and promoted
 semantics remain out of scope until their later milestones and per-leaf locks.
 
-Public git and public bundles must not contain packet captures, raw
-transcripts, keys, PEM blocks, tokens, trust stores, raw SKI, raw SHIPID, raw
-IP/MAC address, raw serial values, raw or identifying paths, volume, sizes,
-timestamps, byte counts, deterministic IDs, or raw hashes. Full fidelity is
-encrypted outside git with mode `0600` or discarded. Only an opaque redacted
-ledger is public.
+No public artifact may contain packet captures, raw transcripts, keys, PEM
+blocks, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw
+serial values. The additional ban on raw or identifying paths, volume, sizes,
+timestamps, byte counts, deterministic IDs, and raw hashes applies specifically
+to MSP-R00/MSP-R00-L recovery publication. Later gate evidence may publish the
+redacted timestamps, acceptance metadata, and cryptographic commitments its
+locked public-safe template requires, but never restricted preimages or raw
+payloads. Full fidelity remains encrypted outside git with mode `0600` or is
+discarded.
 
 Durable language-neutral platform contracts remain canonical in
 `helianthus-docs-ebus/docs/platform/`. eeBUS protocol behavior lives in

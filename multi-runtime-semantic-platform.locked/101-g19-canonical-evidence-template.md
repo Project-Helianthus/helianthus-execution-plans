@@ -58,6 +58,10 @@ owner_acceptance:
   notes: <redacted optional>
 ```
 
-Public artifacts may contain redacted JSON and transcript hashes only. They
-must not contain packet captures, raw transcripts, keys, PEM blocks, tokens,
-trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial values.
+Public artifacts may contain the template's redacted JSON, UTC timestamps,
+owner-acceptance metadata, and cryptographic evidence commitments. Hashes bind
+only to public-safe redacted evidence or act as nonreversible commitments to
+restricted evidence held outside git; they never authorize publication of the
+restricted preimage. Public artifacts must not contain packet captures, raw
+transcripts, keys, PEM blocks, tokens, trust stores, raw SKI, raw SHIPID, raw
+IP/MAC address, or raw serial values.

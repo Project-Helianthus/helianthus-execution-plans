@@ -47,10 +47,12 @@ private paths, raw HMAC mappings, source-bundle details, or sensitive evidence.
 
 Verdict: `PASS`.
 
-The amendment removes public bundle/hash publication requirements that could
-conflict with privacy policy. Public commitments are limited to opaque IDs,
-classes, dispositions, and redaction metadata. Raw HMACs and mappings stay
-private. Cross-repo provenance requires clean clones, explicit refs, pinned
+The amendment removes MSP-R00-L public bundle/hash publication requirements
+that could conflict with privacy policy. That recovery ledger's commitments
+are limited to opaque IDs, classes, dispositions, and redaction metadata. Raw
+HMACs and mappings stay private. Later gate evidence follows its separately
+locked public-safe template. Cross-repo provenance requires clean clones,
+explicit refs, pinned
 tools, GitHub OIDC DSSE/in-toto attestation, immutable head SHA, run
 id/attempt, extractor/schema versions, clean checkout, and manifest digest.
 
