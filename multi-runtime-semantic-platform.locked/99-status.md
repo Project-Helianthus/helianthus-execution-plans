@@ -5,6 +5,8 @@ Started: `2026-04-12`
 Last revised: `2026-07-10`
 Current milestone: `RECOVERY_RECONCILIATION`
 Cruise phase: `RECOVERY_RECONCILIATION`
+Amendment count: `1`
+Amendment: `AD-DOCS-01 external-only-documentation`
 Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
 Dirty rescue candidate: `true`
 Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
@@ -12,27 +14,31 @@ Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
-The plan is locked after five accepted adversarial rounds. Historical evidence
-is preserved through M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged
-MSP-03D EEBUS-G01 fake-peer harness slice. M3 and MSP-03D remain open.
+The plan is locked after five accepted adversarial rounds and the AD-DOCS-01
+external-only-documentation amendment. Historical evidence is preserved through
+M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D EEBUS-G01
+fake-peer harness slice. M3 and MSP-03D remain open.
 
 Dirty rescue work may be useful as a candidate, but it is not accepted code,
 does not unlock successors, and must be reconciled through clean-main recovery
 rows.
+
+`MSP-R00` is completed locally for issue #14 with no code acceptance, no
+runtime successor unlock, and architecture review PASS. Public artifacts omit
+local commit SHA, private paths, raw HMAC mappings, source-bundle detail, raw
+paths, volume, sizes, timestamps, bytes, deterministic IDs, and raw hashes.
 
 The final plan-lock architecture review is recorded in
 `102-plan-lock-architecture-review.md` with verdict `PASS`.
 
 ## Initial Ready Rows
 
-- `MSP-R00`: eebusreg taint/file split, secret scan,
-  synthetic-fixture/redaction rules, local never-pushed rescue branch, one
-  source-only forensic WIP commit, source-only git bundle SHA-256, and a
-  redacted ledger candidate for MSP-R00-L.
+- `MSP-R00-L`: execution-plans publication of only opaque public evidence IDs,
+  classes, dispositions, and redaction metadata.
 - `DOCS-VERIFY`: docs-eebus license, owners, issue template, path layout, and
   docs-eebus to docs-ebus cross-seeding verification.
 
-No runtime repo mutation may start until MSP-R00 preflight is fully green.
+No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Accepted Historical Evidence
 
@@ -63,11 +69,13 @@ No runtime repo mutation may start until MSP-R00 preflight is fully green.
 
 ## Open Work
 
-- Complete MSP-R00 and DOCS-VERIFY, then publish the redacted ledger through
-  MSP-R00-L.
-- Re-run clean-main MSP-03D-R with revised G17 and G19.
+- Complete MSP-R00-L and DOCS-VERIFY.
+- Run the serialized docs chain: MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
+  MSP-DOCS-E2, and MSP-DOCS-CLEAN.
+- Re-run clean-main MSP-03D-R with revised G17 and G19 after DOCS-CLEAN.
 - Close MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, and MSP-045 in
   one eebusreg PR at a time.
+- Run MSP-DOCS-API-FREEZE after MSP-055 and before MSP-04B.
 - Continue gateway M5, MCP M6, evidence, candidates, coexistence, promotion,
   and consumer work only after predecessor gates merge.
 
@@ -91,11 +99,16 @@ semantics remain out of scope until their later milestones and per-leaf locks.
 
 Public git and public bundles must not contain packet captures, raw
 transcripts, keys, PEM blocks, tokens, trust stores, raw SKI, raw SHIPID, raw
-IP/MAC address, or raw serial values. Full fidelity is encrypted outside git
-with mode `0600` or discarded. Only a redacted ledger is public.
+IP/MAC address, raw serial values, raw or identifying paths, volume, sizes,
+timestamps, byte counts, deterministic IDs, or raw hashes. Full fidelity is
+encrypted outside git with mode `0600` or discarded. Only an opaque redacted
+ledger is public.
 
-Durable cross-protocol contracts remain canonical in
-`helianthus-docs-ebus/docs/platform/`. eeBUS protocol identity and native docs
-remain in `helianthus-docs-eebus`, with durable cross-seeding back to
-`helianthus-docs-ebus`. Code repo docs are summary/local usage only with
-canonical source links.
+Durable language-neutral platform contracts remain canonical in
+`helianthus-docs-ebus/docs/platform/`. eeBUS protocol behavior lives in
+`helianthus-docs-eebus/protocols/`; runtime/adapter/trust/persistence/lifecycle
+architecture lives in `helianthus-docs-eebus/architecture/`; and eeBUS-specific
+Go public API schema/reference/examples live in `helianthus-docs-eebus/api/`.
+Every page has `canonical_source`. `helianthus-eebusreg` has no `docs/`
+directory and no substantive protocol, architecture, API, harness, test, or
+user documentation.

@@ -1,6 +1,6 @@
 # Platform Taxonomy And Boundaries
 
-Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
+Canonical-SHA256: `7a4e2cd5f7bd1de6b319a0fc624b30c8cb3cfa2c9b5a50b7732b7001b3ee7ded`
 
 Depends on:
 None. This is the vocabulary root for the draft.
@@ -61,6 +61,22 @@ SemanticIntegration
 - Semantic projection converts native facts into canonical facts with evidence.
 - Semantic integration merges facts by identity, provenance, precedence, and
   conflict state.
+- Language-neutral cross-runtime contracts live in
+  `helianthus-docs-ebus/docs/platform/`; protocol-native eeBUS contracts live
+  in `helianthus-docs-eebus` under the AD-DOCS-01 ownership matrix.
+
+## Documentation Ownership Boundary
+
+`helianthus-docs-ebus/docs/platform/` owns cross-runtime envelopes,
+hash/auth binding, shared registry boundary, and promotion/consumer rules.
+`helianthus-docs-eebus/protocols/` owns eeBUS/SHIP/SPINE protocol behavior.
+`helianthus-docs-eebus/architecture/` owns eeBUS runtime, adapter, trust,
+persistence, and lifecycle architecture. `helianthus-docs-eebus/api/` owns
+eeBUS-specific Go public API schema, reference, and examples.
+
+Every page declares `canonical_source`. Duplicated ownership is invalid.
+`helianthus-eebusreg` owns no substantive protocol, architecture, API,
+harness, test, or user documentation.
 
 ## Non-Goals
 
@@ -71,6 +87,8 @@ SemanticIntegration
 - Do not treat eeBUS/SHIP/SPINE as a simple transport.
 - Do not expose stable consumer semantics before raw MCP and semantic MCP have
   converged.
+- Do not restore a `docs/` directory to `helianthus-eebusreg` main, even as
+  rollback. Documentation cleanup is forward-only.
 
 ## Target Gateway Shape
 

@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `613797dfb6d4ef8376a99e16bc8033c03de909a807fd31905cd1c8f721385c0a`
+Canonical-SHA256: `7a4e2cd5f7bd1de6b319a0fc624b30c8cb3cfa2c9b5a50b7732b7001b3ee7ded`
 
 Depends on:
 All previous chunks.
@@ -61,46 +61,74 @@ No other model lane is valid for this plan.
 
 Historical M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D
 EEBUS-G01 fake-peer harness slice remain preserved evidence. They do not let
-M3 close without MSP-R00-L, DOCS-VERIFY, and MSP-03D-R.
+M3 close without MSP-R00-L, DOCS-VERIFY, the AD-DOCS-01 documentation chain,
+and MSP-03D-R.
 
 ## Initial Ready Rows
 
-The initial ready set after lock is only:
+After AD-DOCS-01, `MSP-R00` is completed locally with no code acceptance,
+issue `Project-Helianthus/helianthus-eebusreg#14`, architecture review
+`PASS`, and no successor unlock beyond making the publication row eligible.
+The initial ready set is exactly:
 
-- `MSP-R00` in `helianthus-eebusreg`, with no predecessor;
+- `MSP-R00-L` in `helianthus-execution-plans`, after local MSP-R00 completion;
 - `DOCS-VERIFY` in `helianthus-docs-eebus`, with no predecessor.
 
-`MSP-R00` is the recovery reconciliation gate. It requires a taint/file split
-ledger, secret scan, synthetic-fixture and redaction rules, local never-pushed
-rescue branch, one source-only forensic WIP commit, and a source-only git
-bundle SHA-256. Public git and public bundles must not contain packet captures,
-raw transcripts, keys, PEM blocks, tokens, trust stores, raw SKI, raw SHIPID,
-raw IP/MAC address, or raw serial values. Full fidelity is encrypted outside
-git with mode `0600` or discarded. Preflight must be fully green before
-recovery mutation.
+`MSP-R00` remains local evidence only. Public plan artifacts omit local commit
+SHA, private path, raw HMAC mapping, source-bundle detail, and sensitive raw
+evidence. It does not accept code and does not unlock runtime successors.
 
 `MSP-R00-L` is the separately serialized execution-plans publication row. It
-depends on MSP-R00 and publishes only the reviewed redacted ledger; it never
-publishes the source bundle, rescue commit, or full-fidelity evidence.
+depends on MSP-R00 and publishes only the reviewed redacted ledger. Public IDs
+are random, nonsemantic, and regenerated per publication. The only public
+classes are `public_redacted`, `private_restricted`, and `discarded`. Public
+commitment covers only opaque IDs, classes, dispositions, and redaction
+metadata. It never publishes raw or identifying paths, volume, sizes,
+timestamps, byte counts, deterministic IDs, raw hashes, source bundles, rescue
+commits, packet captures, transcripts, keys, credentials, trust stores, or
+device identities.
 
 `DOCS-VERIFY` blocks runtime successors until license, canonical owners, issue
 template compliance, path layout, and cross-seeding to `helianthus-docs-ebus`
 are verified.
 
+## AD-DOCS-01 Serialized Documentation Chain
+
+The recovery documentation chain is:
+
+1. completed local `MSP-R00` -> ready `MSP-R00-L`;
+2. `DOCS-VERIFY` -> `MSP-DOCS-API-SCHEMA`;
+3. `MSP-R00-L` plus `MSP-DOCS-API-SCHEMA` -> `MSP-DOCS-PLATFORM`;
+4. `MSP-DOCS-PLATFORM` -> `MSP-DOCS-E2`;
+5. `MSP-DOCS-E2` -> `MSP-DOCS-CLEAN`;
+6. `MSP-DOCS-CLEAN`, historical `MSP-03C`, and historical `MSP-03D-G01` ->
+   `MSP-03D-R`.
+
+Later, `MSP-055` -> `MSP-DOCS-API-FREEZE` -> `MSP-04B`.
+
+`MSP-DOCS-CANDIDATE-CLEANUP` is a dormant conditional row after
+`MSP-DOCS-E2`. It is not initially ready and is not a required predecessor for
+normal successors. It activates only when a candidate expires or the source PR
+closes unmerged. Once activated, it preempts same-repo successors, marks the
+candidate `withdrawn`, removes candidate artifacts, and restores docs main
+green.
+
 ## Clean-Main Serialized Sequence
 
-After the initial ready rows and MSP-R00-L merge, eebusreg work is serialized
-one PR at a time:
+After the initial ready rows and documentation chain merge, eebusreg work is
+serialized one PR at a time:
 
-1. `MSP-R00-L` - publish the reviewed redacted recovery ledger.
+1. `MSP-DOCS-CLEAN` - delete any eebusreg docs and install ownership/API gates.
 2. `MSP-03D-R` - G17+G19 harness and canonical recovery evidence.
 3. `MSP-035` - raw identity/snapshot/evidence freeze.
 4. `MSP-04A` - internal persistent store/schema only.
 5. `MSP-036` - public immutable raw snapshot/view only.
 6. `MSP-055` - disabled-by-default read-only lifecycle facade.
-7. `MSP-04B` - first-trust, OOB confirmation, and admin-local boundary.
-8. `MSP-04C` - restore, revocation, quarantine, and repair.
-9. `MSP-045` - trust and admin state freeze.
+7. `MSP-DOCS-API-FREEZE` - compile examples, compare exact Go AST/API
+   manifest, and promote the candidate API docs to active.
+8. `MSP-04B` - first-trust, OOB confirmation, and admin-local boundary.
+9. `MSP-04C` - restore, revocation, quarantine, and repair.
+10. `MSP-045` - trust and admin state freeze.
 
 Gateway M5, MCP M6, evidence/candidates/coexistence/promotion, and consumers
 remain blocked until the prior canonical docs and eebusreg contracts merge.
@@ -109,20 +137,90 @@ semantics stay out until their later milestones and per-leaf locks.
 
 ## Documentation Gates
 
-`helianthus-docs-ebus/docs/platform/` owns cross-protocol ADRs and the
-eebusreg-vs-shared-registry boundary/conformance contract.
+`helianthus-docs-ebus/docs/platform/` owns language-neutral cross-runtime
+envelopes, hash/auth binding, shared registry boundary, and promotion/consumer
+rules.
 
-`helianthus-docs-eebus` owns eeBUS protocol identity, SHIP/SPINE discovery
-notes, VR940f protocol identity notes, and eeBUS-native evidence-workbench
-docs.
+`helianthus-docs-eebus/protocols/` owns eeBUS/SHIP/SPINE protocol behavior.
+`helianthus-docs-eebus/architecture/` owns eeBUS runtime, adapter, trust,
+persistence, and lifecycle architecture. `helianthus-docs-eebus/api/` owns
+eeBUS-specific Go public API schema, reference, and examples. `devices/`,
+`evidence/`, and `re-notes/` remain valid docs-eebus roots.
 
-Code repo docs are summary/local usage only. They must link to canonical
-sources and must not carry normative requirements, issue template policy,
-promotion policy, security acceptance criteria, or duplicated path layouts.
+Every page has `canonical_source`. Duplication is forbidden.
+`helianthus-eebusreg` and clean-main branches contain no `docs/` directory and
+own no substantive protocol, architecture, API, harness, test, or user
+documentation. Only exact minimal README entry/status/build pointers and
+concise Go package metadata comments may remain, linking only to
+manifest-state `active` pages or pre-existing stable landing pages.
+
+Manifest states:
+
+- `planned`: absent allowed, noncanonical/nonlinkable, source issue/PR,
+  14-day expiry.
+- `candidate`: path exists only in candidate area, hidden from stable outputs,
+  source PR/head/hash, 30-day expiry.
+- `active`: exists and approved/frozen.
+- `withdrawn`: excluded and mandatory cleanup.
+
+Combined-ref CI runs for PRs; main CI enforces expiry. Owner/source pairs are
+globally unique.
 
 `DOCS-VERIFY` must prove license, owner, issue-template, path-layout, and
 cross-seeding compliance before runtime successors begin. Gateway import is
 blocked until prior canonical docs and eebusreg contracts are merged.
+
+`MSP-DOCS-API-SCHEMA` merges the `helianthus.eebus.api-surface.v1` schema,
+canonical extraction/normalization rules, and golden positive/negative
+fixtures before extractor consumption.
+
+`MSP-DOCS-PLATFORM` adds or migrates the platform contracts and
+`docs/platform/manifests/eebus-doc-ownership.yaml`.
+
+`MSP-DOCS-E2` creates `architecture/` and `api/` beside existing `protocols/`.
+It migrates only supported claims. Otherwise content is candidate or
+hypothesis with a falsifier. Candidate API pages are excluded from stable
+navigation, search, sitemap, versioned bundles, and release bundles.
+
+`MSP-DOCS-CLEAN` starts from clean main, idempotently deletes `docs/` if
+present, never uses code-repo docs as migration input, trims README/doc
+comments, and installs local plus GitHub ownership and API extractor gates.
+The gate rejects tracked or untracked `docs/**`, symlinks, absolute paths,
+traversal, casefold collisions, extra Markdown beyond allowlist, non-template
+README text, and substantive package comments via AST allow/deny rules. It
+uses positive and negative fixtures on Linux plus macOS or portable casefold
+emulation. Path-safety and `canonical_source` gates are mirrored in
+docs-eebus and docs-ebus owned roots.
+
+`MSP-DOCS-API-FREEZE` runs against the exact merged source commit. It compiles
+examples, compares the Go AST/API manifest, verifies provenance, and promotes
+candidate API docs to an active version.
+
+Cross-repo CI uses clean clones, explicit refs, pinned tools, and no absolute
+paths. Platform merges first without forward links. E2 links only merged active
+platform pages. README links only active/stable targets.
+
+Rollback is forward-only and never restores `docs/` to eebusreg main.
+Break-glass restoration requires explicit owner approval, blocks all
+successors, and creates cleanup.
+
+Recovered dirty docs are not facts. Publishable evidence IDs are required;
+otherwise content remains candidate or hypothesis.
+
+Candidate API handshake rules:
+
+- only org-owned `Project-Helianthus` branches are valid; forks are rejected;
+- no force-push may happen after docs preparation;
+- eebusreg CI produces a normalized manifest and GitHub OIDC DSSE/in-toto
+  attestation;
+- predicate verification binds issuer, workflow identity, org repo, ref,
+  immutable head SHA, run id, run attempt, extractor/schema versions, clean
+  checkout, and manifest digest;
+- docs-eebus commits the candidate manifest copy plus provenance and merges
+  first;
+- eebusreg merge gate requires exact match, and source push invalidates the
+  candidate;
+- abandoned or expired candidates trigger cleanup.
 
 ## Transport And Security Gates
 
@@ -187,5 +285,7 @@ This plan is locked when:
   fake-peer harness;
 - dirty rescue code is explicitly non-authoritative;
 - recovery/docs verification rows are the only initial ready rows;
+- AD-DOCS-01 rows are serialized and the dormant cleanup row is not treated as
+  initially ready or as a normal required predecessor;
 - all future dependencies are explicit and acyclic;
 - the canonical SHA-256 is synchronized through the index and split chunks.
