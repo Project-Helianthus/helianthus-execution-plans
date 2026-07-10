@@ -485,9 +485,9 @@ def validate_ledger(path: Path | None = None, root: Path = ROOT) -> None:
         seen_ids.add(entry["opaque_public_id"])
         if entry["clean_main_issue_ref"] != ALLOWED_ISSUE_REF:
             _fail(f"{where}.clean_main_issue_ref: unexpected issue reference")
-        if entry["public_class"] not in ALLOWED_ENUMS:
+        if not isinstance(entry["public_class"], str) or entry["public_class"] not in ALLOWED_ENUMS:
             _fail(f"{where}.public_class: unexpected enum")
-        if entry["disposition"] not in ALLOWED_ENUMS:
+        if not isinstance(entry["disposition"], str) or entry["disposition"] not in ALLOWED_ENUMS:
             _fail(f"{where}.disposition: unexpected enum")
         if entry["public_class"] != entry["disposition"]:
             _fail(f"{where}: public_class must match disposition")

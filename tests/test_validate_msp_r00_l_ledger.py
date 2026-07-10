@@ -484,6 +484,25 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         mutated["entries"][0]["disposition"] = "accepted"
         self.assert_rejects(mutated)
 
+    def test_rejects_non_string_enums_without_traceback(self) -> None:
+        mutations = (
+            ("public_class", ["public_redacted"]),
+            ("disposition", {"value": "public_redacted"}),
+        )
+        for field, value in mutations:
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as tmp:
+                path = Path(tmp) / "invalid-ledger.json"
+                mutated = copy.deepcopy(self.ledger)
+                mutated["entries"][0][field] = value
+                path.write_text(json.dumps(mutated), encoding="utf-8")
+                error = io.StringIO()
+                with contextlib.redirect_stderr(error):
+                    result = validator.main([str(MODULE_PATH), str(path)])
+                self.assertEqual(result, 1)
+                self.assertIn(f".{field}: unexpected enum", error.getvalue())
+                self.assertNotIn("Traceback", error.getvalue())
+                self.assertNotIn(str(path.parent), error.getvalue())
+
     def test_rejects_class_disposition_mismatch(self) -> None:
         mutated = copy.deepcopy(self.ledger)
         mutated["entries"][0]["disposition"] = "private_restricted"
