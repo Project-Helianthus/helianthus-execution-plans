@@ -278,6 +278,29 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
                 with self.assertRaises(validator.ValidationError):
                     validator.validate_plan_state_surfaces(root)
 
+    def test_rejects_cleanup_activation_or_preemption_drift(self) -> None:
+        mutations = (
+            (
+                "      activates_when: candidate expires or source PR closes unmerged",
+                "      activates_when: never",
+            ),
+            (
+                "      preempts_same_repo_successors: true",
+                "      preempts_same_repo_successors: false",
+            ),
+        )
+        for original, replacement in mutations:
+            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                plan_dir = self.copy_state_surfaces(root)
+                matrix = plan_dir / validator.MATRIX_FILENAME
+                matrix.write_text(
+                    matrix.read_text(encoding="utf-8").replace(original, replacement, 1),
+                    encoding="utf-8",
+                )
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_plan_state_surfaces(root)
+
     def test_rejects_platform_advance_before_api_schema_completion(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -319,6 +342,16 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "invalid-ledger.json"
             path.write_text("{", encoding="utf-8")
+            error = io.StringIO()
+            with contextlib.redirect_stderr(error):
+                result = validator.main([str(MODULE_PATH), str(path)])
+            self.assertEqual(result, 1)
+            self.assertIn(path.name, error.getvalue())
+            self.assertNotIn(str(path.parent), error.getvalue())
+
+    def test_missing_ledger_output_does_not_expose_validation_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "missing-ledger.json"
             error = io.StringIO()
             with contextlib.redirect_stderr(error):
                 result = validator.main([str(MODULE_PATH), str(path)])

@@ -146,8 +146,12 @@ def _reject_duplicate_object_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any
 
 def _load_json_without_duplicate_keys(path: Path) -> Any:
     try:
+        raw = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValidationError(f"{path.name}: unable to read ledger") from exc
+    try:
         return json.loads(
-            path.read_text(encoding="utf-8"),
+            raw,
             object_pairs_hook=_reject_duplicate_object_keys,
         )
     except json.JSONDecodeError as exc:
@@ -157,7 +161,10 @@ def _load_json_without_duplicate_keys(path: Path) -> Any:
 def _read_required_text(path: Path) -> str:
     if not path.is_file():
         _fail(f"{path.name}: missing required file")
-    return path.read_text(encoding="utf-8")
+    try:
+        return path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValidationError(f"{path.name}: unable to read required file") from exc
 
 
 def _extract_matrix_row(text: str, row_id: str) -> str:
@@ -311,8 +318,10 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
     cleanup_ok = (
         isinstance(cleanup, dict)
         and cleanup_row.get("acceptance_state") == "dormant_conditional"
+        and cleanup.get("activates_when") == "candidate expires or source PR closes unmerged"
         and cleanup.get("initially_ready") is False
         and cleanup.get("required_predecessor_for_normal_successors") is False
+        and cleanup.get("preempts_same_repo_successors") is True
         and cleanup.get("blocks_cross_repo_source_rows") == ["MSP-055"]
     )
     if not cleanup_ok:
