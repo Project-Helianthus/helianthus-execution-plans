@@ -76,7 +76,15 @@ Every gate run produces an artifact bundle with:
   required in the facade spike.
 - MSP-03C: EEBUS-G05, G06, G07, G08, G09.
 - MSP-03D-R: EEBUS-G17 and G19 plus canonical recovery evidence.
-- MSP-04A/B/C: EEBUS-G02, G03, G04, G09, G10, G11, G16.
+- MSP-04A: no transport case; its security gate covers internal store/schema,
+  migration, permissions, atomicity, and corruption behavior without sockets
+  or pairing APIs.
+- MSP-055: EEBUS-G00, G05, G09, plus feature-graph and reconnect scope owned
+  by its lifecycle-facade acceptance criteria.
+- MSP-04B: EEBUS-G02, G03, G04, G16.
+- MSP-04C: EEBUS-G10, G11, G16.
+- MSP-045: no new transport case; it freezes the already-proven trust/admin
+  state contract.
 - MSP-05B: EEBUS-G00, G05, and disabled-default eBUS no-drift proof.
 - MSP-06: EEBUS-G12, G13, G14, G15, G16.
 - MSP-08: EEBUS-G18.

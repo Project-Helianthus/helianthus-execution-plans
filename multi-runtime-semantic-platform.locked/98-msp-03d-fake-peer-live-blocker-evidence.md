@@ -3,6 +3,20 @@
 Status: `partial`
 Date: `2026-07-09`
 
+## Historical Interpretation Notice
+
+This artifact preserves the gate meaning used on `2026-07-09`. Its old G17
+label meant discovery of a VR940f-advertised SHIP server and is superseded for
+future execution by the locked G17/G19 split:
+
+- current G17 proves configured local SHIP advertisement/discovery,
+  myVaillant trust visibility, and negative/TTL behavior;
+- current G19 proves direct outbound VR940f TCP/TLS/WebSocket/SHIP access plus
+  first post-access SPINE data.
+
+The BLOCKED result below remains valid historical evidence, but it must not
+route current direct-VR940 work or redefine the locked transport gate.
+
 ## Scope
 
 MSP-03D requires both an independent black-box fake peer and a live
@@ -157,6 +171,10 @@ Local review found:
 MSP-03D is not accepted. The fake-peer harness slice is merged and EEBUS-G01 is
 accepted, but M3 runtime feasibility remains open until EEBUS-G17 passes against
 a visible VR940f/myVaillant `_ship._tcp` service and approved remote SKI.
+
+That sentence records the historical gate. Under the locked plan it is
+superseded by MSP-03D-R, which closes only after revised G17 and G19 both pass
+with owner acceptance.
 
 MSP-035, production trust, gateway sidecar import, and read-only MCP work remain
 blocked.
