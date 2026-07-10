@@ -157,15 +157,59 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_plan_state_surfaces(root)
 
-    def test_rejects_platform_blocker_drift(self) -> None:
+    def test_rejects_duplicate_api_schema_state(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             plan_dir = self.copy_state_surfaces(root)
             matrix = plan_dir / validator.MATRIX_FILENAME
             matrix.write_text(
                 matrix.read_text(encoding="utf-8").replace(
-                    "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied and this row remains blocked only on MSP-DOCS-API-SCHEMA",
-                    "    blocked_note: blocked on MSP-R00-L and MSP-DOCS-API-SCHEMA",
+                    "  - id: MSP-DOCS-API-SCHEMA\n"
+                    "    title: Freeze eeBUS Go public API schema inputs",
+                    "  - id: MSP-DOCS-API-SCHEMA\n"
+                    "    title: Freeze eeBUS Go public API schema inputs\n"
+                    "    acceptance_state: accepted",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    def test_accepts_monotonic_downstream_progress(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            text = matrix.read_text(encoding="utf-8")
+            text = text.replace(
+                "    acceptance_state: ready\n"
+                "    readiness_note: ready after execution-plans PR #62 merges;",
+                "    acceptance_state: accepted\n"
+                "    readiness_note: ready after execution-plans PR #62 merges;",
+                1,
+            )
+            text = text.replace(
+                "    acceptance_state: proposed\n"
+                "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
+                "    acceptance_state: ready\n"
+                "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
+                1,
+            )
+            matrix.write_text(text, encoding="utf-8")
+            validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_platform_advance_before_api_schema_completion(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            matrix.write_text(
+                matrix.read_text(encoding="utf-8").replace(
+                    "    acceptance_state: proposed\n"
+                    "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
+                    "    acceptance_state: ready\n"
+                    "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
                     1,
                 ),
                 encoding="utf-8",
