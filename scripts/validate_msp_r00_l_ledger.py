@@ -164,14 +164,54 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
     if not rows:
         _fail(f"{MATRIX_FILENAME}: no issue rows")
 
+    row_ids = [row_id for row_id, _ in rows]
+    if len(set(row_ids)) != len(row_ids):
+        _fail(f"{MATRIX_FILENAME}: duplicate issue IDs")
+
     states: dict[str, str] = {}
     predecessors: dict[str, list[str]] = {}
+    model_lanes: dict[str, str] = {}
+    complexities: dict[str, int] = {}
     for row_id, row in rows:
         states[row_id] = _acceptance_state(row, row_id)
         matches = re.findall(r"(?m)^    predecessors: \[(.*)\]$", row)
         if len(matches) != 1:
             _fail(f"{row_id} matrix row: expected exactly one predecessors field")
         predecessors[row_id] = [item.strip() for item in matches[0].split(",") if item.strip()]
+        lane_matches = re.findall(r"(?m)^    model_lane: (.+)$", row)
+        complexity_matches = re.findall(r"(?m)^    complexity: (\d+)$", row)
+        if len(lane_matches) != 1 or len(complexity_matches) != 1:
+            _fail(f"{row_id} matrix row: expected exactly one model_lane and complexity")
+        model_lanes[row_id] = lane_matches[0]
+        complexities[row_id] = int(complexity_matches[0])
+
+    missing = [
+        [row_id, dep]
+        for row_id in row_ids
+        for dep in predecessors[row_id]
+        if dep not in states
+    ]
+    if missing:
+        _fail(f"{MATRIX_FILENAME}: missing predecessor references {missing!r}")
+
+    visits: dict[str, int] = {}
+    cycles: list[list[str]] = []
+
+    def visit(row_id: str, stack: list[str]) -> None:
+        if visits.get(row_id) == 1:
+            cycles.append(stack + [row_id])
+            return
+        if visits.get(row_id) == 2:
+            return
+        visits[row_id] = 1
+        for predecessor in predecessors[row_id]:
+            visit(predecessor, stack + [row_id])
+        visits[row_id] = 2
+
+    for row_id in row_ids:
+        visit(row_id, [])
+    if cycles:
+        _fail(f"{MATRIX_FILENAME}: dependency cycles {cycles!r}")
 
     accepted = {
         "accepted",
@@ -184,15 +224,62 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
         if states[row_id] == "ready"
         and all(states.get(dep) in accepted for dep in predecessors[row_id])
     ]
-    match = re.search(r"(?m)^- Current ready set: `(?P<ready>\[[^\n]*\])`$", topology)
-    if match is None:
-        _fail(f"{TOPOLOGY_FILENAME}: missing current ready set")
-    try:
-        reported = json.loads(match.group("ready"))
-    except json.JSONDecodeError as exc:
-        raise ValidationError(f"{TOPOLOGY_FILENAME}: invalid ready-set JSON") from exc
-    if reported != ready:
-        _fail(f"{TOPOLOGY_FILENAME}: reported ready set {reported!r}, expected {ready!r}")
+
+    lane_mismatches: list[list[Any]] = []
+    for row_id in row_ids:
+        complexity = complexities[row_id]
+        expected = (
+            "GPT-5.3-Codex-Spark"
+            if complexity in (1, 2)
+            else "gpt-5.4-mini"
+            if complexity in (3, 4)
+            else "GPT-5.5 medium"
+            if complexity == 5
+            else "GPT-5.5 high"
+            if complexity in (6, 7)
+            else "GPT-5.5 xhigh"
+        )
+        if model_lanes[row_id] != expected:
+            lane_mismatches.append([row_id, model_lanes[row_id], expected])
+    if lane_mismatches:
+        _fail(f"{MATRIX_FILENAME}: model-lane mismatches {lane_mismatches!r}")
+
+    def reported_json(label: str) -> Any:
+        match = re.search(rf"(?m)^- {re.escape(label)}: `(?P<value>[^\n]+)`$", topology)
+        if match is None:
+            _fail(f"{TOPOLOGY_FILENAME}: missing {label.lower()}")
+        try:
+            return json.loads(match.group("value"))
+        except json.JSONDecodeError as exc:
+            raise ValidationError(f"{TOPOLOGY_FILENAME}: invalid JSON for {label}") from exc
+
+    expected_results = {
+        "Row count": len(row_ids),
+        "Unique IDs": len(set(row_ids)),
+        "Missing predecessor references": missing,
+        "Cycles": cycles,
+        "Current ready set": ready,
+        "Model-lane mismatches": lane_mismatches,
+    }
+    for label, expected in expected_results.items():
+        reported = reported_json(label)
+        if reported != expected:
+            _fail(f"{TOPOLOGY_FILENAME}: {label} is {reported!r}, expected {expected!r}")
+
+    cleanup_row = dict(rows).get("MSP-DOCS-CANDIDATE-CLEANUP", "")
+    cleanup_fragments = (
+        "acceptance_state: dormant_conditional",
+        "initially_ready: false",
+        "required_predecessor_for_normal_successors: false",
+        "blocks_cross_repo_source_rows: [MSP-055]",
+    )
+    if not all(fragment in cleanup_row for fragment in cleanup_fragments):
+        _fail("MSP-DOCS-CANDIDATE-CLEANUP matrix row: conditional contract drift")
+    _require_contains(
+        topology,
+        "- Dormant conditional cleanup row with `MSP-055` cross-repo blocker:\n  `MSP-DOCS-CANDIDATE-CLEANUP`",
+        TOPOLOGY_FILENAME,
+    )
 
 
 def validate_plan_state_surfaces(root: Path = ROOT) -> None:
@@ -369,7 +456,7 @@ def main(argv: list[str]) -> int:
     except ValidationError as exc:
         print(exc, file=sys.stderr)
         return 1
-    print(f"validated {path}")
+    print(f"validated {path.name}")
     return 0
 
 

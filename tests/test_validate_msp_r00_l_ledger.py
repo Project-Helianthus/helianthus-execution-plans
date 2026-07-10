@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import copy
+import contextlib
 import importlib.util
+import io
 import json
 import tempfile
 import unittest
@@ -225,6 +227,27 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_plan_state_surfaces(root)
 
+    def test_rejects_stale_topology_results(self) -> None:
+        mutations = (
+            ("- Row count: `43`", "- Row count: `42`"),
+            ("- Unique IDs: `43`", "- Unique IDs: `42`"),
+            ("- Missing predecessor references: `[]`", '- Missing predecessor references: `[["MSP-X", "MSP-Y"]]`'),
+            ("- Cycles: `[]`", '- Cycles: `[["MSP-X", "MSP-X"]]`'),
+            ("- Model-lane mismatches: `[]`", '- Model-lane mismatches: `[["MSP-X", "wrong", "expected"]]`'),
+            ("  `MSP-DOCS-CANDIDATE-CLEANUP`", "  `MSP-DOCS-CANDIDATE-CLEANUP-STALE`"),
+        )
+        for original, replacement in mutations:
+            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                plan_dir = self.copy_state_surfaces(root)
+                topology = plan_dir / validator.TOPOLOGY_FILENAME
+                topology.write_text(
+                    topology.read_text(encoding="utf-8").replace(original, replacement, 1),
+                    encoding="utf-8",
+                )
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_plan_state_surfaces(root)
+
     def test_rejects_platform_advance_before_api_schema_completion(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -253,6 +276,14 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         ]
         self.assertGreaterEqual(len(python_invocations), 2)
         self.assertLess(export_index, min(python_invocations))
+
+    def test_success_output_does_not_expose_checkout_path(self) -> None:
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            result = validator.main([str(MODULE_PATH), str(LEDGER_PATH)])
+        self.assertEqual(result, 0)
+        self.assertEqual(output.getvalue(), f"validated {validator.LEDGER_FILENAME}\n")
+        self.assertNotIn(str(ROOT), output.getvalue())
 
     def test_discovers_default_locked_ledger(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
