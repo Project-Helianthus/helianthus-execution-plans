@@ -99,7 +99,7 @@ def _construct_unique_yaml_mapping(
     for key_node, value_node in node.value:
         key = loader.construct_object(key_node, deep=deep)
         if key in mapping:
-            _fail(f"{MATRIX_FILENAME}: duplicate YAML key {key!r}")
+            _fail(f"{MATRIX_FILENAME}: duplicate YAML key")
         mapping[key] = loader.construct_object(value_node, deep=deep)
     return mapping
 
@@ -139,7 +139,7 @@ def _reject_duplicate_object_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any
     result: dict[str, Any] = {}
     for key, value in pairs:
         if key in result:
-            _fail(f"duplicate JSON key {key!r}")
+            _fail("duplicate JSON key")
         result[key] = value
     return result
 
@@ -147,15 +147,15 @@ def _reject_duplicate_object_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any
 def _load_json_without_duplicate_keys(path: Path) -> Any:
     try:
         raw = path.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise ValidationError(f"{path.name}: unable to read ledger") from exc
+    except (OSError, UnicodeError) as exc:
+        raise ValidationError("ledger: unable to read UTF-8 input") from exc
     try:
         return json.loads(
             raw,
             object_pairs_hook=_reject_duplicate_object_keys,
         )
     except json.JSONDecodeError as exc:
-        raise ValidationError(f"{path.name}: invalid JSON: {exc}") from exc
+        raise ValidationError(f"ledger: invalid JSON: {exc}") from exc
 
 
 def _read_required_text(path: Path) -> str:
@@ -163,8 +163,8 @@ def _read_required_text(path: Path) -> str:
         _fail(f"{path.name}: missing required file")
     try:
         return path.read_text(encoding="utf-8")
-    except OSError as exc:
-        raise ValidationError(f"{path.name}: unable to read required file") from exc
+    except (OSError, UnicodeError) as exc:
+        raise ValidationError(f"{path.name}: unable to read UTF-8 required input") from exc
 
 
 def _extract_matrix_row(text: str, row_id: str) -> str:
@@ -220,13 +220,13 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
         lane = row.get("model_lane")
         complexity = row.get("complexity")
         if not isinstance(state, str):
-            _fail(f"{row_id} matrix row: acceptance_state must be a string")
+            _fail(f"{MATRIX_FILENAME}: issue acceptance_state must be a string")
         if not isinstance(deps, list) or not all(isinstance(dep, str) for dep in deps):
-            _fail(f"{row_id} matrix row: predecessors must be a string list")
+            _fail(f"{MATRIX_FILENAME}: issue predecessors must be a string list")
         if not isinstance(lane, str):
-            _fail(f"{row_id} matrix row: model_lane must be a string")
+            _fail(f"{MATRIX_FILENAME}: issue model_lane must be a string")
         if type(complexity) is not int or not 1 <= complexity <= 10:
-            _fail(f"{row_id} matrix row: complexity must be an integer from 1 through 10")
+            _fail(f"{MATRIX_FILENAME}: issue complexity must be an integer from 1 through 10")
         states[row_id] = state
         predecessors[row_id] = deps
         model_lanes[row_id] = lane
@@ -239,7 +239,7 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
         if dep not in states
     ]
     if missing:
-        _fail(f"{MATRIX_FILENAME}: missing predecessor references {missing!r}")
+        _fail(f"{MATRIX_FILENAME}: missing predecessor references")
 
     visits: dict[str, int] = {}
     cycles: list[list[str]] = []
@@ -258,7 +258,7 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
     for row_id in row_ids:
         visit(row_id, [])
     if cycles:
-        _fail(f"{MATRIX_FILENAME}: dependency cycles {cycles!r}")
+        _fail(f"{MATRIX_FILENAME}: dependency cycles")
 
     accepted = {
         "accepted",
@@ -289,7 +289,7 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
         if model_lanes[row_id] != expected:
             lane_mismatches.append([row_id, model_lanes[row_id], expected])
     if lane_mismatches:
-        _fail(f"{MATRIX_FILENAME}: model-lane mismatches {lane_mismatches!r}")
+        _fail(f"{MATRIX_FILENAME}: model-lane mismatches")
 
     def reported_json(label: str) -> Any:
         match = re.search(rf"(?m)^- {re.escape(label)}: `(?P<value>[^\n]+)`$", topology)
@@ -311,7 +311,7 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
     for label, expected in expected_results.items():
         reported = reported_json(label)
         if reported != expected:
-            _fail(f"{TOPOLOGY_FILENAME}: {label} is {reported!r}, expected {expected!r}")
+            _fail(f"{TOPOLOGY_FILENAME}: {label} does not match computed result")
 
     cleanup_row = rows_by_id.get("MSP-DOCS-CANDIDATE-CLEANUP")
     cleanup = cleanup_row.get("conditional") if isinstance(cleanup_row, dict) else None
@@ -419,11 +419,11 @@ def _require_exact_keys(value: Any, expected: frozenset[str], where: str) -> Non
         _fail(f"{where}: expected object")
     actual = set(value)
     if actual != expected:
-        _fail(f"{where}: expected keys {sorted(expected)}, got {sorted(actual)}")
+        _fail(f"{where}: object keys do not match the public schema")
     for key in actual:
         lowered = key.lower()
         if any(fragment in lowered for fragment in FORBIDDEN_KEY_FRAGMENTS):
-            _fail(f"{where}: forbidden key {key!r}")
+            _fail(f"{where}: forbidden key category")
 
 
 def _require_uuid_v4(value: Any, where: str) -> None:
@@ -442,7 +442,7 @@ def _scan_value(value: Any, where: str) -> None:
         for key, nested in value.items():
             lowered = str(key).lower()
             if any(fragment in lowered for fragment in FORBIDDEN_KEY_FRAGMENTS):
-                _fail(f"{where}: forbidden key {key!r}")
+                _fail(f"{where}: forbidden key category")
             _scan_value(nested, f"{where}.{key}")
         return
     if isinstance(value, list):
@@ -500,6 +500,8 @@ def validate_ledger(path: Path | None = None, root: Path = ROOT) -> None:
 
 def main(argv: list[str]) -> int:
     try:
+        if len(argv) not in (1, 2):
+            _fail("usage: validate_msp_r00_l_ledger.py [ledger.json]")
         path = Path(argv[1]) if len(argv) == 2 else resolve_default_ledger()
         validate_ledger(path)
         if len(argv) != 2:
@@ -507,7 +509,7 @@ def main(argv: list[str]) -> int:
     except ValidationError as exc:
         print(exc, file=sys.stderr)
         return 1
-    print(f"validated {path.name}")
+    print(f"validated {ARTIFACT_KIND}")
     return 0
 
 

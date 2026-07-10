@@ -335,7 +335,7 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         with contextlib.redirect_stdout(output):
             result = validator.main([str(MODULE_PATH), str(LEDGER_PATH)])
         self.assertEqual(result, 0)
-        self.assertEqual(output.getvalue(), f"validated {validator.LEDGER_FILENAME}\n")
+        self.assertEqual(output.getvalue(), f"validated {validator.ARTIFACT_KIND}\n")
         self.assertNotIn(str(ROOT), output.getvalue())
 
     def test_failure_output_does_not_expose_validation_path(self) -> None:
@@ -346,7 +346,7 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             with contextlib.redirect_stderr(error):
                 result = validator.main([str(MODULE_PATH), str(path)])
             self.assertEqual(result, 1)
-            self.assertIn(path.name, error.getvalue())
+            self.assertIn("ledger: invalid JSON", error.getvalue())
             self.assertNotIn(str(path.parent), error.getvalue())
 
     def test_missing_ledger_output_does_not_expose_validation_path(self) -> None:
@@ -356,8 +356,42 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             with contextlib.redirect_stderr(error):
                 result = validator.main([str(MODULE_PATH), str(path)])
             self.assertEqual(result, 1)
-            self.assertIn(path.name, error.getvalue())
+            self.assertIn("ledger: unable to read UTF-8 input", error.getvalue())
             self.assertNotIn(str(path.parent), error.getvalue())
+
+    def test_unknown_key_output_does_not_echo_candidate_material(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "invalid-ledger.json"
+            mutated = copy.deepcopy(self.ledger)
+            candidate = "/Users/alice/private/raw-capture"
+            mutated[candidate] = "redacted"
+            path.write_text(json.dumps(mutated), encoding="utf-8")
+            error = io.StringIO()
+            with contextlib.redirect_stderr(error):
+                result = validator.main([str(MODULE_PATH), str(path)])
+            self.assertEqual(result, 1)
+            self.assertNotIn(candidate, error.getvalue())
+
+    def test_invalid_utf8_output_is_sanitized(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "invalid-ledger.json"
+            path.write_bytes(b"\xff")
+            error = io.StringIO()
+            with contextlib.redirect_stderr(error):
+                result = validator.main([str(MODULE_PATH), str(path)])
+            self.assertEqual(result, 1)
+            self.assertEqual(error.getvalue(), "ledger: unable to read UTF-8 input\n")
+            self.assertNotIn(str(path.parent), error.getvalue())
+
+    def test_rejects_extra_cli_arguments(self) -> None:
+        error = io.StringIO()
+        with contextlib.redirect_stderr(error):
+            result = validator.main([str(MODULE_PATH), str(LEDGER_PATH), "extra"])
+        self.assertEqual(result, 1)
+        self.assertEqual(
+            error.getvalue(),
+            "usage: validate_msp_r00_l_ledger.py [ledger.json]\n",
+        )
 
     def test_discovers_default_locked_ledger(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
