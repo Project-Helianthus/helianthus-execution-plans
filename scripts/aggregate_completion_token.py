@@ -12,12 +12,15 @@ import stat
 import subprocess
 import sys
 import tempfile
+import urllib.error
 import urllib.parse
+import urllib.request
 from pathlib import Path, PurePosixPath
 from typing import Any
 
 
 AGGREGATE_REPOSITORY = "Project-Helianthus/helianthus-execution-plans"
+AGGREGATE_ISSUE = 64
 CLEAN_REPOSITORY = "Project-Helianthus/helianthus-eebusreg"
 CLEAN_BASE = "0e58327dfdb86ef243a19e18d590564813feaa00"
 PRODUCER_ID = "MSP-DOCS-E2R-AGGREGATE"
@@ -27,8 +30,12 @@ PUBLISH_TOKEN = "681cace127dcfc7359ca811624503c395bfb68c227e1fdc5b2608bae61735d9
 OID = re.compile(r"[0-9a-f]{40}\Z")
 DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 OBSERVATION_SOURCE = re.compile(r"[a-z0-9][a-z0-9._+-]*\Z")
-REVIEW_AGENT = re.compile(r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\Z")
-REVIEW_INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z")
+GITHUB_LOGIN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\[bot\])?\Z")
+GITHUB_REPOSITORY = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
+GITHUB_INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z")
+GITHUB_API_ROOT = "https://api.github.com"
+GITHUB_REMOTE_ROOT = "https://github.com"
+GITHUB_RESPONSE_LIMIT = 2 * 1024 * 1024
 REVIEWED_PATHS = (
     "scripts/aggregate_completion_token.py",
     "scripts/validate_plans_repo.sh",
@@ -140,6 +147,113 @@ IDENTITY_FIELDS = (
 
 class AggregateError(Exception):
     """Fail-closed aggregate validation error."""
+
+
+class GitHubLiveObservations:
+    """Read immutable review identities and exact Git refs from GitHub."""
+
+    def _api_json(self, repository: str, suffix: str) -> dict[str, Any]:
+        if GITHUB_REPOSITORY.fullmatch(repository) is None or not suffix.startswith("/"):
+            raise AggregateError("aggregate-token.github-api")
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "helianthus-aggregate-completion-token",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+        token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        request = urllib.request.Request(
+            f"{GITHUB_API_ROOT}/repos/{repository}{suffix}", headers=headers
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                if response.status != 200:
+                    raise AggregateError("aggregate-token.github-api")
+                raw = response.read(GITHUB_RESPONSE_LIMIT + 1)
+        except AggregateError:
+            raise
+        except (OSError, TimeoutError, urllib.error.URLError) as exc:
+            raise AggregateError("aggregate-token.github-api") from exc
+        if len(raw) > GITHUB_RESPONSE_LIMIT:
+            raise AggregateError("aggregate-token.github-api")
+        try:
+            document = json.loads(raw.decode("utf-8", errors="strict"))
+        except (UnicodeError, json.JSONDecodeError, RecursionError) as exc:
+            raise AggregateError("aggregate-token.github-api") from exc
+        return _object(document, "aggregate-token.github-api")
+
+    def pull_request(self, repository: str, pr: int) -> dict[str, Any]:
+        if type(pr) is not int or pr <= 0:
+            raise AggregateError("aggregate-token.github-pull-request")
+        return self._api_json(repository, f"/pulls/{pr}")
+
+    def issue_comment(
+        self, repository: str, issue: int, comment_id: int
+    ) -> dict[str, Any]:
+        if type(issue) is not int or issue <= 0 or type(comment_id) is not int or comment_id <= 0:
+            raise AggregateError("aggregate-token.github-review-comment")
+        return self._api_json(repository, f"/issues/comments/{comment_id}")
+
+    def fetch_ref(self, root: Path, repository: str, remote_ref: str) -> str:
+        """Observe then fetch one exact canonical GitHub ref, rejecting races."""
+        if (
+            GITHUB_REPOSITORY.fullmatch(repository) is None
+            or not remote_ref.startswith("refs/")
+            or any(character.isspace() for character in remote_ref)
+            or not _directory_without_symlinks(root)
+            or _github_repository(str(_git(root, "remote", "get-url", "origin")))
+            != repository.casefold()
+        ):
+            raise AggregateError("aggregate-token.github-git-ref")
+        remote = f"{GITHUB_REMOTE_ROOT}/{repository}.git"
+        environment = {
+            **os.environ,
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+        }
+        observed = subprocess.run(
+            ["git", "ls-remote", "--exit-code", remote, remote_ref],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=environment,
+        )
+        if observed.returncode != 0:
+            raise AggregateError("aggregate-token.github-git-ref")
+        records = [line.split("\t") for line in observed.stdout.splitlines() if line]
+        if (
+            len(records) != 1
+            or len(records[0]) != 2
+            or records[0][1] != remote_ref
+            or OID.fullmatch(records[0][0]) is None
+        ):
+            raise AggregateError("aggregate-token.github-git-ref")
+        observed_oid = records[0][0]
+        fetched = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "fetch",
+                "--no-tags",
+                "--force",
+                remote,
+                remote_ref,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=environment,
+        )
+        if fetched.returncode != 0 or _git(root, "rev-parse", "FETCH_HEAD") != observed_oid:
+            raise AggregateError("aggregate-token.github-git-ref")
+        return observed_oid
+
+
+def _live_observations(observations: Any | None) -> Any:
+    return GitHubLiveObservations() if observations is None else observations
 
 
 def _canonical_json(value: Any) -> bytes:
@@ -429,10 +543,10 @@ def architecture_review_evidence_core(root: Path) -> dict[str, Any]:
     }
 
 
-def validate_architecture_review_record(
+def _architecture_review_record_parts(
     record: dict[str, Any], root: Path
-) -> dict[str, Any]:
-    """Recompute the fresh-review digest and return its token projection."""
+) -> tuple[dict[str, Any], dict[str, Any], str]:
+    """Recompute a review output and its immutable comment binding."""
     item = _object(record, "aggregate-token.architecture-review-record")
     _exact_keys(
         item,
@@ -440,8 +554,10 @@ def validate_architecture_review_record(
             {
                 "review_basis",
                 "review_basis_sha256",
+                "review_comment",
+                "review_output",
+                "review_output_sha256",
                 "schema",
-                "verdict",
                 "version",
             }
         ),
@@ -450,48 +566,80 @@ def validate_architecture_review_record(
     basis = _object(
         item.get("review_basis"), "aggregate-token.architecture-review-record"
     )
-    verdict = _object(
-        item.get("verdict"), "aggregate-token.architecture-review-record"
+    review_output = _object(
+        item.get("review_output"), "aggregate-token.architecture-review-record"
+    )
+    review_comment = _object(
+        item.get("review_comment"), "aggregate-token.architecture-review-record"
     )
     expected_basis = architecture_review_evidence_core(root)
+    output_sha256 = _digest(review_output)
     if (
         item.get("schema") != "helianthus.aggregate-architecture-review"
         or type(item.get("version")) is not int
-        or item["version"] != 2
+        or item["version"] != 3
         or basis != expected_basis
         or not isinstance(item.get("review_basis_sha256"), str)
         or _digest(basis) != item["review_basis_sha256"]
-        or set(verdict)
-        != {
-            "p0_p2_findings",
-            "result",
-            "review_output_sha256",
-            "reviewed_at",
-            "reviewer_agent_id",
-            "reviewer_context",
-            "reviewer_effort",
-            "reviewer_model",
-        }
-        or verdict.get("result") != "pass"
-        or verdict.get("p0_p2_findings") != []
-        or verdict.get("reviewer_context") != "fresh-independent"
-        or verdict.get("reviewer_model") != "gpt-5.6-sol"
-        or verdict.get("reviewer_effort") != "xhigh"
-        or not isinstance(verdict.get("reviewer_agent_id"), str)
-        or REVIEW_AGENT.fullmatch(verdict["reviewer_agent_id"]) is None
-        or not isinstance(verdict.get("reviewed_at"), str)
-        or REVIEW_INSTANT.fullmatch(verdict["reviewed_at"]) is None
-        or not isinstance(verdict.get("review_output_sha256"), str)
-        or DIGEST.fullmatch(verdict["review_output_sha256"]) is None
+        or set(review_output) != {"p0_p2_findings", "result"}
+        or review_output.get("result") != "pass"
+        or review_output.get("p0_p2_findings") != []
+        or not isinstance(item.get("review_output_sha256"), str)
+        or item["review_output_sha256"] != output_sha256
+        or set(review_comment)
+        != {"author", "body_sha256", "comment_id", "issue", "repository"}
+        or review_comment.get("repository") != AGGREGATE_REPOSITORY
+        or type(review_comment.get("issue")) is not int
+        or review_comment["issue"] != AGGREGATE_ISSUE
+        or type(review_comment.get("comment_id")) is not int
+        or review_comment["comment_id"] <= 0
+        or not isinstance(review_comment.get("author"), str)
+        or GITHUB_LOGIN.fullmatch(review_comment["author"]) is None
+        or review_comment.get("body_sha256") != output_sha256
     ):
         raise AggregateError("aggregate-token.architecture-review-record")
-    return validate_architecture_review(
+    projection = validate_architecture_review(
         {
             "evidence_sha256": _digest(item),
-            "p0_p2_findings": verdict["p0_p2_findings"],
-            "result": verdict["result"],
+            "p0_p2_findings": review_output["p0_p2_findings"],
+            "result": review_output["result"],
         }
     )
+    return projection, dict(review_comment), _canonical_json(review_output).decode("ascii")
+
+
+def validate_architecture_review_record(
+    record: dict[str, Any], root: Path
+) -> dict[str, Any]:
+    """Recompute the supplied fresh-review output and token projection."""
+    projection, _, _ = _architecture_review_record_parts(record, root)
+    return projection
+
+
+def verify_architecture_review_comment(
+    record: dict[str, Any], root: Path, observations: Any | None = None
+) -> dict[str, Any]:
+    """Bind a valid review output to its live GitHub issue comment."""
+    projection, binding, expected_body = _architecture_review_record_parts(record, root)
+    live = _live_observations(observations).issue_comment(
+        binding["repository"], binding["issue"], binding["comment_id"]
+    )
+    user = _object(live.get("user"), "aggregate-token.github-review-comment")
+    body = live.get("body")
+    if (
+        live.get("id") != binding["comment_id"]
+        or type(live.get("id")) is not int
+        or live.get("url")
+        != f"{GITHUB_API_ROOT}/repos/{binding['repository']}/issues/comments/{binding['comment_id']}"
+        or live.get("issue_url")
+        != f"{GITHUB_API_ROOT}/repos/{binding['repository']}/issues/{binding['issue']}"
+        or user.get("login") != binding["author"]
+        or not isinstance(body, str)
+        or body != expected_body
+        or hashlib.sha256(body.encode("utf-8")).hexdigest() != binding["body_sha256"]
+    ):
+        raise AggregateError("aggregate-token.github-review-comment")
+    return projection
 
 
 def build_process_attestation(
@@ -611,6 +759,102 @@ def _git(root: Path, *args: str, binary: bool = False) -> str | bytes:
     return result.stdout.strip()
 
 
+def _git_is_ancestor(root: Path, ancestor: str, descendant: str) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(root), "merge-base", "--is-ancestor", ancestor, descendant],
+        check=False,
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+def _validate_live_pull_identity(
+    pull: dict[str, Any], identity: dict[str, Any], category: str
+) -> None:
+    base = _object(pull.get("base"), category)
+    head = _object(pull.get("head"), category)
+    base_repo = _object(base.get("repo"), category)
+    head_repo = _object(head.get("repo"), category)
+    repository = identity["repository"]
+    pr = identity["pr"]
+    merged_at = pull.get("merged_at")
+    if (
+        pull.get("url") != f"{GITHUB_API_ROOT}/repos/{repository}/pulls/{pr}"
+        or type(pull.get("number")) is not int
+        or pull["number"] != pr
+        or pull.get("state") != "closed"
+        or pull.get("merged") is not True
+        or not isinstance(merged_at, str)
+        or GITHUB_INSTANT.fullmatch(merged_at) is None
+        or pull.get("merge_commit_sha") != identity["merge_oid"]
+        or base.get("ref") != "main"
+        or base.get("sha") != identity["base_oid"]
+        or base_repo.get("full_name") != repository
+        or head.get("sha") != identity["head_oid"]
+        or head_repo.get("full_name") != repository
+    ):
+        raise AggregateError(category)
+
+
+def _verify_live_pull_objects(
+    root: Path,
+    identity: dict[str, Any],
+    observations: Any | None = None,
+    *,
+    category: str,
+) -> str:
+    """Fetch and verify one merged squash PR against GitHub's live identity."""
+    repository = identity.get("repository")
+    pr = identity.get("pr")
+    base_oid = identity.get("base_oid")
+    head_oid = identity.get("head_oid")
+    merge_oid = identity.get("merge_oid")
+    tree_oid = identity.get("tree_oid")
+    if (
+        not isinstance(repository, str)
+        or GITHUB_REPOSITORY.fullmatch(repository) is None
+        or type(pr) is not int
+        or pr <= 0
+        or any(
+            not isinstance(oid, str) or OID.fullmatch(oid) is None
+            for oid in (base_oid, head_oid, merge_oid, tree_oid)
+        )
+        or not _directory_without_symlinks(root)
+        or _github_repository(str(_git(root, "remote", "get-url", "origin")))
+        != repository.casefold()
+    ):
+        raise AggregateError(category)
+
+    live = _live_observations(observations)
+    pull = _object(live.pull_request(repository, pr), category)
+    _validate_live_pull_identity(pull, identity, category)
+    observed_head = live.fetch_ref(root, repository, f"refs/pull/{pr}/head")
+    observed_main = live.fetch_ref(root, repository, "refs/heads/main")
+    if (
+        not isinstance(observed_head, str)
+        or observed_head != head_oid
+        or not isinstance(observed_main, str)
+        or OID.fullmatch(observed_main) is None
+    ):
+        raise AggregateError(category)
+
+    for oid in (base_oid, head_oid, merge_oid):
+        if _git(root, "cat-file", "-t", oid) != "commit":
+            raise AggregateError(category)
+    if _git(root, "cat-file", "-t", tree_oid) != "tree":
+        raise AggregateError(category)
+    parents = str(_git(root, "rev-list", "--parents", "-n", "1", merge_oid)).split()
+    if (
+        parents != [merge_oid, base_oid]
+        or not _git_is_ancestor(root, base_oid, head_oid)
+        or not _git_is_ancestor(root, merge_oid, observed_main)
+        or _git(root, "rev-parse", f"{head_oid}^{{tree}}") != tree_oid
+        or _git(root, "rev-parse", f"{merge_oid}^{{tree}}") != tree_oid
+    ):
+        raise AggregateError(category)
+    return observed_main
+
+
 def _verify_repository_object_root(
     root: Path, repository: str, merge_oid: str, tree_oid: str
 ) -> None:
@@ -652,11 +896,24 @@ def verify_producer_git_objects(
     publish_root: Path,
     platform_envelope: dict[str, Any],
     publish_envelope: dict[str, Any],
+    observations: Any | None = None,
 ) -> dict[str, Any]:
-    """Replay both accepted proofs from immutable public Git objects."""
+    """Replay both accepted proofs from live PR heads and immutable Git objects."""
     verified = verify_completion_envelopes(platform_envelope, publish_envelope)
     platform_identity = EXPECTED_IDENTITIES["platform"]
     publish_identity = EXPECTED_IDENTITIES["publish"]
+    _verify_live_pull_objects(
+        platform_root,
+        platform_identity,
+        observations,
+        category="aggregate-token.platform-live-replay",
+    )
+    _verify_live_pull_objects(
+        publish_root,
+        publish_identity,
+        observations,
+        category="aggregate-token.publish-live-replay",
+    )
     _verify_repository_object_root(
         platform_root,
         platform_identity["repository"],
@@ -888,8 +1145,13 @@ def verify_worktree_matches_tree(root: Path, commit: str) -> None:
             raise AggregateError("aggregate-token.worktree-drift")
 
 
-def verify_clean_base(root: Path, repository: str, base_oid: str) -> None:
-    """Verify the frozen canonical CLEAN base without trusting an ambient branch."""
+def verify_clean_base(
+    root: Path,
+    repository: str,
+    base_oid: str,
+    observations: Any | None = None,
+) -> None:
+    """Verify the frozen CLEAN base against live GitHub main and the local object."""
     if (
         repository != CLEAN_REPOSITORY
         or base_oid != CLEAN_BASE
@@ -897,8 +1159,17 @@ def verify_clean_base(root: Path, repository: str, base_oid: str) -> None:
         or _github_repository(str(_git(root, "remote", "get-url", "origin")))
         != CLEAN_REPOSITORY.casefold()
         or _git(root, "cat-file", "-t", base_oid) != "commit"
-        or _git(root, "rev-parse", "refs/remotes/origin/main") != base_oid
     ):
+        raise AggregateError("aggregate-token.clean-base")
+    try:
+        live_main = _live_observations(observations).fetch_ref(
+            root, repository, "refs/heads/main"
+        )
+    except AggregateError:
+        raise
+    except Exception as exc:
+        raise AggregateError("aggregate-token.clean-base") from exc
+    if live_main != base_oid or _git(root, "cat-file", "-t", base_oid) != "commit":
         raise AggregateError("aggregate-token.clean-base")
 
 
@@ -906,41 +1177,40 @@ def verify_aggregate_repository(
     root: Path,
     *,
     repository: str,
+    pr: int,
     base_oid: str,
     head_oid: str,
     merge_oid: str,
     tree_oid: str,
+    observation_source: str,
+    observations: Any | None = None,
 ) -> None:
-    """Verify the post-merge aggregate identity and exact checked-out merge tree."""
+    """Verify the live merged PR identity and exact checked-out squash tree."""
     if (
         repository != AGGREGATE_REPOSITORY
+        or type(pr) is not int
+        or pr <= 0
+        or observation_source != "github.pull-request.merged-at"
         or not _directory_without_symlinks(root)
         or _github_repository(str(_git(root, "remote", "get-url", "origin")))
         != AGGREGATE_REPOSITORY.casefold()
         or _git(root, "rev-parse", "HEAD") != merge_oid
     ):
         raise AggregateError("aggregate-token.aggregate-identity")
-    for oid in (base_oid, head_oid, merge_oid):
-        if OID.fullmatch(oid) is None or _git(root, "cat-file", "-t", oid) != "commit":
-            raise AggregateError("aggregate-token.git-object")
-    if OID.fullmatch(tree_oid) is None:
-        raise AggregateError("aggregate-token.git-object")
-    verify_worktree_matches_tree(root, merge_oid)
-    parents = str(_git(root, "rev-list", "--parents", "-n", "1", merge_oid)).split()
-    if parents != [merge_oid, base_oid]:
-        raise AggregateError("aggregate-token.base-drift")
-    ancestor = subprocess.run(
-        ["git", "-C", str(root), "merge-base", "--is-ancestor", base_oid, head_oid],
-        check=False,
-        capture_output=True,
+    _verify_live_pull_objects(
+        root,
+        {
+            "base_oid": base_oid,
+            "head_oid": head_oid,
+            "merge_oid": merge_oid,
+            "pr": pr,
+            "repository": repository,
+            "tree_oid": tree_oid,
+        },
+        observations,
+        category="aggregate-token.aggregate-live-replay",
     )
-    if ancestor.returncode != 0:
-        raise AggregateError("aggregate-token.base-drift")
-    if (
-        _git(root, "rev-parse", f"{merge_oid}^{{tree}}") != tree_oid
-        or _git(root, "rev-parse", f"{head_oid}^{{tree}}") != tree_oid
-    ):
-        raise AggregateError("aggregate-token.tree-drift")
+    verify_worktree_matches_tree(root, merge_oid)
 
 
 def _common_arguments(parser: argparse.ArgumentParser) -> None:
@@ -976,7 +1246,9 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _validated_cli_inputs(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+def _validated_cli_inputs(
+    args: argparse.Namespace, observations: Any | None = None
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     platform = load_canonical_json(args.platform_envelope)
     publish = load_canonical_json(args.publish_envelope)
     review_record = load_canonical_json(args.architecture_review)
@@ -987,9 +1259,18 @@ def _validated_cli_inputs(args: argparse.Namespace) -> tuple[dict[str, Any], dic
     if args.clean_repository != CLEAN_REPOSITORY or args.clean_base != CLEAN_BASE:
         raise AggregateError("aggregate-token.clean-base")
     if args.command == "mint":
-        verify_clean_base(args.clean_root, args.clean_repository, args.clean_base)
+        review = verify_architecture_review_comment(
+            review_record, args.root, observations
+        )
+        verify_clean_base(
+            args.clean_root, args.clean_repository, args.clean_base, observations
+        )
         verify_producer_git_objects(
-            args.platform_root, args.publish_root, platform, publish
+            args.platform_root,
+            args.publish_root,
+            platform,
+            publish,
+            observations,
         )
     return platform, publish, {**verified, "architecture_review": review}
 
@@ -1001,7 +1282,8 @@ def main(argv: list[str] | None = None) -> int:
             _canonical_json(architecture_review_evidence_core(args.root)) + b"\n"
         )
         return 0
-    platform, publish, verified = _validated_cli_inputs(args)
+    observations = GitHubLiveObservations() if args.command == "mint" else None
+    platform, publish, verified = _validated_cli_inputs(args, observations)
     if args.command == "verify-inputs":
         output = {
             "architecture_review": verified["architecture_review"],
@@ -1015,10 +1297,13 @@ def main(argv: list[str] | None = None) -> int:
         verify_aggregate_repository(
             args.root,
             repository=args.repository,
+            pr=args.pr,
             base_oid=args.base_oid,
             head_oid=args.head_oid,
             merge_oid=args.merge_oid,
             tree_oid=args.tree_oid,
+            observation_source=args.observation_source,
+            observations=observations,
         )
         output = build_completion_envelope(
             platform_envelope=platform,
