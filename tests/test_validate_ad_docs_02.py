@@ -101,9 +101,15 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "Route MSP-DOCS-E2 on GPT-5.3-Codex-Spark.",
             "Route MSP-DOCS-E2 on gpt-5.4-mini.",
             "Route MSP-DOCS-E2 on Claude 4.1 Opus.",
+            "Route MSP-DOCS-E2 on Claude Sonnet 4.",
+            "Route MSP-DOCS-E2 on Claude-Opus-4.",
+            "Route MSP-DOCS-E2 on Claude_Haiku_3.5.",
         ):
             with self.subTest(token=token):
                 self._assert_markdown_claim_rejected(token + "\n")
+        self._assert_markdown_claim_accepted(
+            "Historical routing note mentions Claude without a concrete family/version.\n"
+        )
         historical = self.row(self.matrix, "MSP-00A")
         self.assertIn("routing_evidence", historical)
         validator.validate_matrix(self.matrix)
@@ -467,6 +473,22 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             )
             with self.assertRaises(validator.ValidationError):
                 validator.validate_markdown_claims(target, self.matrix)
+
+    def test_rejects_direct_clean_depends_on_e2_claim_after_normalization(self) -> None:
+        for claim in (
+            "MSP-DOCS-CLEAN depends on MSP-DOCS-E2.",
+            "MSP&#45;DOCS&#45;CLEAN <em>depends</em> on MSP&#45;DOCS&#45;E2.",
+            "MSP‐DOCS‐CLEAN depends-on MSP‐DOCS‐E2.",
+        ):
+            with self.subTest(claim=claim):
+                self._assert_markdown_claim_rejected(claim + "\n")
+        for claim in (
+            "MSP-DOCS-E2 depends on MSP-DOCS-CLEAN.",
+            "Historical dependency record: MSP-DOCS-CLEAN depends on MSP-DOCS-E2.",
+            "MSP-DOCS-CLEAN does not depend on MSP-DOCS-E2.",
+        ):
+            with self.subTest(claim=claim):
+                self._assert_markdown_claim_accepted(claim + "\n")
 
     def test_rejects_html_entity_provider_and_model_pin(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -187,6 +187,7 @@ ACTIVE_ROUTING_PIN_RE = re.compile(
     r"\bmodel[ _-]?lane\b|"
     r"\b(?:provider|vendor)\b\s*(?::|=|is\b)?\s*\b(?:openai|anthropic)\b|"
     r"\bmodel\b\s*(?::|=|is\b)?\s*\b(?:gpt|claude)[ _-]?\d|"
+    r"\bclaude(?:[ _-]*(?:sonnet|opus|haiku))[ _-]*\d+(?:[._-]\d+)?(?:[ _-][a-z0-9]+)*\b|"
     r"\b(?:gpt|claude)[ _-]?\d+(?:[._-]\d+)?(?:[ _-][a-z0-9]+)*\b|"
     r"\bgpt[ _-]?5[._ -]?5\b"
 )
@@ -631,6 +632,25 @@ def has_forbidden_e2_clean_table_edge(text: str) -> bool:
                 return True
     return False
 
+
+def has_forbidden_e2_clean_dependency_claim(text: str) -> bool:
+    """Reject active direct CLEAN-on-E2 dependency prose, not historical records."""
+    pattern = re.compile(
+        r"\bmsp-docs-clean\b\s+(?:does\s+)?depends\s*(?:-|\s)+"
+        r"(?:only\s+)?on\s+\bmsp-docs-e2\b"
+    )
+    for match in pattern.finditer(text):
+        clause_start = max(
+            text.rfind(".", 0, match.start()),
+            text.rfind(";", 0, match.start()),
+            text.rfind("\n", 0, match.start()),
+        ) + 1
+        context = text[clause_start:match.start()]
+        if re.search(r"\b(?:historical(?:ly)?|formerly|superseded)\b", context):
+            continue
+        return True
+    return False
+
 def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
     surfaces = tuple(
@@ -652,6 +672,7 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
             re.search(r"msp-docs-e2\s*(?:->|to)\s*msp-docs-clean", normalized)
             or re.search(r"msp-docs-clean\s*<-\s*msp-docs-e2", normalized)
             or has_forbidden_e2_clean_table_edge(text)
+            or has_forbidden_e2_clean_dependency_claim(normalized)
         ):
             fail(f"surfaces.{surface}: direct E2-to-CLEAN path")
         if re.search(
