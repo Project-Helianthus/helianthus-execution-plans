@@ -205,7 +205,30 @@ def validate_surfaces(root: Path) -> None:
         fail("surfaces: serial chain is not synchronized")
 
 def validate_changed_paths(root: Path = ROOT) -> None:
-    result = subprocess.run(["git", "-C", str(root), "diff", "--name-only", ANCHOR, "--"], text=True, capture_output=True, check=True)
+    present = subprocess.run(
+        ["git", "-C", str(root), "cat-file", "-e", f"{ANCHOR}^{{commit}}"],
+        text=True,
+        capture_output=True,
+    )
+    if present.returncode != 0:
+        try:
+            subprocess.run(
+                ["git", "-C", str(root), "fetch", "--quiet", "--unshallow", "origin"],
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            raise ValidationError("protected-path anchor is unavailable") from exc
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), "diff", "--name-only", ANCHOR, "--"],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise ValidationError("protected-path anchor is unavailable") from exc
     for path in filter(None, result.stdout.splitlines()):
         if not path.startswith(MUTABLE_PREFIXES):
             fail(f"protected path changed: {path}")

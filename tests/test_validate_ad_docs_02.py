@@ -99,13 +99,15 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         self.rejects_integrity(document)
 
     def test_accepts_declared_mutable_path(self) -> None:
+        present = mock.Mock(returncode=0)
         completed = mock.Mock(stdout="multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\n")
-        with mock.patch.object(validator.subprocess, "run", return_value=completed):
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, completed]):
             validator.validate_changed_paths(ROOT)
 
     def test_rejects_nested_protected_issue_path(self) -> None:
+        present = mock.Mock(returncode=0)
         completed = mock.Mock(stdout="multi-runtime-semantic-platform.locked/issues/MSP-00B-model-routing.md\n")
-        with mock.patch.object(validator.subprocess, "run", return_value=completed):
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, completed]):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_changed_paths(ROOT)
 
