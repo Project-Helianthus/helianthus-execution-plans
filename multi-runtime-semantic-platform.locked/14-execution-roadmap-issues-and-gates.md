@@ -100,7 +100,8 @@ The recovery documentation chain is:
 2. `DOCS-VERIFY` -> `MSP-DOCS-API-SCHEMA`;
 3. `MSP-R00-L` plus `MSP-DOCS-API-SCHEMA` -> `MSP-DOCS-PLATFORM`;
 4. `MSP-DOCS-PLATFORM` -> `MSP-DOCS-E2`;
-5. `MSP-DOCS-E2` -> `MSP-DOCS-CLEAN`;
+5. `MSP-DOCS-E2` -> `MSP-DOCS-E2R-PLATFORM` ->
+   `MSP-DOCS-E2R-PUBLISH` -> `MSP-DOCS-E2R-AGGREGATE` -> `MSP-DOCS-CLEAN`;
 6. `MSP-DOCS-CLEAN`, historical `MSP-03C`, and historical `MSP-03D-G01` ->
    `MSP-03D-R`.
 

@@ -4,14 +4,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONDONTWRITEBYTECODE=1
 
-ANCHOR="f25d9ac7d3f25f0f45821cdff27ff968a0ef5cfb"
-while IFS= read -r changed; do
-  case "$changed" in
-    multi-runtime-semantic-platform.locked/9[3-8]-*|multi-runtime-semantic-platform.locked/100-*|multi-runtime-semantic-platform.locked/10[1-4]-*|issues/*)
-      echo "AD-DOCS-02 protected path changed: $changed" >&2; exit 1 ;;
-  esac
-done < <(git diff --name-only "$ANCHOR" --)
-
 TOKEN_VENV="${TMPDIR:-/tmp}/helianthus-plans-tokenenv"
 if [ ! -x "$TOKEN_VENV/bin/python" ]; then
   python3 -m venv "$TOKEN_VENV"
@@ -19,6 +11,7 @@ if [ ! -x "$TOKEN_VENV/bin/python" ]; then
 fi
 
 "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_msp_r00_l_ledger.py"
+"$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py"
 "$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
 
 NODE_DIR="${TMPDIR:-/tmp}/helianthus-plans-node"

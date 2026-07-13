@@ -34,7 +34,9 @@ public ledger IDs/classes/dispositions/redaction metadata.
 
 After DOCS-VERIFY, documentation is serialized:
 MSP-DOCS-API-SCHEMA -> MSP-DOCS-PLATFORM -> MSP-DOCS-E2 ->
-MSP-DOCS-CLEAN. `MSP-DOCS-CANDIDATE-CLEANUP` is dormant and activates only
+MSP-DOCS-E2R-PLATFORM -> MSP-DOCS-E2R-PUBLISH ->
+MSP-DOCS-E2R-AGGREGATE -> MSP-DOCS-CLEAN.
+`MSP-DOCS-CANDIDATE-CLEANUP` is dormant and activates only
 when a candidate expires or a source PR closes unmerged; it is not initially
 ready and is not a normal predecessor. Once active, it also blocks the bound
 cross-repo source merge until a fresh candidate cycle completes.

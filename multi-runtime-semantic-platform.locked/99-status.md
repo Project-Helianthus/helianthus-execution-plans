@@ -84,8 +84,10 @@ No runtime successor may start from dirty code or local recovery artifacts.
 - Run MSP-DOCS-API-SCHEMA after execution-plans PR #62 merges.
 - Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; after
   execution-plans PR #62 merges, its MSP-R00-L side is satisfied.
-- Continue the serialized docs chain with MSP-DOCS-E2 and MSP-DOCS-CLEAN only
-  after their predecessors complete.
+- Continue the serialized docs chain with MSP-DOCS-E2, then
+  MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH,
+  MSP-DOCS-E2R-AGGREGATE, and MSP-DOCS-CLEAN only after their respective
+  completion-token predecessors validate.
 - Re-run clean-main MSP-03D-R with revised G17 and G19 after DOCS-CLEAN.
 - Close MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, and MSP-045 in
   one eebusreg PR at a time.

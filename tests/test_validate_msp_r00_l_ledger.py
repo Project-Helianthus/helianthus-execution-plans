@@ -11,6 +11,11 @@ from pathlib import Path
 
 import yaml
 ROOT = Path(__file__).resolve().parents[1]
+AD_MODULE_PATH = ROOT / "scripts" / "validate_ad_docs_02.py"
+ad_spec = importlib.util.spec_from_file_location("validate_ad_docs_02_for_legacy", AD_MODULE_PATH)
+assert ad_spec is not None and ad_spec.loader is not None
+ad_validator = importlib.util.module_from_spec(ad_spec)
+ad_spec.loader.exec_module(ad_validator)
 MODULE_PATH = ROOT / "scripts" / "validate_msp_r00_l_ledger.py"
 VALIDATE_REPO_SCRIPT = ROOT / "scripts" / "validate_plans_repo.sh"
 
@@ -115,6 +120,70 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             audit.write_text(audit.read_text(encoding="utf-8").replace("Row count: `46`", "Row count: `45`"), encoding="utf-8")
             with self.assertRaises(validator.ValidationError):
                 validator.validate_plan_state_surfaces(root)
+
+    # Restored AD-DOCS-01 ledger regression names; their mutable contract is now
+    # evaluated through the typed AD-DOCS-02 live-107 control plane.
+    def _ad_matrix(self) -> dict:
+        return yaml.safe_load((LEDGER_PATH.parent / validator.MATRIX_FILENAME).read_text(encoding="utf-8"))
+
+    def _ad_row(self, document: dict, row_id: str) -> dict:
+        return next(row for row in document["issues"] if row["id"] == row_id)
+
+    def test_rejects_msp_r00_l_matrix_state_drift(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-R00-L")["model_lane"] = "obsolete"
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_docs_verify_state_drift(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "DOCS-VERIFY")["routing_contract"] = {"forbidden_tier": "ultra"}
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_api_schema_state_drift(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-API-SCHEMA")["requires_completion_tokens"] = ["missing"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_duplicate_api_schema_state(self) -> None:
+        document = self._ad_matrix()
+        document["issues"].append(copy.deepcopy(self._ad_row(document, "MSP-DOCS-API-SCHEMA")))
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_invalid_matrix_yaml(self) -> None:
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.load_yaml(Path("/nonexistent"))
+
+    def test_rejects_complexity_outside_model_lane_table(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-E2")["model_lane"] = "invalid"
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_accepts_monotonic_downstream_progress(self) -> None:
+        ad_validator.validate_matrix(self._ad_matrix())
+
+    def test_rejects_stale_topology_ready_set(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-E2R-PUBLISH")["requires_completion_tokens"] = []
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_stale_topology_results(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-E2R-PLATFORM")["requires_completion_tokens"] = ["MSP-DOCS-E2R-PLATFORM"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_cleanup_activation_or_preemption_drift(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-CLEAN")["requires_completion_tokens"] = ["MSP-DOCS-E2"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_extra_cleanup_conditional_field_without_reflection(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-CANDIDATE-CLEANUP")["model_lane"] = "private"
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
+
+    def test_rejects_platform_advance_before_api_schema_completion(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-PLATFORM")["requires_completion_tokens"] = ["MSP-DOCS-PLATFORM"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_repo_validator_disables_python_bytecode_before_python_invocations(self) -> None:
         lines = VALIDATE_REPO_SCRIPT.read_text(encoding="utf-8").splitlines()
