@@ -443,6 +443,21 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
     if plan.get("initial_ready_set") != READINESS["selected_batch"]:
         fail("plan: selected batch drift")
 
+def canonicalize_security_symbols(text: str) -> str:
+    """Map dependency punctuation to its ASCII spelling and reject other symbols."""
+    canonical: list[str] = []
+    for character in text:
+        category = unicodedata.category(character)
+        if category == "Pd" or character == "\u2212":
+            canonical.append("-")
+        elif "ARROW" in unicodedata.name(character, ""):
+            canonical.append("->")
+        elif not character.isascii() and category.startswith("S"):
+            fail("markdown: non-ASCII symbol in active control surface")
+        else:
+            canonical.append(character)
+    return "".join(canonical)
+
 def normalize_markdown(text: str) -> str:
     """Canonicalize active prose before evaluating its security-sensitive claims."""
     normalized = text
@@ -459,6 +474,7 @@ def normalize_markdown(text: str) -> str:
     normalized = unicodedata.normalize("NFKC", normalized)
     if any(unicodedata.category(character) == "Cf" for character in normalized):
         fail("markdown: Unicode format character")
+    normalized = canonicalize_security_symbols(normalized)
     for _ in range(HTML_UNESCAPE_MAX_ITERATIONS):
         rendered = MARKDOWN_LINK_RE.sub(r"\1", normalized)
         rendered = MARKDOWN_REFERENCE_LINK_RE.sub(r"\1", rendered)

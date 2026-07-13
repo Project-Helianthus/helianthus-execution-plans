@@ -455,6 +455,21 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_markdown_claims(target, self.matrix)
 
+    def test_rejects_unicode_dash_and_long_arrow_e2_to_clean_bypass(self) -> None:
+        self._assert_markdown_claim_rejected("MSP‐DOCS‐E2 ⟶ MSP‐DOCS‐CLEAN\n")
+
+    def test_canonicalizes_representative_unicode_dash_and_arrow_variants(self) -> None:
+        self.assertEqual(
+            validator.normalize_markdown("MSP‐DOCS–E2 ⇒ MSP−DOCS-CLEAN ⟶ MSP-DOCS-CLEAN"),
+            "msp-docs-e2 -> msp-docs-clean -> msp-docs-clean",
+        )
+        self.assertEqual(validator.normalize_markdown("‐‑‒–—―−"), "-------")
+        self.assertEqual(validator.normalize_markdown("→⟶⇒"), "->->->")
+
+    def test_rejects_other_non_ascii_symbol_confusables(self) -> None:
+        with self.assertRaisesRegex(validator.ValidationError, "non-ASCII symbol"):
+            validator.normalize_markdown("MSP-DOCS-E2 ∴ MSP-DOCS-CLEAN")
+
     def test_rejects_long_clean_token_bypass_with_html_entity_e2(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
