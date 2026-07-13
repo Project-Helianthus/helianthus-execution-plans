@@ -92,6 +92,25 @@ READINESS = {
     "dispatchable": ["MSP-R00-L", "DOCS-VERIFY", "MSP-DOCS-API-SCHEMA"],
     "selected_batch": ["MSP-R00-L", "DOCS-VERIFY"],
 }
+MATRIX_ROOT_KEYS = frozenset({
+    "schema_version", "status", "plan", "baseline", "cruise_phase", "current_milestone",
+    "amendment_count", "amended_on", "amendment", "accepted_through", "dirty_rescue_candidate",
+    "successor_unlocks", "successor_unlock_condition", "msp_r00_status", "msp_r00_issue",
+    "msp_r00_architecture_review", "purpose", "serialization", "gate_catalog", "ownership_contract",
+    "public_evidence_privacy", "issues", "routing_policy",
+})
+SERIALIZATION = {
+    "rule": "one_active_pr_per_repo",
+    "memory_guard": "serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise",
+    "recovery_sequence": ["MSP-R00", "MSP-R00-L", "DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-PLATFORM", "MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"],
+    "eebusreg_sequence": ["MSP-DOCS-CLEAN", "MSP-03D-R", "MSP-035", "MSP-04A", "MSP-036", "MSP-055", "MSP-04B", "MSP-04C", "MSP-045"],
+    "docs_eebus_sequence": ["DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-E2", "MSP-DOCS-API-CANDIDATE", "MSP-DOCS-API-FREEZE"],
+    "docs_ebus_sequence": ["MSP-DOCS-PLATFORM"],
+    "initial_ready_set": ["MSP-R00-L", "DOCS-VERIFY"],
+    "dirty_code_unlocks_successors": False,
+    "conditional_rows": ["MSP-DOCS-CANDIDATE-CLEANUP"],
+    "pr_required_evidence": ["doc_gate_result", "rollback_ledger_entry", "relevant_transport_or_security_gate_artifact", "review_disposition_for_every_comment", "complete_milestone_architecture_review"],
+}
 ACTIVE_ROUTING_CONTRACT = {
     "resolver": "canonical_resolver",
     "policy_digest": "canonical_policy_digest",
@@ -147,6 +166,15 @@ ENTITY_LIKE_RE = re.compile(r"&(?:#[0-9]+|#[xX][0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]+
 MARKDOWN_LINK_RE = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
 MARKDOWN_REFERENCE_LINK_RE = re.compile(r"!?\[([^\]]*)\]\[[^\]]*\]")
 MARKDOWN_EMPHASIS_RE = re.compile(r"(?<!\\)[*_]+")
+MARKDOWN_BACKSLASH_ESCAPE_RE = re.compile(r"\\([!\"#$%&'()*+,\-./:;<=>?@\[\\\]^_`{|}~])")
+HTML_TAG_START_RE = re.compile(r"<(?:(?:/)?[A-Za-z])")
+ACTIVE_ROUTING_PIN_RE = re.compile(
+    r"\bmodel[ _-]?lane\b|"
+    r"\b(?:provider|vendor)\b\s*(?::|=|is\b)?\s*\b(?:openai|anthropic)\b|"
+    r"\bmodel\b\s*(?::|=|is\b)?\s*\b(?:gpt|claude)[ _-]?\d|"
+    r"\bgpt[ _-]?5[._ -]?5\b"
+)
+ESCAPED_PIPE = "\x00"
 
 def active_control_surface_paths() -> tuple[str, ...]:
     """Return the fixed active-plan projection, independent of the allowlist."""
@@ -219,7 +247,7 @@ def render_inline_html(text: str) -> str:
     if renderer.open_tags:
         fail("markdown: unclosed inline HTML")
     rendered = "".join(renderer.parts)
-    if "<" in rendered:
+    if HTML_TAG_START_RE.search(rendered):
         fail("markdown: malformed inline HTML")
     return rendered
 
@@ -336,6 +364,9 @@ def validate_integrity(data: dict[str, Any]) -> None:
         fail("integrity: process attestation drift")
 
 def validate_matrix(data: dict[str, Any]) -> None:
+    exact_keys(data, set(MATRIX_ROOT_KEYS), "matrix")
+    if data["serialization"] != SERIALIZATION:
+        fail("matrix: serialization authority drift")
     rows = data.get("issues")
     if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
         fail("matrix: issues must be mappings")
@@ -366,6 +397,8 @@ def validate_matrix(data: dict[str, Any]) -> None:
             exact_keys(row["routing_evidence"], {"recorded"}, f"matrix.{row['id']}.routing_evidence")
             if row["routing_evidence"] != {"recorded": "historical_observed"}:
                 fail("matrix: historical routing evidence drift")
+        if row_id not in HISTORICAL_IDS:
+            reject_active_row_string_pins(row, f"matrix.{row_id}")
         if row["requires_completion_tokens"] != REQUIRES_COMPLETION_TOKENS[row_id]:
             fail("matrix: completion-token authority drift")
         if row.get("evidence_inputs", []) != EVIDENCE_INPUTS[row_id]:
@@ -434,6 +467,17 @@ def reject_active_routing_pin(value: Any, where: str) -> None:
     elif isinstance(value, str) and any(token in value.lower() for token in ("openai", "anthropic", "gpt-", "gpt_", "claude-", "claude_", "gpt5")):
         fail(f"{where}: active routing pin")
 
+def reject_active_row_string_pins(value: Any, where: str) -> None:
+    """Reject rendered provider/model pins in every active matrix string field."""
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            reject_active_row_string_pins(nested, f"{where}.{key}")
+    elif isinstance(value, list):
+        for index, nested in enumerate(value):
+            reject_active_row_string_pins(nested, f"{where}[{index}]")
+    elif isinstance(value, str) and ACTIVE_ROUTING_PIN_RE.search(normalize_markdown(value)):
+        fail(f"{where}: active routing pin")
+
 def validate_plan_projection(plan: dict[str, Any]) -> None:
     policy = plan.get("routing_policy")
     exact_keys(policy, {"resolver", "policy_digest", "forbidden_tier"}, "plan.routing_policy")
@@ -492,6 +536,7 @@ def render_markdown_text(text: str) -> str:
     else:
         fail("markdown: link rendering did not reach a fixed point")
     normalized = MARKDOWN_EMPHASIS_RE.sub("", normalized)
+    normalized = MARKDOWN_BACKSLASH_ESCAPE_RE.sub(r"\1", normalized)
     if any(character.isalpha() and not character.isascii() for character in normalized):
         fail("markdown: non-ASCII letter in active control surface")
     return normalized
@@ -504,8 +549,34 @@ def normalize_markdown(text: str) -> str:
 
 def normalize_markdown_lines(text: str) -> str:
     """Canonicalize rendered Markdown while preserving line and table-cell boundaries."""
-    rendered = render_markdown_text(text).casefold()
+    rendered = render_markdown_text(protect_escaped_table_pipes(text)).casefold()
     return "\n".join(" ".join(line.split()) for line in rendered.splitlines())
+
+
+def protect_escaped_table_pipes(text: str) -> str:
+    """Keep Markdown-escaped pipes literal until table cells have been split."""
+    protected: list[str] = []
+    slash_count = 0
+    for character in text:
+        if character == "|" and slash_count % 2:
+            protected[-1] = ESCAPED_PIPE
+        else:
+            protected.append(character)
+        slash_count = slash_count + 1 if character == "\\" else 0
+    return "".join(protected)
+
+
+def split_markdown_table_row(line: str) -> tuple[str, ...] | None:
+    """Split a rendered table row on source-unescaped pipes, outer pipes optional."""
+    stripped = line.strip()
+    if "|" not in stripped:
+        return None
+    if stripped.startswith("|"):
+        stripped = stripped[1:]
+    if stripped.endswith("|"):
+        stripped = stripped[:-1]
+    cells = tuple(" ".join(cell.replace(ESCAPED_PIPE, "|").split()).strip("|").strip() for cell in stripped.split("|"))
+    return cells if len(cells) >= 3 else None
 
 
 def has_forbidden_e2_clean_table_edge(normalized_lines: str) -> bool:
@@ -515,10 +586,9 @@ def has_forbidden_e2_clean_table_edge(normalized_lines: str) -> bool:
         ("msp-docs-clean", "<-", "msp-docs-e2"),
     }
     for line in normalized_lines.splitlines():
-        stripped = line.strip()
-        if not (stripped.startswith("|") and stripped.endswith("|")):
+        cells = split_markdown_table_row(line)
+        if cells is None:
             continue
-        cells = tuple(" ".join(cell.split()) for cell in stripped.split("|")[1:-1])
         for index in range(len(cells) - 2):
             if cells[index:index + 3] in forbidden_triples:
                 return True

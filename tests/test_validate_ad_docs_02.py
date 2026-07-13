@@ -80,6 +80,32 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         self.row(document, "MSP-DOCS-CLEAN")["requires_completion_tokens"] = ["MSP-DOCS-E2"]
         self.rejects_matrix(document)
 
+    def test_rejects_active_row_string_field_routing_pins_after_markdown_rendering(self) -> None:
+        for row_id, field, value in (
+            ("MSP-DOCS-E2", "title", "pro<span>vid</span>er: OpenAI"),
+            ("MSP-DOCS-E2", "acceptance", ["bare GPT\\-5.5 routing pin"]),
+            ("MSP-DOCS-E2", "routing_contract", {
+                "resolver": "canonical_resolver",
+                "policy_digest": "canonical_policy_digest",
+                "forbidden_tier": "gpt&#45;5.5",
+            }),
+        ):
+            with self.subTest(row_id=row_id, field=field):
+                document = copy.deepcopy(self.matrix)
+                self.row(document, row_id)[field] = value
+                self.rejects_matrix(document)
+
+    def test_rejects_matrix_root_or_serialization_drift(self) -> None:
+        for mutate in (
+            lambda document: document.__setitem__("unexpected", True),
+            lambda document: document["serialization"].__setitem__("unexpected", True),
+            lambda document: document["serialization"].__setitem__("initial_ready_set", ["MSP-DOCS-CLEAN"]),
+        ):
+            with self.subTest(mutate=mutate):
+                document = copy.deepcopy(self.matrix)
+                mutate(document)
+                self.rejects_matrix(document)
+
     def test_rejects_combined_removed_e2_platform_edge_and_model_field(self) -> None:
         document = copy.deepcopy(self.matrix)
         self.row(document, "MSP-DOCS-E2")["requires_completion_tokens"] = []
@@ -477,6 +503,24 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.subTest(row=row):
                 self._assert_markdown_claim_rejected(row + "\n")
 
+    def test_parses_outerless_and_escaped_pipe_table_edges(self) -> None:
+        for row in (
+            "MSP-DOCS-E2|->|MSP-DOCS-CLEAN",
+            "MSP-DOCS-CLEAN|<-|MSP-DOCS-E2",
+            "MSP-DOCS-E2|\\->|MSP-DOCS-CLEAN\\|",
+        ):
+            with self.subTest(row=row):
+                self._assert_markdown_claim_rejected(row + "\n")
+
+    def test_accepts_outerless_reverse_and_descriptive_table_rows(self) -> None:
+        for row in (
+            "MSP-DOCS-E2|<-|MSP-DOCS-CLEAN",
+            "MSP-DOCS-CLEAN|->|MSP-DOCS-E2",
+            "MSP-DOCS-E2|descriptive non-edge cell|MSP-DOCS-CLEAN",
+        ):
+            with self.subTest(row=row):
+                self._assert_markdown_claim_accepted(row + "\n")
+
     def test_accepts_reverse_or_non_edge_table_cell_sequences(self) -> None:
         for row in (
             "| MSP-DOCS-E2 | ← | MSP-DOCS-CLEAN |",
@@ -500,6 +544,14 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "msp-docs-e2 <- msp-docs-clean",
         )
         self._assert_markdown_claim_accepted("MSP-DOCS-E2 ← MSP-DOCS-CLEAN\n")
+
+    def test_preserves_ascii_leftward_text_as_direction_not_html(self) -> None:
+        self.assertEqual(
+            validator.normalize_markdown("MSP-DOCS-E2 <- MSP-DOCS-CLEAN"),
+            "msp-docs-e2 <- msp-docs-clean",
+        )
+        self._assert_markdown_claim_accepted("MSP-DOCS-E2 <- MSP-DOCS-CLEAN\n")
+        self._assert_markdown_claim_rejected("MSP-DOCS-CLEAN <- MSP-DOCS-E2\n")
 
     def test_rejects_bidirectional_unicode_arrows_fail_closed(self) -> None:
         for arrow in ("↔", "⇔", "⟷"):
