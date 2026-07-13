@@ -466,8 +466,8 @@ def canonicalize_security_symbols(text: str) -> str:
             canonical.append(character)
     return "".join(canonical)
 
-def normalize_markdown(text: str) -> str:
-    """Canonicalize active prose before evaluating its security-sensitive claims."""
+def render_markdown_text(text: str) -> str:
+    """Render active Markdown to canonical text before evaluating its claims."""
     normalized = text
     for _ in range(HTML_UNESCAPE_MAX_ITERATIONS):
         unescaped = html.unescape(normalized)
@@ -494,7 +494,18 @@ def normalize_markdown(text: str) -> str:
     normalized = MARKDOWN_EMPHASIS_RE.sub("", normalized)
     if any(character.isalpha() and not character.isascii() for character in normalized):
         fail("markdown: non-ASCII letter in active control surface")
-    return " ".join(normalized.casefold().split())
+    return normalized
+
+
+def normalize_markdown(text: str) -> str:
+    """Canonicalize active prose before evaluating its security-sensitive claims."""
+    return " ".join(render_markdown_text(text).casefold().split())
+
+
+def normalize_markdown_lines(text: str) -> str:
+    """Canonicalize rendered Markdown while preserving line and table-cell boundaries."""
+    rendered = render_markdown_text(text).casefold()
+    return "\n".join(" ".join(line.split()) for line in rendered.splitlines())
 
 def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
@@ -506,6 +517,7 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     for surface in surfaces:
         text = (plan_dir / surface).read_text(encoding="utf-8")
         normalized = normalize_markdown(text)
+        normalized_lines = normalize_markdown_lines(text)
         if surface != "107-ad-docs-02-topology-audit.md" and expected_reference not in text:
             fail(f"surfaces.{surface}: missing structured routing reference")
         # Require a concrete provider/model value. This leaves canonical negative
@@ -521,7 +533,7 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         if (
             re.search(r"msp-docs-e2\s*(?:->|to)\s*msp-docs-clean", normalized)
             or re.search(r"msp-docs-clean\s*<-\s*msp-docs-e2", normalized)
-            or re.search(r"\|[^\n]*msp-docs-e2[^\n]*msp-docs-clean[^\n]*\|", text.casefold())
+            or re.search(r"\|[^\n]*msp-docs-e2[^\n]*msp-docs-clean[^\n]*\|", normalized_lines)
         ):
             fail(f"surfaces.{surface}: direct E2-to-CLEAN path")
         if re.search(

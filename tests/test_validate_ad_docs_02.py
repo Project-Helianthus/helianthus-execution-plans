@@ -467,6 +467,15 @@ class AdDocs02ValidatorTests(unittest.TestCase):
     def test_rejects_long_rightward_arrow_e2_to_clean_bypass(self) -> None:
         self._assert_markdown_claim_rejected("MSP‐DOCS‐E2 \u27f6 MSP‐DOCS‐CLEAN\n")
 
+    def test_rejects_normalized_table_direct_e2_to_clean_bypasses(self) -> None:
+        for row in (
+            "| MSP‐DOCS‐E2 | MSP‐DOCS‐CLEAN |",
+            "| MSP&#45;DOCS&#45;E2 | MSP&#45;DOCS&#45;CLEAN |",
+            "| <span>MSP‐DOCS‐E2</span> | <em>MSP&#45;DOCS&#45;CLEAN</em> |",
+        ):
+            with self.subTest(row=row):
+                self._assert_markdown_claim_rejected(row + "\n")
+
     def test_rejects_leftward_spelling_of_forbidden_e2_to_clean_edge(self) -> None:
         self.assertEqual(
             validator.normalize_markdown("MSP-DOCS-CLEAN ← MSP-DOCS-E2"),
