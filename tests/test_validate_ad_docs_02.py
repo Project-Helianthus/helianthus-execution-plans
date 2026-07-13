@@ -95,11 +95,35 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 self.row(document, row_id)[field] = value
                 self.rejects_matrix(document)
 
+    def test_rejects_bare_concrete_model_tokens_in_active_markdown_only(self) -> None:
+        for token in (
+            "Route MSP-DOCS-E2 on GPT-5.5 high.",
+            "Route MSP-DOCS-E2 on GPT-5.3-Codex-Spark.",
+            "Route MSP-DOCS-E2 on gpt-5.4-mini.",
+            "Route MSP-DOCS-E2 on Claude 4.1 Opus.",
+        ):
+            with self.subTest(token=token):
+                self._assert_markdown_claim_rejected(token + "\n")
+        historical = self.row(self.matrix, "MSP-00A")
+        self.assertIn("routing_evidence", historical)
+        validator.validate_matrix(self.matrix)
+
     def test_rejects_matrix_root_or_serialization_drift(self) -> None:
         for mutate in (
             lambda document: document.__setitem__("unexpected", True),
             lambda document: document["serialization"].__setitem__("unexpected", True),
             lambda document: document["serialization"].__setitem__("initial_ready_set", ["MSP-DOCS-CLEAN"]),
+        ):
+            with self.subTest(mutate=mutate):
+                document = copy.deepcopy(self.matrix)
+                mutate(document)
+                self.rejects_matrix(document)
+
+    def test_rejects_matrix_root_routing_policy_pins_or_drift(self) -> None:
+        for mutate in (
+            lambda document: document["routing_policy"].__setitem__("provider", "openai"),
+            lambda document: document["routing_policy"].__setitem__("model", "gpt-5.5"),
+            lambda document: document["routing_policy"].__setitem__("resolver", "other"),
         ):
             with self.subTest(mutate=mutate):
                 document = copy.deepcopy(self.matrix)
@@ -240,10 +264,32 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             (repo / "future-plan.md").write_text("future\n", encoding="utf-8")
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
             subprocess.run(["git", "-C", str(repo), "commit", "-m", "future"], check=True, capture_output=True)
-            with mock.patch.object(validator, "ANCHOR", anchor):
+            with mock.patch.object(validator, "ANCHOR", anchor), mock.patch.object(validator, "PROTECTED_EVIDENCE_PATHS", ()):
                 validator.validate_changed_paths(repo)
                 with self.assertRaises(validator.ValidationError):
                     validator.validate_issue_63_changeset(repo, "HEAD")
+
+    def test_normal_history_guard_rejects_100_topology_audit_mutation_and_accepts_future_file(self) -> None:
+        protected = f"{validator.PLAN}/100-topology-audit.md"
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+            audit = repo / protected
+            audit.parent.mkdir(parents=True)
+            audit.write_text("anchor audit\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-m", "anchor"], check=True, capture_output=True)
+            anchor = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, text=True, capture_output=True).stdout.strip()
+            (repo / "future-plan.md").write_text("future\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-m", "future"], check=True, capture_output=True)
+            with mock.patch.object(validator, "ANCHOR", anchor), mock.patch.object(validator, "PROTECTED_EVIDENCE_PATHS", (protected,)):
+                validator.validate_changed_paths(repo)
+                audit.write_text("mutated audit\n", encoding="utf-8")
+                with self.assertRaisesRegex(validator.ValidationError, "protected evidence changed"):
+                    validator.validate_changed_paths(repo)
 
     def test_issue_changeset_rejects_unauthorized_final_commit(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -613,6 +659,17 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             (target / "plan.yaml").write_text(yaml.safe_dump(plan), encoding="utf-8")
             with self.assertRaises(validator.ValidationError):
                 validator.validate_surfaces(root)
+
+    def test_rejects_plan_model_map_outside_routing_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            plan = yaml.safe_load((target / "plan.yaml").read_text(encoding="utf-8"))
+            plan["model_map"] = {"primary": "GPT-5.5 high"}
+            (target / "plan.yaml").write_text(yaml.safe_dump(plan), encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_surfaces(root)
             plan.pop("routing_policy")
             plan["routing_policy"] = {"resolver": "canonical", "policy_digest": "required_at_dispatch", "forbidden_tier": "Ultra"}
             (target / "plan.yaml").write_text(yaml.safe_dump(plan), encoding="utf-8")
@@ -688,7 +745,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(work), "push", "origin", "HEAD:main"], check=True, capture_output=True)
             shallow = root / "shallow"
             subprocess.run(["git", "clone", "--branch", "main", "--depth", "1", "file://" + str(origin), str(shallow)], check=True, capture_output=True)
-            with mock.patch.object(validator, "ANCHOR", anchor):
+            with mock.patch.object(validator, "ANCHOR", anchor), mock.patch.object(validator, "PROTECTED_EVIDENCE_PATHS", ()):
                 validator.validate_changed_paths(shallow)
 
     def test_fails_closed_when_anchor_cannot_be_recovered(self) -> None:

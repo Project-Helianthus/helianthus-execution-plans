@@ -99,6 +99,16 @@ MATRIX_ROOT_KEYS = frozenset({
     "msp_r00_architecture_review", "purpose", "serialization", "gate_catalog", "ownership_contract",
     "public_evidence_privacy", "issues", "routing_policy",
 })
+PLAN_ROOT_KEYS = frozenset({
+    "slug", "title", "state", "cruise_phase", "amendment_count", "amended_on",
+    "amendment", "source_discussion", "target_repos", "knowledge_repo",
+    "platform_docs_owner", "protocol_knowledge_repo", "protocol_native_docs_repo",
+    "cross_seed_target_repo", "canonical_file", "split_index", "started_on", "locked_on",
+    "current_milestone", "accepted_adversarial_rounds", "accepted_through", "m3_status",
+    "msp_03d_status", "dirty_rescue_candidate", "successor_unlocks",
+    "successor_unlock_condition", "msp_r00_status", "msp_r00_issue",
+    "msp_r00_architecture_review", "initial_ready_set", "routing_policy",
+})
 SERIALIZATION = {
     "rule": "one_active_pr_per_repo",
     "memory_guard": "serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise",
@@ -115,6 +125,11 @@ ACTIVE_ROUTING_CONTRACT = {
     "resolver": "canonical_resolver",
     "policy_digest": "canonical_policy_digest",
     "forbidden_tier": "Ultra",
+}
+MATRIX_ROOT_ROUTING_POLICY = {
+    "resolver": "canonical",
+    "policy_digest": "required_at_dispatch",
+    "forbidden_tier": "highest_reserved_tier",
 }
 EXPECTED_ACTIVE_SURFACES = (
     "00-canonical.md",
@@ -172,7 +187,32 @@ ACTIVE_ROUTING_PIN_RE = re.compile(
     r"\bmodel[ _-]?lane\b|"
     r"\b(?:provider|vendor)\b\s*(?::|=|is\b)?\s*\b(?:openai|anthropic)\b|"
     r"\bmodel\b\s*(?::|=|is\b)?\s*\b(?:gpt|claude)[ _-]?\d|"
+    r"\b(?:gpt|claude)[ _-]?\d+(?:[._-]\d+)?(?:[ _-][a-z0-9]+)*\b|"
     r"\bgpt[ _-]?5[._ -]?5\b"
+)
+PROTECTED_EVIDENCE_PATHS = (
+    f"{PLAN}/93-eebus-transport-gate-v0.md",
+    f"{PLAN}/94-m1-docs-bootstrap-evidence.md",
+    f"{PLAN}/95-msp-020-eebusreg-bootstrap-evidence.md",
+    f"{PLAN}/96-gate-readiness-audit-2026-07-08.md",
+    f"{PLAN}/97-m2-raw-contracts-architecture-review.md",
+    f"{PLAN}/98-msp-03a-facade-spike-evidence.md",
+    f"{PLAN}/98-msp-03b-toolchain-boundary-evidence.md",
+    f"{PLAN}/98-msp-03c-ha-network-proof-gate-evidence.md",
+    f"{PLAN}/98-msp-03c-ha-network-proof-lab-run.json",
+    f"{PLAN}/98-msp-03c-lab-acceptance-2026-07-08.md",
+    f"{PLAN}/98-msp-03c-lab-attempt-2026-07-08.md",
+    f"{PLAN}/98-msp-03d-fake-peer-live-blocker-evidence.md",
+    f"{PLAN}/100-topology-audit.md",
+    f"{PLAN}/101-g19-canonical-evidence-template.md",
+    f"{PLAN}/102-plan-lock-architecture-review.md",
+    f"{PLAN}/103-ad-docs-01-amendment.md",
+    f"{PLAN}/104-msp-r00-l-public-redacted-ledger.json",
+    f"{PLAN}/issues/MSP-00A-control-plane-matrix.md",
+    f"{PLAN}/issues/MSP-00B-model-routing.md",
+    f"{PLAN}/issues/MSP-00C-eebus-transport-gate-v0.md",
+    f"{PLAN}/issues/MSP-020-eebusreg-bootstrap.md",
+    f"{PLAN}/issues/MSP-02A-raw-runtime-identity-contract.md",
 )
 
 def active_control_surface_paths() -> tuple[str, ...]:
@@ -366,6 +406,10 @@ def validate_matrix(data: dict[str, Any]) -> None:
     exact_keys(data, set(MATRIX_ROOT_KEYS), "matrix")
     if data["serialization"] != SERIALIZATION:
         fail("matrix: serialization authority drift")
+    exact_keys(data["routing_policy"], {"resolver", "policy_digest", "forbidden_tier"}, "matrix.routing_policy")
+    reject_active_routing_pin(data["routing_policy"], "matrix.routing_policy")
+    if data["routing_policy"] != MATRIX_ROOT_ROUTING_POLICY:
+        fail("matrix: root routing policy drift")
     rows = data.get("issues")
     if not isinstance(rows, list) or not all(isinstance(row, dict) for row in rows):
         fail("matrix: issues must be mappings")
@@ -463,7 +507,7 @@ def reject_active_routing_pin(value: Any, where: str) -> None:
     elif isinstance(value, list):
         for index, nested in enumerate(value):
             reject_active_routing_pin(nested, f"{where}[{index}]")
-    elif isinstance(value, str) and any(token in value.lower() for token in ("openai", "anthropic", "gpt-", "gpt_", "claude-", "claude_", "gpt5")):
+    elif isinstance(value, str) and ACTIVE_ROUTING_PIN_RE.search(normalize_markdown(value)):
         fail(f"{where}: active routing pin")
 
 def reject_active_row_string_pins(value: Any, where: str) -> None:
@@ -478,6 +522,8 @@ def reject_active_row_string_pins(value: Any, where: str) -> None:
         fail(f"{where}: active routing pin")
 
 def validate_plan_projection(plan: dict[str, Any]) -> None:
+    exact_keys(plan, set(PLAN_ROOT_KEYS), "plan")
+    reject_active_routing_pin(plan, "plan")
     policy = plan.get("routing_policy")
     exact_keys(policy, {"resolver", "policy_digest", "forbidden_tier"}, "plan.routing_policy")
     reject_active_routing_pin(policy, "plan.routing_policy")
@@ -600,12 +646,7 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         # Require a concrete provider/model value. This leaves canonical negative
         # and historical prose such as "does not duplicate ... provider or ..."
         # outside the active-pin grammar without relying on a bounded text window.
-        if re.search(
-            r"\bmodel[ _-]?lane\b|"
-            r"\b(?:provider|vendor)\b\s*(?::|=|is\b)?\s*\b(?:openai|anthropic)\b|"
-            r"\bmodel\b\s*(?::|=|is\b)?\s*\b(?:gpt|claude)[ _-]?\d",
-            normalized,
-        ):
+        if ACTIVE_ROUTING_PIN_RE.search(normalized):
             fail(f"surfaces.{surface}: active routing pin")
         if (
             re.search(r"msp-docs-e2\s*(?:->|to)\s*msp-docs-clean", normalized)
@@ -794,6 +835,18 @@ def validate_changed_paths(root: Path = ROOT) -> None:
     """Permanent history guard; future regular files are outside the #63 allowlist."""
     _ensure_anchor(root)
     _require_ancestor(root, ANCHOR, "HEAD", "protected-path anchor is not in HEAD history")
+    for relative in PROTECTED_EVIDENCE_PATHS:
+        try:
+            anchor_bytes = subprocess.run(
+                ["git", "-C", str(root), "show", f"{ANCHOR}:{relative}"],
+                capture_output=True,
+                check=True,
+            ).stdout
+            current_bytes = (root / relative).read_bytes()
+        except (OSError, subprocess.CalledProcessError) as exc:
+            raise ValidationError(f"protected evidence unavailable: {relative}") from exc
+        if hashlib.sha256(current_bytes).digest() != hashlib.sha256(anchor_bytes).digest() or current_bytes != anchor_bytes:
+            fail(f"protected evidence changed: {relative}")
 
 def main(argv: list[str]) -> int:
     try:
