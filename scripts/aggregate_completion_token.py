@@ -3,6 +3,12 @@
 
 from __future__ import annotations
 
+import sys
+
+if __name__ == "__main__" and sys.path:
+    _script_import_root = sys.path[0]
+    sys.path[:] = [entry for entry in sys.path if entry != _script_import_root]
+
 import argparse
 import hashlib
 import json
@@ -21,6 +27,11 @@ from typing import Any
 
 AGGREGATE_REPOSITORY = "Project-Helianthus/helianthus-execution-plans"
 AGGREGATE_ISSUE = 64
+ARCHITECTURE_REVIEW_AUTHOR = "d3vi1"
+ARCHITECTURE_REVIEW_PATH = (
+    "multi-runtime-semantic-platform.locked/"
+    "108-msp-docs-e2r-aggregate-architecture-review.json"
+)
 CLEAN_REPOSITORY = "Project-Helianthus/helianthus-eebusreg"
 CLEAN_BASE = "0e58327dfdb86ef243a19e18d590564813feaa00"
 PRODUCER_ID = "MSP-DOCS-E2R-AGGREGATE"
@@ -30,19 +41,28 @@ PUBLISH_TOKEN = "681cace127dcfc7359ca811624503c395bfb68c227e1fdc5b2608bae61735d9
 OID = re.compile(r"[0-9a-f]{40}\Z")
 DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 OBSERVATION_SOURCE = re.compile(r"[a-z0-9][a-z0-9._+-]*\Z")
-GITHUB_LOGIN = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\[bot\])?\Z")
 GITHUB_REPOSITORY = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
 GITHUB_INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z")
 GITHUB_API_ROOT = "https://api.github.com"
 GITHUB_REMOTE_ROOT = "https://github.com"
 GITHUB_RESPONSE_LIMIT = 2 * 1024 * 1024
 REVIEWED_PATHS = (
+    "multi-runtime-semantic-platform.locked/00-canonical.md",
+    "multi-runtime-semantic-platform.locked/14-execution-roadmap-issues-and-gates.md",
+    "multi-runtime-semantic-platform.locked/90-issue-map.md",
+    "multi-runtime-semantic-platform.locked/91-milestone-map.md",
+    "multi-runtime-semantic-platform.locked/92-m0-issue-matrix.yaml",
+    "multi-runtime-semantic-platform.locked/99-status.md",
+    "multi-runtime-semantic-platform.locked/105-ad-docs-02-amendment.md",
+    "multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md",
     "scripts/aggregate_completion_token.py",
+    "scripts/validate_ad_docs_02.py",
     "scripts/validate_plans_repo.sh",
     "tests/fixtures/msp_docs_e2r_aggregate/platform_b_completion_envelope.json",
     "tests/fixtures/msp_docs_e2r_aggregate/publish_completion_envelope.json",
     "tests/test_aggregate_completion_token.py",
     "tests/test_msp_docs_e2r_aggregate_red.py",
+    "tests/test_validate_ad_docs_02.py",
     "multi-runtime-semantic-platform.locked/109-msp-docs-e2r-aggregate-process-attestation.json",
 )
 REVIEW_SCOPE = (
@@ -79,10 +99,7 @@ PUBLIC_MEMBER_PATHS = (
     "architecture/README.md",
     "protocols/ship-spine-overview.md",
 )
-EXPECTED_CHANNELS = {
-    member: ["canonical"]
-    for member in EXACT_MEMBERS
-}
+EXPECTED_CHANNELS = {member: ["canonical"] for member in EXACT_MEMBERS}
 EXPECTED_CHANNEL_REGISTRY = {
     "canonical": {"owner": "canonical_documentation_owner", "visibility": "stable"}
 }
@@ -153,7 +170,9 @@ class GitHubLiveObservations:
     """Read immutable review identities and exact Git refs from GitHub."""
 
     def _api_json(self, repository: str, suffix: str) -> dict[str, Any]:
-        if GITHUB_REPOSITORY.fullmatch(repository) is None or not suffix.startswith("/"):
+        if GITHUB_REPOSITORY.fullmatch(repository) is None or not suffix.startswith(
+            "/"
+        ):
             raise AggregateError("aggregate-token.github-api")
         headers = {
             "Accept": "application/vnd.github+json",
@@ -191,7 +210,12 @@ class GitHubLiveObservations:
     def issue_comment(
         self, repository: str, issue: int, comment_id: int
     ) -> dict[str, Any]:
-        if type(issue) is not int or issue <= 0 or type(comment_id) is not int or comment_id <= 0:
+        if (
+            type(issue) is not int
+            or issue <= 0
+            or type(comment_id) is not int
+            or comment_id <= 0
+        ):
             raise AggregateError("aggregate-token.github-review-comment")
         return self._api_json(repository, f"/issues/comments/{comment_id}")
 
@@ -247,7 +271,10 @@ class GitHubLiveObservations:
             text=True,
             env=environment,
         )
-        if fetched.returncode != 0 or _git(root, "rev-parse", "FETCH_HEAD") != observed_oid:
+        if (
+            fetched.returncode != 0
+            or _git(root, "rev-parse", "FETCH_HEAD") != observed_oid
+        ):
             raise AggregateError("aggregate-token.github-git-ref")
         return observed_oid
 
@@ -330,7 +357,10 @@ def _exact_keys(value: dict[str, Any], expected: frozenset[str], category: str) 
 def _validate_frozen_identity(name: str, envelope: dict[str, Any]) -> None:
     expected = EXPECTED_IDENTITIES[name]
     _exact_keys(envelope, ENVELOPE_KEYS, f"aggregate-token.{name}-schema")
-    if type(envelope.get("schema_version")) is not int or envelope["schema_version"] != 2:
+    if (
+        type(envelope.get("schema_version")) is not int
+        or envelope["schema_version"] != 2
+    ):
         raise AggregateError(f"aggregate-token.{name}-schema")
     for field, exact in expected.items():
         if envelope.get(field) != exact or type(envelope.get(field)) is not type(exact):
@@ -338,11 +368,21 @@ def _validate_frozen_identity(name: str, envelope: dict[str, Any]) -> None:
     for field in ("base_oid", "head_oid", "merge_oid", "tree_oid"):
         if OID.fullmatch(envelope[field]) is None:
             raise AggregateError(f"aggregate-token.{name}-object")
-    if len({envelope[field] for field in ("base_oid", "head_oid", "merge_oid", "tree_oid")}) != 4:
+    if (
+        len(
+            {
+                envelope[field]
+                for field in ("base_oid", "head_oid", "merge_oid", "tree_oid")
+            }
+        )
+        != 4
+    ):
         raise AggregateError(f"aggregate-token.{name}-replay")
     core = _object(envelope.get("evidence_core"), f"aggregate-token.{name}-evidence")
     for field in IDENTITY_FIELDS:
-        if core.get(field) != envelope[field] or type(core.get(field)) is not type(envelope[field]):
+        if core.get(field) != envelope[field] or type(core.get(field)) is not type(
+            envelope[field]
+        ):
             raise AggregateError(f"aggregate-token.{name}-identity")
     if core.get("result") != "pass" or type(core.get("result")) is not str:
         raise AggregateError(f"aggregate-token.{name}-result")
@@ -360,7 +400,9 @@ def verify_publication_contract(
     _validate_frozen_identity("platform", platform)
     _validate_frozen_identity("publish", publish)
 
-    platform_core = _object(platform["evidence_core"], "aggregate-token.platform-evidence")
+    platform_core = _object(
+        platform["evidence_core"], "aggregate-token.platform-evidence"
+    )
     publish_core = _object(publish["evidence_core"], "aggregate-token.publish-evidence")
     manifest = _object(platform_core.get("manifest"), "aggregate-token.manifest")
     prior_manifest = _object(
@@ -425,7 +467,8 @@ def verify_publication_contract(
         or contract.get("exact_memberships") != exact_memberships
         or contract.get("eligible_channels") != EXPECTED_CHANNELS
         or contract.get("channel_registry") != EXPECTED_CHANNEL_REGISTRY
-        or contract.get("source_repository") != EXPECTED_IDENTITIES["platform"]["repository"]
+        or contract.get("source_repository")
+        != EXPECTED_IDENTITIES["platform"]["repository"]
         or contract.get("source_merge") != EXPECTED_IDENTITIES["platform"]["merge_oid"]
         or contract.get("source_manifest_path")
         != "docs/platform/manifests/eebus-doc-ownership.yaml"
@@ -482,8 +525,10 @@ def verify_completion_envelopes(
     if (
         publish_envelope.get("prior_token_digest") != platform_token
         or publish_envelope["evidence_core"].get("prior_token_digest") != platform_token
-        or publish_envelope["evidence_core"]["publication_evidence"]
-        ["platform_contract"].get("completion_proof_sha256") != platform_token
+        or publish_envelope["evidence_core"]["publication_evidence"][
+            "platform_contract"
+        ].get("completion_proof_sha256")
+        != platform_token
     ):
         raise AggregateError("aggregate-token.prior-chain")
     return {
@@ -512,23 +557,45 @@ def validate_architecture_review(review: dict[str, Any]) -> dict[str, Any]:
     return dict(item)
 
 
-def _regular_file_identity(root: Path, relative: str) -> dict[str, str]:
-    path = root / relative
-    try:
-        mode = path.lstat().st_mode
-        if stat.S_ISLNK(mode) or not stat.S_ISREG(mode):
-            raise AggregateError("aggregate-token.architecture-review-file")
-        raw = path.read_bytes()
-    except OSError as exc:
-        raise AggregateError("aggregate-token.architecture-review-file") from exc
-    return {
-        "mode": "100755" if mode & 0o111 else "100644",
-        "sha256": hashlib.sha256(raw).hexdigest(),
+def _tracked_tree_identity(root: Path, commit: str) -> tuple[str, dict[str, Any]]:
+    if OID.fullmatch(commit) is None or not _directory_without_symlinks(root):
+        raise AggregateError("aggregate-token.architecture-review-tree")
+    if _git(root, "cat-file", "-t", commit) != "commit":
+        raise AggregateError("aggregate-token.architecture-review-tree")
+    tree_oid = str(_git(root, "rev-parse", f"{commit}^{{tree}}"))
+    manifest = _git(root, "ls-tree", "-rz", "--full-tree", commit, binary=True)
+    assert isinstance(manifest, bytes)
+    records = [record for record in manifest.split(b"\0") if record]
+    for record in records:
+        try:
+            _, raw_path = record.split(b"\t", 1)
+        except ValueError as exc:
+            raise AggregateError("aggregate-token.architecture-review-tree") from exc
+        _decode_git_path(raw_path)
+    return tree_oid, {
+        "entry_count": len(records),
+        "manifest_sha256": hashlib.sha256(manifest).hexdigest(),
     }
 
 
-def architecture_review_evidence_core(root: Path) -> dict[str, Any]:
-    """Build the neutral public file/object basis a fresh review must cover."""
+def architecture_review_evidence_core(
+    root: Path, reviewed_commit_oid: str | None = None
+) -> dict[str, Any]:
+    """Build the neutral immutable Git-object basis a fresh review must cover."""
+    commit = (
+        str(_git(root, "rev-parse", "HEAD"))
+        if reviewed_commit_oid is None
+        else reviewed_commit_oid
+    )
+    tree_oid, tracked_tree = _tracked_tree_identity(root, commit)
+    reviewed_files: dict[str, dict[str, str]] = {}
+    for relative in REVIEWED_PATHS:
+        identity, _ = _git_blob_identity(root, commit, relative)
+        reviewed_files[relative] = {
+            "mode": identity["mode"],
+            "oid": identity["oid"],
+            "sha256": identity["sha256"],
+        }
     return {
         "clean_base": CLEAN_BASE,
         "clean_repository": CLEAN_REPOSITORY,
@@ -536,10 +603,10 @@ def architecture_review_evidence_core(root: Path) -> dict[str, Any]:
         "platform_token_digest": PLATFORM_TOKEN,
         "publish_token_digest": PUBLISH_TOKEN,
         "review_scope": list(REVIEW_SCOPE),
-        "reviewed_files": {
-            relative: _regular_file_identity(root, relative)
-            for relative in REVIEWED_PATHS
-        },
+        "reviewed_commit_oid": commit,
+        "reviewed_files": reviewed_files,
+        "reviewed_tree_oid": tree_oid,
+        "tracked_tree": tracked_tree,
     }
 
 
@@ -572,15 +639,27 @@ def _architecture_review_record_parts(
     review_comment = _object(
         item.get("review_comment"), "aggregate-token.architecture-review-record"
     )
-    expected_basis = architecture_review_evidence_core(root)
+    reviewed_commit_oid = basis.get("reviewed_commit_oid")
+    if (
+        not isinstance(reviewed_commit_oid, str)
+        or OID.fullmatch(reviewed_commit_oid) is None
+    ):
+        raise AggregateError("aggregate-token.architecture-review-record")
+    expected_basis = architecture_review_evidence_core(root, reviewed_commit_oid)
     output_sha256 = _digest(review_output)
+    basis_sha256 = _digest(basis)
+    comment_payload = {
+        "review_basis_sha256": basis_sha256,
+        "review_output": review_output,
+    }
+    body_sha256 = _digest(comment_payload)
     if (
         item.get("schema") != "helianthus.aggregate-architecture-review"
         or type(item.get("version")) is not int
-        or item["version"] != 3
+        or item["version"] != 4
         or basis != expected_basis
         or not isinstance(item.get("review_basis_sha256"), str)
-        or _digest(basis) != item["review_basis_sha256"]
+        or basis_sha256 != item["review_basis_sha256"]
         or set(review_output) != {"p0_p2_findings", "result"}
         or review_output.get("result") != "pass"
         or review_output.get("p0_p2_findings") != []
@@ -593,9 +672,8 @@ def _architecture_review_record_parts(
         or review_comment["issue"] != AGGREGATE_ISSUE
         or type(review_comment.get("comment_id")) is not int
         or review_comment["comment_id"] <= 0
-        or not isinstance(review_comment.get("author"), str)
-        or GITHUB_LOGIN.fullmatch(review_comment["author"]) is None
-        or review_comment.get("body_sha256") != output_sha256
+        or review_comment.get("author") != ARCHITECTURE_REVIEW_AUTHOR
+        or review_comment.get("body_sha256") != body_sha256
     ):
         raise AggregateError("aggregate-token.architecture-review-record")
     projection = validate_architecture_review(
@@ -605,7 +683,11 @@ def _architecture_review_record_parts(
             "result": review_output["result"],
         }
     )
-    return projection, dict(review_comment), _canonical_json(review_output).decode("ascii")
+    return (
+        projection,
+        dict(review_comment),
+        _canonical_json(comment_payload).decode("ascii"),
+    )
 
 
 def validate_architecture_review_record(
@@ -633,7 +715,9 @@ def verify_architecture_review_comment(
         != f"{GITHUB_API_ROOT}/repos/{binding['repository']}/issues/comments/{binding['comment_id']}"
         or live.get("issue_url")
         != f"{GITHUB_API_ROOT}/repos/{binding['repository']}/issues/{binding['issue']}"
-        or user.get("login") != binding["author"]
+        or user.get("login") != ARCHITECTURE_REVIEW_AUTHOR
+        or binding["author"] != ARCHITECTURE_REVIEW_AUTHOR
+        or live.get("author_association") not in {"MEMBER", "OWNER"}
         or not isinstance(body, str)
         or body != expected_body
         or hashlib.sha256(body.encode("utf-8")).hexdigest() != binding["body_sha256"]
@@ -879,7 +963,11 @@ def _git_blob_identity(
     if listed_path != path or len(fields) != 3:
         raise AggregateError("aggregate-token.producer-git-object")
     mode, object_type, oid = fields
-    if mode not in {"100644", "100755"} or object_type != "blob" or OID.fullmatch(oid) is None:
+    if (
+        mode not in {"100644", "100755"}
+        or object_type != "blob"
+        or OID.fullmatch(oid) is None
+    ):
         raise AggregateError("aggregate-token.producer-git-object")
     raw = _git(root, "cat-file", "blob", oid, binary=True)
     assert isinstance(raw, bytes)
@@ -954,16 +1042,14 @@ def verify_producer_git_objects(
         measured, _ = _git_blob_identity(
             publish_root, publish_identity["merge_oid"], expected_blob["path"]
         )
-        if (
-            expected_blob.get("repository") != publish_identity["repository"]
-            or measured
-            != {
-                "mode": expected_blob["blob_mode"],
-                "oid": expected_blob["oid"],
-                "path": expected_blob["path"],
-                "sha256": expected_blob["sha256"],
-            }
-        ):
+        if expected_blob.get("repository") != publish_identity[
+            "repository"
+        ] or measured != {
+            "mode": expected_blob["blob_mode"],
+            "oid": expected_blob["oid"],
+            "path": expected_blob["path"],
+            "sha256": expected_blob["sha256"],
+        }:
             raise AggregateError("aggregate-token.publish-git-replay")
     token_producer = publish_envelope["evidence_core"]["token_producer"]
     measured_token_producer, _ = _git_blob_identity(
@@ -996,7 +1082,11 @@ def verify_producer_git_objects(
 def _directory_without_symlinks(path: Path) -> bool:
     absolute = path.absolute()
     temporary = Path(tempfile.gettempdir()).absolute()
-    current = temporary if absolute == temporary or temporary in absolute.parents else Path(absolute.anchor)
+    current = (
+        temporary
+        if absolute == temporary or temporary in absolute.parents
+        else Path(absolute.anchor)
+    )
     try:
         if stat.S_ISLNK(current.lstat().st_mode) or not current.is_dir():
             return False
@@ -1031,16 +1121,22 @@ def _github_repository(remote: str) -> str | None:
             return None
         if scheme == "https" and (parsed.username is not None or port is not None):
             return None
-        if scheme == "ssh" and ((parsed.username or "git").casefold() != "git" or port not in {None, 22}):
+        if scheme == "ssh" and (
+            (parsed.username or "git").casefold() != "git" or port not in {None, 22}
+        ):
             return None
-        if scheme == "git" and (parsed.username is not None or port not in {None, 9418}):
+        if scheme == "git" and (
+            parsed.username is not None or port not in {None, 9418}
+        ):
             return None
         path = parsed.path
     normalized = path.strip("/")
     if normalized.casefold().endswith(".git"):
         normalized = normalized[:-4]
     parts = normalized.split("/")
-    if len(parts) != 2 or any(re.fullmatch(r"[A-Za-z0-9_.-]+", part) is None for part in parts):
+    if len(parts) != 2 or any(
+        re.fullmatch(r"[A-Za-z0-9_.-]+", part) is None for part in parts
+    ):
         return None
     return "/".join(parts).casefold()
 
@@ -1051,7 +1147,9 @@ def _decode_git_path(raw: bytes) -> str:
     except UnicodeDecodeError as exc:
         raise AggregateError("aggregate-token.worktree-drift") from exc
     relative = PurePosixPath(path)
-    if relative.is_absolute() or any(part in {"", ".", ".."} for part in relative.parts):
+    if relative.is_absolute() or any(
+        part in {"", ".", ".."} for part in relative.parts
+    ):
         raise AggregateError("aggregate-token.worktree-drift")
     return path
 
@@ -1106,12 +1204,32 @@ def _worktree_blob(root: Path, path: str, expected_mode: str) -> tuple[str, str]
     return measured_mode, oid
 
 
+def _reject_untracked_files(root: Path) -> None:
+    if not _directory_without_symlinks(root):
+        raise AggregateError("aggregate-token.worktree-drift")
+    visible = _git(
+        root, "ls-files", "--others", "--exclude-standard", "-z", binary=True
+    )
+    ignored = _git(
+        root,
+        "ls-files",
+        "--others",
+        "--ignored",
+        "--exclude-standard",
+        "-z",
+        binary=True,
+    )
+    if visible or ignored:
+        raise AggregateError("aggregate-token.worktree-drift")
+
+
 def verify_worktree_matches_tree(root: Path, commit: str) -> None:
     """Compare every tracked path's bytes and mode to an immutable commit tree."""
     if OID.fullmatch(commit) is None or not _directory_without_symlinks(root):
         raise AggregateError("aggregate-token.git-object")
     if _git(root, "cat-file", "-t", commit) != "commit":
         raise AggregateError("aggregate-token.git-object")
+    _reject_untracked_files(root)
     raw_tree = _git(root, "ls-tree", "-rz", "--full-tree", commit, binary=True)
     assert isinstance(raw_tree, bytes)
     expected: dict[str, tuple[str, str]] = {}
@@ -1143,6 +1261,59 @@ def verify_worktree_matches_tree(root: Path, commit: str) -> None:
         measured_mode, measured_oid = _worktree_blob(root, path, mode)
         if measured_mode != mode or measured_oid != oid:
             raise AggregateError("aggregate-token.worktree-drift")
+
+
+def _verify_reviewed_tree_delta(
+    root: Path, review_basis: dict[str, Any], head_oid: str
+) -> None:
+    """Require the live PR head to add only the architecture review record."""
+    basis = _object(review_basis, "aggregate-token.architecture-review-tree")
+    reviewed_commit_oid = basis.get("reviewed_commit_oid")
+    reviewed_tree_oid = basis.get("reviewed_tree_oid")
+    tracked_tree = _object(
+        basis.get("tracked_tree"), "aggregate-token.architecture-review-tree"
+    )
+    if (
+        not isinstance(reviewed_commit_oid, str)
+        or OID.fullmatch(reviewed_commit_oid) is None
+        or not isinstance(reviewed_tree_oid, str)
+        or OID.fullmatch(reviewed_tree_oid) is None
+        or not isinstance(head_oid, str)
+        or OID.fullmatch(head_oid) is None
+        or set(tracked_tree) != {"entry_count", "manifest_sha256"}
+        or type(tracked_tree.get("entry_count")) is not int
+        or tracked_tree["entry_count"] < 1
+        or not isinstance(tracked_tree.get("manifest_sha256"), str)
+        or DIGEST.fullmatch(tracked_tree["manifest_sha256"]) is None
+        or _git(root, "cat-file", "-t", head_oid) != "commit"
+    ):
+        raise AggregateError("aggregate-token.architecture-review-tree")
+    measured_tree_oid, measured_tracked_tree = _tracked_tree_identity(
+        root, reviewed_commit_oid
+    )
+    changed = _git(
+        root,
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "--no-renames",
+        "-r",
+        "-z",
+        reviewed_commit_oid,
+        head_oid,
+        binary=True,
+    )
+    assert isinstance(changed, bytes)
+    if (
+        measured_tree_oid != reviewed_tree_oid
+        or measured_tracked_tree != tracked_tree
+        or not _git_is_ancestor(root, reviewed_commit_oid, head_oid)
+        or changed != ARCHITECTURE_REVIEW_PATH.encode("utf-8") + b"\0"
+        or _git(root, "ls-tree", reviewed_commit_oid, "--", ARCHITECTURE_REVIEW_PATH)
+        or _git_blob_identity(root, head_oid, ARCHITECTURE_REVIEW_PATH)[0]["mode"]
+        != "100644"
+    ):
+        raise AggregateError("aggregate-token.architecture-review-tree")
 
 
 def verify_clean_base(
@@ -1183,6 +1354,7 @@ def verify_aggregate_repository(
     merge_oid: str,
     tree_oid: str,
     observation_source: str,
+    review_basis: dict[str, Any],
     observations: Any | None = None,
 ) -> None:
     """Verify the live merged PR identity and exact checked-out squash tree."""
@@ -1210,6 +1382,7 @@ def verify_aggregate_repository(
         observations,
         category="aggregate-token.aggregate-live-replay",
     )
+    _verify_reviewed_tree_delta(root, review_basis, head_oid)
     verify_worktree_matches_tree(root, merge_oid)
 
 
@@ -1272,7 +1445,15 @@ def _validated_cli_inputs(
             publish,
             observations,
         )
-    return platform, publish, {**verified, "architecture_review": review}
+    return (
+        platform,
+        publish,
+        {
+            **verified,
+            "_architecture_review_basis": dict(review_record["review_basis"]),
+            "architecture_review": review,
+        },
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1282,6 +1463,8 @@ def main(argv: list[str] | None = None) -> int:
             _canonical_json(architecture_review_evidence_core(args.root)) + b"\n"
         )
         return 0
+    if args.command == "mint":
+        _reject_untracked_files(args.root)
     observations = GitHubLiveObservations() if args.command == "mint" else None
     platform, publish, verified = _validated_cli_inputs(args, observations)
     if args.command == "verify-inputs":
@@ -1303,6 +1486,7 @@ def main(argv: list[str] | None = None) -> int:
             merge_oid=args.merge_oid,
             tree_oid=args.tree_oid,
             observation_source=args.observation_source,
+            review_basis=verified["_architecture_review_basis"],
             observations=observations,
         )
         output = build_completion_envelope(
