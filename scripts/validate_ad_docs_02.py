@@ -507,6 +507,23 @@ def normalize_markdown_lines(text: str) -> str:
     rendered = render_markdown_text(text).casefold()
     return "\n".join(" ".join(line.split()) for line in rendered.splitlines())
 
+
+def has_forbidden_e2_clean_table_edge(normalized_lines: str) -> bool:
+    """Return whether a normalized Markdown table contains the forbidden edge."""
+    forbidden_triples = {
+        ("msp-docs-e2", "->", "msp-docs-clean"),
+        ("msp-docs-clean", "<-", "msp-docs-e2"),
+    }
+    for line in normalized_lines.splitlines():
+        stripped = line.strip()
+        if not (stripped.startswith("|") and stripped.endswith("|")):
+            continue
+        cells = tuple(" ".join(cell.split()) for cell in stripped.split("|")[1:-1])
+        for index in range(len(cells) - 2):
+            if cells[index:index + 3] in forbidden_triples:
+                return True
+    return False
+
 def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
     surfaces = tuple(
@@ -533,7 +550,7 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         if (
             re.search(r"msp-docs-e2\s*(?:->|to)\s*msp-docs-clean", normalized)
             or re.search(r"msp-docs-clean\s*<-\s*msp-docs-e2", normalized)
-            or re.search(r"\|[^\n]*msp-docs-e2[^\n]*msp-docs-clean[^\n]*\|", normalized_lines)
+            or has_forbidden_e2_clean_table_edge(normalized_lines)
         ):
             fail(f"surfaces.{surface}: direct E2-to-CLEAN path")
         if re.search(

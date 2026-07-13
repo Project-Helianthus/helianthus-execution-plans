@@ -283,7 +283,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             pinned.write_text(pinned.read_text(encoding="utf-8") + "\nprovider: openai\n", encoding="utf-8")
             with self.assertRaises(validator.ValidationError):
                 validator.validate_surfaces(root)
-            pinned.write_text((PLAN / "90-issue-map.md").read_text(encoding="utf-8") + "\n| MSP-DOCS-E2 | MSP-DOCS-CLEAN |\n", encoding="utf-8")
+            pinned.write_text((PLAN / "90-issue-map.md").read_text(encoding="utf-8") + "\n| MSP-DOCS-E2 | → | MSP-DOCS-CLEAN |\n", encoding="utf-8")
             with self.assertRaises(validator.ValidationError):
                 validator.validate_surfaces(root)
             pinned.write_text((PLAN / "90-issue-map.md").read_text(encoding="utf-8") + "\nMSP-DOCS-CLEAN requires completion token MSP-DOCS-E2.\n", encoding="utf-8")
@@ -469,12 +469,22 @@ class AdDocs02ValidatorTests(unittest.TestCase):
 
     def test_rejects_normalized_table_direct_e2_to_clean_bypasses(self) -> None:
         for row in (
-            "| MSP‐DOCS‐E2 | MSP‐DOCS‐CLEAN |",
-            "| MSP&#45;DOCS&#45;E2 | MSP&#45;DOCS&#45;CLEAN |",
-            "| <span>MSP‐DOCS‐E2</span> | <em>MSP&#45;DOCS&#45;CLEAN</em> |",
+            "| MSP‐DOCS‐E2 | → | MSP‐DOCS‐CLEAN |",
+            "| MSP&#45;DOCS&#45;E2 | &#x2192; | MSP&#45;DOCS&#45;CLEAN |",
+            "| <span>MSP‐DOCS‐E2</span> | <em>→</em> | <em>MSP&#45;DOCS&#45;CLEAN</em> |",
+            "| MSP‐DOCS‐CLEAN | ← | MSP‐DOCS‐E2 |",
         ):
             with self.subTest(row=row):
                 self._assert_markdown_claim_rejected(row + "\n")
+
+    def test_accepts_reverse_or_non_edge_table_cell_sequences(self) -> None:
+        for row in (
+            "| MSP-DOCS-E2 | ← | MSP-DOCS-CLEAN |",
+            "| MSP-DOCS-CLEAN | → | MSP-DOCS-E2 |",
+            "| MSP-DOCS-E2 | descriptive non-edge cell | MSP-DOCS-CLEAN |",
+        ):
+            with self.subTest(row=row):
+                self._assert_markdown_claim_accepted(row + "\n")
 
     def test_rejects_leftward_spelling_of_forbidden_e2_to_clean_edge(self) -> None:
         self.assertEqual(
