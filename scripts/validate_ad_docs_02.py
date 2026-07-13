@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import html
 import json
 import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 from typing import Any
 
@@ -138,6 +140,8 @@ E2R_PREREQUISITES = (
     "MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH, "
     "MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN"
 )
+HTML_UNESCAPE_MAX_ITERATIONS = 8
+ENTITY_LIKE_RE = re.compile(r"&(?:#[0-9]+|#[xX][0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]+);")
 
 def active_control_surface_paths() -> tuple[str, ...]:
     """Return the fixed active-plan projection, independent of the allowlist."""
@@ -355,8 +359,21 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
         fail("plan: selected batch drift")
 
 def normalize_markdown(text: str) -> str:
-    """Collapse all document whitespace before evaluating active prose claims."""
-    return " ".join(text.casefold().split())
+    """Canonicalize active prose before evaluating its security-sensitive claims."""
+    normalized = text
+    for _ in range(HTML_UNESCAPE_MAX_ITERATIONS):
+        unescaped = html.unescape(normalized)
+        if unescaped == normalized:
+            break
+        normalized = unescaped
+    else:
+        fail("markdown: HTML entity decoding did not reach a fixed point")
+    if ENTITY_LIKE_RE.search(normalized):
+        fail("markdown: unresolved entity-like sequence")
+    normalized = unicodedata.normalize("NFKC", normalized)
+    if any(unicodedata.category(character) == "Cf" for character in normalized):
+        fail("markdown: Unicode format character")
+    return " ".join(normalized.casefold().split())
 
 def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
