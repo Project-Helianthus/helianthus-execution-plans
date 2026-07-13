@@ -233,14 +233,76 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                     with self.assertRaises(validator.ValidationError):
                         validator.validate_surfaces(root)
 
-    def test_active_control_surface_projection_matches_mutable_allowlist(self) -> None:
+    def test_active_control_surface_projection_matches_fixed_expected_set(self) -> None:
+        self.assertEqual(
+            validator.EXPECTED_ACTIVE_SURFACES,
+            (
+                "00-canonical.md",
+                "01-index.md",
+                "10-platform-taxonomy-and-boundaries.md",
+                "11-ebus-040-baseline-and-profile-split.md",
+                "12-eebus-mcp-first-vr940f.md",
+                "13-semantic-fact-graph-and-integration.md",
+                "14-execution-roadmap-issues-and-gates.md",
+                "90-issue-map.md",
+                "91-milestone-map.md",
+                "92-m0-issue-matrix.yaml",
+                "99-status.md",
+                "plan.yaml",
+                "105-ad-docs-02-amendment.md",
+                "106-ad-docs-02-integrity.json",
+                "107-ad-docs-02-topology-audit.md",
+            ),
+        )
         self.assertEqual(
             set(validator.active_control_surface_paths()),
             {
-                path for path in validator.MUTABLE_PATHS
-                if path.startswith(validator.PLAN + "/")
+                f"{validator.PLAN}/{surface}"
+                for surface in validator.EXPECTED_ACTIVE_SURFACES
             },
         )
+
+    def test_rejects_fixed_surface_missing_from_mutable_allowlist(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            shutil.copytree(PLAN, root / validator.PLAN)
+            missing = f"{validator.PLAN}/01-index.md"
+            with mock.patch.object(validator, "MUTABLE_PATHS", validator.MUTABLE_PATHS - {missing}):
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_surfaces(root)
+
+    def test_rejects_normalized_routing_pin_on_every_markdown_active_surface(self) -> None:
+        for relative in validator.active_control_surface_paths():
+            if not relative.endswith(".md"):
+                continue
+            with self.subTest(relative=relative):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    target = root / validator.PLAN
+                    shutil.copytree(PLAN, target)
+                    path = root / relative
+                    path.write_text(
+                        path.read_text(encoding="utf-8") + "\nprovider OpenAI; model gpt 5.6\n",
+                        encoding="utf-8",
+                    )
+                    with self.assertRaises(validator.ValidationError):
+                        validator.validate_markdown_claims(target, self.matrix)
+
+    def test_rejects_long_distance_clean_token_bypass_after_normalization(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            path = target / "90-issue-map.md"
+            path.write_text(
+                path.read_text(encoding="utf-8")
+                + "\nMSP-DOCS-CLEAN requires completion token "
+                + ("filler " * 50)
+                + "MSP-DOCS-E2.\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_markdown_claims(target, self.matrix)
 
     def test_m35_prerequisites_name_the_complete_e2r_chain(self) -> None:
         expected = "MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH, MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN"
