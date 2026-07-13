@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
+Canonical-SHA256: `786f23ae2457c556df300005fcdabdc90b5a2fecb3e7bdb291326d4ba7a43286`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in
@@ -43,7 +43,8 @@ and the serialized docs/API freeze gates.
    cross-runtime integration.
 
 5. [14-execution-roadmap-issues-and-gates.md](./14-execution-roadmap-issues-and-gates.md)
-   maps locked recovery reconciliation, clean-main sequencing, model lanes,
+   maps locked recovery reconciliation, clean-main sequencing, symbolic routing
+   contracts,
    issue gates, doc gates, transport gates, and review sequencing.
 
 ## Operational Artifacts
@@ -51,9 +52,11 @@ and the serialized docs/API freeze gates.
 - [90-issue-map.md](./90-issue-map.md) is the human-readable locked issue map.
 - [91-milestone-map.md](./91-milestone-map.md) is the locked milestone DAG.
 - [92-m0-issue-matrix.yaml](./92-m0-issue-matrix.yaml) is the machine-readable
-  control-plane matrix with every row's complexity, model lane, repo,
-  predecessors, docs owner/gate, transport/security gate, rollback ledger,
+  control-plane matrix with every row's complexity, routing contract or historical
+  routing evidence, completion-token dependencies, docs owner/gate, transport/security gate, rollback ledger,
   review ledger, TDD mode, smoke scope, and acceptance.
+
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 - [93-eebus-transport-gate-v0.md](./93-eebus-transport-gate-v0.md) defines the
   eeBUS transport/protocol gate and exact G17/G18/G19 meanings.
 - [94-m1-docs-bootstrap-evidence.md](./94-m1-docs-bootstrap-evidence.md)
@@ -86,7 +89,7 @@ and the serialized docs/API freeze gates.
   records the final post-adversarial architecture, routing, security, and DAG
   review before cruise registration.
 - [103-ad-docs-01-amendment.md](./103-ad-docs-01-amendment.md) records the
-  accepted external-only-documentation amendment after five GPT-5.5 xhigh
+  accepted external-only-documentation amendment after five adversarial
   amendment rounds.
 - [104-msp-r00-l-public-redacted-ledger.json](./104-msp-r00-l-public-redacted-ledger.json)
   records the MSP-R00-L public-safe redacted recovery ledger.

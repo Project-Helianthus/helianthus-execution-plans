@@ -1,6 +1,6 @@
 # Semantic Fact Graph And Integration
 
-Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
+Canonical-SHA256: `786f23ae2457c556df300005fcdabdc90b5a2fecb3e7bdb291326d4ba7a43286`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`; eBUS and eeBUS runtimes may implement
@@ -18,6 +18,8 @@ Falsifiability gate:
 Given two runtimes reporting the same conceptual field, the semantic layer must
 show provenance and either choose a value by explicit policy or mark the field
 as conflicted.
+
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 
 Coverage:
 Covers M7, M8, M8.5, and the semantic portions of M9.

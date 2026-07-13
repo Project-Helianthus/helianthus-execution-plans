@@ -12,6 +12,21 @@ Dirty rescue candidate: `true`
 Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
 Baseline: `Gateway 0.4.0`
 
+## AD-DOCS-02 Architecture Gates
+
+AD-DOCS-02 preserves AD-DOCS-01 historical evidence and inserts a serial,
+token-authoritative publication remediation before CLEAN:
+`MSP-DOCS-E2 -> MSP-DOCS-E2R-PLATFORM -> MSP-DOCS-E2R-PUBLISH ->
+MSP-DOCS-E2R-AGGREGATE -> MSP-DOCS-CLEAN -> MSP-03D-R`.
+
+Only verified completion tokens authorize this chain. MSP-R00 issue/14 and
+MSP-03D-G01 remain evidence inputs, never token producers. Publication contract
+v2 uses closed publication entry kinds, separate channel eligibility from exact
+membership, absence constraints, a channel registry, and hermetic git-object
+proof; process attestations do not substitute for technical proof. See
+`105-ad-docs-02-amendment.md`, `106-ad-docs-02-integrity.json`, and the live
+`107-ad-docs-02-topology-audit.md`.
+
 ## Summary
 
 Helianthus is a multi-runtime native protocol gateway. It is not an eBUS-only
@@ -314,7 +329,8 @@ stable values.
 ### M0 - Control Plane And Issue Matrix
 
 Create the execution control plane before code. Every issue must record
-complexity, model lane, repo, predecessor edges, doc owner, doc gate,
+complexity, symbolic routing authority or historical routing evidence, repo,
+completion-token edges, doc owner, doc gate,
 transport/security gate, rollback ledger, review ledger, and one-PR-per-repo
 serialization.
 
@@ -359,7 +375,8 @@ G17.
 ### M3.5 - Raw Runtime Contract Freeze
 
 After MSP-R00-L, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
-MSP-DOCS-E2, MSP-DOCS-CLEAN, and MSP-03D-R merge from clean main, freeze only
+MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH,
+MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN, and MSP-03D-R merge from clean main, freeze only
 raw identity, raw snapshot envelope, and evidence object shapes in MSP-035.
 Trust, pairing, admin state, lifecycle authority, availability guarantees, and
 final MCP v1 remain unfrozen until later rows.
@@ -477,14 +494,7 @@ snapshots, and MCP/debug compatibility prove no unapproved drift.
   native registry, semantic projection, MCP, GraphQL, Portal, or Home
   Assistant.
 - If an issue needs two layers, split it.
-- Complexity/model routing is fixed for this plan:
-  - complexity 1-2: `GPT-5.3-Codex-Spark` for fast smoke, checklist, and
-    mechanical gap checks;
-  - complexity 3-4: `gpt-5.4-mini` for small doc-gate, issue-splitting,
-    acceptance-criteria, and consistency tasks;
-  - complexity 5: `GPT-5.5 medium` owner, with Spark or `gpt-5.4-mini` review;
-  - complexity 6-7: `GPT-5.5 high` owner with adversarial review;
-  - complexity 8-10: `GPT-5.5 xhigh` owner and independent review before merge.
+- Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 - Do not promote any semantic field to consumers without raw evidence and
   provenance.
 - Do not rename or generalize eBUS public API namespaces until compatibility

@@ -1,6 +1,6 @@
 # Platform Taxonomy And Boundaries
 
-Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
+Canonical-SHA256: `786f23ae2457c556df300005fcdabdc90b5a2fecb3e7bdb291326d4ba7a43286`
 
 Depends on:
 None. This is the vocabulary root for the draft.
@@ -18,6 +18,8 @@ For any proposed future protocol, reviewers must be able to classify each
 component as transport, base protocol, profile, runtime instance, native
 registry, semantic projection, or semantic integration. If not, the taxonomy is
 incomplete.
+
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 
 Coverage:
 Covers the canonical platform model, architectural rules, and target gateway

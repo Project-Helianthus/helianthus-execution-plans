@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
+Canonical-SHA256: `786f23ae2457c556df300005fcdabdc90b5a2fecb3e7bdb291326d4ba7a43286`
 
 Depends on:
 All previous chunks.
@@ -27,22 +27,15 @@ plane, doc gates, transport/security gates, and consumer promotion gates.
 
 Every row in `92-m0-issue-matrix.yaml` must include:
 
-- issue id, repo, milestone, complexity from 1 to 10, and exact GPT-only model
-  lane;
-- predecessor edges, including explicit empty predecessor lists;
+- issue id, repo, milestone, complexity from 1 to 10, and exactly one routing
+  authority: a symbolic routing contract for active work or historical routing
+  evidence for terminal work;
+- authoritative completion-token edges, including explicit empty lists;
 - canonical docs owner and doc-gate result;
 - transport and security gate classification;
 - rollback ledger, review ledger, TDD mode, smoke scope, and acceptance list.
 
-Model lanes are fixed for this plan:
-
-- complexity 1-2: `GPT-5.3-Codex-Spark`;
-- complexity 3-4: `gpt-5.4-mini`;
-- complexity 5: `GPT-5.5 medium`;
-- complexity 6-7: `GPT-5.5 high`;
-- complexity 8-10: `GPT-5.5 xhigh`.
-
-No other model lane is valid for this plan.
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 
 ## Locked Milestone Order
 
@@ -100,9 +93,10 @@ The recovery documentation chain is:
 2. `DOCS-VERIFY` -> `MSP-DOCS-API-SCHEMA`;
 3. `MSP-R00-L` plus `MSP-DOCS-API-SCHEMA` -> `MSP-DOCS-PLATFORM`;
 4. `MSP-DOCS-PLATFORM` -> `MSP-DOCS-E2`;
-5. `MSP-DOCS-E2` -> `MSP-DOCS-CLEAN`;
-6. `MSP-DOCS-CLEAN`, historical `MSP-03C`, and historical `MSP-03D-G01` ->
-   `MSP-03D-R`.
+5. `MSP-DOCS-E2` -> `MSP-DOCS-E2R-PLATFORM` ->
+   `MSP-DOCS-E2R-PUBLISH` -> `MSP-DOCS-E2R-AGGREGATE` -> `MSP-DOCS-CLEAN`;
+6. `MSP-DOCS-CLEAN` and `MSP-03C` completion tokens -> `MSP-03D-R`;
+   `MSP-03D-G01` is evidence-only and cannot authorize that row.
 
 Later, the single source PR follows a pre-merge handshake:
 `MSP-036` -> `MSP-DOCS-API-CANDIDATE` -> `MSP-055` ->

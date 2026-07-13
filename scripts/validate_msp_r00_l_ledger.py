@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 import re
 import sys
 import uuid
@@ -42,6 +43,7 @@ MATRIX_FILENAME = "92-m0-issue-matrix.yaml"
 ISSUE_MAP_FILENAME = "90-issue-map.md"
 STATUS_FILENAME = "99-status.md"
 TOPOLOGY_FILENAME = "100-topology-audit.md"
+LIVE_TOPOLOGY_FILENAME = "107-ad-docs-02-topology-audit.md"
 
 FORBIDDEN_KEY_FRAGMENTS = (
     "bundle",
@@ -342,84 +344,16 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
 
 
 def validate_plan_state_surfaces(root: Path = ROOT) -> None:
-    plan_dir = resolve_default_plan_dir(root)
-    matrix = _read_required_text(plan_dir / MATRIX_FILENAME)
-    issue_map = _read_required_text(plan_dir / ISSUE_MAP_FILENAME)
-    status = _read_required_text(plan_dir / STATUS_FILENAME)
-    topology = _read_required_text(plan_dir / TOPOLOGY_FILENAME)
-
-    _validate_topology_ready_set(matrix, topology)
-
-    r00l_row = _extract_matrix_row(matrix, "MSP-R00-L")
-    _require_contains(r00l_row, "acceptance_state: accepted", "MSP-R00-L matrix row")
-    if "acceptance_state: ready" in r00l_row:
-        _fail("MSP-R00-L matrix row: stale ready state")
-    _require_contains(
-        r00l_row,
-        "completion_note: completes only when execution-plans PR #62 merges;",
-        "MSP-R00-L matrix row",
-    )
-
-    docs_verify_row = _extract_matrix_row(matrix, "DOCS-VERIFY")
-    _require_contains(docs_verify_row, "acceptance_state: accepted", "DOCS-VERIFY matrix row")
-    if "acceptance_state: ready" in docs_verify_row:
-        _fail("DOCS-VERIFY matrix row: stale ready state")
-    _require_contains(
-        docs_verify_row,
-        "completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353",
-        "DOCS-VERIFY matrix row",
-    )
-
-    api_schema_row = _extract_matrix_row(matrix, "MSP-DOCS-API-SCHEMA")
-    _require_contains(api_schema_row, "predecessors: [DOCS-VERIFY]", "MSP-DOCS-API-SCHEMA matrix row")
-    api_schema_state = _acceptance_state(api_schema_row, "MSP-DOCS-API-SCHEMA")
-    if api_schema_state not in {"ready", "accepted"}:
-        _fail("MSP-DOCS-API-SCHEMA matrix row: state must progress monotonically from ready")
-
-    docs_platform_row = _extract_matrix_row(matrix, "MSP-DOCS-PLATFORM")
-    _require_contains(
-        docs_platform_row,
-        "predecessors: [MSP-R00-L, MSP-DOCS-API-SCHEMA]",
-        "MSP-DOCS-PLATFORM matrix row",
-    )
-    docs_platform_state = _acceptance_state(docs_platform_row, "MSP-DOCS-PLATFORM")
-    if docs_platform_state not in {"proposed", "ready", "accepted"}:
-        _fail("MSP-DOCS-PLATFORM matrix row: invalid lifecycle state")
-    if api_schema_state != "accepted" and docs_platform_state != "proposed":
-        _fail("MSP-DOCS-PLATFORM matrix row: cannot advance before MSP-DOCS-API-SCHEMA")
-
-    _require_contains(
-        issue_map,
-        "| MSP-R00-L | helianthus-execution-plans | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | MSP-R00 | recovery/security | Complete when execution-plans PR #62 merges;",
-        ISSUE_MAP_FILENAME,
-    )
-    _require_contains(
-        issue_map,
-        "| DOCS-VERIFY | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | none | doc | Complete in Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353. |",
-        ISSUE_MAP_FILENAME,
-    )
-    _require_contains(
-        issue_map,
-        "| MSP-DOCS-API-SCHEMA | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | DOCS-VERIFY | api-doc/schema |",
-        ISSUE_MAP_FILENAME,
-    )
-    _require_contains(
-        issue_map,
-        "| MSP-DOCS-PLATFORM | helianthus-docs-ebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-R00-L, MSP-DOCS-API-SCHEMA | platform-doc |",
-        ISSUE_MAP_FILENAME,
-    )
-
-    _require_contains(status, "## Completed Recovery Publication", STATUS_FILENAME)
-    _require_contains(
-        status,
-        "`MSP-R00-L`: completes only when execution-plans PR #62 merges.",
-        STATUS_FILENAME,
-    )
-    _require_contains(
-        status,
-        "`DOCS-VERIFY`: completed in Project-Helianthus/helianthus-docs-eebus PR #5",
-        STATUS_FILENAME,
-    )
+    module_path = ROOT / "scripts" / "validate_ad_docs_02.py"
+    spec = importlib.util.spec_from_file_location("validate_ad_docs_02", module_path)
+    if spec is None or spec.loader is None:
+        _fail("AD-DOCS-02 validator unavailable")
+    ad_validator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(ad_validator)
+    try:
+        ad_validator.validate_surfaces(root)
+    except ad_validator.ValidationError as exc:
+        raise ValidationError(str(exc)) from exc
 
 
 def _require_exact_keys(value: Any, expected: frozenset[str], where: str) -> None:

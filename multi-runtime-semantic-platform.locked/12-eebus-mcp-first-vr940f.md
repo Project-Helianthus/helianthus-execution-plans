@@ -1,6 +1,6 @@
 # eeBUS VR940f Raw-First Track
 
-Canonical-SHA256: `fa3cccfc2c8ea7275e51849ce744296e9aadca37932d11de7e95ad5f2f27f7b9`
+Canonical-SHA256: `786f23ae2457c556df300005fcdabdc90b5a2fecb3e7bdb291326d4ba7a43286`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`, the gateway `0.4.0` baseline
@@ -21,6 +21,8 @@ The operator can pair/bind the VR940f in the lab, inspect SHIP/SPINE sessions,
 services, topology, raw evidence, trust state, and deterministic snapshots
 through MCP, then restart and verify stable raw state without promoting a
 single semantic field.
+
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 
 Coverage:
 Covers recovery reconciliation, M3 completion, M3.5 through M8.5 for eeBUS raw
@@ -119,7 +121,8 @@ Required M3 proof artifacts:
 
 Gateway may not gain a persistent `helianthus-eebusreg` import until recovery
 reconciliation, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
-MSP-DOCS-E2, MSP-DOCS-CLEAN, MSP-03D-R, raw contract freeze, immutable raw
+MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH,
+MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN, MSP-03D-R, raw contract freeze, immutable raw
 view, read-only lifecycle facade, API freeze, and trust/admin contracts merge.
 
 ## Candidate API Handshake

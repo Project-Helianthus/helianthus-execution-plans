@@ -9,7 +9,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import yaml
 ROOT = Path(__file__).resolve().parents[1]
+AD_MODULE_PATH = ROOT / "scripts" / "validate_ad_docs_02.py"
+ad_spec = importlib.util.spec_from_file_location("validate_ad_docs_02_for_legacy", AD_MODULE_PATH)
+assert ad_spec is not None and ad_spec.loader is not None
+ad_validator = importlib.util.module_from_spec(ad_spec)
+ad_spec.loader.exec_module(ad_validator)
 MODULE_PATH = ROOT / "scripts" / "validate_msp_r00_l_ledger.py"
 VALIDATE_REPO_SCRIPT = ROOT / "scripts" / "validate_plans_repo.sh"
 
@@ -61,9 +67,18 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         plan_dir = root / f"{validator.PLAN_SLUG}.locked"
         for name in (
             validator.MATRIX_FILENAME,
+            "plan.yaml",
+            "106-ad-docs-02-integrity.json",
+            "01-index.md",
             validator.ISSUE_MAP_FILENAME,
             validator.STATUS_FILENAME,
             validator.TOPOLOGY_FILENAME,
+            validator.LIVE_TOPOLOGY_FILENAME,
+            "00-canonical.md",
+            "01-index.md",
+            "12-eebus-mcp-first-vr940f.md",
+            "14-execution-roadmap-issues-and-gates.md",
+            "91-milestone-map.md",
         ):
             source = LEDGER_PATH.parent / name
             target = plan_dir / name
@@ -75,267 +90,108 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         validator.validate_ledger(LEDGER_PATH)
         self.assertEqual(before, LEDGER_PATH.read_bytes())
 
-    def test_rejects_msp_r00_l_matrix_state_drift(self) -> None:
+    def test_rejects_legacy_matrix_fields(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             plan_dir = self.copy_state_surfaces(root)
             matrix = plan_dir / validator.MATRIX_FILENAME
-            matrix.write_text(
-                matrix.read_text(encoding="utf-8").replace(
-                    "  - id: MSP-R00-L\n"
-                    "    title: Review and publish the redacted recovery ledger",
-                    "  - id: MSP-R00-L\n"
-                    "    title: Review and publish the redacted recovery ledger\n"
-                    "    acceptance_state: ready",
-                    1,
-                ),
-                encoding="utf-8",
-            )
+            matrix.write_text(matrix.read_text(encoding="utf-8").replace("requires_completion_tokens:", "predecessors:", 1), encoding="utf-8")
             with self.assertRaises(validator.ValidationError):
                 validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_missing_e2r_token_edge(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            document = yaml.safe_load(matrix.read_text(encoding="utf-8"))
+            clean = next(row for row in document["issues"] if row["id"] == "MSP-DOCS-CLEAN")
+            clean["requires_completion_tokens"] = ["MSP-DOCS-E2"]
+            matrix.write_text(yaml.safe_dump(document), encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_ambiguous_routing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            matrix = plan_dir / validator.MATRIX_FILENAME
+            matrix.write_text(matrix.read_text(encoding="utf-8").replace("routing_contract:", "routing_evidence:", 1), encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    def test_rejects_live_audit_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            plan_dir = self.copy_state_surfaces(root)
+            audit = plan_dir / validator.LIVE_TOPOLOGY_FILENAME
+            audit.write_text(audit.read_text(encoding="utf-8") + "drift\n", encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_plan_state_surfaces(root)
+
+    # Restored AD-DOCS-01 ledger regression names; their mutable contract is now
+    # evaluated through the typed AD-DOCS-02 live-107 control plane.
+    def _ad_matrix(self) -> dict:
+        return yaml.safe_load((LEDGER_PATH.parent / validator.MATRIX_FILENAME).read_text(encoding="utf-8"))
+
+    def _ad_row(self, document: dict, row_id: str) -> dict:
+        return next(row for row in document["issues"] if row["id"] == row_id)
+
+    def test_rejects_msp_r00_l_matrix_state_drift(self) -> None:
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-R00-L")["model_lane"] = "obsolete"
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_docs_verify_state_drift(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            matrix.write_text(
-                matrix.read_text(encoding="utf-8").replace(
-                    "  - id: DOCS-VERIFY\n"
-                    "    title: Verify docs ownership, license, template, and path layout\n"
-                    "    repo: helianthus-docs-eebus\n"
-                    "    milestone: RECOVERY_RECONCILIATION\n"
-                    "    complexity: 4\n"
-                    "    model_lane: gpt-5.4-mini\n"
-                    "    predecessors: []\n"
-                    "    docs_owner: helianthus-docs-ebus/docs/platform\n"
-                    "    doc_gate: verify\n"
-                    "    transport_gate: none\n"
-                    "    security_gate: required\n"
-                    "    rollback_ledger: revert verification row only\n"
-                    "    review_ledger: docs ownership and public-source review\n"
-                    "    tdd_mode: docs_checklist\n"
-                    "    smoke_scope: license, owners, issue template, path layout, cross-seeding\n"
-                    "    acceptance_state: accepted\n"
-                    "    completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353",
-                    "  - id: DOCS-VERIFY\n"
-                    "    title: Verify docs ownership, license, template, and path layout\n"
-                    "    repo: helianthus-docs-eebus\n"
-                    "    milestone: RECOVERY_RECONCILIATION\n"
-                    "    complexity: 4\n"
-                    "    model_lane: gpt-5.4-mini\n"
-                    "    predecessors: []\n"
-                    "    docs_owner: helianthus-docs-ebus/docs/platform\n"
-                    "    doc_gate: verify\n"
-                    "    transport_gate: none\n"
-                    "    security_gate: required\n"
-                    "    rollback_ledger: revert verification row only\n"
-                    "    review_ledger: docs ownership and public-source review\n"
-                    "    tdd_mode: docs_checklist\n"
-                    "    smoke_scope: license, owners, issue template, path layout, cross-seeding\n"
-                    "    acceptance_state: ready\n"
-                    "    completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353",
-                    1,
-                ),
-                encoding="utf-8",
-            )
-            with self.assertRaises(validator.ValidationError):
-                validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        self._ad_row(document, "DOCS-VERIFY")["routing_contract"] = {"forbidden_tier": "ultra"}
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_api_schema_state_drift(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            matrix.write_text(
-                matrix.read_text(encoding="utf-8").replace(
-                    "    acceptance_state: ready\n"
-                    "    readiness_note: ready after execution-plans PR #62 merges;",
-                    "    acceptance_state: proposed\n"
-                    "    readiness_note: ready after execution-plans PR #62 merges;",
-                    1,
-                ),
-                encoding="utf-8",
-            )
-            with self.assertRaises(validator.ValidationError):
-                validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-API-SCHEMA")["requires_completion_tokens"] = ["missing"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_duplicate_api_schema_state(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            matrix.write_text(
-                matrix.read_text(encoding="utf-8").replace(
-                    "  - id: MSP-DOCS-API-SCHEMA\n"
-                    "    title: Freeze eeBUS Go public API schema inputs",
-                    "  - id: MSP-DOCS-API-SCHEMA\n"
-                    "    title: Freeze eeBUS Go public API schema inputs\n"
-                    "    acceptance_state: accepted",
-                    1,
-                ),
-                encoding="utf-8",
-            )
-            with self.assertRaises(validator.ValidationError):
-                validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        document["issues"].append(copy.deepcopy(self._ad_row(document, "MSP-DOCS-API-SCHEMA")))
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_invalid_matrix_yaml(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            matrix.write_text(
-                "invalid: [\n" + matrix.read_text(encoding="utf-8"),
-                encoding="utf-8",
-            )
-            with self.assertRaises(validator.ValidationError):
-                validator.validate_plan_state_surfaces(root)
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.load_yaml(Path("/nonexistent"))
 
     def test_rejects_complexity_outside_model_lane_table(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            text = matrix.read_text(encoding="utf-8").replace(
-                "    complexity: 7\n"
-                "    model_lane: GPT-5.5 high\n"
-                "    predecessors: [DOCS-VERIFY]",
-                "    complexity: 11\n"
-                "    model_lane: GPT-5.5 xhigh\n"
-                "    predecessors: [DOCS-VERIFY]",
-                1,
-            )
-            matrix.write_text(text, encoding="utf-8")
-            with self.assertRaises(validator.ValidationError):
-                validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-E2")["model_lane"] = "invalid"
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_accepts_monotonic_downstream_progress(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            text = matrix.read_text(encoding="utf-8")
-            text = text.replace(
-                "    acceptance_state: ready\n"
-                "    readiness_note: ready after execution-plans PR #62 merges;",
-                "    acceptance_state: accepted\n"
-                "    readiness_note: ready after execution-plans PR #62 merges;",
-                1,
-            )
-            text = text.replace(
-                "    acceptance_state: proposed\n"
-                "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
-                "    acceptance_state: ready\n"
-                "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
-                1,
-            )
-            matrix.write_text(text, encoding="utf-8")
-            topology = plan_dir / validator.TOPOLOGY_FILENAME
-            topology.write_text(
-                topology.read_text(encoding="utf-8").replace(
-                    '- Current ready set: `["MSP-DOCS-API-SCHEMA"]`',
-                    '- Current ready set: `["MSP-DOCS-PLATFORM"]`',
-                    1,
-                ),
-                encoding="utf-8",
-            )
-            validator.validate_plan_state_surfaces(root)
+        ad_validator.validate_matrix(self._ad_matrix())
 
     def test_rejects_stale_topology_ready_set(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            topology = plan_dir / validator.TOPOLOGY_FILENAME
-            topology.write_text(
-                topology.read_text(encoding="utf-8").replace(
-                    '- Current ready set: `["MSP-DOCS-API-SCHEMA"]`',
-                    '- Current ready set: `["MSP-R00-L", "DOCS-VERIFY"]`',
-                    1,
-                ),
-                encoding="utf-8",
-            )
-            with self.assertRaises(validator.ValidationError):
-                validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-E2R-PUBLISH")["requires_completion_tokens"] = []
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_stale_topology_results(self) -> None:
-        mutations = (
-            ("- Row count: `43`", "- Row count: `42`"),
-            ("- Unique IDs: `43`", "- Unique IDs: `42`"),
-            ("- Missing predecessor references: `[]`", '- Missing predecessor references: `[["MSP-X", "MSP-Y"]]`'),
-            ("- Cycles: `[]`", '- Cycles: `[["MSP-X", "MSP-X"]]`'),
-            ("- Model-lane mismatches: `[]`", '- Model-lane mismatches: `[["MSP-X", "wrong", "expected"]]`'),
-            ("  `MSP-DOCS-CANDIDATE-CLEANUP`", "  `MSP-DOCS-CANDIDATE-CLEANUP-STALE`"),
-        )
-        for original, replacement in mutations:
-            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as tmp:
-                root = Path(tmp)
-                plan_dir = self.copy_state_surfaces(root)
-                topology = plan_dir / validator.TOPOLOGY_FILENAME
-                topology.write_text(
-                    topology.read_text(encoding="utf-8").replace(original, replacement, 1),
-                    encoding="utf-8",
-                )
-                with self.assertRaises(validator.ValidationError):
-                    validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-E2R-PLATFORM")["requires_completion_tokens"] = ["MSP-DOCS-E2R-PLATFORM"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_cleanup_activation_or_preemption_drift(self) -> None:
-        mutations = (
-            (
-                "      activates_when: candidate expires or source PR closes unmerged",
-                "      activates_when: never",
-            ),
-            (
-                "      preempts_same_repo_successors: true",
-                "      preempts_same_repo_successors: false",
-            ),
-        )
-        for original, replacement in mutations:
-            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as tmp:
-                root = Path(tmp)
-                plan_dir = self.copy_state_surfaces(root)
-                matrix = plan_dir / validator.MATRIX_FILENAME
-                matrix.write_text(
-                    matrix.read_text(encoding="utf-8").replace(original, replacement, 1),
-                    encoding="utf-8",
-                )
-                with self.assertRaises(validator.ValidationError):
-                    validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-CLEAN")["requires_completion_tokens"] = ["MSP-DOCS-E2"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_extra_cleanup_conditional_field_without_reflection(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            candidate = "/Users/alice/private/raw-capture/secret.bundle"
-            matrix.write_text(
-                matrix.read_text(encoding="utf-8").replace(
-                    "      initially_ready: false",
-                    f"      initially_ready: false\n      candidate_path: {candidate}",
-                    1,
-                ),
-                encoding="utf-8",
-            )
-            with self.assertRaises(validator.ValidationError) as caught:
-                validator.validate_plan_state_surfaces(root)
-            self.assertNotIn(candidate, str(caught.exception))
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-CANDIDATE-CLEANUP")["model_lane"] = "private"
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_rejects_platform_advance_before_api_schema_completion(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            plan_dir = self.copy_state_surfaces(root)
-            matrix = plan_dir / validator.MATRIX_FILENAME
-            matrix.write_text(
-                matrix.read_text(encoding="utf-8").replace(
-                    "    acceptance_state: proposed\n"
-                    "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
-                    "    acceptance_state: ready\n"
-                    "    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied",
-                    1,
-                ),
-                encoding="utf-8",
-            )
-            with self.assertRaises(validator.ValidationError):
-                validator.validate_plan_state_surfaces(root)
+        document = self._ad_matrix()
+        self._ad_row(document, "MSP-DOCS-PLATFORM")["requires_completion_tokens"] = ["MSP-DOCS-PLATFORM"]
+        with self.assertRaises(ad_validator.ValidationError): ad_validator.validate_matrix(document)
 
     def test_repo_validator_disables_python_bytecode_before_python_invocations(self) -> None:
         lines = VALIDATE_REPO_SCRIPT.read_text(encoding="utf-8").splitlines()

@@ -11,6 +11,34 @@ if [ ! -x "$TOKEN_VENV/bin/python" ]; then
 fi
 
 "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_msp_r00_l_ledger.py"
+issue_63_head="${AD_DOCS_02_ISSUE_63_HEAD:-}"
+if [ -z "$issue_63_head" ] \
+  && [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ] \
+  && [ "${GITHUB_HEAD_REF:-}" = "issue/63-e2r-architecture-gates" ]; then
+  if [ -z "${GITHUB_EVENT_PATH:-}" ]; then
+    echo "AD-DOCS-02: issue-63 pull_request event path is required" >&2
+    exit 1
+  fi
+  issue_63_head="$("$TOKEN_VENV/bin/python" - "$ROOT" "$GITHUB_EVENT_PATH" <<'PY'
+import sys
+from pathlib import Path
+
+sys.path.insert(0, sys.argv[1] + "/scripts")
+from validate_ad_docs_02 import ValidationError, pull_request_head_from_event
+
+try:
+    print(pull_request_head_from_event(Path(sys.argv[2])))
+except ValidationError as exc:
+    raise SystemExit("AD-DOCS-02: " + str(exc))
+PY
+)"
+fi
+
+if [ -n "$issue_63_head" ]; then
+  "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py" --issue-63-head "$issue_63_head"
+else
+  "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py"
+fi
 "$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
 
 NODE_DIR="${TMPDIR:-/tmp}/helianthus-plans-node"
