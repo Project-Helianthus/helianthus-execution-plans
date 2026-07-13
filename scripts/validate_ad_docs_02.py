@@ -2,7 +2,9 @@
 """Typed, fail-closed validator for the AD-DOCS-02 control-plane amendment."""
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -37,20 +39,36 @@ SERIAL_EDGES = {
     "MSP-DOCS-E2R-PUBLISH": ["MSP-DOCS-E2R-PLATFORM"],
     "MSP-DOCS-E2R-AGGREGATE": ["MSP-DOCS-E2R-PUBLISH"],
     "MSP-DOCS-CLEAN": ["MSP-DOCS-E2R-AGGREGATE"],
+    "MSP-03D-R": ["MSP-DOCS-CLEAN", "MSP-03C"],
 }
-MUTABLE_PREFIXES = (
+ACTIVE_ROUTING_CONTRACT = {
+    "resolver": "canonical_resolver",
+    "policy_digest": "canonical_policy_digest",
+    "forbidden_tier": "Ultra",
+}
+MUTABLE_PATHS = frozenset({
+    "multi-runtime-semantic-platform.locked/00-canonical.md",
+    "multi-runtime-semantic-platform.locked/01-index.md",
+    "multi-runtime-semantic-platform.locked/10-platform-taxonomy-and-boundaries.md",
+    "multi-runtime-semantic-platform.locked/11-ebus-040-baseline-and-profile-split.md",
+    "multi-runtime-semantic-platform.locked/12-eebus-mcp-first-vr940f.md",
+    "multi-runtime-semantic-platform.locked/13-semantic-fact-graph-and-integration.md",
+    "multi-runtime-semantic-platform.locked/14-execution-roadmap-issues-and-gates.md",
+    "multi-runtime-semantic-platform.locked/90-issue-map.md",
+    "multi-runtime-semantic-platform.locked/91-milestone-map.md",
+    "multi-runtime-semantic-platform.locked/92-m0-issue-matrix.yaml",
+    "multi-runtime-semantic-platform.locked/99-status.md",
     "multi-runtime-semantic-platform.locked/plan.yaml",
-    "multi-runtime-semantic-platform.locked/00-", "multi-runtime-semantic-platform.locked/01-",
-    "multi-runtime-semantic-platform.locked/10-", "multi-runtime-semantic-platform.locked/11-",
-    "multi-runtime-semantic-platform.locked/12-", "multi-runtime-semantic-platform.locked/13-",
-    "multi-runtime-semantic-platform.locked/14-", "multi-runtime-semantic-platform.locked/90-",
-    "multi-runtime-semantic-platform.locked/91-", "multi-runtime-semantic-platform.locked/92-",
-    "multi-runtime-semantic-platform.locked/99-", "multi-runtime-semantic-platform.locked/105-",
-    "multi-runtime-semantic-platform.locked/106-", "multi-runtime-semantic-platform.locked/107-",
-    "scripts/validate_ad_docs_02.py", "scripts/validate_msp_r00_l_ledger.py", "scripts/validate_plans_repo.sh",
-    "tests/test_ad_docs_02_red.py", "tests/test_validate_ad_docs_02.py",
+    "multi-runtime-semantic-platform.locked/105-ad-docs-02-amendment.md",
+    "multi-runtime-semantic-platform.locked/106-ad-docs-02-integrity.json",
+    "multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md",
+    "scripts/validate_ad_docs_02.py",
+    "scripts/validate_msp_r00_l_ledger.py",
+    "scripts/validate_plans_repo.sh",
+    "tests/test_ad_docs_02_red.py",
+    "tests/test_validate_ad_docs_02.py",
     "tests/test_validate_msp_r00_l_ledger.py",
-)
+})
 
 class ValidationError(ValueError):
     pass
@@ -117,15 +135,25 @@ def validate_integrity(data: dict[str, Any]) -> None:
     if data["evidence_inputs"] != {"MSP-R00": ["Project-Helianthus/helianthus-eebusreg#14"], "MSP-03D-G01": ["MSP-03D-G01"]}:
         fail("integrity: evidence authority drift")
     exact_keys(data["routing_contract"], {"resolver", "policy_digest", "forbidden_tier"}, "routing_contract")
-    if data["routing_contract"] != {"resolver": "canonical", "policy_digest": "required_at_dispatch", "forbidden_tier": "highest_reserved_tier"}:
+    if data["routing_contract"] != ACTIVE_ROUTING_CONTRACT:
         fail("integrity: routing contract drift")
-    if set(data["entry_kinds"]) != {"eligibility", "exact_membership", "channel_registry", "absence_constraint"}:
+    if data["entry_kinds"] != ["eligibility", "exact_membership", "channel_registry", "absence_constraint"]:
         fail("integrity: entry kinds drift")
+    if data["publication_entry_kinds"] != ["canonical_document", "canonical_collection", "summary_pointer"]:
+        fail("integrity: publication entry kinds drift")
     exact_keys(data["eligible_channels"], {"stable"}, "eligible_channels")
+    if data["eligible_channels"] != {"stable": ["canonical"]}:
+        fail("integrity: eligibility drift")
     exact_keys(data["exact_memberships"], {"stable"}, "exact_memberships")
     exact_keys(data["exact_memberships"]["stable"], {"canonical"}, "exact_memberships.stable")
+    if data["exact_memberships"] != {"stable": {"canonical": []}}:
+        fail("integrity: exact memberships drift")
     exact_keys(data["channel_registry"], {"canonical"}, "channel_registry")
     exact_keys(data["channel_registry"]["canonical"], {"visibility", "owner"}, "channel_registry.canonical")
+    if data["channel_registry"] != {"canonical": {"visibility": "stable", "owner": "canonical_documentation_owner"}}:
+        fail("integrity: channel registry drift")
+    if data["absence_constraints"] != ["candidate entries are absent from stable outputs", "summary pointers do not claim canonical membership"]:
+        fail("integrity: absence constraints drift")
     exact_keys(data["hermetic_git_object_evidence"], {"required", "moving_refs_rejected"}, "hermetic_git_object_evidence")
     if set(data["hermetic_git_object_evidence"]["required"]) != {"base_oid", "head_oid", "merge_oid", "tree_oid", "evidence_core_sha256"} or data["hermetic_git_object_evidence"]["moving_refs_rejected"] is not True:
         fail("integrity: hermetic git-object evidence drift")
@@ -136,10 +164,12 @@ def validate_integrity(data: dict[str, Any]) -> None:
         fail("integrity: readiness categories drift")
     exact_keys(data["planned_expiry"], {"state", "action"}, "planned_expiry")
     exact_keys(data["candidate_cleanup"], {"state", "fail_closed", "post_consumption_rollback", "action"}, "candidate_cleanup")
-    if data["candidate_cleanup"]["fail_closed"] is not True or data["candidate_cleanup"]["post_consumption_rollback"] != "forward_fix_only":
+    if data["planned_expiry"] != {"state": "planned", "action": "block_new_publication"}:
+        fail("integrity: planned expiry drift")
+    if data["candidate_cleanup"] != {"state": "candidate", "fail_closed": True, "post_consumption_rollback": "forward_fix_only", "action": "withdraw_candidate_and_require_fresh_cycle"}:
         fail("integrity: expiry/cleanup drift")
     exact_keys(data["process_attestation"], {"distinct_from"}, "process_attestation")
-    if data["process_attestation"]["distinct_from"] != "technical_git_object_proof":
+    if data["process_attestation"] != {"distinct_from": "technical_git_object_proof"}:
         fail("integrity: process attestation drift")
 
 def validate_matrix(data: dict[str, Any]) -> None:
@@ -160,8 +190,12 @@ def validate_matrix(data: dict[str, Any]) -> None:
             fail("matrix: exactly one routing authority required")
         if contract:
             exact_keys(row["routing_contract"], {"resolver", "policy_digest", "forbidden_tier"}, f"matrix.{row['id']}.routing_contract")
-            if row["routing_contract"].get("forbidden_tier") != "highest_reserved_tier" or "ultra" in json.dumps(row["routing_contract"]).lower():
-                fail("matrix: forbidden active routing tier")
+            if row["routing_contract"] != ACTIVE_ROUTING_CONTRACT:
+                fail("matrix: active routing contract drift")
+        else:
+            exact_keys(row["routing_evidence"], {"recorded"}, f"matrix.{row['id']}.routing_evidence")
+            if row["routing_evidence"] != {"recorded": "historical_observed"}:
+                fail("matrix: historical routing evidence drift")
         if not isinstance(row.get("requires_completion_tokens", []), list):
             fail("matrix: completion tokens must be a list")
     def visit(row_id: str) -> None:
@@ -181,8 +215,39 @@ def validate_matrix(data: dict[str, Any]) -> None:
     for row_id, expected in SERIAL_EDGES.items():
         if by_id[row_id].get("requires_completion_tokens") != expected:
             fail("matrix: required serial edge drift")
+    if by_id["MSP-03D-R"].get("evidence_inputs") != ["MSP-03D-G01"]:
+        fail("matrix: MSP-03D-G01 must remain evidence-only")
     if "MSP-DOCS-E2" in by_id["MSP-DOCS-CLEAN"].get("requires_completion_tokens", []):
         fail("matrix: direct E2-to-CLEAN path")
+
+def render_live_audit(matrix: dict[str, Any]) -> str:
+    rows = matrix["issues"]
+    snapshot = {
+        "ids": [row["id"] for row in rows],
+        "completion_tokens": {row["id"]: row.get("requires_completion_tokens", []) for row in rows},
+        "routing_authority": {row["id"]: "contract" if "routing_contract" in row else "evidence" for row in rows},
+        "evidence_inputs": {row["id"]: row["evidence_inputs"] for row in rows if "evidence_inputs" in row},
+    }
+    encoded = json.dumps(snapshot, sort_keys=True, separators=(",", ":"))
+    digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+    return "\n".join((
+        "# AD-DOCS-02 Live Topology Audit",
+        "",
+        f"Anchor: `{ANCHOR}`",
+        f"Matrix snapshot SHA-256: `{digest}`",
+        "",
+        "```json",
+        encoded,
+        "```",
+        "",
+        "107 complete projection: requires_completion_tokens are authoritative; evidence_inputs are non-authoritative.",
+        "Readiness: readiness snapshot, logical-ready, dispatchable, selected-batch.",
+        "",
+    ))
+
+def validate_live_audit(matrix: dict[str, Any], text: str) -> None:
+    if text != render_live_audit(matrix):
+        fail("live audit: deterministic matrix projection drift")
 
 def validate_surfaces(root: Path) -> None:
     plan_dir = root / PLAN
@@ -190,19 +255,16 @@ def validate_surfaces(root: Path) -> None:
     integrity = load_json(plan_dir / INTEGRITY)
     validate_matrix(matrix)
     validate_integrity(integrity)
-    names = ("plan.yaml", "00-canonical.md", "01-index.md", "12-eebus-mcp-first-vr940f.md",
-             "14-execution-roadmap-issues-and-gates.md", "90-issue-map.md", "91-milestone-map.md",
-             "92-m0-issue-matrix.yaml", "99-status.md", "107-ad-docs-02-topology-audit.md")
-    text = "\n".join((plan_dir / name).read_text(encoding="utf-8") for name in names)
-    if "MSP-DOCS-E2 -> MSP-DOCS-CLEAN" in text:
-        fail("surfaces: direct E2-to-CLEAN path")
-    if "model_lane:" in text:
-        fail("surfaces: active model_lane")
-    if "forbidden_tier: ultra" in text.lower():
-        fail("surfaces: active forbidden tier")
-    compact = " ".join(text.split())
-    if "MSP-DOCS-E2R-PLATFORM -> MSP-DOCS-E2R-PUBLISH -> MSP-DOCS-E2R-AGGREGATE -> MSP-DOCS-CLEAN" not in compact:
-        fail("surfaces: serial chain is not synchronized")
+    validate_live_audit(matrix, (plan_dir / "107-ad-docs-02-topology-audit.md").read_text(encoding="utf-8"))
+    expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
+    for surface in ("00-canonical.md", "12-eebus-mcp-first-vr940f.md", "14-execution-roadmap-issues-and-gates.md", "90-issue-map.md", "91-milestone-map.md", "99-status.md"):
+        surface_text = (plan_dir / surface).read_text(encoding="utf-8")
+        if expected_reference not in surface_text:
+            fail("surfaces: missing structured routing reference")
+        if re.search(r"(?i)\bmodel[ _-]?lane\b|\bprovider\s*[:=]|\bmodel\s*[:=]|\bgpt-", surface_text):
+            fail("surfaces: active routing pin")
+        if re.search(r"MSP-DOCS-E2\s*(?:->|→|to)\s*MSP-DOCS-CLEAN", surface_text, re.IGNORECASE) or re.search(r"(?m)^\|.*MSP-DOCS-E2.*MSP-DOCS-CLEAN.*\|", surface_text):
+            fail("surfaces: direct E2-to-CLEAN path")
 
 def validate_changed_paths(root: Path = ROOT) -> None:
     present = subprocess.run(
@@ -230,7 +292,7 @@ def validate_changed_paths(root: Path = ROOT) -> None:
     except subprocess.CalledProcessError as exc:
         raise ValidationError("protected-path anchor is unavailable") from exc
     for path in filter(None, result.stdout.splitlines()):
-        if not path.startswith(MUTABLE_PREFIXES):
+        if path not in MUTABLE_PATHS:
             fail(f"protected path changed: {path}")
 
 def main(argv: list[str]) -> int:

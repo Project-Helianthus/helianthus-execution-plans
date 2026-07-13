@@ -581,9 +581,9 @@ issues:
   requires_completion_tokens:
   - DOCS-VERIFY
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-DOCS-PLATFORM
   title: Add cross-runtime platform contracts and ownership manifest
   repo: helianthus-docs-ebus
@@ -613,9 +613,9 @@ issues:
   - MSP-R00-L
   - MSP-DOCS-API-SCHEMA
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-DOCS-E2
   title: Move eeBUS protocol, architecture, and API docs to docs-eebus
   repo: helianthus-docs-eebus
@@ -647,9 +647,9 @@ issues:
   requires_completion_tokens:
   - MSP-DOCS-PLATFORM
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-DOCS-E2R-PLATFORM
   title: Introduce backward-compatible publication-contract v2 validator
   repo: helianthus-docs-ebus
@@ -665,9 +665,9 @@ issues:
   smoke_scope: hermetic_validator
   acceptance_state: proposed
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
   requires_completion_tokens:
   - MSP-DOCS-E2
 - id: MSP-DOCS-E2R-PUBLISH
@@ -685,9 +685,9 @@ issues:
   smoke_scope: hermetic_validator
   acceptance_state: proposed
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
   requires_completion_tokens:
   - MSP-DOCS-E2R-PLATFORM
 - id: MSP-DOCS-E2R-AGGREGATE
@@ -705,9 +705,9 @@ issues:
   smoke_scope: hermetic_validator
   acceptance_state: proposed
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
   issue_ref: "Project-Helianthus/helianthus-execution-plans#64"
   requires_completion_tokens:
   - MSP-DOCS-E2R-PUBLISH
@@ -745,9 +745,9 @@ issues:
   requires_completion_tokens:
   - MSP-DOCS-E2R-AGGREGATE
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-DOCS-CANDIDATE-CLEANUP
   title: Withdraw abandoned eeBUS candidate docs
   repo: helianthus-docs-eebus
@@ -784,9 +784,9 @@ issues:
   requires_completion_tokens:
   - MSP-DOCS-E2R-PUBLISH
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-03D-R
   title: Reconcile G17 and G19 from clean main
   repo: helianthus-eebusreg
@@ -817,9 +817,9 @@ issues:
   - MSP-DOCS-CLEAN
   - MSP-03C
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
   evidence_inputs:
   - MSP-03D-G01
 - id: MSP-035
@@ -843,9 +843,9 @@ issues:
   requires_completion_tokens:
   - MSP-03D-R
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-04A
   title: Implement internal persistent store/schema only
   repo: helianthus-eebusreg
@@ -867,9 +867,9 @@ issues:
   requires_completion_tokens:
   - MSP-035
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-036
   title: Export immutable raw snapshot/view fields
   repo: helianthus-eebusreg
@@ -891,9 +891,9 @@ issues:
   requires_completion_tokens:
   - MSP-04A
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-DOCS-API-CANDIDATE
   title: Stage the exact-head eeBUS Go public API candidate
   repo: helianthus-docs-eebus
@@ -927,9 +927,9 @@ issues:
   - MSP-036
   - MSP-DOCS-E2
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-055
   title: Add disabled read-only lifecycle facade
   repo: helianthus-eebusreg
@@ -963,9 +963,9 @@ issues:
   - MSP-036
   - MSP-DOCS-API-CANDIDATE
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-DOCS-API-FREEZE
   title: Freeze active eeBUS Go public API documentation
   repo: helianthus-docs-eebus
@@ -998,9 +998,9 @@ issues:
   requires_completion_tokens:
   - MSP-055
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-04B
   title: Implement first-trust and admin-local boundary
   repo: helianthus-eebusreg
@@ -1022,9 +1022,9 @@ issues:
   requires_completion_tokens:
   - MSP-DOCS-API-FREEZE
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-04C
   title: Implement restore, revocation, quarantine, and repair
   repo: helianthus-eebusreg
@@ -1045,9 +1045,9 @@ issues:
   requires_completion_tokens:
   - MSP-04B
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-045
   title: Freeze trust and admin state model
   repo: helianthus-eebusreg
@@ -1068,9 +1068,9 @@ issues:
   requires_completion_tokens:
   - MSP-04C
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-05A
   title: Add disabled eeBUS config scaffold
   repo: helianthus-ebusgateway
@@ -1091,9 +1091,9 @@ issues:
   requires_completion_tokens:
   - MSP-045
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-05B
   title: Add disabled-by-default EEBusRuntimeAdapter sidecar
   repo: helianthus-ebusgateway
@@ -1116,9 +1116,9 @@ issues:
   - MSP-05A
   - MSP-045
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-06
   title: Add read-only eebus.v1 MCP tools
   repo: helianthus-ebusgateway
@@ -1140,9 +1140,9 @@ issues:
   requires_completion_tokens:
   - MSP-05B
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-065
   title: Add synchronized evidence recorder
   repo: helianthus-ebusgateway
@@ -1163,9 +1163,9 @@ issues:
   requires_completion_tokens:
   - MSP-06
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-07
   title: Add draft candidate fact graph
   repo: helianthus-ebusgateway
@@ -1186,9 +1186,9 @@ issues:
   requires_completion_tokens:
   - MSP-065
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-08
   title: Prove multi-runtime coexistence
   repo: helianthus-ebusgateway
@@ -1209,9 +1209,9 @@ issues:
   requires_completion_tokens:
   - MSP-07
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-085
   title: Lock per-leaf promotion dossiers
   repo: helianthus-ebusgateway
@@ -1232,9 +1232,9 @@ issues:
   requires_completion_tokens:
   - MSP-08
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-09A
   title: Add GraphQL for promoted leaves
   repo: helianthus-ebusgateway
@@ -1255,9 +1255,9 @@ issues:
   requires_completion_tokens:
   - MSP-085
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-09B
   title: Add Portal promoted-leaf support
   repo: helianthus-ebusgateway
@@ -1278,9 +1278,9 @@ issues:
   requires_completion_tokens:
   - MSP-09A
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-09C
   title: Add Home Assistant promoted-entity support
   repo: helianthus-ha-integration
@@ -1302,9 +1302,9 @@ issues:
   - MSP-09A
   - MSP-09B
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-09D
   title: Add add-on configuration for promoted eeBUS runtime
   repo: helianthus-ha-addon
@@ -1326,9 +1326,9 @@ issues:
   - MSP-09A
   - MSP-09C
   routing_contract:
-    resolver: canonical
-    policy_digest: required_at_dispatch
-    forbidden_tier: highest_reserved_tier
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 routing_policy:
   resolver: canonical
   policy_digest: required_at_dispatch

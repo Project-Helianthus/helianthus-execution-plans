@@ -329,7 +329,8 @@ stable values.
 ### M0 - Control Plane And Issue Matrix
 
 Create the execution control plane before code. Every issue must record
-complexity, model lane, repo, predecessor edges, doc owner, doc gate,
+complexity, symbolic routing authority or historical routing evidence, repo,
+completion-token edges, doc owner, doc gate,
 transport/security gate, rollback ledger, review ledger, and one-PR-per-repo
 serialization.
 
@@ -492,14 +493,7 @@ snapshots, and MCP/debug compatibility prove no unapproved drift.
   native registry, semantic projection, MCP, GraphQL, Portal, or Home
   Assistant.
 - If an issue needs two layers, split it.
-- Complexity/model routing is fixed for this plan:
-  - complexity 1-2: `GPT-5.3-Codex-Spark` for fast smoke, checklist, and
-    mechanical gap checks;
-  - complexity 3-4: `gpt-5.4-mini` for small doc-gate, issue-splitting,
-    acceptance-criteria, and consistency tasks;
-  - complexity 5: `GPT-5.5 medium` owner, with Spark or `gpt-5.4-mini` review;
-  - complexity 6-7: `GPT-5.5 high` owner with adversarial review;
-  - complexity 8-10: `GPT-5.5 xhigh` owner and independent review before merge.
+- Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 - Do not promote any semantic field to consumers without raw evidence and
   provenance.
 - Do not rename or generalize eBUS public API namespaces until compatibility

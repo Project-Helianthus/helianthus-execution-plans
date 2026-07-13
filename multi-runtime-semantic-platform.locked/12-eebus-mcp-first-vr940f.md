@@ -1,6 +1,6 @@
 # eeBUS VR940f Raw-First Track
 
-Canonical-SHA256: `d8f669f5ea024336cdcd266c36d46eaae44ebedf953494447ffbf74e5a857cf9`
+Canonical-SHA256: `f2392801ccdc00dfeaaf48166582cbbea42770a4d14998ca082b2624b1e9e18e`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`, the gateway `0.4.0` baseline
@@ -21,6 +21,8 @@ The operator can pair/bind the VR940f in the lab, inspect SHIP/SPINE sessions,
 services, topology, raw evidence, trust state, and deterministic snapshots
 through MCP, then restart and verify stable raw state without promoting a
 single semantic field.
+
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 
 Coverage:
 Covers recovery reconciliation, M3 completion, M3.5 through M8.5 for eeBUS raw

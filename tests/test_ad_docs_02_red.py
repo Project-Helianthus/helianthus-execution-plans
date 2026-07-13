@@ -141,7 +141,7 @@ class AdDocs02RedTests(unittest.TestCase):
     def test_rejects_ultra_from_routing_contracts(self) -> None:
         contract, _, _ = self._surfaces()
         encoded = json.dumps(contract).lower()
-        self.assertNotIn("ultra", encoded)
+        self.assertIn('"forbidden_tier": "Ultra"', json.dumps(contract))
         self.assertIn("policy_digest", encoded)
         self.assertIn("resolver", encoded)
 

@@ -3,6 +3,8 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import shutil
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -46,6 +48,11 @@ class AdDocs02ValidatorTests(unittest.TestCase):
     def test_rejects_active_forbidden_tier_ultra(self) -> None:
         document = copy.deepcopy(self.matrix)
         self.row(document, "MSP-DOCS-E2")["routing_contract"]["forbidden_tier"] = "ultra"
+        self.rejects_matrix(document)
+
+    def test_rejects_embedded_openai_model_resolver(self) -> None:
+        document = copy.deepcopy(self.matrix)
+        self.row(document, "MSP-DOCS-E2")["routing_contract"]["resolver"] = "openai/gpt-5.6-sol"
         self.rejects_matrix(document)
 
     def test_rejects_direct_e2_to_clean(self) -> None:
@@ -94,6 +101,28 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         document = copy.deepcopy(self.integrity)
         document["readiness_categories"] = ["selected_batch"]
         self.rejects_integrity(document)
+
+    def test_rejects_each_publication_contract_protected_field(self) -> None:
+        mutations = (
+            ("publication_entry_kinds", ["wrong"]),
+            ("eligible_channels", {"stable": []}),
+            ("exact_memberships", {"stable": {"canonical": ["wrong"]}}),
+            ("channel_registry", {"canonical": {"visibility": "stable", "owner": "wrong"}}),
+            ("absence_constraints", []),
+            ("hermetic_git_object_evidence", {"required": [], "moving_refs_rejected": True}),
+            ("planned_expiry", {"state": "expired", "action": "block_new_publication"}),
+            ("candidate_cleanup", {"state": "candidate", "fail_closed": True, "post_consumption_rollback": "forward_fix_only", "action": "wrong"}),
+            ("process_attestation", {"distinct_from": "wrong"}),
+        )
+        for field, value in mutations:
+            with self.subTest(field=field):
+                document = copy.deepcopy(self.integrity)
+                document[field] = value
+                self.rejects_integrity(document)
+
+    def test_rejects_complete_live_audit_mutation(self) -> None:
+        with self.assertRaises(validator.ValidationError):
+            validator.validate_live_audit(self.matrix, "# incomplete\n")
         document = copy.deepcopy(self.integrity)
         document["candidate_cleanup"]["fail_closed"] = False
         self.rejects_integrity(document)
@@ -110,6 +139,26 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         with mock.patch.object(validator.subprocess, "run", side_effect=[present, completed]):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_changed_paths(ROOT)
+
+    def test_rejects_unlisted_control_surface_path(self) -> None:
+        present = mock.Mock(returncode=0)
+        completed = mock.Mock(stdout="multi-runtime-semantic-platform.locked/00-unlisted-control-surface.md\n")
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, completed]):
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_changed_paths(ROOT)
+
+    def test_rejects_active_prose_pin_and_table_bypass(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            pinned = target / "90-issue-map.md"
+            pinned.write_text(pinned.read_text(encoding="utf-8") + "\nprovider: openai\n", encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_surfaces(root)
+            pinned.write_text((PLAN / "90-issue-map.md").read_text(encoding="utf-8") + "\n| MSP-DOCS-E2 | MSP-DOCS-CLEAN |\n", encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_surfaces(root)
 
 
 if __name__ == "__main__":

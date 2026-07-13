@@ -67,10 +67,18 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
         plan_dir = root / f"{validator.PLAN_SLUG}.locked"
         for name in (
             validator.MATRIX_FILENAME,
+            "plan.yaml",
+            "106-ad-docs-02-integrity.json",
+            "01-index.md",
             validator.ISSUE_MAP_FILENAME,
             validator.STATUS_FILENAME,
             validator.TOPOLOGY_FILENAME,
             validator.LIVE_TOPOLOGY_FILENAME,
+            "00-canonical.md",
+            "01-index.md",
+            "12-eebus-mcp-first-vr940f.md",
+            "14-execution-roadmap-issues-and-gates.md",
+            "91-milestone-map.md",
         ):
             source = LEDGER_PATH.parent / name
             target = plan_dir / name
@@ -117,7 +125,7 @@ class MspR00LLedgerValidatorTests(unittest.TestCase):
             root = Path(tmp)
             plan_dir = self.copy_state_surfaces(root)
             audit = plan_dir / validator.LIVE_TOPOLOGY_FILENAME
-            audit.write_text(audit.read_text(encoding="utf-8").replace("Row count: `46`", "Row count: `45`"), encoding="utf-8")
+            audit.write_text(audit.read_text(encoding="utf-8") + "drift\n", encoding="utf-8")
             with self.assertRaises(validator.ValidationError):
                 validator.validate_plan_state_surfaces(root)
 

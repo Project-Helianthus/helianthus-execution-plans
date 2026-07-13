@@ -7,8 +7,8 @@ Amendment: `AD-DOCS-01 external-only-documentation`
 
 | Milestone | Primary repo(s) | Depends on | Gate |
 | --- | --- | --- | --- |
-| RECOVERY_RECONCILIATION | helianthus-execution-plans, helianthus-docs-eebus, helianthus-docs-ebus, helianthus-eebusreg | completed local MSP-R00 | Initial ready rows are exactly MSP-R00-L and DOCS-VERIFY. MSP-R00 is local completed/no-code-acceptance. The serialized docs chain is API-SCHEMA -> PLATFORM -> E2 -> CLEAN. Dirty rescue code has no runtime successor-unlock authority. |
-| M3 - eeBUS Runtime Feasibility | helianthus-eebusreg | MSP-DOCS-CLEAN, MSP-03C, MSP-03D-G01 | MSP-03D-R passes revised G17 and G19 with owner acceptance. M3 remains open until then. |
+| RECOVERY_RECONCILIATION | helianthus-execution-plans, helianthus-docs-eebus, helianthus-docs-ebus, helianthus-eebusreg | completed local MSP-R00 | Initial ready rows are exactly MSP-R00-L and DOCS-VERIFY. The complete active serial sequence is represented only by the matrix completion tokens. Dirty rescue code has no runtime successor-unlock authority. |
+| M3 - eeBUS Runtime Feasibility | helianthus-eebusreg | matrix-defined completion tokens | MSP-03D-R requires MSP-DOCS-CLEAN and MSP-03C completion tokens; MSP-03D-G01 is evidence-only. M3 remains open until G17 and G19 receive owner acceptance. |
 | M3.5 - Raw Runtime Contract Freeze | helianthus-eebusreg | M3 | Raw identity, snapshot envelope, and evidence object replay deterministically; no trust/lifecycle/availability authority is frozen. |
 | M4 - Store, Raw View, Lifecycle Facade, And Trust Security | helianthus-eebusreg, helianthus-docs-eebus | M3.5 | MSP-04A internal store/schema, MSP-036 immutable raw view, exact-head MSP-DOCS-API-CANDIDATE before MSP-055 source merge, MSP-DOCS-API-FREEZE active API docs, then first-trust/OOB/admin and repair flows. |
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
@@ -22,8 +22,10 @@ Amendment: `AD-DOCS-01 external-only-documentation`
 
 ## Parallelism
 
-AD-DOCS-02 supersedes the direct E2-to-CLEAN route with the serial PLATFORM,
-PUBLISH, and issue-backed AGGREGATE gates. Historical readiness snapshot,
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+
+AD-DOCS-02 inserts serial PLATFORM, PUBLISH, and issue-backed AGGREGATE gates.
+Historical readiness snapshot,
 logical-ready, dispatchable, and selected-batch remain separate; a selected
 batch cannot create a completion token.
 

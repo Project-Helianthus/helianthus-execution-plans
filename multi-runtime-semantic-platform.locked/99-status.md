@@ -20,6 +20,8 @@ AD-DOCS-02 is the current amendment. Publication-contract v2 and the live
 immutable AD-DOCS-01 snapshot. Candidate cleanup fails closed and any consumed
 evidence is corrected only by a forward fix.
 
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+
 The plan is locked after five accepted adversarial rounds and the AD-DOCS-01
 external-only-documentation amendment. Historical evidence is preserved through
 M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D EEBUS-G01
@@ -88,7 +90,9 @@ No runtime successor may start from dirty code or local recovery artifacts.
   MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH,
   MSP-DOCS-E2R-AGGREGATE, and MSP-DOCS-CLEAN only after their respective
   completion-token predecessors validate.
-- Re-run clean-main MSP-03D-R with revised G17 and G19 after DOCS-CLEAN.
+- Re-run clean-main MSP-03D-R with revised G17 and G19 only after the
+  MSP-DOCS-CLEAN and MSP-03C completion tokens validate; MSP-03D-G01 remains
+  evidence-only.
 - Close MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, and MSP-045 in
   one eebusreg PR at a time.
 - After MSP-036, prepare and pin the single MSP-055 source PR, merge

@@ -11,47 +11,13 @@ This map preserves historical evidence without treating dirty rescue code as
 accepted. Future runtime work resumes from clean main, with one active PR per
 repo and one `helianthus-eebusreg` PR at a time.
 
-## Model Lane Key
+## Active Control Surface
 
-- complexity 1-2: `GPT-5.3-Codex-Spark`
-- complexity 3-4: `gpt-5.4-mini`
-- complexity 5: `GPT-5.5 medium`
-- complexity 6-7: `GPT-5.5 high`
-- complexity 8-10: `GPT-5.5 xhigh`
-
-## Locked Rows
-
-| ID | Repo | Milestone | Cx | Model lane | Depends on | Gate focus | What |
-| --- | --- | --- | ---: | --- | --- | --- | --- |
-| MSP-R00 | helianthus-eebusreg | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | none | recovery/security | Completed locally for issue #14 with architecture review PASS, no code acceptance, no public local SHA/path/HMAC/source-bundle detail, and no runtime successor unlock. |
-| MSP-R00-L | helianthus-execution-plans | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | MSP-R00 | recovery/security | Complete when execution-plans PR #62 merges; the ledger and these state surfaces merge atomically, so the post-merge state is complete and this predecessor is satisfied. |
-| DOCS-VERIFY | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 4 | gpt-5.4-mini | none | doc | Complete in Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353. |
-| MSP-DOCS-API-SCHEMA | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | DOCS-VERIFY | api-doc/schema | Ready after execution-plans PR #62 merges; DOCS-VERIFY is already complete. Merge `helianthus.eebus.api-surface.v1`, normalization rules, and golden positive/negative fixtures before extractor consumption. |
-| MSP-DOCS-PLATFORM | helianthus-docs-ebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-R00-L, MSP-DOCS-API-SCHEMA | platform-doc | After execution-plans PR #62 merges, MSP-R00-L is satisfied and this row remains blocked only on MSP-DOCS-API-SCHEMA. Add platform contracts and `docs/platform/manifests/eebus-doc-ownership.yaml`. |
-| MSP-DOCS-E2 | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 7 | GPT-5.5 high | MSP-DOCS-PLATFORM | eebus-doc | Create `architecture/` and `api/`; migrate only supported claims; hide candidate API pages from stable outputs. |
-| MSP-DOCS-CLEAN | helianthus-eebusreg | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | MSP-DOCS-E2 | docs-clean/api-boundary | From clean main, delete `docs/` if present, trim README/comments, and install local+GitHub ownership and API extractor gates. |
-| MSP-DOCS-CANDIDATE-CLEANUP | helianthus-docs-eebus | RECOVERY_RECONCILIATION | 5 | GPT-5.5 medium | MSP-DOCS-E2 | conditional-cleanup | Dormant. On expiry/abandonment, withdraws candidate artifacts and blocks the bound source merge until a fresh candidate cycle. |
-| MSP-03D-R | helianthus-eebusreg | M3 | 9 | GPT-5.5 xhigh | MSP-DOCS-CLEAN, MSP-03C, MSP-03D-G01 | transport/security | Clean-main G17+G19 harness and canonical recovery evidence. |
-| MSP-035 | helianthus-eebusreg | M3.5 | 8 | GPT-5.5 xhigh | MSP-03D-R | raw-contract | Freeze raw identity, snapshot envelope, and evidence object only. |
-| MSP-04A | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-035 | store/security | Internal persistent store/schema only. |
-| MSP-036 | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04A | raw-view | Public immutable raw snapshot/view only; no lifecycle, trust, semantic ID, or availability authority. |
-| MSP-DOCS-API-CANDIDATE | helianthus-docs-eebus | M4 | 7 | GPT-5.5 high | MSP-036, MSP-DOCS-E2 | api-doc/pre-merge | Merge hidden API candidate pages plus the exact source-head manifest and provenance while the single MSP-055 source PR remains unmerged. |
-| MSP-055 | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-036, MSP-DOCS-API-CANDIDATE | lifecycle/security | Merge only when the current head exactly matches a non-expired candidate-state manifest and no cleanup is active. |
-| MSP-DOCS-API-FREEZE | helianthus-docs-eebus | M4 | 7 | GPT-5.5 high | MSP-055 | api-doc/freeze | Against exact merged source commit, compile examples, compare Go AST/API manifest, verify attestation, and promote candidate API docs to active. |
-| MSP-04B | helianthus-eebusreg | M4 | 9 | GPT-5.5 xhigh | MSP-DOCS-API-FREEZE | security | First-trust, OOB confirmation, admin-local boundary, and no public trust mutation. |
-| MSP-04C | helianthus-eebusreg | M4 | 8 | GPT-5.5 xhigh | MSP-04B | security | Restore, revocation, quarantine, repair, and rollback semantics. |
-| MSP-045 | helianthus-eebusreg | M4.5 | 8 | GPT-5.5 xhigh | MSP-04C | security/contract | Freeze trust, pairing, admin-local, restore, and quarantine state model. |
-| MSP-05A | helianthus-ebusgateway | M5 | 4 | gpt-5.4-mini | MSP-045 | config | Disabled eeBUS config scaffold; no runtime import. |
-| MSP-05B | helianthus-ebusgateway | M5 | 9 | GPT-5.5 xhigh | MSP-05A, MSP-045 | gateway/security | Disabled-by-default `EEBusRuntimeAdapter` sidecar after canonical docs and eebusreg contracts merge. |
-| MSP-06 | helianthus-ebusgateway | M6 | 9 | GPT-5.5 xhigh | MSP-05B | mcp/security | Read-only deterministic `eebus.v1.*` MCP tools and anti-leak tests. |
-| MSP-065 | helianthus-ebusgateway | M6.5 | 8 | GPT-5.5 xhigh | MSP-06 | evidence | Synchronized evidence recorder using existing read-only eBUS surfaces only. |
-| MSP-07 | helianthus-ebusgateway | M7 | 8 | GPT-5.5 xhigh | MSP-065 | semantic-candidate | Draft candidate fact graph only. |
-| MSP-08 | helianthus-ebusgateway | M8 | 10 | GPT-5.5 xhigh | MSP-07 | coexistence | eBUS and eeBUS coexistence with no consumer drift. |
-| MSP-085 | helianthus-ebusgateway | M8.5 | 9 | GPT-5.5 xhigh | MSP-08 | promotion | Per-leaf promotion dossiers locked after coexistence evidence. |
-| MSP-09A | helianthus-ebusgateway | M9 | 8 | GPT-5.5 xhigh | MSP-085 | graphql | GraphQL only for promoted leaves. |
-| MSP-09B | helianthus-ebusgateway | M9 | 7 | GPT-5.5 high | MSP-09A | portal | Portal support after GraphQL, without treating candidate/conflict/withheld as stable. |
-| MSP-09C | helianthus-ha-integration | M9 | 8 | GPT-5.5 xhigh | MSP-09A, MSP-09B | ha | Home Assistant support only for promoted leaves. |
-| MSP-09D | helianthus-ha-addon | M9 | 6 | GPT-5.5 high | MSP-09A, MSP-09C | ha/security | Add-on exposure for promoted runtime only, disabled by default. |
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+This page deliberately does not duplicate active routing contracts, provider or
+model selections, or completion-token edges. The live matrix is the only
+source that can authorize a successor; its 107 audit is a deterministic,
+complete projection for review.
 
 ## Historical Accepted Evidence
 
@@ -74,10 +40,9 @@ repo and one `helianthus-eebusreg` PR at a time.
 
 ## AD-DOCS-02 token chain
 
-The current executable chain is `MSP-DOCS-E2 -> MSP-DOCS-E2R-PLATFORM ->
-MSP-DOCS-E2R-PUBLISH -> MSP-DOCS-E2R-AGGREGATE (#64) -> MSP-DOCS-CLEAN ->
-MSP-03D-R`. Completion tokens, not historical observations, authorize each
-edge. MSP-R00 issue/14 and MSP-03D-G01 are evidence inputs only.
+The matrix requires `MSP-DOCS-CLEAN` and `MSP-03C` completion tokens for
+`MSP-03D-R`; `MSP-03D-G01` is evidence-only. Completion tokens, not historical
+observations, authorize every active edge.
 
 - No publication of MSP-R00 private details: local SHA, private path, raw HMAC
   mapping, source-bundle detail, raw paths, volume, sizes, timestamps, bytes,
