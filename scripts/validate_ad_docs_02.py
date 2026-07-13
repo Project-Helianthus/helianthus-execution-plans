@@ -387,6 +387,7 @@ def validate_changed_paths(root: Path = ROOT) -> None:
     except subprocess.CalledProcessError as exc:
         raise ValidationError("protected-path anchor is unavailable") from exc
     fields = [field for field in result.stdout.split("\0") if field]
+    changed_paths: list[str] = []
     index = 0
     while index < len(fields):
         status = fields[index]
@@ -403,16 +404,32 @@ def validate_changed_paths(root: Path = ROOT) -> None:
             fail("protected path changed: unsupported status")
         if path not in MUTABLE_PATHS:
             fail(f"protected path changed: {path}")
-    raw = subprocess.run(["git", "-C", str(root), "diff", "--raw", "-z", ANCHOR, "HEAD", "--"], text=True, capture_output=True, check=True)
-    for field in (item for item in raw.stdout.split("\0") if item):
-        if field.startswith(":"):
-            old_mode, new_mode = field[1:].split()[:2]
-            if new_mode not in {"100644", "100755"} or (old_mode != "000000" and old_mode != new_mode):
-                fail("protected path changed: mode/type drift")
-    for artifact in ("105-ad-docs-02-amendment.md", "106-ad-docs-02-integrity.json", "107-ad-docs-02-topology-audit.md"):
-        tree = subprocess.run(["git", "-C", str(root), "ls-tree", "HEAD", "--", f"{PLAN}/{artifact}"], text=True, capture_output=True, check=True)
-        if not re.fullmatch(r"100644 blob [0-9a-f]{40}\t" + re.escape(f"{PLAN}/{artifact}") + r"\n", tree.stdout):
-            fail("protected path changed: required artifact type/mode")
+        changed_paths.append(path)
+    for path in changed_paths:
+        anchor_tree = subprocess.run(
+            ["git", "-C", str(root), "ls-tree", ANCHOR, "--", path],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        head_tree = subprocess.run(
+            ["git", "-C", str(root), "ls-tree", "HEAD", "--", path],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        anchor_match = re.fullmatch(
+            r"(100644|100755) blob [0-9a-f]{40}\t" + re.escape(path) + r"\n",
+            anchor_tree.stdout,
+        )
+        if anchor_tree.stdout and anchor_match is None:
+            fail("protected path changed: mode/type drift")
+        expected_mode = anchor_match.group(1) if anchor_match else "100644"
+        if not re.fullmatch(
+            re.escape(expected_mode) + r" blob [0-9a-f]{40}\t" + re.escape(path) + r"\n",
+            head_tree.stdout,
+        ):
+            fail("protected path changed: mode/type drift")
 
 def main(argv: list[str]) -> int:
     try:

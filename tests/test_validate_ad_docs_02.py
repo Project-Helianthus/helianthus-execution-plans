@@ -156,14 +156,16 @@ class AdDocs02ValidatorTests(unittest.TestCase):
     def test_accepts_declared_mutable_path(self) -> None:
         present = mock.Mock(returncode=0)
         changed = mock.Mock(stdout="M\0multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\0")
-        raw = mock.Mock(stdout=":100644 100644 0000000000000000000000000000000000000000 0000000000000000000000000000000000000000 M\0multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\0")
-        tree = mock.Mock(stdout="100644 blob 0000000000000000000000000000000000000000\tmulti-runtime-semantic-platform.locked/105-ad-docs-02-amendment.md\n")
-        trees = [
-            tree,
-            mock.Mock(stdout="100644 blob 0000000000000000000000000000000000000000\tmulti-runtime-semantic-platform.locked/106-ad-docs-02-integrity.json\n"),
-            mock.Mock(stdout="100644 blob 0000000000000000000000000000000000000000\tmulti-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\n"),
-        ]
-        with mock.patch.object(validator.subprocess, "run", side_effect=[present, changed, raw, *trees]):
+        tree = mock.Mock(stdout="100644 blob 0000000000000000000000000000000000000000\tmulti-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\n")
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, changed, tree, tree]):
+            validator.validate_changed_paths(ROOT)
+
+    def test_retains_only_anchor_canonical_executable_mode(self) -> None:
+        present = mock.Mock(returncode=0)
+        path = "scripts/validate_plans_repo.sh"
+        changed = mock.Mock(stdout=f"M\0{path}\0")
+        tree = mock.Mock(stdout=f"100755 blob {'0' * 40}\t{path}\n")
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, changed, tree, tree]):
             validator.validate_changed_paths(ROOT)
 
     def test_rejects_nested_protected_issue_path(self) -> None:
@@ -232,6 +234,31 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 with mock.patch.object(validator.subprocess, "run", side_effect=[present, changed, raw_result]):
                     with self.assertRaises(validator.ValidationError):
                         validator.validate_changed_paths(ROOT)
+
+    def test_rejects_executable_mode_for_each_ad_docs_artifact(self) -> None:
+        for artifact in (
+            "105-ad-docs-02-amendment.md",
+            "106-ad-docs-02-integrity.json",
+            "107-ad-docs-02-topology-audit.md",
+        ):
+            with self.subTest(artifact=artifact):
+                with tempfile.TemporaryDirectory() as tmp:
+                    repo = Path(tmp)
+                    subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+                    subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+                    subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+                    path = repo / validator.PLAN / artifact
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text("anchor\n", encoding="utf-8")
+                    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+                    subprocess.run(["git", "-C", str(repo), "commit", "-m", "anchor"], check=True, capture_output=True)
+                    anchor = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, text=True, capture_output=True).stdout.strip()
+                    path.chmod(0o755)
+                    subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+                    subprocess.run(["git", "-C", str(repo), "commit", "-m", "make executable"], check=True, capture_output=True)
+                    with mock.patch.object(validator, "ANCHOR", anchor):
+                        with self.assertRaises(validator.ValidationError):
+                            validator.validate_changed_paths(repo)
 
     def test_recovers_anchor_from_local_shallow_remote(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
