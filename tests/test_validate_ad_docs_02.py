@@ -198,6 +198,56 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_surfaces(root)
 
+    def test_rejects_bypass_or_pin_mutation_for_every_active_control_surface(self) -> None:
+        for relative in validator.active_control_surface_paths():
+            with self.subTest(relative=relative):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    target = root / validator.PLAN
+                    shutil.copytree(PLAN, target)
+                    path = root / relative
+                    if path.suffix == ".md":
+                        path.write_text(
+                            path.read_text(encoding="utf-8") + "\nprovider: openai\n",
+                            encoding="utf-8",
+                        )
+                    elif path.name == validator.MATRIX:
+                        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+                        self.row(document, "MSP-DOCS-CLEAN")["requires_completion_tokens"] = ["MSP-DOCS-E2"]
+                        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+                    elif path.name == validator.INTEGRITY:
+                        document = json.loads(path.read_text(encoding="utf-8"))
+                        document["routing_contract"]["resolver"] = "openai/gpt-5.6-sol"
+                        path.write_text(json.dumps(document), encoding="utf-8")
+                    elif path.name == "plan.yaml":
+                        document = yaml.safe_load(path.read_text(encoding="utf-8"))
+                        document["routing_policy"]["provider"] = "openai"
+                        path.write_text(yaml.safe_dump(document), encoding="utf-8")
+                    else:
+                        path.write_text(
+                            path.read_text(encoding="utf-8").replace(
+                                "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-CLEAN", 1
+                            ),
+                            encoding="utf-8",
+                        )
+                    with self.assertRaises(validator.ValidationError):
+                        validator.validate_surfaces(root)
+
+    def test_active_control_surface_projection_matches_mutable_allowlist(self) -> None:
+        self.assertEqual(
+            set(validator.active_control_surface_paths()),
+            {
+                path for path in validator.MUTABLE_PATHS
+                if path.startswith(validator.PLAN + "/")
+            },
+        )
+
+    def test_m35_prerequisites_name_the_complete_e2r_chain(self) -> None:
+        expected = "MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH, MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN"
+        for surface in ("00-canonical.md", "12-eebus-mcp-first-vr940f.md"):
+            with self.subTest(surface=surface):
+                self.assertIn(expected, " ".join((PLAN / surface).read_text(encoding="utf-8").split()))
+
     def test_rejects_plan_provider_pin_or_ultra(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

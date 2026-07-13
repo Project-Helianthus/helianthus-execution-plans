@@ -19,6 +19,8 @@ component as transport, base protocol, profile, runtime instance, native
 registry, semantic projection, or semantic integration. If not, the taxonomy is
 incomplete.
 
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+
 Coverage:
 Covers the canonical platform model, architectural rules, and target gateway
 shape.

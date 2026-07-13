@@ -117,6 +117,15 @@ MUTABLE_PATHS = frozenset({
     "tests/test_validate_ad_docs_02.py",
     "tests/test_validate_msp_r00_l_ledger.py",
 })
+E2R_PREREQUISITES = (
+    "MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH, "
+    "MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN"
+)
+
+def active_control_surface_paths() -> tuple[str, ...]:
+    """Derive the complete active plan projection from its mutable allowlist."""
+    prefix = PLAN + "/"
+    return tuple(sorted(path for path in MUTABLE_PATHS if path.startswith(prefix)))
 
 class ValidationError(ValueError):
     pass
@@ -331,7 +340,11 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
 
 def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
-    surfaces = ("01-index.md", "90-issue-map.md", "91-milestone-map.md", "99-status.md", "12-eebus-mcp-first-vr940f.md", "14-execution-roadmap-issues-and-gates.md")
+    surfaces = tuple(
+        Path(relative).name
+        for relative in active_control_surface_paths()
+        if relative.endswith(".md") and Path(relative).name != "107-ad-docs-02-topology-audit.md"
+    )
     for surface in surfaces:
         text = (plan_dir / surface).read_text(encoding="utf-8")
         if expected_reference not in text:
@@ -350,9 +363,17 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
                     fail("surfaces.14: canonical completion claim drift")
     if matrix["issues"][EXACT_IDS.index("MSP-R00-L")]["acceptance_state"] == "ready":
         fail("surfaces: MSP-R00-L may not be ready")
+    for surface in ("00-canonical.md", "12-eebus-mcp-first-vr940f.md"):
+        text = " ".join((plan_dir / surface).read_text(encoding="utf-8").split())
+        if E2R_PREREQUISITES not in text:
+            fail(f"surfaces.{surface}: M3.5 E2R prerequisite drift")
 
 def validate_surfaces(root: Path) -> None:
     plan_dir = root / PLAN
+    if set(active_control_surface_paths()) != {
+        path for path in MUTABLE_PATHS if path.startswith(PLAN + "/")
+    }:
+        fail("surfaces: mutable allowlist/projection drift")
     matrix = load_yaml(plan_dir / MATRIX)
     integrity = load_json(plan_dir / INTEGRITY)
     validate_matrix(matrix)

@@ -13,6 +13,8 @@ protected byte-for-byte from the anchor. In particular,
 `100-topology-audit.md` remains AD-DOCS-01 historical evidence and is not a
 live control surface.
 
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+
 The live chain is serial and token-authoritative:
 `MSP-DOCS-E2 -> MSP-DOCS-E2R-PLATFORM -> MSP-DOCS-E2R-PUBLISH ->
 MSP-DOCS-E2R-AGGREGATE -> MSP-DOCS-CLEAN -> MSP-03D-R`.

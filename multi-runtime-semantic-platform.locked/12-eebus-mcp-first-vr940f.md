@@ -121,7 +121,8 @@ Required M3 proof artifacts:
 
 Gateway may not gain a persistent `helianthus-eebusreg` import until recovery
 reconciliation, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
-MSP-DOCS-E2, MSP-DOCS-CLEAN, MSP-03D-R, raw contract freeze, immutable raw
+MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH,
+MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN, MSP-03D-R, raw contract freeze, immutable raw
 view, read-only lifecycle facade, API freeze, and trust/admin contracts merge.
 
 ## Candidate API Handshake

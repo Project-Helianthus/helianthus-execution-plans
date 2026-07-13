@@ -375,7 +375,8 @@ G17.
 ### M3.5 - Raw Runtime Contract Freeze
 
 After MSP-R00-L, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM,
-MSP-DOCS-E2, MSP-DOCS-CLEAN, and MSP-03D-R merge from clean main, freeze only
+MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH,
+MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN, and MSP-03D-R merge from clean main, freeze only
 raw identity, raw snapshot envelope, and evidence object shapes in MSP-035.
 Trust, pairing, admin state, lifecycle authority, availability guarantees, and
 final MCP v1 remain unfrozen until later rows.

@@ -19,6 +19,8 @@ With Vaillant profile logic disabled, raw/classic eBUS discovery and evidence
 must remain available. With the profile enabled, current Vaillant semantics must
 match gateway `0.4.0` behavior.
 
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+
 Coverage:
 Covers M0, M2, and M3 from the canonical milestone list.
 

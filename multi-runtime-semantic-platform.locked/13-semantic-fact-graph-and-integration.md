@@ -19,6 +19,8 @@ Given two runtimes reporting the same conceptual field, the semantic layer must
 show provenance and either choose a value by explicit policy or mark the field
 as conflicted.
 
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+
 Coverage:
 Covers M7, M8, M8.5, and the semantic portions of M9.
 
