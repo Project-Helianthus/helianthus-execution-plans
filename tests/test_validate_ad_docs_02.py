@@ -507,7 +507,8 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         for row in (
             "MSP-DOCS-E2|->|MSP-DOCS-CLEAN",
             "MSP-DOCS-CLEAN|<-|MSP-DOCS-E2",
-            "MSP-DOCS-E2|\\->|MSP-DOCS-CLEAN\\|",
+            "MSP-DOCS-E2|\\->|MSP-DOCS-CLEAN|",
+            "| MSP-DOCS-E2 | -> | MSP-DOCS-CLEAN |",
         ):
             with self.subTest(row=row):
                 self._assert_markdown_claim_rejected(row + "\n")
@@ -517,9 +518,18 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "MSP-DOCS-E2|<-|MSP-DOCS-CLEAN",
             "MSP-DOCS-CLEAN|->|MSP-DOCS-E2",
             "MSP-DOCS-E2|descriptive non-edge cell|MSP-DOCS-CLEAN",
+            "MSP-DOCS-E2|\\->|MSP-DOCS-CLEAN\\|",
         ):
             with self.subTest(row=row):
                 self._assert_markdown_claim_accepted(row + "\n")
+
+    def test_accepts_escaped_literal_pipe_source_cell_as_non_edge(self) -> None:
+        row = "MSP-DOCS-E2\\||->|MSP-DOCS-CLEAN"
+        self.assertEqual(
+            validator.split_markdown_table_row(row),
+            ("MSP-DOCS-E2\\|", "->", "MSP-DOCS-CLEAN"),
+        )
+        self._assert_markdown_claim_accepted(row + "\n")
 
     def test_accepts_reverse_or_non_edge_table_cell_sequences(self) -> None:
         for row in (

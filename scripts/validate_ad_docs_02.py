@@ -174,7 +174,6 @@ ACTIVE_ROUTING_PIN_RE = re.compile(
     r"\bmodel\b\s*(?::|=|is\b)?\s*\b(?:gpt|claude)[ _-]?\d|"
     r"\bgpt[ _-]?5[._ -]?5\b"
 )
-ESCAPED_PIPE = "\x00"
 
 def active_control_surface_paths() -> tuple[str, ...]:
     """Return the fixed active-plan projection, independent of the allowlist."""
@@ -547,48 +546,40 @@ def normalize_markdown(text: str) -> str:
     return " ".join(render_markdown_text(text).casefold().split())
 
 
-def normalize_markdown_lines(text: str) -> str:
-    """Canonicalize rendered Markdown while preserving line and table-cell boundaries."""
-    rendered = render_markdown_text(protect_escaped_table_pipes(text)).casefold()
-    return "\n".join(" ".join(line.split()) for line in rendered.splitlines())
-
-
-def protect_escaped_table_pipes(text: str) -> str:
-    """Keep Markdown-escaped pipes literal until table cells have been split."""
-    protected: list[str] = []
-    slash_count = 0
-    for character in text:
-        if character == "|" and slash_count % 2:
-            protected[-1] = ESCAPED_PIPE
-        else:
-            protected.append(character)
-        slash_count = slash_count + 1 if character == "\\" else 0
-    return "".join(protected)
-
-
 def split_markdown_table_row(line: str) -> tuple[str, ...] | None:
-    """Split a rendered table row on source-unescaped pipes, outer pipes optional."""
+    """Split a raw table row on unescaped pipes, with optional outer pipes."""
     stripped = line.strip()
-    if "|" not in stripped:
+    cells: list[str] = []
+    current: list[str] = []
+    slash_count = 0
+    for character in stripped:
+        if character == "|" and slash_count % 2 == 0:
+            cells.append("".join(current))
+            current = []
+        else:
+            current.append(character)
+        slash_count = slash_count + 1 if character == "\\" else 0
+    if not cells:
         return None
-    if stripped.startswith("|"):
-        stripped = stripped[1:]
-    if stripped.endswith("|"):
-        stripped = stripped[:-1]
-    cells = tuple(" ".join(cell.replace(ESCAPED_PIPE, "|").split()).strip("|").strip() for cell in stripped.split("|"))
-    return cells if len(cells) >= 3 else None
+    cells.append("".join(current))
+    if cells[0] == "":
+        cells = cells[1:]
+    if cells and cells[-1] == "":
+        cells = cells[:-1]
+    return tuple(cells) if len(cells) >= 3 else None
 
 
-def has_forbidden_e2_clean_table_edge(normalized_lines: str) -> bool:
-    """Return whether a normalized Markdown table contains the forbidden edge."""
+def has_forbidden_e2_clean_table_edge(text: str) -> bool:
+    """Return whether a raw Markdown table contains the forbidden rendered edge."""
     forbidden_triples = {
         ("msp-docs-e2", "->", "msp-docs-clean"),
         ("msp-docs-clean", "<-", "msp-docs-e2"),
     }
-    for line in normalized_lines.splitlines():
+    for line in text.splitlines():
         cells = split_markdown_table_row(line)
         if cells is None:
             continue
+        cells = tuple(normalize_markdown(cell) for cell in cells)
         for index in range(len(cells) - 2):
             if cells[index:index + 3] in forbidden_triples:
                 return True
@@ -604,7 +595,6 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     for surface in surfaces:
         text = (plan_dir / surface).read_text(encoding="utf-8")
         normalized = normalize_markdown(text)
-        normalized_lines = normalize_markdown_lines(text)
         if surface != "107-ad-docs-02-topology-audit.md" and expected_reference not in text:
             fail(f"surfaces.{surface}: missing structured routing reference")
         # Require a concrete provider/model value. This leaves canonical negative
@@ -620,7 +610,7 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         if (
             re.search(r"msp-docs-e2\s*(?:->|to)\s*msp-docs-clean", normalized)
             or re.search(r"msp-docs-clean\s*<-\s*msp-docs-e2", normalized)
-            or has_forbidden_e2_clean_table_edge(normalized_lines)
+            or has_forbidden_e2_clean_table_edge(text)
         ):
             fail(f"surfaces.{surface}: direct E2-to-CLEAN path")
         if re.search(
