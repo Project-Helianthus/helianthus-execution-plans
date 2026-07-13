@@ -256,6 +256,15 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.pull_request_head_from_event(Path(tmp) / "missing-event.json")
 
+    def test_explicit_issue_head_is_fetched_when_pr_checkout_lacks_it(self) -> None:
+        head = "1" * 40
+        missing = mock.Mock(returncode=1)
+        fetched = mock.Mock(returncode=0)
+        present = mock.Mock(returncode=0)
+        with mock.patch.object(validator.subprocess, "run", side_effect=[missing, fetched, present]) as run:
+            validator._ensure_commit(ROOT, head, "unavailable")
+        self.assertEqual(run.call_args_list[1].args[0][-1], head)
+
     def test_rejects_active_prose_pin_and_table_bypass(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

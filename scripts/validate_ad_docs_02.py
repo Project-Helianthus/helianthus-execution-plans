@@ -553,7 +553,20 @@ def _ensure_anchor(root: Path) -> None:
             raise ValidationError("protected-path anchor is unavailable") from exc
 
 def _ensure_commit(root: Path, revision: str, message: str) -> None:
+    present = subprocess.run(
+        ["git", "-C", str(root), "cat-file", "-e", f"{revision}^{{commit}}"],
+        text=True,
+        capture_output=True,
+    )
+    if present.returncode == 0:
+        return
     try:
+        subprocess.run(
+            ["git", "-C", str(root), "fetch", "--quiet", "origin", revision],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
         subprocess.run(
             ["git", "-C", str(root), "cat-file", "-e", f"{revision}^{{commit}}"],
             text=True,
