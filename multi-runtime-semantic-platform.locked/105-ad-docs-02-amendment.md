@@ -37,4 +37,3 @@ canonical resolver and policy digest; observed terminal rows carry routing
 evidence only. Exact vendor/model selections are execution records, not plan
 inputs. Historical readiness snapshot, logical-ready, dispatchable, and
 selected-batch are distinct states.
-
