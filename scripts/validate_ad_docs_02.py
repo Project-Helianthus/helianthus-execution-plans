@@ -183,6 +183,7 @@ def validate_integrity(data: dict[str, Any]) -> None:
     if data["evidence_inputs"] != {"MSP-R00": ["Project-Helianthus/helianthus-eebusreg#14"], "MSP-03D-G01": ["MSP-03D-G01"]}:
         fail("integrity: evidence authority drift")
     exact_keys(data["routing_contract"], {"resolver", "policy_digest", "forbidden_tier"}, "routing_contract")
+    reject_active_routing_pin(data["routing_contract"], "integrity.routing_contract")
     if data["routing_contract"] != ACTIVE_ROUTING_CONTRACT:
         fail("integrity: routing contract drift")
     if data["entry_kinds"] != ["eligibility", "exact_membership", "channel_registry", "absence_constraint"]:
@@ -244,6 +245,7 @@ def validate_matrix(data: dict[str, Any]) -> None:
             fail("matrix: exactly one routing authority required")
         if contract:
             exact_keys(row["routing_contract"], {"resolver", "policy_digest", "forbidden_tier"}, f"matrix.{row['id']}.routing_contract")
+            reject_active_routing_pin(row["routing_contract"], f"matrix.{row['id']}.routing_contract")
             if row["routing_contract"] != ACTIVE_ROUTING_CONTRACT:
                 fail("matrix: active routing contract drift")
         else:
@@ -315,7 +317,7 @@ def reject_active_routing_pin(value: Any, where: str) -> None:
     elif isinstance(value, list):
         for index, nested in enumerate(value):
             reject_active_routing_pin(nested, f"{where}[{index}]")
-    elif isinstance(value, str) and re.search(r"(?i)(?:^|[/:_-])(openai|anthropic|gpt-|claude-|sol)(?:$|[/:_-])", value):
+    elif isinstance(value, str) and any(token in value.lower() for token in ("openai", "anthropic", "gpt-", "gpt_", "claude-", "claude_", "gpt5")):
         fail(f"{where}: active routing pin")
 
 def validate_plan_projection(plan: dict[str, Any]) -> None:
