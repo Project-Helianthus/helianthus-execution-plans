@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import unicodedata
+from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +18,6 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = "multi-runtime-semantic-platform.locked"
 ANCHOR = "f25d9ac7d3f25f0f45821cdff27ff968a0ef5cfb"
-ISSUE_63_HEAD = "ecfb8e034a73cd285b4ffce101364f92420d5711"
 MATRIX = "92-m0-issue-matrix.yaml"
 INTEGRITY = "106-ad-docs-02-integrity.json"
 EXACT_IDS = (
@@ -144,7 +144,6 @@ E2R_PREREQUISITES = (
 )
 HTML_UNESCAPE_MAX_ITERATIONS = 8
 ENTITY_LIKE_RE = re.compile(r"&(?:#[0-9]+|#[xX][0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]+);")
-HTML_COMMENT_RE = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
 MARKDOWN_LINK_RE = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
 MARKDOWN_REFERENCE_LINK_RE = re.compile(r"!?\[([^\]]*)\]\[[^\]]*\]")
 MARKDOWN_EMPHASIS_RE = re.compile(r"(?<!\\)[*_]+")
@@ -155,6 +154,86 @@ def active_control_surface_paths() -> tuple[str, ...]:
 
 class ValidationError(ValueError):
     pass
+
+
+class InlineHTMLRenderer(HTMLParser):
+    """Render safe inline HTML to its text content, rejecting malformed tags."""
+
+    VOID_ELEMENTS = frozenset({"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"})
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=False)
+        self.parts: list[str] = []
+        self.open_tags: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag not in self.VOID_ELEMENTS:
+            self.open_tags.append(tag)
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        return
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in self.VOID_ELEMENTS or not self.open_tags or self.open_tags[-1] != tag:
+            fail("markdown: malformed inline HTML")
+        self.open_tags.pop()
+
+    def handle_data(self, data: str) -> None:
+        self.parts.append(data)
+
+    def handle_entityref(self, name: str) -> None:
+        self.parts.append(f"&{name};")
+
+    def handle_charref(self, name: str) -> None:
+        self.parts.append(f"&#{name};")
+
+    def handle_decl(self, decl: str) -> None:
+        fail("markdown: unsupported HTML declaration")
+
+    def unknown_decl(self, data: str) -> None:
+        fail("markdown: unsupported HTML declaration")
+
+    def handle_pi(self, data: str) -> None:
+        fail("markdown: unsupported HTML processing instruction")
+
+
+def render_inline_html(text: str) -> str:
+    """Remove comments and render balanced inline HTML to text, fail-closed."""
+    remaining = text
+    rendered_parts: list[str] = []
+    while "<!--" in remaining:
+        before, comment = remaining.split("<!--", 1)
+        if "-->" not in comment:
+            fail("markdown: unclosed HTML comment")
+        _, remaining = comment.split("-->", 1)
+        rendered_parts.append(before)
+    rendered_parts.append(remaining)
+    renderer = InlineHTMLRenderer()
+    try:
+        renderer.feed("".join(rendered_parts))
+        renderer.close()
+    except ValidationError:
+        raise
+    except Exception as exc:
+        raise ValidationError("markdown: malformed inline HTML") from exc
+    if renderer.open_tags:
+        fail("markdown: unclosed inline HTML")
+    rendered = "".join(renderer.parts)
+    if "<" in rendered:
+        fail("markdown: malformed inline HTML")
+    return rendered
+
+
+def pull_request_head_from_event(event_path: Path) -> str:
+    """Read a GitHub pull_request head SHA from the structured event payload."""
+    try:
+        event = json.loads(event_path.read_text(encoding="utf-8"))
+        head = event["pull_request"]["head"]["sha"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise ValidationError("invalid issue-63 pull_request event") from exc
+    if not isinstance(head, str) or re.fullmatch(r"[0-9a-f]{40}", head) is None:
+        fail("invalid issue-63 pull_request head")
+    return head
 
 class UniqueLoader(yaml.SafeLoader):
     pass
@@ -366,7 +445,7 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
 
 def normalize_markdown(text: str) -> str:
     """Canonicalize active prose before evaluating its security-sensitive claims."""
-    normalized = HTML_COMMENT_RE.sub("", text)
+    normalized = text
     for _ in range(HTML_UNESCAPE_MAX_ITERATIONS):
         unescaped = html.unescape(normalized)
         if unescaped == normalized:
@@ -376,6 +455,7 @@ def normalize_markdown(text: str) -> str:
         fail("markdown: HTML entity decoding did not reach a fixed point")
     if ENTITY_LIKE_RE.search(normalized):
         fail("markdown: unresolved entity-like sequence")
+    normalized = render_inline_html(normalized)
     normalized = unicodedata.normalize("NFKC", normalized)
     if any(unicodedata.category(character) == "Cf" for character in normalized):
         fail("markdown: Unicode format character")
@@ -570,9 +650,11 @@ def _validate_changed_paths(
 
 def validate_issue_63_changeset(
     root: Path = ROOT,
-    issue_head: str = ISSUE_63_HEAD,
+    issue_head: str = "",
 ) -> None:
-    """Verify the immutable #63 change set against its pinned issue head only."""
+    """Verify the explicit live #63 change set against the protected anchor."""
+    if re.fullmatch(r"[0-9a-f]{40}", issue_head) is None:
+        fail("issue changeset head must be a full lowercase SHA-1")
     _ensure_anchor(root)
     _ensure_commit(root, issue_head, "issue changeset head is unavailable")
     _require_ancestor(root, ANCHOR, issue_head, "issue changeset head does not contain anchor")
@@ -585,10 +667,16 @@ def validate_changed_paths(root: Path = ROOT) -> None:
 
 def main(argv: list[str]) -> int:
     try:
-        if len(argv) != 1:
+        issue_head: str | None = None
+        if len(argv) == 3 and argv[1] == "--issue-63-head":
+            issue_head = argv[2]
+        elif len(argv) != 1:
             fail("usage: validate_ad_docs_02.py")
         validate_surfaces(ROOT)
-        validate_changed_paths(ROOT)
+        if issue_head is None:
+            validate_changed_paths(ROOT)
+        else:
+            validate_issue_63_changeset(ROOT, issue_head)
     except ValidationError as exc:
         print(exc, file=sys.stderr)
         return 1

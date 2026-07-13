@@ -168,7 +168,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         changed = mock.Mock(stdout="M\0multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\0")
         tree = mock.Mock(stdout="100644 blob 0000000000000000000000000000000000000000\tmulti-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\n")
         with mock.patch.object(validator.subprocess, "run", side_effect=[present, mock.Mock(returncode=0), mock.Mock(returncode=0), changed, tree, tree]):
-            validator.validate_issue_63_changeset(ROOT, "HEAD")
+            validator.validate_issue_63_changeset(ROOT, "0" * 40)
 
     def test_retains_only_anchor_canonical_executable_mode(self) -> None:
         present = mock.Mock(returncode=0)
@@ -176,7 +176,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         changed = mock.Mock(stdout=f"M\0{path}\0")
         tree = mock.Mock(stdout=f"100755 blob {'0' * 40}\t{path}\n")
         with mock.patch.object(validator.subprocess, "run", side_effect=[present, mock.Mock(returncode=0), mock.Mock(returncode=0), changed, tree, tree]):
-            validator.validate_issue_63_changeset(ROOT, "HEAD")
+            validator.validate_issue_63_changeset(ROOT, "0" * 40)
 
     def test_rejects_nested_protected_issue_path(self) -> None:
         present = mock.Mock(returncode=0)
@@ -209,6 +209,52 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 validator.validate_changed_paths(repo)
                 with self.assertRaises(validator.ValidationError):
                     validator.validate_issue_63_changeset(repo, "HEAD")
+
+    def test_issue_changeset_rejects_unauthorized_final_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+            (repo / "allowed.txt").write_text("anchor\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-m", "anchor"], check=True, capture_output=True)
+            anchor = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, text=True, capture_output=True).stdout.strip()
+            (repo / "allowed.txt").write_text("allowed\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "commit", "-am", "allowed"], check=True, capture_output=True)
+            (repo / "unauthorized.txt").write_text("final commit\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-m", "unauthorized final commit"], check=True, capture_output=True)
+            head = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, text=True, capture_output=True).stdout.strip()
+            with mock.patch.object(validator, "ANCHOR", anchor), mock.patch.object(validator, "ISSUE_63_ALLOWED_PATHS", frozenset({"allowed.txt"})):
+                with self.assertRaisesRegex(validator.ValidationError, "unauthorized.txt"):
+                    validator.validate_issue_63_changeset(repo, head)
+
+    def test_cli_passes_current_live_head_to_explicit_changeset_validator(self) -> None:
+        live_head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], check=True, text=True, capture_output=True).stdout.strip()
+        with mock.patch.object(validator, "validate_surfaces"), mock.patch.object(validator, "validate_issue_63_changeset") as changeset:
+            self.assertEqual(validator.main([str(MODULE), "--issue-63-head", live_head]), 0)
+        changeset.assert_called_once_with(validator.ROOT, live_head)
+
+    def test_cli_rejects_missing_or_malformed_explicit_issue_head(self) -> None:
+        with mock.patch.object(validator, "validate_surfaces"), mock.patch.object(validator, "validate_changed_paths"):
+            self.assertEqual(validator.main([str(MODULE), "--issue-63-head"]), 1)
+        with self.assertRaisesRegex(validator.ValidationError, "full lowercase"):
+            validator.validate_issue_63_changeset(ROOT, "not-a-sha")
+
+    def test_pull_request_event_uses_live_head_and_fails_closed_when_invalid(self) -> None:
+        live_head = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], check=True, text=True, capture_output=True).stdout.strip()
+        with tempfile.TemporaryDirectory() as tmp:
+            event_path = Path(tmp) / "event.json"
+            event_path.write_text(json.dumps({"pull_request": {"head": {"sha": live_head}}}), encoding="utf-8")
+            self.assertEqual(validator.pull_request_head_from_event(event_path), live_head)
+            for raw in ("{", json.dumps({"pull_request": {"head": {}}})):
+                with self.subTest(raw=raw):
+                    event_path.write_text(raw, encoding="utf-8")
+                    with self.assertRaises(validator.ValidationError):
+                        validator.pull_request_head_from_event(event_path)
+            with self.assertRaises(validator.ValidationError):
+                validator.pull_request_head_from_event(Path(tmp) / "missing-event.json")
 
     def test_rejects_active_prose_pin_and_table_bypass(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -348,6 +394,20 @@ class AdDocs02ValidatorTests(unittest.TestCase):
 
     def test_rejects_html_comment_split_provider_pin(self) -> None:
         self._assert_markdown_claim_rejected("pro<!-- inactive -->vider: OpenAI\n")
+
+    def test_renders_inline_html_before_evaluating_provider_pin(self) -> None:
+        self.assertEqual(validator.render_inline_html("pro<span>vid</span>er"), "provider")
+        self._assert_markdown_claim_rejected("pro<span>vid</span>er: OpenAI\n")
+
+    def test_renders_empty_inline_html_before_e2_arrow_check(self) -> None:
+        self.assertEqual(validator.render_inline_html("MSP-DOCS-E2<span></span> → MSP-DOCS-CLEAN"), "MSP-DOCS-E2 → MSP-DOCS-CLEAN")
+        self._assert_markdown_claim_rejected("MSP-DOCS-E2<span></span> → MSP-DOCS-CLEAN\n")
+
+    def test_rejects_malformed_or_unclosed_active_inline_html(self) -> None:
+        for text in ("pro<span>vider", "pro</span>vider", "pro<span><em>vider</span></em>", "pro<!-- incomplete"):
+            with self.subTest(text=text):
+                with self.assertRaises(validator.ValidationError):
+                    validator.render_inline_html(text)
 
     def test_rejects_bold_split_provider_pin(self) -> None:
         self._assert_markdown_claim_rejected("pro**vid**er: OpenAI\n")
