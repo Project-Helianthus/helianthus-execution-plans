@@ -1,0 +1,51 @@
+schema_version: 2
+e2_merge_roots:
+  - 62e4c2f2022c22f5129db923079268aafdc5617b
+  - 6476e39811677041ba11911457baab4c602ac557
+completion_token_roots:
+  - 62e4c2f2022c22f5129db923079268aafdc5617b
+  - 6476e39811677041ba11911457baab4c602ac557
+evidence_inputs:
+  MSP-R00:
+    - Project-Helianthus/helianthus-eebusreg#14
+  MSP-03D-G01:
+    - MSP-03D-G01
+routing_contract:
+  resolver: canonical
+  policy_digest: required_at_dispatch
+  forbidden_tier: highest_reserved_tier
+entry_kinds:
+  - eligibility
+  - exact_membership
+  - channel_registry
+  - absence_constraint
+publication_entry_kinds:
+  - canonical_document
+  - canonical_collection
+  - summary_pointer
+eligible_channels:
+  stable: [canonical]
+exact_memberships:
+  stable:
+    canonical: []
+channel_registry:
+  canonical:
+    visibility: stable
+    owner: canonical_documentation_owner
+absence_constraints:
+  - candidate entries are absent from stable outputs
+  - summary pointers do not claim canonical membership
+hermetic_git_object_evidence:
+  required: [base_oid, head_oid, merge_oid, tree_oid, evidence_core_sha256]
+  moving_refs_rejected: true
+planned_expiry:
+  state: planned
+  action: block_new_publication
+candidate_cleanup:
+  state: candidate
+  fail_closed: true
+  post_consumption_rollback: forward_fix_only
+  action: withdraw_candidate_and_require_fresh_cycle
+process_attestation:
+  distinct_from: technical_git_object_proof
+

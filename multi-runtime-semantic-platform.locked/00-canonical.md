@@ -12,6 +12,21 @@ Dirty rescue candidate: `true`
 Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
 Baseline: `Gateway 0.4.0`
 
+## AD-DOCS-02 Architecture Gates
+
+AD-DOCS-02 preserves AD-DOCS-01 historical evidence and inserts a serial,
+token-authoritative publication remediation before CLEAN:
+`MSP-DOCS-E2 -> MSP-DOCS-E2R-PLATFORM -> MSP-DOCS-E2R-PUBLISH ->
+MSP-DOCS-E2R-AGGREGATE -> MSP-DOCS-CLEAN -> MSP-03D-R`.
+
+Only verified completion tokens authorize this chain. MSP-R00 issue/14 and
+MSP-03D-G01 remain evidence inputs, never token producers. Publication contract
+v2 uses closed publication entry kinds, separate channel eligibility from exact
+membership, absence constraints, a channel registry, and hermetic git-object
+proof; process attestations do not substitute for technical proof. See
+`105-ad-docs-02-amendment.md`, `106-ad-docs-02-integrity.json`, and the live
+`107-ad-docs-02-topology-audit.md`.
+
 ## Summary
 
 Helianthus is a multi-runtime native protocol gateway. It is not an eBUS-only

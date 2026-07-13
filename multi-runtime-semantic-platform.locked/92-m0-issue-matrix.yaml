@@ -1,54 +1,71 @@
+---
 schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
 cruise_phase: RECOVERY_RECONCILIATION
 current_milestone: RECOVERY_RECONCILIATION
-amendment_count: 1
-amended_on: 2026-07-10
-amendment: AD-DOCS-01 external-only-documentation
+amendment_count: 2
+amended_on: '2026-07-13'
+amendment: AD-DOCS-02 architecture-gates
 accepted_through: MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only
 dirty_rescue_candidate: true
 successor_unlocks: false
-successor_unlock_condition: MSP-R00-L and MSP-03D-R reconciliation gates merged from clean main
+successor_unlock_condition: MSP-R00-L and MSP-03D-R reconciliation gates merged from
+  clean main
 msp_r00_status: completed_local_no_code_acceptance
-msp_r00_issue: Project-Helianthus/helianthus-eebusreg#14
+msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
-purpose: >
-  Machine-readable locked control-plane matrix for the eeBUS VR940f
-  raw-first plan after five accepted adversarial rounds and the AD-DOCS-01
-  external-only-documentation amendment.
+purpose: 'Machine-readable locked control-plane matrix for the eeBUS VR940f raw-first
+  plan after five accepted adversarial rounds and the AD-DOCS-01 external-only-documentation
+  amendment.
 
-model_lanes:
-  - model: GPT-5.3-Codex-Spark
-    complexity: [1, 2]
-  - model: gpt-5.4-mini
-    complexity: [3, 4]
-  - model: GPT-5.5 medium
-    complexity: [5]
-  - model: GPT-5.5 high
-    complexity: [6, 7]
-  - model: GPT-5.5 xhigh
-    complexity: [8, 9, 10]
-
+'
 serialization:
   rule: one_active_pr_per_repo
   memory_guard: serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise
-  recovery_sequence: [MSP-R00, MSP-R00-L, DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-PLATFORM, MSP-DOCS-E2, MSP-DOCS-CLEAN, MSP-03D-R]
-  eebusreg_sequence: [MSP-DOCS-CLEAN, MSP-03D-R, MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, MSP-045]
-  docs_eebus_sequence: [DOCS-VERIFY, MSP-DOCS-API-SCHEMA, MSP-DOCS-E2, MSP-DOCS-API-CANDIDATE, MSP-DOCS-API-FREEZE]
-  docs_ebus_sequence: [MSP-DOCS-PLATFORM]
-  initial_ready_set: [MSP-R00-L, DOCS-VERIFY]
+  recovery_sequence:
+  - MSP-R00
+  - MSP-R00-L
+  - DOCS-VERIFY
+  - MSP-DOCS-API-SCHEMA
+  - MSP-DOCS-PLATFORM
+  - MSP-DOCS-E2
+  - MSP-DOCS-E2R-PLATFORM
+  - MSP-DOCS-E2R-PUBLISH
+  - MSP-DOCS-E2R-AGGREGATE
+  - MSP-DOCS-CLEAN
+  - MSP-03D-R
+  eebusreg_sequence:
+  - MSP-DOCS-CLEAN
+  - MSP-03D-R
+  - MSP-035
+  - MSP-04A
+  - MSP-036
+  - MSP-055
+  - MSP-04B
+  - MSP-04C
+  - MSP-045
+  docs_eebus_sequence:
+  - DOCS-VERIFY
+  - MSP-DOCS-API-SCHEMA
+  - MSP-DOCS-E2
+  - MSP-DOCS-API-CANDIDATE
+  - MSP-DOCS-API-FREEZE
+  docs_ebus_sequence:
+  - MSP-DOCS-PLATFORM
+  initial_ready_set:
+  - MSP-R00-L
+  - DOCS-VERIFY
   dirty_code_unlocks_successors: false
   conditional_rows:
-    - MSP-DOCS-CANDIDATE-CLEANUP
+  - MSP-DOCS-CANDIDATE-CLEANUP
   pr_required_evidence:
-    - doc_gate_result
-    - rollback_ledger_entry
-    - relevant_transport_or_security_gate_artifact
-    - review_disposition_for_every_comment
-    - complete_milestone_architecture_review
-
+  - doc_gate_result
+  - rollback_ledger_entry
+  - relevant_transport_or_security_gate_artifact
+  - review_disposition_for_every_comment
+  - complete_milestone_architecture_review
 gate_catalog:
   doc_gate:
     none: no companion documentation required
@@ -65,1009 +82,1254 @@ gate_catalog:
     not_applicable_historical: already-merged historical evidence
     plan_preflight: plan-only redaction and topology verification before mutation
     docs_checklist: documentation acceptance checklist
-    docs_schema_red_green: schema and fixture contract test first, then docs/schema update
-    docs_manifest_contract: ownership manifest and path-safety fixtures first, then docs migration
-    cleanup_triggered: dormant until candidate expiry or source PR closure triggers cleanup
+    docs_schema_red_green: schema and fixture contract test first, then docs/schema
+      update
+    docs_manifest_contract: ownership manifest and path-safety fixtures first, then
+      docs migration
+    cleanup_triggered: dormant until candidate expiry or source PR closure triggers
+      cleanup
     strict_red_green: failing test or fixture first, then implementation
-
 ownership_contract:
-  absolute_invariant: >
-    helianthus-eebusreg and its clean-main branches contain no docs/ directory
-    and own no substantive protocol, architecture, API, harness, test, or user
-    documentation. Only exact minimal README entry/status/build pointers and
-    concise Go package metadata comments may remain, and those links may point
-    only to manifest-state active pages or pre-existing stable landing pages.
+  absolute_invariant: 'helianthus-eebusreg and its clean-main branches contain no
+    docs/ directory and own no substantive protocol, architecture, API, harness, test,
+    or user documentation. Only exact minimal README entry/status/build pointers and
+    concise Go package metadata comments may remain, and those links may point only
+    to manifest-state active pages or pre-existing stable landing pages.
+
+'
   canonical_sources:
     helianthus-docs-eebus/protocols: eeBUS/SHIP/SPINE protocol behavior
-    helianthus-docs-eebus/architecture: eeBUS runtime, adapter, trust, persistence, and lifecycle architecture
-    helianthus-docs-eebus/api: eeBUS-specific Go public API schema, reference, and examples
+    helianthus-docs-eebus/architecture: eeBUS runtime, adapter, trust, persistence,
+      and lifecycle architecture
+    helianthus-docs-eebus/api: eeBUS-specific Go public API schema, reference, and
+      examples
     helianthus-docs-eebus/devices: eeBUS device notes
     helianthus-docs-eebus/evidence: public-safe evidence
     helianthus-docs-eebus/re-notes: reverse-engineering notes
-    helianthus-docs-ebus/docs/platform: language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary, and promotion/consumer rules
+    helianthus-docs-ebus/docs/platform: language-neutral cross-runtime envelopes,
+      hash/auth binding, shared registry boundary, and promotion/consumer rules
   page_rule: every page declares canonical_source; duplication is forbidden
   manifest_states:
-    planned: absent allowed, noncanonical/nonlinkable, source issue/PR required, expires after 14 days
-    candidate: exists only in candidate area, hidden from stable outputs, source PR/head/hash required, expires after 30 days
+    planned: absent allowed, noncanonical/nonlinkable, source issue/PR required, expires
+      after 14 days
+    candidate: exists only in candidate area, hidden from stable outputs, source PR/head/hash
+      required, expires after 30 days
     active: exists and approved/frozen
     withdrawn: excluded from stable outputs and requires cleanup
   ci_rules:
     pr: combined-ref CI verifies proposed source and docs branches together
     main: expiry CI fails stale planned/candidate entries
     uniqueness: owner/source pairs are globally unique
-    source_merge: exact head match, state candidate, expires_at after trusted gate time, and no active cleanup are all required
-
+    source_merge: exact head match, state candidate, expires_at after trusted gate
+      time, and no active cleanup are all required
 public_evidence_privacy:
   r00_l_public_ids: random nonsemantic per-publication IDs only
-  public_classes: [public_redacted, private_restricted, discarded]
+  public_classes:
+  - public_redacted
+  - private_restricted
+  - discarded
   forbidden_public_fields:
-    - raw_or_identifying_paths
-    - volume
-    - sizes
-    - timestamps
-    - bytes
-    - deterministic_ids
-    - raw_hashes
+  - raw_or_identifying_paths
+  - volume
+  - sizes
+  - timestamps
+  - bytes
+  - deterministic_ids
+  - raw_hashes
   public_commitment: opaque IDs, classes, dispositions, and redaction metadata only
   private_material: raw HMACs and opaque-ID mappings stay private
-
 issues:
-  - id: MSP-00A
-    title: Create M0 issue matrix and control-plane fields
-    repo: helianthus-execution-plans
-    milestone: M0
-    complexity: 3
-    model_lane: gpt-5.4-mini
-    predecessors: []
-    docs_owner: helianthus-execution-plans
-    doc_gate: none
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: revert plan-only control-plane changes
-    review_ledger: doc/control-plane review
-    tdd_mode: not_applicable_historical
-    smoke_scope: validator and issue-field completeness
-    acceptance_state: accepted
-    acceptance:
-      - required control-plane fields exist
-      - repo serialization and predecessor edges are explicit
-
-  - id: MSP-00B
-    title: Lock model routing lanes
-    repo: helianthus-execution-plans
-    milestone: M0
-    complexity: 4
-    model_lane: gpt-5.4-mini
-    predecessors: [MSP-00A]
-    docs_owner: helianthus-execution-plans
-    doc_gate: none
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: revert routing table only
-    review_ledger: routing consistency review
-    tdd_mode: not_applicable_historical
-    smoke_scope: model-lane grep
-    acceptance_state: accepted
-    acceptance:
-      - only approved GPT lanes appear
-      - every issue complexity maps to its declared lane
-
-  - id: MSP-00C
-    title: Define eebus-transport-gate v0
-    repo: helianthus-execution-plans
-    milestone: M0
-    complexity: 5
-    model_lane: GPT-5.5 medium
-    predecessors: [MSP-00A]
-    docs_owner: helianthus-execution-plans
-    doc_gate: none
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: revert gate definition only
-    review_ledger: transport-gate review
-    tdd_mode: not_applicable_historical
-    smoke_scope: gate case table review
-    acceptance_state: accepted
-    acceptance:
-      - eebus-transport-gate v0 cases are enumerated
-      - eBUS T01..T88 applicability is explicit
-
-  - id: MSP-01A
-    title: Add platform docs ownership ADR
-    repo: helianthus-docs-ebus
-    milestone: M1
-    complexity: 4
-    model_lane: gpt-5.4-mini
-    predecessors: [MSP-00A]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: revert ADR
-    review_ledger: docs ownership review
-    tdd_mode: not_applicable_historical
-    smoke_scope: docs link and owner check
-    acceptance_state: accepted
-    acceptance:
-      - platform contracts live under docs/platform
-      - summary-only non-owning page rule is documented
-
-  - id: MSP-01B
-    title: Bootstrap helianthus-docs-eebus
-    repo: helianthus-docs-eebus
-    milestone: M1
-    complexity: 4
-    model_lane: gpt-5.4-mini
-    predecessors: [MSP-01A]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: remove bootstrap files
-    review_ledger: docs repo bootstrap review
-    tdd_mode: not_applicable_historical
-    smoke_scope: docs repo path layout
-    acceptance_state: accepted
-    acceptance:
-      - repo scope is eeBUS-native only
-      - platform contracts are linked, not duplicated
-
-  - id: MSP-01C
-    title: Add eeBUS provenance and publication policy
-    repo: helianthus-docs-eebus
-    milestone: M1
-    complexity: 5
-    model_lane: GPT-5.5 medium
-    predecessors: [MSP-01B]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert provenance policy
-    review_ledger: provenance/security docs review
-    tdd_mode: not_applicable_historical
-    smoke_scope: restricted-source quarantine check
-    acceptance_state: accepted
-    acceptance:
-      - vendor_restricted quarantine is explicit
-      - promoted claim table format is documented
-
-  - id: MSP-020
-    title: Bootstrap helianthus-eebusreg raw runtime repo
-    repo: helianthus-eebusreg
-    milestone: M2
-    complexity: 4
-    model_lane: gpt-5.4-mini
-    predecessors: [MSP-00A, MSP-00B, MSP-00C, MSP-01A, MSP-01B, MSP-01C]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: archive bootstrap repo and revert plan links
-    review_ledger: repo boundary and CI review
-    tdd_mode: not_applicable_historical
-    smoke_scope: public package boundary and terminology gates
-    acceptance_state: accepted
-    acceptance:
-      - public packages are limited to raw runtime/evidence plumbing
-      - no enbility, SHIP, SPINE, gateway, trust-store, or listener code exists
-
-  - id: MSP-02A
-    title: Draft raw runtime identity contract
-    repo: helianthus-eebusreg
-    milestone: M2
-    complexity: 6
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-00A, MSP-00B, MSP-00C, MSP-01A, MSP-01B, MSP-01C, MSP-020]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert contract draft
-    review_ledger: raw identity review
-    tdd_mode: not_applicable_historical
-    smoke_scope: raw identity contract review
-    acceptance_state: accepted
-    acceptance:
-      - contract is versioned and reviewable
-      - unknown eeBUS and SPINE fields stay unknown
-      - no semantic registry fork language appears
-
-  - id: MSP-02B
-    title: Draft snapshot envelope and evidence object
-    repo: helianthus-eebusreg
-    milestone: M2
-    complexity: 7
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-02A]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: revert snapshot/evidence draft
-    review_ledger: MCP determinism review
-    tdd_mode: not_applicable_historical
-    smoke_scope: snapshot/evidence determinism review
-    acceptance_state: accepted
-    acceptance:
-      - ref identity includes runtime, contract, tool/scope, mask tier, auth scope
-      - replay and hash inputs are documented
-
-  - id: MSP-02C
-    title: Draft raw correlation and promotion dossier policy
-    repo: helianthus-docs-ebus
-    milestone: M2
-    complexity: 6
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-01A, MSP-02B]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: revert raw correlation policy
-    review_ledger: promotion policy review
-    tdd_mode: not_applicable_historical
-    smoke_scope: promotion dossier template review
-    acceptance_state: accepted
-    acceptance:
-      - Leaf Promotion Dossier required fields are explicit
-      - negative terminal states remain withheld
-
-  - id: MSP-03A
-    title: Spike eebus-go v0.7.0 internal facade
-    repo: helianthus-eebusreg
-    milestone: M3
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-02C]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: remove facade spike
-    review_ledger: dependency boundary review
-    tdd_mode: not_applicable_historical
-    smoke_scope: facade compile and public API scan
-    acceptance_state: accepted
-    acceptance:
-      - pinned v0.7.0 module evidence exists
-      - public API exposes no enbility, SHIP, or SPINE types
-
-  - id: MSP-03B
-    title: Prove local and container toolchain boundaries
-    repo: helianthus-eebusreg
-    milestone: M3
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-03A]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: revert build proof harness
-    review_ledger: toolchain proof review
-    tdd_mode: not_applicable_historical
-    smoke_scope: local and build-container proof
-    acceptance_state: accepted
-    acceptance:
-      - GOWORK=off and GOTOOLCHAIN=local proof recorded
-      - actual build container proof recorded
-
-  - id: MSP-03C
-    title: Prove HA runtime networking
-    repo: helianthus-ha-addon
-    milestone: M3
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-03A, MSP-03B]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: revert HA proof harness/config
-    review_ledger: HA network/security review
-    tdd_mode: not_applicable_historical
-    smoke_scope: HA runtime LAN proof
-    acceptance_state: accepted
-    acceptance:
-      - LAN-side mDNS and TCP reachability evidence exists
-      - negative Avahi/DBus/manual-endpoint cases are recorded
-
-  - id: MSP-03D-G01
-    title: Preserve merged fake-peer harness evidence
-    repo: helianthus-eebusreg
-    milestone: M3
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-03C]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: no rollback from this plan; historical evidence only
-    review_ledger: fake-peer harness review
-    tdd_mode: not_applicable_historical
-    smoke_scope: EEBUS-G01 fake peer only
-    acceptance_state: accepted_partial_no_successor_unlock
-    acceptance:
-      - EEBUS-G01 fake peer is accepted
-      - MSP-03D and M3 remain open
-      - no feature graph, reconnect, G17, or G19 acceptance is claimed
-
-  - id: MSP-R00
-    title: Recovery reconciliation ledger and source-only bundle
-    repo: helianthus-eebusreg
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 5
-    model_lane: GPT-5.5 medium
-    predecessors: []
-    docs_owner: helianthus-execution-plans
-    doc_gate: none
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: discard local rescue branch and redacted ledger
-    review_ledger: recovery taint and redaction review
-    tdd_mode: plan_preflight
-    smoke_scope: secret scan, taint split, public-safe opaque evidence IDs
-    acceptance_state: completed_local_no_code_acceptance
-    issue: Project-Helianthus/helianthus-eebusreg#14
-    architecture_review: pass
-    successor_unlocks: false
-    coordination_note: hand only the public-safe redacted ledger candidate to MSP-R00-L; the local rescue branch, source bundle, raw HMAC mapping, private paths, and any local commit SHA remain unpublished
-    acceptance:
-      - preflight completed locally before recovery mutation
-      - taint/file split ledger exists
-      - secret scan passes
-      - synthetic-fixture and redaction rules are documented locally
-      - local rescue branch is never pushed
-      - no code acceptance is claimed from the local recovery row
-      - no local commit SHA, private path, raw HMAC mapping, or sensitive source-bundle detail is published
-      - public evidence is limited to random nonsemantic per-publication opaque IDs, classes, dispositions, and redaction metadata
-      - public classes are only public_redacted, private_restricted, or discarded
-      - public artifacts contain no raw or identifying paths, volume, sizes, timestamps, bytes, deterministic IDs, raw hashes, packet captures, raw transcripts, keys, PEM, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial
-      - full-fidelity material is encrypted outside git with mode 0600 or discarded
-      - a redacted ledger candidate is produced for MSP-R00-L
-
-  - id: MSP-R00-L
-    title: Review and publish the redacted recovery ledger
-    repo: helianthus-execution-plans
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 4
-    model_lane: gpt-5.4-mini
-    predecessors: [MSP-R00]
-    docs_owner: helianthus-execution-plans
-    doc_gate: none
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert the public redacted ledger only
-    review_ledger: independent redaction and recovery traceability review
-    tdd_mode: plan_preflight
-    smoke_scope: opaque ledger schema and leak scan
-    acceptance_state: accepted
-    completion_note: completes only when execution-plans PR #62 merges; because the ledger and state surfaces merge atomically, the post-merge state is complete and the MSP-R00-L predecessor is satisfied
-    acceptance:
-      - the redacted ledger is reviewed in a dedicated execution-plans PR
-      - the ledger maps each opaque public evidence ID to a clean-main issue, public_redacted disposition, private_restricted disposition, or discarded disposition
-      - opaque IDs are random, nonsemantic, and regenerated per publication
-      - public commitment covers only opaque IDs, classes, dispositions, and redaction metadata
-      - raw HMACs, opaque-ID mappings, rescue commits, bundles, packet captures, transcripts, keys, credentials, trust stores, device identities, raw paths, volume, sizes, timestamps, byte counts, deterministic IDs, and raw hashes are not published
-      - MSP-03D-R remains blocked until this row merges
-
-  - id: DOCS-VERIFY
-    title: Verify docs ownership, license, template, and path layout
-    repo: helianthus-docs-eebus
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 4
-    model_lane: gpt-5.4-mini
-    predecessors: []
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: verify
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert verification row only
-    review_ledger: docs ownership and public-source review
-    tdd_mode: docs_checklist
-    smoke_scope: license, owners, issue template, path layout, cross-seeding
-    acceptance_state: accepted
-    completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353
-    coordination_note: verify helianthus-docs-ebus platform ownership read-only; any required platform-doc correction becomes a separately serialized docs-ebus issue
-    acceptance:
-      - helianthus-docs-ebus/docs/platform owns language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary, and promotion/consumer rules
-      - helianthus-docs-eebus/protocols owns eeBUS/SHIP/SPINE protocol behavior
-      - helianthus-docs-eebus/architecture owns eeBUS runtime, adapter, trust, persistence, and lifecycle architecture
-      - helianthus-docs-eebus/api owns eeBUS-specific Go public API schema, reference, and examples
-      - helianthus-docs-eebus devices, evidence, and re-notes roots remain valid non-platform roots
-      - every page has canonical_source and duplicate ownership is rejected
-      - helianthus-eebusreg owns no substantive protocol, architecture, API, harness, test, or user documentation
-      - issue template compliance is checked
-      - docs-eebus cross-seeding back to docs-ebus is checked
-      - gateway import remains blocked until canonical docs and eebusreg contracts merge
-
-  - id: MSP-DOCS-API-SCHEMA
-    title: Freeze eeBUS Go public API schema inputs
-    repo: helianthus-docs-eebus
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 7
-    model_lane: GPT-5.5 high
-    predecessors: [DOCS-VERIFY]
-    docs_owner: helianthus-docs-eebus/api
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert API schema docs and fixtures before extractor consumption
-    review_ledger: API schema, normalization, and fixture review
-    tdd_mode: docs_schema_red_green
-    smoke_scope: schema validation, canonical normalization, and golden positive/negative fixtures
-    acceptance_state: ready
-    readiness_note: ready after execution-plans PR #62 merges; DOCS-VERIFY is already complete via Project-Helianthus/helianthus-docs-eebus PR #5 at 954b6353
-    acceptance:
-      - helianthus.eebus.api-surface.v1 schema is merged in helianthus-docs-eebus/api
-      - deterministic extraction and normalization rules are canonical before extractor consumption
-      - golden positive and negative fixtures cover package, symbol, type, signature, ordering, and exclusion behavior
-      - formatting, internal, and unexported implementation noise is excluded
-      - schema docs are canonical in docs-eebus/api and are not copied into helianthus-eebusreg
-
-  - id: MSP-DOCS-PLATFORM
-    title: Add cross-runtime platform contracts and ownership manifest
-    repo: helianthus-docs-ebus
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 7
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-R00-L, MSP-DOCS-API-SCHEMA]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert platform contract pages and manifest
-    review_ledger: platform ownership, privacy, and promotion contract review
-    tdd_mode: docs_manifest_contract
-    smoke_scope: platform manifest validation and cross-runtime ownership lint
-    acceptance_state: proposed
-    blocked_note: after execution-plans PR #62 merges, MSP-R00-L is satisfied and this row remains blocked only on MSP-DOCS-API-SCHEMA
-    acceptance:
-      - language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary, and promotion/consumer rules live under docs/platform
-      - docs/platform/manifests/eebus-doc-ownership.yaml is machine-readable and authoritative
-      - manifest states planned, candidate, active, and withdrawn have the required expiry and output semantics
-      - every owner/source pair is globally unique
-      - combined-ref PR CI and main-branch expiry CI are specified with clean clones, explicit refs, pinned tools, and no absolute paths
-      - platform pages merge first without forward links to unmerged eeBUS pages
-
-  - id: MSP-DOCS-E2
-    title: Move eeBUS protocol, architecture, and API docs to docs-eebus
-    repo: helianthus-docs-eebus
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 7
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-DOCS-PLATFORM]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert candidate docs and ownership manifest entries
-    review_ledger: eeBUS docs ownership, candidate-state, and evidence review
-    tdd_mode: docs_manifest_contract
-    smoke_scope: canonical_source lint, candidate hiding, and source evidence audit
-    acceptance_state: proposed
-    acceptance:
-      - architecture/ and api/ are created beside existing protocols/
-      - protocols/ owns eeBUS/SHIP/SPINE protocol behavior
-      - architecture/ owns eeBUS runtime, adapter, trust, persistence, and lifecycle architecture
-      - api/ owns eeBUS-specific Go public API schema, reference, and examples
-      - devices/, evidence/, and re-notes/ remain in their existing ownership roles
-      - only supported claims are migrated as active; recovered dirty docs are never facts by themselves
-      - unsupported material without a publishable evidence ID remains candidate or hypothesis and carries a falsifier; only supported material with a publishable evidence ID may become active
-      - candidate API pages are excluded from stable navigation, search, sitemap, versioned bundles, and release bundles
-      - E2 links only merged active platform pages
-
-  - id: MSP-DOCS-CLEAN
-    title: Enforce external-only documentation in helianthus-eebusreg
-    repo: helianthus-eebusreg
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 5
-    model_lane: GPT-5.5 medium
-    predecessors: [MSP-DOCS-E2]
-    docs_owner: helianthus-docs-eebus/api
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: forward-only remove docs leakage; never restore docs/ to main
-    review_ledger: code-repo documentation ownership and API extractor gate review
-    tdd_mode: strict_red_green
-    smoke_scope: local and GitHub docs ownership gates plus API extractor gate
-    acceptance_state: proposed
-    acceptance:
-      - work starts from clean main and never uses code-repo docs as migration input
-      - docs/ is idempotently deleted if present and never restored to main
-      - tracked and untracked docs/**, symlinks, absolute paths, traversal, casefold collisions, extra Markdown beyond allowlist, non-template README text, and substantive package comments are rejected
-      - AST allow/deny rules permit only concise Go package metadata comments
-      - README is limited to exact minimal entry, status, and build pointers linking only to manifest-state active or pre-existing stable landing pages
-      - positive and negative fixtures run on Linux plus macOS or portable casefold emulation
-      - local and GitHub ownership gates are installed
-      - API extractor implementation lives in internal/apiboundary
-      - the API manifest is a CI artifact, never code-local documentation
-      - path-safety and canonical_source gates are mirrored in docs-eebus and docs-ebus owned roots
-      - break-glass restoration requires explicit owner approval, blocks all successors, and creates cleanup
-
-  - id: MSP-DOCS-CANDIDATE-CLEANUP
-    title: Withdraw abandoned eeBUS candidate docs
-    repo: helianthus-docs-eebus
-    milestone: RECOVERY_RECONCILIATION
-    complexity: 5
-    model_lane: GPT-5.5 medium
-    predecessors: [MSP-DOCS-E2]
-    docs_owner: helianthus-docs-eebus
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: remove expired candidate artifacts and restore docs main green
-    review_ledger: withdrawn-state and candidate cleanup review
-    tdd_mode: cleanup_triggered
-    smoke_scope: candidate expiry, source-PR abandoned, stable-output exclusion, and docs-main green check
-    acceptance_state: dormant_conditional
-    conditional:
-      activates_when: candidate expires or source PR closes unmerged
-      initially_ready: false
-      required_predecessor_for_normal_successors: false
-      preempts_same_repo_successors: true
-      blocks_cross_repo_source_rows: [MSP-055]
-    acceptance:
-      - row is ignored by normal topology readiness until activated
-      - activation preempts every same-repo successor
-      - activation blocks the bound MSP-055 source PR even if its manifest still exact-matches
-      - affected candidate entries move to withdrawn
-      - candidate artifacts are removed from hidden candidate areas
-      - stable navigation, search, sitemap, versioned bundles, and release bundles stay clean
-      - docs main is restored green before same-repo successors resume
-      - MSP-055 remains blocked until a fresh candidate cycle merges and passes candidate-state and expiry checks
-
-  - id: MSP-03D-R
-    title: Reconcile G17 and G19 from clean main
-    repo: helianthus-eebusreg
-    milestone: M3
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-DOCS-CLEAN, MSP-03C, MSP-03D-G01]
-    docs_owner: helianthus-docs-eebus/protocols
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: revert harness and redacted evidence only
-    review_ledger: G17/G19 live interop and redaction review
-    tdd_mode: strict_red_green
-    smoke_scope: revised G17, G19, denied-access negative, reconnect-failure negative
-    acceptance_state: proposed
-    acceptance:
-      - G17 configured local SHIP advertisement/discovery passes
-      - G17 myVaillant trust visibility passes
-      - G17 negative and TTL behavior passes
-      - G17 is not claimed as evidence that VR940 advertises a server
-      - G19 direct outbound VR940f TCP/TLS/WebSocket/SHIP access completes
-      - first post-access SPINE data is captured in redacted JSON
-      - canonical evidence includes exact repo, branch, commit, commands, hashes, topology, timestamps, tool versions, trust preconditions, replay fixtures, denied-access negative, reconnect-failure negative, operator_live_proof, and ci_replay_authority
-      - public artifacts leak no device identity
-      - owner accepts both G17 and G19
-
-  - id: MSP-035
-    title: Freeze raw runtime contract
-    repo: helianthus-eebusreg
-    milestone: M3.5
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-03D-R]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: version raw contract forward or revert before consumers
-    review_ledger: raw contract freeze review
-    tdd_mode: strict_red_green
-    smoke_scope: deterministic raw identity/snapshot/evidence replay
-    acceptance_state: proposed
-    acceptance:
-      - raw identity, snapshot envelope, and evidence object are frozen only
-      - trust, lifecycle authority, availability guarantees, and admin semantics remain unfrozen
-
-  - id: MSP-04A
-    title: Implement internal persistent store/schema only
-    repo: helianthus-eebusreg
-    milestone: M4
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-035]
-    docs_owner: helianthus-docs-eebus/architecture
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: remove internal store/schema
-    review_ledger: store schema and migration review
-    tdd_mode: strict_red_green
-    smoke_scope: migration, corruption, and conformance tests
-    acceptance_state: proposed
-    acceptance:
-      - internal persistent store schema exists
-      - migration and conformance tests pass
-      - no public raw view, lifecycle facade, listener, or trust mutation is exposed
-
-  - id: MSP-036
-    title: Export immutable raw snapshot/view fields
-    repo: helianthus-eebusreg
-    milestone: M4
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-04A]
-    docs_owner: helianthus-docs-eebus/api
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: remove public raw view exports
-    review_ledger: raw view conformance review
-    tdd_mode: strict_red_green
-    smoke_scope: immutable raw view migration/conformance
-    acceptance_state: proposed
-    acceptance:
-      - only versioned immutable raw snapshot/view fields are public
-      - no semantic device ID is exported
-      - no lifecycle authority, trust/pairing mutation, or availability guarantee is exported
-
-  - id: MSP-DOCS-API-CANDIDATE
-    title: Stage the exact-head eeBUS Go public API candidate
-    repo: helianthus-docs-eebus
-    milestone: M4
-    complexity: 7
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-036, MSP-DOCS-E2]
-    docs_owner: helianthus-docs-eebus/api
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: withdraw the candidate and keep the source PR merge-blocked
-    review_ledger: exact-head candidate manifest, provenance, and pre-merge ordering review
-    tdd_mode: docs_schema_red_green
-    smoke_scope: candidate hiding, attestation verification, exact-head match, and source-push invalidation
-    acceptance_state: proposed
-    acceptance:
-      - after MSP-036, the single MSP-055 source PR may be prepared on an org-owned branch and pinned at an immutable candidate-ready head, but it remains unmerged
-      - the normalized Go AST/API manifest and GitHub OIDC DSSE/in-toto attestation bind exactly to that source head
-      - docs-eebus commits and merges the candidate manifest copy, provenance, and hidden candidate API pages before the source PR may merge
-      - the manifest records state candidate and expires_at from trusted GitHub timestamps
-      - candidate content is excluded from stable navigation, search, sitemap, versioned bundles, release bundles, and README links
-      - any source push invalidates the candidate, re-blocks MSP-055, and requires a new candidate preparation cycle
-      - an abandoned or expired source PR activates MSP-DOCS-CANDIDATE-CLEANUP
-
-  - id: MSP-055
-    title: Add disabled read-only lifecycle facade
-    repo: helianthus-eebusreg
-    milestone: M4
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-036, MSP-DOCS-API-CANDIDATE]
-    docs_owner: helianthus-docs-eebus/architecture
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: disable facade and revert exports
-    review_ledger: lifecycle facade architecture/security review
-    tdd_mode: strict_red_green
-    smoke_scope: disabled default, explicit config, pre-seeded trust/allowlist, feature graph/reconnect scope
-    acceptance_state: proposed
-    acceptance:
-      - the same single source issue, branch, and PR prepared for MSP-DOCS-API-CANDIDATE is used; no second eebusreg PR is opened
-      - the merge gate verifies that the merged docs-eebus candidate manifest and provenance exactly match the current source head and attestation
-      - the merge gate requires manifest state candidate, expires_at later than trusted gate evaluation time, and no active MSP-DOCS-CANDIDATE-CLEANUP row
-      - candidate state withdrawn or expired blocks merge even when source head and manifest digest still match
-      - facade is disabled by default
-      - public lifecycle facade is read-only
-      - outbound sockets require explicit config plus pre-seeded trust or allowlist
-      - no public trust or pairing mutation exists
-      - feature graph completeness starts here and may continue in M6
-
-  - id: MSP-DOCS-API-FREEZE
-    title: Freeze active eeBUS Go public API documentation
-    repo: helianthus-docs-eebus
-    milestone: M4
-    complexity: 7
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-055]
-    docs_owner: helianthus-docs-eebus/api
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: revert candidate promotion and keep active version unchanged
-    review_ledger: API freeze provenance, attestation, and exact-match review
-    tdd_mode: docs_schema_red_green
-    smoke_scope: compile examples, compare Go AST/API manifest, and promote active API version
-    acceptance_state: proposed
-    acceptance:
-      - freeze runs against the exact merged helianthus-eebusreg source commit
-      - org-owned Project-Helianthus branches are used; forks are rejected
-      - no force-push occurs after docs preparation
-      - examples compile against the exact merged source commit
-      - Go AST/API manifest exactly matches the candidate manifest copy committed in docs-eebus
-      - eebusreg CI produces a normalized manifest and GitHub OIDC DSSE/in-toto attestation
-      - predicate verification binds issuer, workflow identity, org repo, ref, immutable head SHA, run id, run attempt, extractor version, schema version, clean checkout, and manifest digest
-      - docs-eebus candidate manifest copy and provenance were merged before eebusreg merge
-      - source push invalidates the candidate and requires re-preparation
-      - candidate is promoted to active version only after exact-match verification
-
-  - id: MSP-04B
-    title: Implement first-trust and admin-local boundary
-    repo: helianthus-eebusreg
-    milestone: M4
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-DOCS-API-FREEZE]
-    docs_owner: helianthus-docs-eebus/architecture
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: disable pairing/admin surfaces
-    review_ledger: first-trust threat review
-    tdd_mode: strict_red_green
-    smoke_scope: OOB fingerprint, admin-local binding, race denial
-    acceptance_state: proposed
-    acceptance:
-      - first-trust and OOB confirmation are admin-local gated
-      - no trust-store write occurs before OOB fingerprint confirmation
-      - public trust/pairing mutations remain absent
-
-  - id: MSP-04C
-    title: Implement restore, revocation, quarantine, and repair
-    repo: helianthus-eebusreg
-    milestone: M4
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-04B]
-    docs_owner: helianthus-docs-eebus/architecture
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: disable eeBUS and preserve repair path
-    review_ledger: restore/quarantine review
-    tdd_mode: strict_red_green
-    smoke_scope: restore/clone lock, tombstone, quarantine/backoff
-    acceptance_state: proposed
-    acceptance:
-      - clone/rollback cannot reach PAIRED_TRUSTED
-      - quarantine/backoff persists across restart
-
-  - id: MSP-045
-    title: Freeze trust and admin state model
-    repo: helianthus-eebusreg
-    milestone: M4.5
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-04C]
-    docs_owner: helianthus-docs-eebus/architecture
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: version state contract forward or revert before MCP
-    review_ledger: security contract freeze review
-    tdd_mode: strict_red_green
-    smoke_scope: trust/admin state migration and conformance
-    acceptance_state: proposed
-    acceptance:
-      - gateway and MCP can consume trust state without ad hoc security decisions
-      - state changes after this point require explicit contract migration
-
-  - id: MSP-05A
-    title: Add disabled eeBUS config scaffold
-    repo: helianthus-ebusgateway
-    milestone: M5
-    complexity: 4
-    model_lane: gpt-5.4-mini
-    predecessors: [MSP-045]
-    docs_owner: helianthus-docs-eebus/architecture
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: remove config scaffold
-    review_ledger: gateway config review
-    tdd_mode: strict_red_green
-    smoke_scope: disabled config parse and no import
-    acceptance_state: proposed
-    acceptance:
-      - default config opens no eeBUS socket
-      - no helianthus-eebusreg import is introduced
-
-  - id: MSP-05B
-    title: Add disabled-by-default EEBusRuntimeAdapter sidecar
-    repo: helianthus-ebusgateway
-    milestone: M5
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-05A, MSP-045]
-    docs_owner: helianthus-docs-eebus/architecture
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: disable eeBUS sidecar by config and revert import
-    review_ledger: gateway sidecar architecture review
-    tdd_mode: strict_red_green
-    smoke_scope: disabled default and eBUS no-drift
-    acceptance_state: proposed
-    acceptance:
-      - prior canonical docs and eebusreg contracts are merged
-      - eBUS transport/router/registry code paths are unchanged
-      - disabled default leaves eBUS CI and transport matrix unchanged
-
-  - id: MSP-06
-    title: Add read-only eebus.v1 MCP tools
-    repo: helianthus-ebusgateway
-    milestone: M6
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-05B]
-    docs_owner: helianthus-docs-eebus/api
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: unregister eebus.v1 provider
-    review_ledger: MCP contract review
-    tdd_mode: strict_red_green
-    smoke_scope: snapshot auth/mask/error/drop/anti-leak and reconnect durability
-    acceptance_state: proposed
-    acceptance:
-      - snapshot auth/mask binding tests pass
-      - reconnect durability passes
-      - no mutation tools or ebus.v1/GraphQL/HA deltas appear
-
-  - id: MSP-065
-    title: Add synchronized evidence recorder
-    repo: helianthus-ebusgateway
-    milestone: M6.5
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-06]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: required
-    rollback_ledger: disable evidence recorder
-    review_ledger: evidence/privacy review
-    tdd_mode: strict_red_green
-    smoke_scope: redacted synchronized replay
-    acceptance_state: proposed
-    acceptance:
-      - existing read-only eBUS surfaces only
-      - replay uses captured timestamps and regenerates redacted hashes
-
-  - id: MSP-07
-    title: Add draft candidate fact graph
-    repo: helianthus-ebusgateway
-    milestone: M7
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-065]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: disable candidate graph
-    review_ledger: semantic candidate review
-    tdd_mode: strict_red_green
-    smoke_scope: candidate-only no consumer exposure
-    acceptance_state: proposed
-    acceptance:
-      - no candidate fact reaches consumers
-      - negative states remain withheld raw/debug only
-
-  - id: MSP-08
-    title: Prove multi-runtime coexistence
-    repo: helianthus-ebusgateway
-    milestone: M8
-    complexity: 10
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-07]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: none
-    rollback_ledger: disable eeBUS runtime/candidate graph
-    review_ledger: coexistence architecture review
-    tdd_mode: strict_red_green
-    smoke_scope: EEBUS-G18 no drift only
-    acceptance_state: proposed
-    acceptance:
-      - eBUS promoted leaves remain authoritative
-      - existing GraphQL/HA/MCP outputs do not drift
-
-  - id: MSP-085
-    title: Lock per-leaf promotion dossiers
-    repo: helianthus-ebusgateway
-    milestone: M8.5
-    complexity: 9
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-08]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: demote affected leaves before consumer exposure
-    review_ledger: leaf-promotion lock review
-    tdd_mode: strict_red_green
-    smoke_scope: per-leaf dossier replay and redacted hashes
-    acceptance_state: proposed
-    acceptance:
-      - every promoted leaf has a locked dossier
-      - mutable leaves satisfy lab lease and rollback requirements
-
-  - id: MSP-09A
-    title: Add GraphQL for promoted leaves
-    repo: helianthus-ebusgateway
-    milestone: M9
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-085]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: remove new GraphQL promoted-leaf fields
-    review_ledger: GraphQL consumer gate review
-    tdd_mode: strict_red_green
-    smoke_scope: GraphQL promoted-leaf snapshots only
-    acceptance_state: proposed
-    acceptance:
-      - GraphQL exposes promoted leaves only
-      - schema/value before-after artifacts show no unrelated drift
-
-  - id: MSP-09B
-    title: Add Portal promoted-leaf support
-    repo: helianthus-ebusgateway
-    milestone: M9
-    complexity: 7
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-09A]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: hide Portal promoted eeBUS surfaces
-    review_ledger: Portal consumer review
-    tdd_mode: strict_red_green
-    smoke_scope: Portal promoted-leaf display only
-    acceptance_state: proposed
-    acceptance:
-      - Portal does not display candidate/conflict/withheld as stable
-      - Portal can show raw/debug provenance for operators
-
-  - id: MSP-09C
-    title: Add Home Assistant promoted-entity support
-    repo: helianthus-ha-integration
-    milestone: M9
-    complexity: 8
-    model_lane: GPT-5.5 xhigh
-    predecessors: [MSP-09A, MSP-09B]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: none
-    security_gate: none
-    rollback_ledger: remove promoted eeBUS HA mappings
-    review_ledger: HA entity review
-    tdd_mode: strict_red_green
-    smoke_scope: HA promoted-entity identity/class/unit/availability
-    acceptance_state: proposed
-    acceptance:
-      - HA entity ids, classes, units, and availability are stable
-      - no candidate, conflict, or withheld entity is exposed
-
-  - id: MSP-09D
-    title: Add add-on configuration for promoted eeBUS runtime
-    repo: helianthus-ha-addon
-    milestone: M9
-    complexity: 6
-    model_lane: GPT-5.5 high
-    predecessors: [MSP-09A, MSP-09C]
-    docs_owner: helianthus-docs-ebus/docs/platform
-    doc_gate: required
-    transport_gate: eebus_v0
-    security_gate: required
-    rollback_ledger: disable add-on eeBUS config and keep eBUS defaults
-    review_ledger: add-on security review
-    tdd_mode: strict_red_green
-    smoke_scope: add-on promoted runtime config disabled default
-    acceptance_state: proposed
-    acceptance:
-      - add-on preserves trust store semantics
-      - default remains disabled and safe
+- id: MSP-00A
+  title: Create M0 issue matrix and control-plane fields
+  repo: helianthus-execution-plans
+  milestone: M0
+  complexity: 3
+  docs_owner: helianthus-execution-plans
+  doc_gate: none
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert plan-only control-plane changes
+  review_ledger: doc/control-plane review
+  tdd_mode: not_applicable_historical
+  smoke_scope: validator and issue-field completeness
+  acceptance_state: accepted
+  acceptance:
+  - required control-plane fields exist
+  - repo serialization and predecessor edges are explicit
+  requires_completion_tokens: []
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-00B
+  title: Lock model routing lanes
+  repo: helianthus-execution-plans
+  milestone: M0
+  complexity: 4
+  docs_owner: helianthus-execution-plans
+  doc_gate: none
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert routing table only
+  review_ledger: routing consistency review
+  tdd_mode: not_applicable_historical
+  smoke_scope: model-lane grep
+  acceptance_state: accepted
+  acceptance:
+  - only approved GPT lanes appear
+  - every issue complexity maps to its declared lane
+  requires_completion_tokens:
+  - MSP-00A
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-00C
+  title: Define eebus-transport-gate v0
+  repo: helianthus-execution-plans
+  milestone: M0
+  complexity: 5
+  docs_owner: helianthus-execution-plans
+  doc_gate: none
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert gate definition only
+  review_ledger: transport-gate review
+  tdd_mode: not_applicable_historical
+  smoke_scope: gate case table review
+  acceptance_state: accepted
+  acceptance:
+  - eebus-transport-gate v0 cases are enumerated
+  - eBUS T01..T88 applicability is explicit
+  requires_completion_tokens:
+  - MSP-00A
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-01A
+  title: Add platform docs ownership ADR
+  repo: helianthus-docs-ebus
+  milestone: M1
+  complexity: 4
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert ADR
+  review_ledger: docs ownership review
+  tdd_mode: not_applicable_historical
+  smoke_scope: docs link and owner check
+  acceptance_state: accepted
+  acceptance:
+  - platform contracts live under docs/platform
+  - summary-only non-owning page rule is documented
+  requires_completion_tokens:
+  - MSP-00A
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-01B
+  title: Bootstrap helianthus-docs-eebus
+  repo: helianthus-docs-eebus
+  milestone: M1
+  complexity: 4
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: remove bootstrap files
+  review_ledger: docs repo bootstrap review
+  tdd_mode: not_applicable_historical
+  smoke_scope: docs repo path layout
+  acceptance_state: accepted
+  acceptance:
+  - repo scope is eeBUS-native only
+  - platform contracts are linked, not duplicated
+  requires_completion_tokens:
+  - MSP-01A
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-01C
+  title: Add eeBUS provenance and publication policy
+  repo: helianthus-docs-eebus
+  milestone: M1
+  complexity: 5
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert provenance policy
+  review_ledger: provenance/security docs review
+  tdd_mode: not_applicable_historical
+  smoke_scope: restricted-source quarantine check
+  acceptance_state: accepted
+  acceptance:
+  - vendor_restricted quarantine is explicit
+  - promoted claim table format is documented
+  requires_completion_tokens:
+  - MSP-01B
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-020
+  title: Bootstrap helianthus-eebusreg raw runtime repo
+  repo: helianthus-eebusreg
+  milestone: M2
+  complexity: 4
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: archive bootstrap repo and revert plan links
+  review_ledger: repo boundary and CI review
+  tdd_mode: not_applicable_historical
+  smoke_scope: public package boundary and terminology gates
+  acceptance_state: accepted
+  acceptance:
+  - public packages are limited to raw runtime/evidence plumbing
+  - no enbility, SHIP, SPINE, gateway, trust-store, or listener code exists
+  requires_completion_tokens:
+  - MSP-00A
+  - MSP-00B
+  - MSP-00C
+  - MSP-01A
+  - MSP-01B
+  - MSP-01C
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-02A
+  title: Draft raw runtime identity contract
+  repo: helianthus-eebusreg
+  milestone: M2
+  complexity: 6
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert contract draft
+  review_ledger: raw identity review
+  tdd_mode: not_applicable_historical
+  smoke_scope: raw identity contract review
+  acceptance_state: accepted
+  acceptance:
+  - contract is versioned and reviewable
+  - unknown eeBUS and SPINE fields stay unknown
+  - no semantic registry fork language appears
+  requires_completion_tokens:
+  - MSP-00A
+  - MSP-00B
+  - MSP-00C
+  - MSP-01A
+  - MSP-01B
+  - MSP-01C
+  - MSP-020
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-02B
+  title: Draft snapshot envelope and evidence object
+  repo: helianthus-eebusreg
+  milestone: M2
+  complexity: 7
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert snapshot/evidence draft
+  review_ledger: MCP determinism review
+  tdd_mode: not_applicable_historical
+  smoke_scope: snapshot/evidence determinism review
+  acceptance_state: accepted
+  acceptance:
+  - ref identity includes runtime, contract, tool/scope, mask tier, auth scope
+  - replay and hash inputs are documented
+  requires_completion_tokens:
+  - MSP-02A
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-02C
+  title: Draft raw correlation and promotion dossier policy
+  repo: helianthus-docs-ebus
+  milestone: M2
+  complexity: 6
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert raw correlation policy
+  review_ledger: promotion policy review
+  tdd_mode: not_applicable_historical
+  smoke_scope: promotion dossier template review
+  acceptance_state: accepted
+  acceptance:
+  - Leaf Promotion Dossier required fields are explicit
+  - negative terminal states remain withheld
+  requires_completion_tokens:
+  - MSP-01A
+  - MSP-02B
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-03A
+  title: Spike eebus-go v0.7.0 internal facade
+  repo: helianthus-eebusreg
+  milestone: M3
+  complexity: 8
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: remove facade spike
+  review_ledger: dependency boundary review
+  tdd_mode: not_applicable_historical
+  smoke_scope: facade compile and public API scan
+  acceptance_state: accepted
+  acceptance:
+  - pinned v0.7.0 module evidence exists
+  - public API exposes no enbility, SHIP, or SPINE types
+  requires_completion_tokens:
+  - MSP-02C
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-03B
+  title: Prove local and container toolchain boundaries
+  repo: helianthus-eebusreg
+  milestone: M3
+  complexity: 8
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert build proof harness
+  review_ledger: toolchain proof review
+  tdd_mode: not_applicable_historical
+  smoke_scope: local and build-container proof
+  acceptance_state: accepted
+  acceptance:
+  - GOWORK=off and GOTOOLCHAIN=local proof recorded
+  - actual build container proof recorded
+  requires_completion_tokens:
+  - MSP-03A
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-03C
+  title: Prove HA runtime networking
+  repo: helianthus-ha-addon
+  milestone: M3
+  complexity: 9
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert HA proof harness/config
+  review_ledger: HA network/security review
+  tdd_mode: not_applicable_historical
+  smoke_scope: HA runtime LAN proof
+  acceptance_state: accepted
+  acceptance:
+  - LAN-side mDNS and TCP reachability evidence exists
+  - negative Avahi/DBus/manual-endpoint cases are recorded
+  requires_completion_tokens:
+  - MSP-03A
+  - MSP-03B
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-03D-G01
+  title: Preserve merged fake-peer harness evidence
+  repo: helianthus-eebusreg
+  milestone: M3
+  complexity: 9
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: no rollback from this plan; historical evidence only
+  review_ledger: fake-peer harness review
+  tdd_mode: not_applicable_historical
+  smoke_scope: EEBUS-G01 fake peer only
+  acceptance_state: accepted_partial_no_successor_unlock
+  acceptance:
+  - EEBUS-G01 fake peer is accepted
+  - MSP-03D and M3 remain open
+  - no feature graph, reconnect, G17, or G19 acceptance is claimed
+  requires_completion_tokens:
+  - MSP-03C
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-R00
+  title: Recovery reconciliation ledger and source-only bundle
+  repo: helianthus-eebusreg
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 5
+  docs_owner: helianthus-execution-plans
+  doc_gate: none
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: discard local rescue branch and redacted ledger
+  review_ledger: recovery taint and redaction review
+  tdd_mode: plan_preflight
+  smoke_scope: secret scan, taint split, public-safe opaque evidence IDs
+  acceptance_state: completed_local_no_code_acceptance
+  issue: "Project-Helianthus/helianthus-eebusreg#14"
+  architecture_review: pass
+  successor_unlocks: false
+  coordination_note: hand only the public-safe redacted ledger candidate to MSP-R00-L;
+    the local rescue branch, source bundle, raw HMAC mapping, private paths, and any
+    local commit SHA remain unpublished
+  acceptance:
+  - preflight completed locally before recovery mutation
+  - taint/file split ledger exists
+  - secret scan passes
+  - synthetic-fixture and redaction rules are documented locally
+  - local rescue branch is never pushed
+  - no code acceptance is claimed from the local recovery row
+  - no local commit SHA, private path, raw HMAC mapping, or sensitive source-bundle
+    detail is published
+  - public evidence is limited to random nonsemantic per-publication opaque IDs, classes,
+    dispositions, and redaction metadata
+  - public classes are only public_redacted, private_restricted, or discarded
+  - public artifacts contain no raw or identifying paths, volume, sizes, timestamps,
+    bytes, deterministic IDs, raw hashes, packet captures, raw transcripts, keys,
+    PEM, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial
+  - full-fidelity material is encrypted outside git with mode 0600 or discarded
+  - a redacted ledger candidate is produced for MSP-R00-L
+  requires_completion_tokens: []
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-R00-L
+  title: Review and publish the redacted recovery ledger
+  repo: helianthus-execution-plans
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 4
+  docs_owner: helianthus-execution-plans
+  doc_gate: none
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert the public redacted ledger only
+  review_ledger: independent redaction and recovery traceability review
+  tdd_mode: plan_preflight
+  smoke_scope: opaque ledger schema and leak scan
+  acceptance_state: accepted
+  completion_note: completes only when execution-plans PR
+  acceptance:
+  - the redacted ledger is reviewed in a dedicated execution-plans PR
+  - the ledger maps each opaque public evidence ID to a clean-main issue, public_redacted
+    disposition, private_restricted disposition, or discarded disposition
+  - opaque IDs are random, nonsemantic, and regenerated per publication
+  - public commitment covers only opaque IDs, classes, dispositions, and redaction
+    metadata
+  - raw HMACs, opaque-ID mappings, rescue commits, bundles, packet captures, transcripts,
+    keys, credentials, trust stores, device identities, raw paths, volume, sizes,
+    timestamps, byte counts, deterministic IDs, and raw hashes are not published
+  - MSP-03D-R remains blocked until this row merges
+  requires_completion_tokens: []
+  routing_evidence:
+    recorded: historical_observed
+  evidence_inputs:
+  - Project-Helianthus/helianthus-eebusreg#14
+- id: DOCS-VERIFY
+  title: Verify docs ownership, license, template, and path layout
+  repo: helianthus-docs-eebus
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 4
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: verify
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert verification row only
+  review_ledger: docs ownership and public-source review
+  tdd_mode: docs_checklist
+  smoke_scope: license, owners, issue template, path layout, cross-seeding
+  acceptance_state: accepted
+  completion_note: completed by Project-Helianthus/helianthus-docs-eebus PR
+  coordination_note: verify helianthus-docs-ebus platform ownership read-only; any
+    required platform-doc correction becomes a separately serialized docs-ebus issue
+  acceptance:
+  - helianthus-docs-ebus/docs/platform owns language-neutral cross-runtime envelopes,
+    hash/auth binding, shared registry boundary, and promotion/consumer rules
+  - helianthus-docs-eebus/protocols owns eeBUS/SHIP/SPINE protocol behavior
+  - helianthus-docs-eebus/architecture owns eeBUS runtime, adapter, trust, persistence,
+    and lifecycle architecture
+  - helianthus-docs-eebus/api owns eeBUS-specific Go public API schema, reference,
+    and examples
+  - helianthus-docs-eebus devices, evidence, and re-notes roots remain valid non-platform
+    roots
+  - every page has canonical_source and duplicate ownership is rejected
+  - helianthus-eebusreg owns no substantive protocol, architecture, API, harness,
+    test, or user documentation
+  - issue template compliance is checked
+  - docs-eebus cross-seeding back to docs-ebus is checked
+  - gateway import remains blocked until canonical docs and eebusreg contracts merge
+  requires_completion_tokens: []
+  routing_evidence:
+    recorded: historical_observed
+- id: MSP-DOCS-API-SCHEMA
+  title: Freeze eeBUS Go public API schema inputs
+  repo: helianthus-docs-eebus
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 7
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert API schema docs and fixtures before extractor consumption
+  review_ledger: API schema, normalization, and fixture review
+  tdd_mode: docs_schema_red_green
+  smoke_scope: schema validation, canonical normalization, and golden positive/negative
+    fixtures
+  acceptance_state: ready
+  readiness_note: ready after execution-plans PR
+  acceptance:
+  - helianthus.eebus.api-surface.v1 schema is merged in helianthus-docs-eebus/api
+  - deterministic extraction and normalization rules are canonical before extractor
+    consumption
+  - golden positive and negative fixtures cover package, symbol, type, signature,
+    ordering, and exclusion behavior
+  - formatting, internal, and unexported implementation noise is excluded
+  - schema docs are canonical in docs-eebus/api and are not copied into helianthus-eebusreg
+  requires_completion_tokens:
+  - DOCS-VERIFY
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-DOCS-PLATFORM
+  title: Add cross-runtime platform contracts and ownership manifest
+  repo: helianthus-docs-ebus
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 7
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert platform contract pages and manifest
+  review_ledger: platform ownership, privacy, and promotion contract review
+  tdd_mode: docs_manifest_contract
+  smoke_scope: platform manifest validation and cross-runtime ownership lint
+  acceptance_state: proposed
+  blocked_note: after execution-plans PR
+  acceptance:
+  - language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary,
+    and promotion/consumer rules live under docs/platform
+  - docs/platform/manifests/eebus-doc-ownership.yaml is machine-readable and authoritative
+  - manifest states planned, candidate, active, and withdrawn have the required expiry
+    and output semantics
+  - every owner/source pair is globally unique
+  - combined-ref PR CI and main-branch expiry CI are specified with clean clones,
+    explicit refs, pinned tools, and no absolute paths
+  - platform pages merge first without forward links to unmerged eeBUS pages
+  requires_completion_tokens:
+  - MSP-R00-L
+  - MSP-DOCS-API-SCHEMA
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-DOCS-E2
+  title: Move eeBUS protocol, architecture, and API docs to docs-eebus
+  repo: helianthus-docs-eebus
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 7
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert candidate docs and ownership manifest entries
+  review_ledger: eeBUS docs ownership, candidate-state, and evidence review
+  tdd_mode: docs_manifest_contract
+  smoke_scope: canonical_source lint, candidate hiding, and source evidence audit
+  acceptance_state: proposed
+  acceptance:
+  - architecture/ and api/ are created beside existing protocols/
+  - protocols/ owns eeBUS/SHIP/SPINE protocol behavior
+  - architecture/ owns eeBUS runtime, adapter, trust, persistence, and lifecycle architecture
+  - api/ owns eeBUS-specific Go public API schema, reference, and examples
+  - devices/, evidence/, and re-notes/ remain in their existing ownership roles
+  - only supported claims are migrated as active; recovered dirty docs are never facts
+    by themselves
+  - unsupported material without a publishable evidence ID remains candidate or hypothesis
+    and carries a falsifier; only supported material with a publishable evidence ID
+    may become active
+  - candidate API pages are excluded from stable navigation, search, sitemap, versioned
+    bundles, and release bundles
+  - E2 links only merged active platform pages
+  requires_completion_tokens:
+  - MSP-DOCS-PLATFORM
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-DOCS-E2R-PLATFORM
+  title: Introduce backward-compatible publication-contract v2 validator
+  repo: helianthus-docs-ebus
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 7
+  docs_owner: helianthus-docs-ebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: forward_fix_only_after_token_consumption
+  review_ledger: architecture_review
+  tdd_mode: strict_red_green
+  smoke_scope: hermetic_validator
+  acceptance_state: proposed
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+  requires_completion_tokens:
+  - MSP-DOCS-E2
+- id: MSP-DOCS-E2R-PUBLISH
+  title: Migrate accepted documentation manifest to publication-contract v2
+  repo: helianthus-docs-eebus
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 7
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: forward_fix_only_after_token_consumption
+  review_ledger: architecture_review
+  tdd_mode: strict_red_green
+  smoke_scope: hermetic_validator
+  acceptance_state: proposed
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+  requires_completion_tokens:
+  - MSP-DOCS-E2R-PLATFORM
+- id: MSP-DOCS-E2R-AGGREGATE
+  title: Aggregate v2 publication evidence and mint CLEAN token
+  repo: helianthus-execution-plans
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 6
+  docs_owner: helianthus-execution-plans
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: forward_fix_only_after_token_consumption
+  review_ledger: architecture_review
+  tdd_mode: strict_red_green
+  smoke_scope: hermetic_validator
+  acceptance_state: proposed
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+  issue_ref: "Project-Helianthus/helianthus-execution-plans#64"
+  requires_completion_tokens:
+  - MSP-DOCS-E2R-PUBLISH
+- id: MSP-DOCS-CLEAN
+  title: Enforce external-only documentation in helianthus-eebusreg
+  repo: helianthus-eebusreg
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 5
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: forward-only remove docs leakage; never restore docs/ to main
+  review_ledger: code-repo documentation ownership and API extractor gate review
+  tdd_mode: strict_red_green
+  smoke_scope: local and GitHub docs ownership gates plus API extractor gate
+  acceptance_state: proposed
+  acceptance:
+  - work starts from clean main and never uses code-repo docs as migration input
+  - docs/ is idempotently deleted if present and never restored to main
+  - tracked and untracked docs/**, symlinks, absolute paths, traversal, casefold collisions,
+    extra Markdown beyond allowlist, non-template README text, and substantive package
+    comments are rejected
+  - AST allow/deny rules permit only concise Go package metadata comments
+  - README is limited to exact minimal entry, status, and build pointers linking only
+    to manifest-state active or pre-existing stable landing pages
+  - positive and negative fixtures run on Linux plus macOS or portable casefold emulation
+  - local and GitHub ownership gates are installed
+  - API extractor implementation lives in internal/apiboundary
+  - the API manifest is a CI artifact, never code-local documentation
+  - path-safety and canonical_source gates are mirrored in docs-eebus and docs-ebus
+    owned roots
+  - break-glass restoration requires explicit owner approval, blocks all successors,
+    and creates cleanup
+  requires_completion_tokens:
+  - MSP-DOCS-E2R-AGGREGATE
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-DOCS-CANDIDATE-CLEANUP
+  title: Withdraw abandoned eeBUS candidate docs
+  repo: helianthus-docs-eebus
+  milestone: RECOVERY_RECONCILIATION
+  complexity: 5
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: remove expired candidate artifacts and restore docs main green
+  review_ledger: withdrawn-state and candidate cleanup review
+  tdd_mode: cleanup_triggered
+  smoke_scope: candidate expiry, source-PR abandoned, stable-output exclusion, and
+    docs-main green check
+  acceptance_state: dormant_conditional
+  conditional:
+    activates_when: candidate expires or source PR closes unmerged
+    initially_ready: false
+    required_predecessor_for_normal_successors: false
+    preempts_same_repo_successors: true
+    blocks_cross_repo_source_rows:
+    - MSP-055
+  acceptance:
+  - row is ignored by normal topology readiness until activated
+  - activation preempts every same-repo successor
+  - activation blocks the bound MSP-055 source PR even if its manifest still exact-matches
+  - affected candidate entries move to withdrawn
+  - candidate artifacts are removed from hidden candidate areas
+  - stable navigation, search, sitemap, versioned bundles, and release bundles stay
+    clean
+  - docs main is restored green before same-repo successors resume
+  - MSP-055 remains blocked until a fresh candidate cycle merges and passes candidate-state
+    and expiry checks
+  requires_completion_tokens:
+  - MSP-DOCS-E2R-PUBLISH
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-03D-R
+  title: Reconcile G17 and G19 from clean main
+  repo: helianthus-eebusreg
+  milestone: M3
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/protocols
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert harness and redacted evidence only
+  review_ledger: G17/G19 live interop and redaction review
+  tdd_mode: strict_red_green
+  smoke_scope: revised G17, G19, denied-access negative, reconnect-failure negative
+  acceptance_state: proposed
+  acceptance:
+  - G17 configured local SHIP advertisement/discovery passes
+  - G17 myVaillant trust visibility passes
+  - G17 negative and TTL behavior passes
+  - G17 is not claimed as evidence that VR940 advertises a server
+  - G19 direct outbound VR940f TCP/TLS/WebSocket/SHIP access completes
+  - first post-access SPINE data is captured in redacted JSON
+  - canonical evidence includes exact repo, branch, commit, commands, hashes, topology,
+    timestamps, tool versions, trust preconditions, replay fixtures, denied-access
+    negative, reconnect-failure negative, operator_live_proof, and ci_replay_authority
+  - public artifacts leak no device identity
+  - owner accepts both G17 and G19
+  requires_completion_tokens:
+  - MSP-DOCS-CLEAN
+  - MSP-03C
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+  evidence_inputs:
+  - MSP-03D-G01
+- id: MSP-035
+  title: Freeze raw runtime contract
+  repo: helianthus-eebusreg
+  milestone: M3.5
+  complexity: 8
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: version raw contract forward or revert before consumers
+  review_ledger: raw contract freeze review
+  tdd_mode: strict_red_green
+  smoke_scope: deterministic raw identity/snapshot/evidence replay
+  acceptance_state: proposed
+  acceptance:
+  - raw identity, snapshot envelope, and evidence object are frozen only
+  - trust, lifecycle authority, availability guarantees, and admin semantics remain
+    unfrozen
+  requires_completion_tokens:
+  - MSP-03D-R
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-04A
+  title: Implement internal persistent store/schema only
+  repo: helianthus-eebusreg
+  milestone: M4
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: remove internal store/schema
+  review_ledger: store schema and migration review
+  tdd_mode: strict_red_green
+  smoke_scope: migration, corruption, and conformance tests
+  acceptance_state: proposed
+  acceptance:
+  - internal persistent store schema exists
+  - migration and conformance tests pass
+  - no public raw view, lifecycle facade, listener, or trust mutation is exposed
+  requires_completion_tokens:
+  - MSP-035
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-036
+  title: Export immutable raw snapshot/view fields
+  repo: helianthus-eebusreg
+  milestone: M4
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: remove public raw view exports
+  review_ledger: raw view conformance review
+  tdd_mode: strict_red_green
+  smoke_scope: immutable raw view migration/conformance
+  acceptance_state: proposed
+  acceptance:
+  - only versioned immutable raw snapshot/view fields are public
+  - no semantic device ID is exported
+  - no lifecycle authority, trust/pairing mutation, or availability guarantee is exported
+  requires_completion_tokens:
+  - MSP-04A
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-DOCS-API-CANDIDATE
+  title: Stage the exact-head eeBUS Go public API candidate
+  repo: helianthus-docs-eebus
+  milestone: M4
+  complexity: 7
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: withdraw the candidate and keep the source PR merge-blocked
+  review_ledger: exact-head candidate manifest, provenance, and pre-merge ordering
+    review
+  tdd_mode: docs_schema_red_green
+  smoke_scope: candidate hiding, attestation verification, exact-head match, and source-push
+    invalidation
+  acceptance_state: proposed
+  acceptance:
+  - after MSP-036, the single MSP-055 source PR may be prepared on an org-owned branch
+    and pinned at an immutable candidate-ready head, but it remains unmerged
+  - the normalized Go AST/API manifest and GitHub OIDC DSSE/in-toto attestation bind
+    exactly to that source head
+  - docs-eebus commits and merges the candidate manifest copy, provenance, and hidden
+    candidate API pages before the source PR may merge
+  - the manifest records state candidate and expires_at from trusted GitHub timestamps
+  - candidate content is excluded from stable navigation, search, sitemap, versioned
+    bundles, release bundles, and README links
+  - any source push invalidates the candidate, re-blocks MSP-055, and requires a new
+    candidate preparation cycle
+  - an abandoned or expired source PR activates MSP-DOCS-CANDIDATE-CLEANUP
+  requires_completion_tokens:
+  - MSP-036
+  - MSP-DOCS-E2
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-055
+  title: Add disabled read-only lifecycle facade
+  repo: helianthus-eebusreg
+  milestone: M4
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable facade and revert exports
+  review_ledger: lifecycle facade architecture/security review
+  tdd_mode: strict_red_green
+  smoke_scope: disabled default, explicit config, pre-seeded trust/allowlist, feature
+    graph/reconnect scope
+  acceptance_state: proposed
+  acceptance:
+  - the same single source issue, branch, and PR prepared for MSP-DOCS-API-CANDIDATE
+    is used; no second eebusreg PR is opened
+  - the merge gate verifies that the merged docs-eebus candidate manifest and provenance
+    exactly match the current source head and attestation
+  - the merge gate requires manifest state candidate, expires_at later than trusted
+    gate evaluation time, and no active MSP-DOCS-CANDIDATE-CLEANUP row
+  - candidate state withdrawn or expired blocks merge even when source head and manifest
+    digest still match
+  - facade is disabled by default
+  - public lifecycle facade is read-only
+  - outbound sockets require explicit config plus pre-seeded trust or allowlist
+  - no public trust or pairing mutation exists
+  - feature graph completeness starts here and may continue in M6
+  requires_completion_tokens:
+  - MSP-036
+  - MSP-DOCS-API-CANDIDATE
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-DOCS-API-FREEZE
+  title: Freeze active eeBUS Go public API documentation
+  repo: helianthus-docs-eebus
+  milestone: M4
+  complexity: 7
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: revert candidate promotion and keep active version unchanged
+  review_ledger: API freeze provenance, attestation, and exact-match review
+  tdd_mode: docs_schema_red_green
+  smoke_scope: compile examples, compare Go AST/API manifest, and promote active API
+    version
+  acceptance_state: proposed
+  acceptance:
+  - freeze runs against the exact merged helianthus-eebusreg source commit
+  - org-owned Project-Helianthus branches are used; forks are rejected
+  - no force-push occurs after docs preparation
+  - examples compile against the exact merged source commit
+  - Go AST/API manifest exactly matches the candidate manifest copy committed in docs-eebus
+  - eebusreg CI produces a normalized manifest and GitHub OIDC DSSE/in-toto attestation
+  - predicate verification binds issuer, workflow identity, org repo, ref, immutable
+    head SHA, run id, run attempt, extractor version, schema version, clean checkout,
+    and manifest digest
+  - docs-eebus candidate manifest copy and provenance were merged before eebusreg
+    merge
+  - source push invalidates the candidate and requires re-preparation
+  - candidate is promoted to active version only after exact-match verification
+  requires_completion_tokens:
+  - MSP-055
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-04B
+  title: Implement first-trust and admin-local boundary
+  repo: helianthus-eebusreg
+  milestone: M4
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable pairing/admin surfaces
+  review_ledger: first-trust threat review
+  tdd_mode: strict_red_green
+  smoke_scope: OOB fingerprint, admin-local binding, race denial
+  acceptance_state: proposed
+  acceptance:
+  - first-trust and OOB confirmation are admin-local gated
+  - no trust-store write occurs before OOB fingerprint confirmation
+  - public trust/pairing mutations remain absent
+  requires_completion_tokens:
+  - MSP-DOCS-API-FREEZE
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-04C
+  title: Implement restore, revocation, quarantine, and repair
+  repo: helianthus-eebusreg
+  milestone: M4
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable eeBUS and preserve repair path
+  review_ledger: restore/quarantine review
+  tdd_mode: strict_red_green
+  smoke_scope: restore/clone lock, tombstone, quarantine/backoff
+  acceptance_state: proposed
+  acceptance:
+  - clone/rollback cannot reach PAIRED_TRUSTED
+  - quarantine/backoff persists across restart
+  requires_completion_tokens:
+  - MSP-04B
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-045
+  title: Freeze trust and admin state model
+  repo: helianthus-eebusreg
+  milestone: M4.5
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: version state contract forward or revert before MCP
+  review_ledger: security contract freeze review
+  tdd_mode: strict_red_green
+  smoke_scope: trust/admin state migration and conformance
+  acceptance_state: proposed
+  acceptance:
+  - gateway and MCP can consume trust state without ad hoc security decisions
+  - state changes after this point require explicit contract migration
+  requires_completion_tokens:
+  - MSP-04C
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-05A
+  title: Add disabled eeBUS config scaffold
+  repo: helianthus-ebusgateway
+  milestone: M5
+  complexity: 4
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: remove config scaffold
+  review_ledger: gateway config review
+  tdd_mode: strict_red_green
+  smoke_scope: disabled config parse and no import
+  acceptance_state: proposed
+  acceptance:
+  - default config opens no eeBUS socket
+  - no helianthus-eebusreg import is introduced
+  requires_completion_tokens:
+  - MSP-045
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-05B
+  title: Add disabled-by-default EEBusRuntimeAdapter sidecar
+  repo: helianthus-ebusgateway
+  milestone: M5
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable eeBUS sidecar by config and revert import
+  review_ledger: gateway sidecar architecture review
+  tdd_mode: strict_red_green
+  smoke_scope: disabled default and eBUS no-drift
+  acceptance_state: proposed
+  acceptance:
+  - prior canonical docs and eebusreg contracts are merged
+  - eBUS transport/router/registry code paths are unchanged
+  - disabled default leaves eBUS CI and transport matrix unchanged
+  requires_completion_tokens:
+  - MSP-05A
+  - MSP-045
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-06
+  title: Add read-only eebus.v1 MCP tools
+  repo: helianthus-ebusgateway
+  milestone: M6
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: unregister eebus.v1 provider
+  review_ledger: MCP contract review
+  tdd_mode: strict_red_green
+  smoke_scope: snapshot auth/mask/error/drop/anti-leak and reconnect durability
+  acceptance_state: proposed
+  acceptance:
+  - snapshot auth/mask binding tests pass
+  - reconnect durability passes
+  - no mutation tools or ebus.v1/GraphQL/HA deltas appear
+  requires_completion_tokens:
+  - MSP-05B
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-065
+  title: Add synchronized evidence recorder
+  repo: helianthus-ebusgateway
+  milestone: M6.5
+  complexity: 8
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: disable evidence recorder
+  review_ledger: evidence/privacy review
+  tdd_mode: strict_red_green
+  smoke_scope: redacted synchronized replay
+  acceptance_state: proposed
+  acceptance:
+  - existing read-only eBUS surfaces only
+  - replay uses captured timestamps and regenerates redacted hashes
+  requires_completion_tokens:
+  - MSP-06
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-07
+  title: Add draft candidate fact graph
+  repo: helianthus-ebusgateway
+  milestone: M7
+  complexity: 8
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: disable candidate graph
+  review_ledger: semantic candidate review
+  tdd_mode: strict_red_green
+  smoke_scope: candidate-only no consumer exposure
+  acceptance_state: proposed
+  acceptance:
+  - no candidate fact reaches consumers
+  - negative states remain withheld raw/debug only
+  requires_completion_tokens:
+  - MSP-065
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-08
+  title: Prove multi-runtime coexistence
+  repo: helianthus-ebusgateway
+  milestone: M8
+  complexity: 10
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: none
+  rollback_ledger: disable eeBUS runtime/candidate graph
+  review_ledger: coexistence architecture review
+  tdd_mode: strict_red_green
+  smoke_scope: EEBUS-G18 no drift only
+  acceptance_state: proposed
+  acceptance:
+  - eBUS promoted leaves remain authoritative
+  - existing GraphQL/HA/MCP outputs do not drift
+  requires_completion_tokens:
+  - MSP-07
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-085
+  title: Lock per-leaf promotion dossiers
+  repo: helianthus-ebusgateway
+  milestone: M8.5
+  complexity: 9
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: demote affected leaves before consumer exposure
+  review_ledger: leaf-promotion lock review
+  tdd_mode: strict_red_green
+  smoke_scope: per-leaf dossier replay and redacted hashes
+  acceptance_state: proposed
+  acceptance:
+  - every promoted leaf has a locked dossier
+  - mutable leaves satisfy lab lease and rollback requirements
+  requires_completion_tokens:
+  - MSP-08
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-09A
+  title: Add GraphQL for promoted leaves
+  repo: helianthus-ebusgateway
+  milestone: M9
+  complexity: 8
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: remove new GraphQL promoted-leaf fields
+  review_ledger: GraphQL consumer gate review
+  tdd_mode: strict_red_green
+  smoke_scope: GraphQL promoted-leaf snapshots only
+  acceptance_state: proposed
+  acceptance:
+  - GraphQL exposes promoted leaves only
+  - schema/value before-after artifacts show no unrelated drift
+  requires_completion_tokens:
+  - MSP-085
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-09B
+  title: Add Portal promoted-leaf support
+  repo: helianthus-ebusgateway
+  milestone: M9
+  complexity: 7
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: hide Portal promoted eeBUS surfaces
+  review_ledger: Portal consumer review
+  tdd_mode: strict_red_green
+  smoke_scope: Portal promoted-leaf display only
+  acceptance_state: proposed
+  acceptance:
+  - Portal does not display candidate/conflict/withheld as stable
+  - Portal can show raw/debug provenance for operators
+  requires_completion_tokens:
+  - MSP-09A
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-09C
+  title: Add Home Assistant promoted-entity support
+  repo: helianthus-ha-integration
+  milestone: M9
+  complexity: 8
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: remove promoted eeBUS HA mappings
+  review_ledger: HA entity review
+  tdd_mode: strict_red_green
+  smoke_scope: HA promoted-entity identity/class/unit/availability
+  acceptance_state: proposed
+  acceptance:
+  - HA entity ids, classes, units, and availability are stable
+  - no candidate, conflict, or withheld entity is exposed
+  requires_completion_tokens:
+  - MSP-09A
+  - MSP-09B
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+- id: MSP-09D
+  title: Add add-on configuration for promoted eeBUS runtime
+  repo: helianthus-ha-addon
+  milestone: M9
+  complexity: 6
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable add-on eeBUS config and keep eBUS defaults
+  review_ledger: add-on security review
+  tdd_mode: strict_red_green
+  smoke_scope: add-on promoted runtime config disabled default
+  acceptance_state: proposed
+  acceptance:
+  - add-on preserves trust store semantics
+  - default remains disabled and safe
+  requires_completion_tokens:
+  - MSP-09A
+  - MSP-09C
+  routing_contract:
+    resolver: canonical
+    policy_digest: required_at_dispatch
+    forbidden_tier: highest_reserved_tier
+routing_policy:
+  resolver: canonical
+  policy_digest: required_at_dispatch
+  forbidden_tier: highest_reserved_tier

@@ -2,9 +2,9 @@ slug: multi-runtime-semantic-platform
 title: Helianthus Multi-Runtime Semantic Platform
 state: locked
 cruise_phase: RECOVERY_RECONCILIATION
-amendment_count: 1
-amended_on: 2026-07-10
-amendment: AD-DOCS-01 external-only-documentation
+amendment_count: 2
+amended_on: 2026-07-13
+amendment: AD-DOCS-02 architecture-gates
 source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
 target_repos:
   - helianthus-execution-plans
@@ -33,14 +33,12 @@ dirty_rescue_candidate: true
 successor_unlocks: false
 successor_unlock_condition: MSP-R00-L and MSP-03D-R reconciliation gates merged from clean main
 msp_r00_status: completed_local_no_code_acceptance
-msp_r00_issue: Project-Helianthus/helianthus-eebusreg#14
+msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
 initial_ready_set:
   - MSP-R00-L
   - DOCS-VERIFY
-model_map:
-  complexity_1_2: GPT-5.3-Codex-Spark
-  complexity_3_4: gpt-5.4-mini
-  complexity_5: GPT-5.5 medium
-  complexity_6_7: GPT-5.5 high
-  complexity_8_10: GPT-5.5 xhigh
+routing_policy:
+  resolver: canonical
+  policy_digest: required_at_dispatch
+  forbidden_tier: highest_reserved_tier

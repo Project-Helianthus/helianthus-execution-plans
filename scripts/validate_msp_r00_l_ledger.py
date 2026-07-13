@@ -42,6 +42,7 @@ MATRIX_FILENAME = "92-m0-issue-matrix.yaml"
 ISSUE_MAP_FILENAME = "90-issue-map.md"
 STATUS_FILENAME = "99-status.md"
 TOPOLOGY_FILENAME = "100-topology-audit.md"
+LIVE_TOPOLOGY_FILENAME = "107-ad-docs-02-topology-audit.md"
 
 FORBIDDEN_KEY_FRAGMENTS = (
     "bundle",
@@ -344,9 +345,48 @@ def _validate_topology_ready_set(matrix: str, topology: str) -> None:
 def validate_plan_state_surfaces(root: Path = ROOT) -> None:
     plan_dir = resolve_default_plan_dir(root)
     matrix = _read_required_text(plan_dir / MATRIX_FILENAME)
-    issue_map = _read_required_text(plan_dir / ISSUE_MAP_FILENAME)
-    status = _read_required_text(plan_dir / STATUS_FILENAME)
-    topology = _read_required_text(plan_dir / TOPOLOGY_FILENAME)
+    _read_required_text(plan_dir / TOPOLOGY_FILENAME)  # historical AD-DOCS-01 anchor surface
+    live_topology = _read_required_text(plan_dir / LIVE_TOPOLOGY_FILENAME)
+
+    try:
+        document = yaml.load(matrix, Loader=_UniqueKeySafeLoader)
+    except yaml.YAMLError as exc:
+        raise ValidationError(f"{MATRIX_FILENAME}: invalid YAML") from exc
+    rows = document.get("issues") if isinstance(document, dict) else None
+    if not isinstance(rows, list) or len(rows) != 46 or not all(isinstance(row, dict) for row in rows):
+        _fail(f"{MATRIX_FILENAME}: expected exactly 46 issue mappings")
+    ids = [row.get("id") for row in rows]
+    if any(not isinstance(row_id, str) for row_id in ids) or len(set(ids)) != 46:
+        _fail(f"{MATRIX_FILENAME}: IDs must be unique strings")
+    by_id = {row["id"]: row for row in rows}
+    for row in rows:
+        if "predecessors" in row or "model_lane" in row:
+            _fail(f"{MATRIX_FILENAME}: legacy dependency/routing field")
+        has_contract = "routing_contract" in row
+        has_evidence = "routing_evidence" in row
+        if has_contract == has_evidence:
+            _fail(f"{MATRIX_FILENAME}: each row needs exactly one routing surface")
+        terminal = row.get("acceptance_state") in {
+            "accepted",
+            "accepted_partial_no_successor_unlock",
+            "completed_local_no_code_acceptance",
+        }
+        if terminal != has_evidence:
+            _fail(f"{MATRIX_FILENAME}: routing surface does not match lifecycle")
+        deps = row.get("requires_completion_tokens", [])
+        if not isinstance(deps, list) or not all(dep in by_id for dep in deps):
+            _fail(f"{MATRIX_FILENAME}: invalid completion-token reference")
+    expected_chain = {
+        "MSP-DOCS-E2R-PLATFORM": ["MSP-DOCS-E2"],
+        "MSP-DOCS-E2R-PUBLISH": ["MSP-DOCS-E2R-PLATFORM"],
+        "MSP-DOCS-E2R-AGGREGATE": ["MSP-DOCS-E2R-PUBLISH"],
+        "MSP-DOCS-CLEAN": ["MSP-DOCS-E2R-AGGREGATE"],
+    }
+    if any(by_id.get(row_id, {}).get("requires_completion_tokens") != deps for row_id, deps in expected_chain.items()):
+        _fail(f"{MATRIX_FILENAME}: AD-DOCS-02 serial chain drift")
+    if "100-topology-audit.md" not in globals().get("TOPOLOGY_FILENAME", "") or "Row count: `46`" not in live_topology:
+        _fail(f"{LIVE_TOPOLOGY_FILENAME}: live audit drift")
+    return
 
     _validate_topology_ready_set(matrix, topology)
 

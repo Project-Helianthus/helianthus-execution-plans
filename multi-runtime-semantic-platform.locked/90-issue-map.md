@@ -72,6 +72,13 @@ repo and one `helianthus-eebusreg` PR at a time.
 
 ## Hard Blockers
 
+## AD-DOCS-02 token chain
+
+The current executable chain is `MSP-DOCS-E2 -> MSP-DOCS-E2R-PLATFORM ->
+MSP-DOCS-E2R-PUBLISH -> MSP-DOCS-E2R-AGGREGATE (#64) -> MSP-DOCS-CLEAN ->
+MSP-03D-R`. Completion tokens, not historical observations, authorize each
+edge. MSP-R00 issue/14 and MSP-03D-G01 are evidence inputs only.
+
 - No publication of MSP-R00 private details: local SHA, private path, raw HMAC
   mapping, source-bundle detail, raw paths, volume, sizes, timestamps, bytes,
   deterministic IDs, raw hashes, or sensitive evidence.

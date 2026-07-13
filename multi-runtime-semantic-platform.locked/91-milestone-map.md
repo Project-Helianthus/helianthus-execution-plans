@@ -22,6 +22,11 @@ Amendment: `AD-DOCS-01 external-only-documentation`
 
 ## Parallelism
 
+AD-DOCS-02 supersedes the direct E2-to-CLEAN route with the serial PLATFORM,
+PUBLISH, and issue-backed AGGREGATE gates. Historical readiness snapshot,
+logical-ready, dispatchable, and selected-batch remain separate; a selected
+batch cannot create a completion token.
+
 Only MSP-R00-L and DOCS-VERIFY are initially ready. MSP-R00 is already
 completed locally for issue #14 with architecture review PASS, no code
 acceptance, and no runtime successor unlock. MSP-R00-L publishes only opaque

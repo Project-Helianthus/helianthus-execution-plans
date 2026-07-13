@@ -14,6 +14,12 @@ Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
+AD-DOCS-02 is the current amendment. Publication-contract v2 and the live
+46-row audit are recorded in `106-ad-docs-02-integrity.json` and
+`107-ad-docs-02-topology-audit.md`; `100-topology-audit.md` remains the
+immutable AD-DOCS-01 snapshot. Candidate cleanup fails closed and any consumed
+evidence is corrected only by a forward fix.
+
 The plan is locked after five accepted adversarial rounds and the AD-DOCS-01
 external-only-documentation amendment. Historical evidence is preserved through
 M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D EEBUS-G01
