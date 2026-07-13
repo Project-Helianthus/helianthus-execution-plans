@@ -55,6 +55,8 @@ and the serialized docs/API freeze gates.
   control-plane matrix with every row's complexity, routing contract or historical
   routing evidence, completion-token dependencies, docs owner/gate, transport/security gate, rollback ledger,
   review ledger, TDD mode, smoke scope, and acceptance.
+
+Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 - [93-eebus-transport-gate-v0.md](./93-eebus-transport-gate-v0.md) defines the
   eeBUS transport/protocol gate and exact G17/G18/G19 meanings.
 - [94-m1-docs-bootstrap-evidence.md](./94-m1-docs-bootstrap-evidence.md)

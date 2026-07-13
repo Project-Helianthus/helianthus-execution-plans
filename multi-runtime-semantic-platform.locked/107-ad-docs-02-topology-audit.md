@@ -8,4 +8,4 @@ Matrix snapshot SHA-256: `5356e8a8c1d17763889bba5e67758705a28450e533145c907fb002
 ```
 
 107 complete projection: requires_completion_tokens are authoritative; evidence_inputs are non-authoritative.
-Readiness: readiness snapshot, logical-ready, dispatchable, selected-batch.
+Readiness snapshot / logical-ready / dispatchable / selected-batch categories: {"dispatchable":["MSP-R00-L","DOCS-VERIFY","MSP-DOCS-API-SCHEMA"],"historical_snapshot":["MSP-00A","MSP-00B","MSP-00C","MSP-01A","MSP-01B","MSP-01C","MSP-020","MSP-02A","MSP-02B","MSP-02C","MSP-03A","MSP-03B","MSP-03C","MSP-03D-G01","MSP-R00","MSP-R00-L","DOCS-VERIFY"],"logical_ready":["MSP-DOCS-API-SCHEMA"],"selected_batch":["MSP-R00-L","DOCS-VERIFY"]}

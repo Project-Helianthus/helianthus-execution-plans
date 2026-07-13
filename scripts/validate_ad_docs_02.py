@@ -41,6 +41,54 @@ SERIAL_EDGES = {
     "MSP-DOCS-CLEAN": ["MSP-DOCS-E2R-AGGREGATE"],
     "MSP-03D-R": ["MSP-DOCS-CLEAN", "MSP-03C"],
 }
+REQUIRES_COMPLETION_TOKENS = {
+    "MSP-00A": [], "MSP-00B": ["MSP-00A"], "MSP-00C": ["MSP-00A"], "MSP-01A": ["MSP-00A"],
+    "MSP-01B": ["MSP-01A"], "MSP-01C": ["MSP-01B"],
+    "MSP-020": ["MSP-00A", "MSP-00B", "MSP-00C", "MSP-01A", "MSP-01B", "MSP-01C"],
+    "MSP-02A": ["MSP-00A", "MSP-00B", "MSP-00C", "MSP-01A", "MSP-01B", "MSP-01C", "MSP-020"],
+    "MSP-02B": ["MSP-02A"], "MSP-02C": ["MSP-01A", "MSP-02B"], "MSP-03A": ["MSP-02C"],
+    "MSP-03B": ["MSP-03A"], "MSP-03C": ["MSP-03A", "MSP-03B"], "MSP-03D-G01": ["MSP-03C"],
+    "MSP-R00": [], "MSP-R00-L": [], "DOCS-VERIFY": [], "MSP-DOCS-API-SCHEMA": ["DOCS-VERIFY"],
+    "MSP-DOCS-PLATFORM": ["MSP-R00-L", "MSP-DOCS-API-SCHEMA"], "MSP-DOCS-E2": ["MSP-DOCS-PLATFORM"],
+    "MSP-DOCS-E2R-PLATFORM": ["MSP-DOCS-E2"], "MSP-DOCS-E2R-PUBLISH": ["MSP-DOCS-E2R-PLATFORM"],
+    "MSP-DOCS-E2R-AGGREGATE": ["MSP-DOCS-E2R-PUBLISH"], "MSP-DOCS-CLEAN": ["MSP-DOCS-E2R-AGGREGATE"],
+    "MSP-DOCS-CANDIDATE-CLEANUP": ["MSP-DOCS-E2R-PUBLISH"], "MSP-03D-R": ["MSP-DOCS-CLEAN", "MSP-03C"],
+    "MSP-035": ["MSP-03D-R"], "MSP-04A": ["MSP-035"], "MSP-036": ["MSP-04A"],
+    "MSP-DOCS-API-CANDIDATE": ["MSP-036", "MSP-DOCS-E2"], "MSP-055": ["MSP-036", "MSP-DOCS-API-CANDIDATE"],
+    "MSP-DOCS-API-FREEZE": ["MSP-055"], "MSP-04B": ["MSP-DOCS-API-FREEZE"], "MSP-04C": ["MSP-04B"],
+    "MSP-045": ["MSP-04C"], "MSP-05A": ["MSP-045"], "MSP-05B": ["MSP-05A", "MSP-045"],
+    "MSP-06": ["MSP-05B"], "MSP-065": ["MSP-06"], "MSP-07": ["MSP-065"], "MSP-08": ["MSP-07"],
+    "MSP-085": ["MSP-08"], "MSP-09A": ["MSP-085"], "MSP-09B": ["MSP-09A"],
+    "MSP-09C": ["MSP-09A", "MSP-09B"], "MSP-09D": ["MSP-09A", "MSP-09C"],
+}
+EVIDENCE_INPUTS = {row_id: [] for row_id in EXACT_IDS} | {
+    "MSP-R00-L": ["Project-Helianthus/helianthus-eebusreg#14"], "MSP-03D-R": ["MSP-03D-G01"],
+}
+ACCEPTANCE_STATES = {
+    **{row_id: "accepted" for row_id in EXACT_IDS[:13]}, "MSP-03D-G01": "accepted_partial_no_successor_unlock",
+    "MSP-R00": "completed_local_no_code_acceptance", "MSP-R00-L": "accepted", "DOCS-VERIFY": "accepted",
+    "MSP-DOCS-API-SCHEMA": "ready", "MSP-DOCS-CANDIDATE-CLEANUP": "dormant_conditional",
+    **{row_id: "proposed" for row_id in EXACT_IDS[18:] if row_id != "MSP-DOCS-CANDIDATE-CLEANUP"},
+}
+BASE_ROW_KEYS = frozenset({"id", "title", "repo", "milestone", "complexity", "docs_owner", "doc_gate", "security_gate", "transport_gate", "rollback_ledger", "review_ledger", "tdd_mode", "smoke_scope", "acceptance_state", "requires_completion_tokens"})
+NO_ACCEPTANCE = frozenset({"MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE"})
+ROW_EXTRAS = {
+    "MSP-R00": frozenset({"acceptance", "architecture_review", "coordination_note", "issue", "successor_unlocks"}),
+    "MSP-R00-L": frozenset({"acceptance", "completion_note", "evidence_inputs"}),
+    "DOCS-VERIFY": frozenset({"acceptance", "completion_note", "coordination_note"}),
+    "MSP-DOCS-API-SCHEMA": frozenset({"acceptance", "readiness_note"}),
+    "MSP-DOCS-PLATFORM": frozenset({"acceptance", "blocked_note"}),
+    "MSP-DOCS-E2R-AGGREGATE": frozenset({"issue_ref"}),
+    "MSP-DOCS-CANDIDATE-CLEANUP": frozenset({"acceptance", "conditional"}),
+    "MSP-03D-R": frozenset({"acceptance", "evidence_inputs"}),
+}
+HISTORICAL_IDS = frozenset(EXACT_IDS[:17])
+READINESS = {
+    "historical_snapshot": list(EXACT_IDS[:17]),
+    "logical_ready": ["MSP-DOCS-API-SCHEMA"],
+    "dispatchable": ["MSP-R00-L", "DOCS-VERIFY", "MSP-DOCS-API-SCHEMA"],
+    "selected_batch": ["MSP-R00-L", "DOCS-VERIFY"],
+}
 ACTIVE_ROUTING_CONTRACT = {
     "resolver": "canonical_resolver",
     "policy_digest": "canonical_policy_digest",
@@ -183,6 +231,12 @@ def validate_matrix(data: dict[str, Any]) -> None:
     visiting: set[str] = set()
     visited: set[str] = set()
     for row in rows:
+        row_id = row["id"]
+        expected_keys = BASE_ROW_KEYS | ROW_EXTRAS.get(row_id, frozenset())
+        if row_id not in NO_ACCEPTANCE:
+            expected_keys |= {"acceptance"}
+        expected_keys |= {"routing_evidence" if row_id in HISTORICAL_IDS else "routing_contract"}
+        exact_keys(row, set(expected_keys), f"matrix.{row_id}")
         if "model_lane" in row or "predecessors" in row:
             fail("matrix: active legacy routing/dependency field")
         contract, evidence = "routing_contract" in row, "routing_evidence" in row
@@ -196,8 +250,12 @@ def validate_matrix(data: dict[str, Any]) -> None:
             exact_keys(row["routing_evidence"], {"recorded"}, f"matrix.{row['id']}.routing_evidence")
             if row["routing_evidence"] != {"recorded": "historical_observed"}:
                 fail("matrix: historical routing evidence drift")
-        if not isinstance(row.get("requires_completion_tokens", []), list):
-            fail("matrix: completion tokens must be a list")
+        if row["requires_completion_tokens"] != REQUIRES_COMPLETION_TOKENS[row_id]:
+            fail("matrix: completion-token authority drift")
+        if row.get("evidence_inputs", []) != EVIDENCE_INPUTS[row_id]:
+            fail("matrix: evidence-input authority drift")
+        if row["acceptance_state"] != ACCEPTANCE_STATES[row_id]:
+            fail("matrix: acceptance-state authority drift")
     def visit(row_id: str) -> None:
         if row_id in visiting:
             fail("matrix: dependency cycle")
@@ -212,9 +270,6 @@ def validate_matrix(data: dict[str, Any]) -> None:
         visited.add(row_id)
     for row_id in by_id:
         visit(row_id)
-    for row_id, expected in SERIAL_EDGES.items():
-        if by_id[row_id].get("requires_completion_tokens") != expected:
-            fail("matrix: required serial edge drift")
     if by_id["MSP-03D-R"].get("evidence_inputs") != ["MSP-03D-G01"]:
         fail("matrix: MSP-03D-G01 must remain evidence-only")
     if "MSP-DOCS-E2" in by_id["MSP-DOCS-CLEAN"].get("requires_completion_tokens", []):
@@ -241,7 +296,7 @@ def render_live_audit(matrix: dict[str, Any]) -> str:
         "```",
         "",
         "107 complete projection: requires_completion_tokens are authoritative; evidence_inputs are non-authoritative.",
-        "Readiness: readiness snapshot, logical-ready, dispatchable, selected-batch.",
+        "Readiness snapshot / logical-ready / dispatchable / selected-batch categories: " + json.dumps(READINESS, sort_keys=True, separators=(",", ":")),
         "",
     ))
 
@@ -249,22 +304,60 @@ def validate_live_audit(matrix: dict[str, Any], text: str) -> None:
     if text != render_live_audit(matrix):
         fail("live audit: deterministic matrix projection drift")
 
+def reject_active_routing_pin(value: Any, where: str) -> None:
+    """Reject provider/model routing facts in active (not historical) contracts."""
+    if isinstance(value, dict):
+        for key, nested in value.items():
+            lowered = str(key).lower()
+            if any(token in lowered for token in ("model", "provider", "vendor")):
+                fail(f"{where}: active routing pin")
+            reject_active_routing_pin(nested, f"{where}.{key}")
+    elif isinstance(value, list):
+        for index, nested in enumerate(value):
+            reject_active_routing_pin(nested, f"{where}[{index}]")
+    elif isinstance(value, str) and re.search(r"(?i)(?:^|[/:_-])(openai|anthropic|gpt-|claude-|sol)(?:$|[/:_-])", value):
+        fail(f"{where}: active routing pin")
+
+def validate_plan_projection(plan: dict[str, Any]) -> None:
+    policy = plan.get("routing_policy")
+    exact_keys(policy, {"resolver", "policy_digest", "forbidden_tier"}, "plan.routing_policy")
+    reject_active_routing_pin(policy, "plan.routing_policy")
+    if policy != {"resolver": "canonical", "policy_digest": "required_at_dispatch", "forbidden_tier": "highest_reserved_tier"}:
+        fail("plan: routing policy drift")
+    if plan.get("initial_ready_set") != READINESS["selected_batch"]:
+        fail("plan: selected batch drift")
+
+def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
+    expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
+    surfaces = ("01-index.md", "90-issue-map.md", "91-milestone-map.md", "99-status.md", "12-eebus-mcp-first-vr940f.md", "14-execution-roadmap-issues-and-gates.md")
+    for surface in surfaces:
+        text = (plan_dir / surface).read_text(encoding="utf-8")
+        if expected_reference not in text:
+            fail(f"surfaces.{surface}: missing structured routing reference")
+        if re.search(r"(?i)\bmodel[ _-]?lane\b|\b(?:provider|vendor)\s*[:=]|\bmodel\s*[:=]|\b(?:gpt|claude)-", text):
+            fail(f"surfaces.{surface}: active routing pin")
+        if re.search(r"MSP-DOCS-E2\s*(?:->|→|to)\s*MSP-DOCS-CLEAN", text, re.IGNORECASE) or re.search(r"(?m)^\|.*MSP-DOCS-E2.*MSP-DOCS-CLEAN.*\|", text):
+            fail(f"surfaces.{surface}: direct E2-to-CLEAN path")
+        if re.search(r"MSP-DOCS-CLEAN.{0,160}(?:requires|completion[ -]?token).{0,160}MSP-DOCS-E2", text, re.IGNORECASE | re.DOTALL):
+            fail(f"surfaces.{surface}: CLEAN token bypass")
+    roadmap = (plan_dir / "14-execution-roadmap-issues-and-gates.md").read_text(encoding="utf-8")
+    for row_id, tokens in REQUIRES_COMPLETION_TOKENS.items():
+        if row_id in {"MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"}:
+            for token in tokens:
+                if token not in roadmap:
+                    fail("surfaces.14: canonical completion claim drift")
+    if matrix["issues"][EXACT_IDS.index("MSP-R00-L")]["acceptance_state"] == "ready":
+        fail("surfaces: MSP-R00-L may not be ready")
+
 def validate_surfaces(root: Path) -> None:
     plan_dir = root / PLAN
     matrix = load_yaml(plan_dir / MATRIX)
     integrity = load_json(plan_dir / INTEGRITY)
     validate_matrix(matrix)
     validate_integrity(integrity)
+    validate_plan_projection(load_yaml(plan_dir / "plan.yaml"))
     validate_live_audit(matrix, (plan_dir / "107-ad-docs-02-topology-audit.md").read_text(encoding="utf-8"))
-    expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
-    for surface in ("00-canonical.md", "12-eebus-mcp-first-vr940f.md", "14-execution-roadmap-issues-and-gates.md", "90-issue-map.md", "91-milestone-map.md", "99-status.md"):
-        surface_text = (plan_dir / surface).read_text(encoding="utf-8")
-        if expected_reference not in surface_text:
-            fail("surfaces: missing structured routing reference")
-        if re.search(r"(?i)\bmodel[ _-]?lane\b|\bprovider\s*[:=]|\bmodel\s*[:=]|\bgpt-", surface_text):
-            fail("surfaces: active routing pin")
-        if re.search(r"MSP-DOCS-E2\s*(?:->|→|to)\s*MSP-DOCS-CLEAN", surface_text, re.IGNORECASE) or re.search(r"(?m)^\|.*MSP-DOCS-E2.*MSP-DOCS-CLEAN.*\|", surface_text):
-            fail("surfaces: direct E2-to-CLEAN path")
+    validate_markdown_claims(plan_dir, matrix)
 
 def validate_changed_paths(root: Path = ROOT) -> None:
     present = subprocess.run(
@@ -275,7 +368,7 @@ def validate_changed_paths(root: Path = ROOT) -> None:
     if present.returncode != 0:
         try:
             subprocess.run(
-                ["git", "-C", str(root), "fetch", "--quiet", "--unshallow", "origin"],
+                ["git", "-C", str(root), "fetch", "--quiet", "origin", ANCHOR],
                 text=True,
                 capture_output=True,
                 check=True,
@@ -284,16 +377,40 @@ def validate_changed_paths(root: Path = ROOT) -> None:
             raise ValidationError("protected-path anchor is unavailable") from exc
     try:
         result = subprocess.run(
-            ["git", "-C", str(root), "diff", "--name-only", ANCHOR, "--"],
+            ["git", "-C", str(root), "diff", "--name-status", "-z", ANCHOR, "HEAD", "--"],
             text=True,
             capture_output=True,
             check=True,
         )
     except subprocess.CalledProcessError as exc:
         raise ValidationError("protected-path anchor is unavailable") from exc
-    for path in filter(None, result.stdout.splitlines()):
+    fields = [field for field in result.stdout.split("\0") if field]
+    index = 0
+    while index < len(fields):
+        status = fields[index]
+        index += 1
+        if status.startswith(("R", "C")):
+            fail("protected path changed: rename/copy")
+        if status.startswith("D"):
+            fail("protected path changed: deletion")
+        if index >= len(fields):
+            fail("protected path changed: malformed name-status")
+        path = fields[index]
+        index += 1
+        if status[:1] != "M" and status[:1] != "A":
+            fail("protected path changed: unsupported status")
         if path not in MUTABLE_PATHS:
             fail(f"protected path changed: {path}")
+    raw = subprocess.run(["git", "-C", str(root), "diff", "--raw", "-z", ANCHOR, "HEAD", "--"], text=True, capture_output=True, check=True)
+    for field in (item for item in raw.stdout.split("\0") if item):
+        if field.startswith(":"):
+            old_mode, new_mode = field[1:].split()[:2]
+            if new_mode not in {"100644", "100755"} or (old_mode != "000000" and old_mode != new_mode):
+                fail("protected path changed: mode/type drift")
+    for artifact in ("105-ad-docs-02-amendment.md", "106-ad-docs-02-integrity.json", "107-ad-docs-02-topology-audit.md"):
+        tree = subprocess.run(["git", "-C", str(root), "ls-tree", "HEAD", "--", f"{PLAN}/{artifact}"], text=True, capture_output=True, check=True)
+        if not re.fullmatch(r"100644 blob [0-9a-f]{40}\t" + re.escape(f"{PLAN}/{artifact}") + r"\n", tree.stdout):
+            fail("protected path changed: required artifact type/mode")
 
 def main(argv: list[str]) -> int:
     try:
