@@ -94,6 +94,23 @@ ACTIVE_ROUTING_CONTRACT = {
     "policy_digest": "canonical_policy_digest",
     "forbidden_tier": "Ultra",
 }
+EXPECTED_ACTIVE_SURFACES = (
+    "00-canonical.md",
+    "01-index.md",
+    "10-platform-taxonomy-and-boundaries.md",
+    "11-ebus-040-baseline-and-profile-split.md",
+    "12-eebus-mcp-first-vr940f.md",
+    "13-semantic-fact-graph-and-integration.md",
+    "14-execution-roadmap-issues-and-gates.md",
+    "90-issue-map.md",
+    "91-milestone-map.md",
+    "92-m0-issue-matrix.yaml",
+    "99-status.md",
+    "plan.yaml",
+    "105-ad-docs-02-amendment.md",
+    "106-ad-docs-02-integrity.json",
+    "107-ad-docs-02-topology-audit.md",
+)
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
     "multi-runtime-semantic-platform.locked/01-index.md",
@@ -123,9 +140,8 @@ E2R_PREREQUISITES = (
 )
 
 def active_control_surface_paths() -> tuple[str, ...]:
-    """Derive the complete active plan projection from its mutable allowlist."""
-    prefix = PLAN + "/"
-    return tuple(sorted(path for path in MUTABLE_PATHS if path.startswith(prefix)))
+    """Return the fixed active-plan projection, independent of the allowlist."""
+    return tuple(f"{PLAN}/{surface}" for surface in EXPECTED_ACTIVE_SURFACES)
 
 class ValidationError(ValueError):
     pass
@@ -338,22 +354,39 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
     if plan.get("initial_ready_set") != READINESS["selected_batch"]:
         fail("plan: selected batch drift")
 
+def normalize_markdown(text: str) -> str:
+    """Collapse all document whitespace before evaluating active prose claims."""
+    return " ".join(text.casefold().split())
+
 def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     expected_reference = "Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json."
     surfaces = tuple(
         Path(relative).name
         for relative in active_control_surface_paths()
-        if relative.endswith(".md") and Path(relative).name != "107-ad-docs-02-topology-audit.md"
+        if relative.endswith(".md")
     )
     for surface in surfaces:
         text = (plan_dir / surface).read_text(encoding="utf-8")
-        if expected_reference not in text:
+        normalized = normalize_markdown(text)
+        if surface != "107-ad-docs-02-topology-audit.md" and expected_reference not in text:
             fail(f"surfaces.{surface}: missing structured routing reference")
-        if re.search(r"(?i)\bmodel[ _-]?lane\b|\b(?:provider|vendor)\s*[:=]|\bmodel\s*[:=]|\b(?:gpt|claude)-", text):
+        # Require a concrete provider/model value. This leaves canonical negative
+        # and historical prose such as "does not duplicate ... provider or ..."
+        # outside the active-pin grammar without relying on a bounded text window.
+        if re.search(
+            r"\bmodel[ _-]?lane\b|"
+            r"\b(?:provider|vendor)\b\s*(?::|=|is\b)?\s*\b(?:openai|anthropic)\b|"
+            r"\bmodel\b\s*(?::|=|is\b)?\s*\b(?:gpt|claude)[ _-]?\d",
+            normalized,
+        ):
             fail(f"surfaces.{surface}: active routing pin")
-        if re.search(r"MSP-DOCS-E2\s*(?:->|→|to)\s*MSP-DOCS-CLEAN", text, re.IGNORECASE) or re.search(r"(?m)^\|.*MSP-DOCS-E2.*MSP-DOCS-CLEAN.*\|", text):
+        if re.search(r"msp-docs-e2\s*(?:->|→|to)\s*msp-docs-clean", normalized) or re.search(r"\|[^\n]*msp-docs-e2[^\n]*msp-docs-clean[^\n]*\|", text.casefold()):
             fail(f"surfaces.{surface}: direct E2-to-CLEAN path")
-        if re.search(r"MSP-DOCS-CLEAN.{0,160}(?:requires|completion[ -]?token).{0,160}MSP-DOCS-E2", text, re.IGNORECASE | re.DOTALL):
+        if re.search(
+            r"\bmsp-docs-clean\b\s+(?:requires?|needs?)\b"
+            r"(?:\s+(?:a|the))?(?:\s+completion)?(?:\s+tokens?)?.*?\bmsp-docs-e2\b",
+            normalized,
+        ):
             fail(f"surfaces.{surface}: CLEAN token bypass")
     roadmap = (plan_dir / "14-execution-roadmap-issues-and-gates.md").read_text(encoding="utf-8")
     for row_id, tokens in REQUIRES_COMPLETION_TOKENS.items():
@@ -370,9 +403,15 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
 
 def validate_surfaces(root: Path) -> None:
     plan_dir = root / PLAN
-    if set(active_control_surface_paths()) != {
+    expected_paths = {f"{PLAN}/{surface}" for surface in EXPECTED_ACTIVE_SURFACES}
+    mutable_projection = {
         path for path in MUTABLE_PATHS if path.startswith(PLAN + "/")
-    }:
+    }
+    if (
+        not expected_paths.issubset(MUTABLE_PATHS)
+        or set(active_control_surface_paths()) != expected_paths
+        or mutable_projection != expected_paths
+    ):
         fail("surfaces: mutable allowlist/projection drift")
     matrix = load_yaml(plan_dir / MATRIX)
     integrity = load_json(plan_dir / INTEGRITY)
