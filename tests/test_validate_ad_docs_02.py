@@ -304,6 +304,64 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_markdown_claims(target, self.matrix)
 
+    def test_rejects_html_entity_provider_and_model_pin(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            path = target / "90-issue-map.md"
+            path.write_text(
+                path.read_text(encoding="utf-8")
+                + "\nprovider: Open&#65;I; model: gpt&#45;5.6\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_markdown_claims(target, self.matrix)
+
+    def test_rejects_zero_width_provider_and_model_pin(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            path = target / "90-issue-map.md"
+            path.write_text(
+                path.read_text(encoding="utf-8")
+                + "\npro\u200bvider: OpenAI; mo\u200bdel: gpt-5.6\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_markdown_claims(target, self.matrix)
+
+    def test_rejects_html_entity_direct_e2_to_clean_arrow(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            path = target / "90-issue-map.md"
+            path.write_text(
+                path.read_text(encoding="utf-8")
+                + "\nMSP-DOCS-E2 &#x2192; MSP-DOCS-CLEAN\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_markdown_claims(target, self.matrix)
+
+    def test_rejects_long_clean_token_bypass_with_html_entity_e2(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            path = target / "90-issue-map.md"
+            path.write_text(
+                path.read_text(encoding="utf-8")
+                + "\nMSP-DOCS-CLEAN requires completion token "
+                + ("filler " * 50)
+                + "MSP-DOCS-&#69;2.\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_markdown_claims(target, self.matrix)
+
     def test_m35_prerequisites_name_the_complete_e2r_chain(self) -> None:
         expected = "MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH, MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN"
         for surface in ("00-canonical.md", "12-eebus-mcp-first-vr940f.md"):
