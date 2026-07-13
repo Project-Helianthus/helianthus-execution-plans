@@ -444,14 +444,22 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
         fail("plan: selected batch drift")
 
 def canonicalize_security_symbols(text: str) -> str:
-    """Map dependency punctuation to its ASCII spelling and reject other symbols."""
+    """Preserve horizontal dependency direction and reject ambiguous symbols."""
     canonical: list[str] = []
     for character in text:
         category = unicodedata.category(character)
         if category == "Pd" or character == "\u2212":
             canonical.append("-")
         elif "ARROW" in unicodedata.name(character, ""):
-            canonical.append("->")
+            arrow_name = unicodedata.name(character)
+            if "LEFT" in arrow_name and "RIGHT" in arrow_name:
+                fail("markdown: bidirectional Unicode arrow in active control surface")
+            if "RIGHTWARDS" in arrow_name:
+                canonical.append("->")
+            elif "LEFTWARDS" in arrow_name:
+                canonical.append("<-")
+            else:
+                fail("markdown: ambiguous Unicode arrow in active control surface")
         elif not character.isascii() and category.startswith("S"):
             fail("markdown: non-ASCII symbol in active control surface")
         else:
@@ -510,7 +518,11 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
             normalized,
         ):
             fail(f"surfaces.{surface}: active routing pin")
-        if re.search(r"msp-docs-e2\s*(?:->|→|to)\s*msp-docs-clean", normalized) or re.search(r"\|[^\n]*msp-docs-e2[^\n]*msp-docs-clean[^\n]*\|", text.casefold()):
+        if (
+            re.search(r"msp-docs-e2\s*(?:->|to)\s*msp-docs-clean", normalized)
+            or re.search(r"msp-docs-clean\s*<-\s*msp-docs-e2", normalized)
+            or re.search(r"\|[^\n]*msp-docs-e2[^\n]*msp-docs-clean[^\n]*\|", text.casefold())
+        ):
             fail(f"surfaces.{surface}: direct E2-to-CLEAN path")
         if re.search(
             r"\bmsp-docs-clean\b\s+(?:requires?|needs?)\b"

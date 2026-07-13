@@ -47,6 +47,15 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_markdown_claims(target, self.matrix)
 
+    def _assert_markdown_claim_accepted(self, appended: str) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            path = target / "90-issue-map.md"
+            path.write_text(path.read_text(encoding="utf-8") + "\n" + appended, encoding="utf-8")
+            validator.validate_markdown_claims(target, self.matrix)
+
     def test_accepts_live_typed_contract(self) -> None:
         validator.validate_matrix(self.matrix)
         validator.validate_integrity(self.integrity)
@@ -455,8 +464,29 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_markdown_claims(target, self.matrix)
 
-    def test_rejects_unicode_dash_and_long_arrow_e2_to_clean_bypass(self) -> None:
-        self._assert_markdown_claim_rejected("MSP‐DOCS‐E2 ⟶ MSP‐DOCS‐CLEAN\n")
+    def test_rejects_long_rightward_arrow_e2_to_clean_bypass(self) -> None:
+        self._assert_markdown_claim_rejected("MSP‐DOCS‐E2 \u27f6 MSP‐DOCS‐CLEAN\n")
+
+    def test_rejects_leftward_spelling_of_forbidden_e2_to_clean_edge(self) -> None:
+        self.assertEqual(
+            validator.normalize_markdown("MSP-DOCS-CLEAN ← MSP-DOCS-E2"),
+            "msp-docs-clean <- msp-docs-e2",
+        )
+        self._assert_markdown_claim_rejected("MSP-DOCS-CLEAN ← MSP-DOCS-E2\n")
+
+    def test_preserves_non_forbidden_leftward_e2_to_clean_spelling(self) -> None:
+        # `E2 ← CLEAN` means CLEAN feeds E2, not the forbidden E2-to-CLEAN edge.
+        self.assertEqual(
+            validator.normalize_markdown("MSP-DOCS-E2 ← MSP-DOCS-CLEAN"),
+            "msp-docs-e2 <- msp-docs-clean",
+        )
+        self._assert_markdown_claim_accepted("MSP-DOCS-E2 ← MSP-DOCS-CLEAN\n")
+
+    def test_rejects_bidirectional_unicode_arrows_fail_closed(self) -> None:
+        for arrow in ("↔", "⇔", "⟷"):
+            with self.subTest(arrow=arrow):
+                with self.assertRaisesRegex(validator.ValidationError, "bidirectional Unicode arrow"):
+                    validator.normalize_markdown(f"MSP-DOCS-E2 {arrow} MSP-DOCS-CLEAN")
 
     def test_canonicalizes_representative_unicode_dash_and_arrow_variants(self) -> None:
         self.assertEqual(
