@@ -27,6 +27,8 @@ PUBLISH_TOKEN = "681cace127dcfc7359ca811624503c395bfb68c227e1fdc5b2608bae61735d9
 OID = re.compile(r"[0-9a-f]{40}\Z")
 DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 OBSERVATION_SOURCE = re.compile(r"[a-z0-9][a-z0-9._+-]*\Z")
+REVIEW_AGENT = re.compile(r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\Z")
+REVIEW_INSTANT = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\Z")
 REVIEWED_PATHS = (
     "scripts/aggregate_completion_token.py",
     "scripts/validate_plans_repo.sh",
@@ -412,21 +414,18 @@ def _regular_file_identity(root: Path, relative: str) -> dict[str, str]:
 
 
 def architecture_review_evidence_core(root: Path) -> dict[str, Any]:
-    """Build the exact public file/object basis a fresh review must cover."""
+    """Build the neutral public file/object basis a fresh review must cover."""
     return {
         "clean_base": CLEAN_BASE,
         "clean_repository": CLEAN_REPOSITORY,
         "milestone": PRODUCER_ID,
-        "p0_p2_findings": [],
         "platform_token_digest": PLATFORM_TOKEN,
         "publish_token_digest": PUBLISH_TOKEN,
-        "result": "pass",
         "review_scope": list(REVIEW_SCOPE),
         "reviewed_files": {
             relative: _regular_file_identity(root, relative)
             for relative in REVIEWED_PATHS
         },
-        "reviewer_context": "fresh-independent",
     }
 
 
@@ -437,25 +436,60 @@ def validate_architecture_review_record(
     item = _object(record, "aggregate-token.architecture-review-record")
     _exact_keys(
         item,
-        frozenset({"evidence_core", "evidence_core_sha256", "schema", "version"}),
+        frozenset(
+            {
+                "review_basis",
+                "review_basis_sha256",
+                "schema",
+                "verdict",
+                "version",
+            }
+        ),
         "aggregate-token.architecture-review-record",
     )
-    core = _object(item.get("evidence_core"), "aggregate-token.architecture-review-record")
-    expected_core = architecture_review_evidence_core(root)
+    basis = _object(
+        item.get("review_basis"), "aggregate-token.architecture-review-record"
+    )
+    verdict = _object(
+        item.get("verdict"), "aggregate-token.architecture-review-record"
+    )
+    expected_basis = architecture_review_evidence_core(root)
     if (
         item.get("schema") != "helianthus.aggregate-architecture-review"
         or type(item.get("version")) is not int
-        or item["version"] != 1
-        or core != expected_core
-        or not isinstance(item.get("evidence_core_sha256"), str)
-        or _digest(core) != item["evidence_core_sha256"]
+        or item["version"] != 2
+        or basis != expected_basis
+        or not isinstance(item.get("review_basis_sha256"), str)
+        or _digest(basis) != item["review_basis_sha256"]
+        or set(verdict)
+        != {
+            "p0_p2_findings",
+            "result",
+            "review_output_sha256",
+            "reviewed_at",
+            "reviewer_agent_id",
+            "reviewer_context",
+            "reviewer_effort",
+            "reviewer_model",
+        }
+        or verdict.get("result") != "pass"
+        or verdict.get("p0_p2_findings") != []
+        or verdict.get("reviewer_context") != "fresh-independent"
+        or verdict.get("reviewer_model") != "gpt-5.6-sol"
+        or verdict.get("reviewer_effort") != "xhigh"
+        or not isinstance(verdict.get("reviewer_agent_id"), str)
+        or REVIEW_AGENT.fullmatch(verdict["reviewer_agent_id"]) is None
+        or not isinstance(verdict.get("reviewed_at"), str)
+        or REVIEW_INSTANT.fullmatch(verdict["reviewed_at"]) is None
+        or not isinstance(verdict.get("review_output_sha256"), str)
+        or DIGEST.fullmatch(verdict["review_output_sha256"]) is None
     ):
         raise AggregateError("aggregate-token.architecture-review-record")
     return validate_architecture_review(
         {
-            "evidence_sha256": item["evidence_core_sha256"],
-            "p0_p2_findings": core["p0_p2_findings"],
-            "result": core["result"],
+            "evidence_sha256": _digest(item),
+            "p0_p2_findings": verdict["p0_p2_findings"],
+            "result": verdict["result"],
         }
     )
 
@@ -921,6 +955,8 @@ def _common_arguments(parser: argparse.ArgumentParser) -> None:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest="command", required=True)
+    review_basis = commands.add_parser("review-basis")
+    review_basis.add_argument("--root", type=Path, required=True)
     verify = commands.add_parser("verify-inputs")
     _common_arguments(verify)
     verify.add_argument("--root", type=Path, required=True)
@@ -960,6 +996,11 @@ def _validated_cli_inputs(args: argparse.Namespace) -> tuple[dict[str, Any], dic
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "review-basis":
+        sys.stdout.buffer.write(
+            _canonical_json(architecture_review_evidence_core(args.root)) + b"\n"
+        )
+        return 0
     platform, publish, verified = _validated_cli_inputs(args)
     if args.command == "verify-inputs":
         output = {

@@ -10,11 +10,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 IMPLEMENTATION = ROOT / "scripts" / "aggregate_completion_token.py"
-REVIEW_RECORD = (
-    ROOT
-    / "multi-runtime-semantic-platform.locked"
-    / "108-msp-docs-e2r-aggregate-architecture-review.json"
-)
 PROCESS_ATTESTATION = (
     ROOT
     / "multi-runtime-semantic-platform.locked"
@@ -82,12 +77,14 @@ class AggregateDefenseTests(unittest.TestCase):
                 restricted_corpus_accessed=True,
             )
 
-    def test_repository_review_record_binds_exact_public_files(self) -> None:
-        record = self.aggregate.load_canonical_json(REVIEW_RECORD)
-        projection = self.aggregate.validate_architecture_review_record(record, ROOT)
-        self.assertEqual(projection["result"], "pass")
-        self.assertEqual(projection["p0_p2_findings"], [])
-        self.assertEqual(projection["evidence_sha256"], record["evidence_core_sha256"])
+    def test_review_basis_is_neutral_and_binds_exact_public_files(self) -> None:
+        basis = self.aggregate.architecture_review_evidence_core(ROOT)
+        self.assertNotIn("result", basis)
+        self.assertNotIn("p0_p2_findings", basis)
+        self.assertNotIn("reviewer_context", basis)
+        self.assertEqual(
+            set(basis["reviewed_files"]), set(self.aggregate.REVIEWED_PATHS)
+        )
         attestation = self.aggregate.load_canonical_json(PROCESS_ATTESTATION)
         self.assertEqual(self.aggregate.validate_process_attestation(attestation), attestation)
 
