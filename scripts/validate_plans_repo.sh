@@ -11,6 +11,14 @@ if [ ! -x "$TOKEN_VENV/bin/python" ]; then
 fi
 
 "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_msp_r00_l_ledger.py"
+"$TOKEN_VENV/bin/python" "$ROOT/scripts/aggregate_completion_token.py" verify-inputs \
+  --root "$ROOT" \
+  --platform-envelope "$ROOT/tests/fixtures/msp_docs_e2r_aggregate/platform_b_completion_envelope.json" \
+  --publish-envelope "$ROOT/tests/fixtures/msp_docs_e2r_aggregate/publish_completion_envelope.json" \
+  --architecture-review "$ROOT/multi-runtime-semantic-platform.locked/108-msp-docs-e2r-aggregate-architecture-review.json" \
+  --process-attestation "$ROOT/multi-runtime-semantic-platform.locked/109-msp-docs-e2r-aggregate-process-attestation.json" \
+  --clean-repository "Project-Helianthus/helianthus-eebusreg" \
+  --clean-base "0e58327dfdb86ef243a19e18d590564813feaa00"
 issue_63_head="${AD_DOCS_02_ISSUE_63_HEAD:-}"
 if [ -z "$issue_63_head" ] \
   && [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ] \
