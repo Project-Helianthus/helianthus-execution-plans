@@ -37,6 +37,16 @@ class AdDocs02ValidatorTests(unittest.TestCase):
     def row(self, document: dict, row_id: str) -> dict:
         return next(row for row in document["issues"] if row["id"] == row_id)
 
+    def _assert_markdown_claim_rejected(self, appended: str) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            path = target / "90-issue-map.md"
+            path.write_text(path.read_text(encoding="utf-8") + "\n" + appended, encoding="utf-8")
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_markdown_claims(target, self.matrix)
+
     def test_accepts_live_typed_contract(self) -> None:
         validator.validate_matrix(self.matrix)
         validator.validate_integrity(self.integrity)
@@ -157,30 +167,48 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         present = mock.Mock(returncode=0)
         changed = mock.Mock(stdout="M\0multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\0")
         tree = mock.Mock(stdout="100644 blob 0000000000000000000000000000000000000000\tmulti-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md\n")
-        with mock.patch.object(validator.subprocess, "run", side_effect=[present, changed, tree, tree]):
-            validator.validate_changed_paths(ROOT)
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, mock.Mock(returncode=0), mock.Mock(returncode=0), changed, tree, tree]):
+            validator.validate_issue_63_changeset(ROOT, "HEAD")
 
     def test_retains_only_anchor_canonical_executable_mode(self) -> None:
         present = mock.Mock(returncode=0)
         path = "scripts/validate_plans_repo.sh"
         changed = mock.Mock(stdout=f"M\0{path}\0")
         tree = mock.Mock(stdout=f"100755 blob {'0' * 40}\t{path}\n")
-        with mock.patch.object(validator.subprocess, "run", side_effect=[present, changed, tree, tree]):
-            validator.validate_changed_paths(ROOT)
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, mock.Mock(returncode=0), mock.Mock(returncode=0), changed, tree, tree]):
+            validator.validate_issue_63_changeset(ROOT, "HEAD")
 
     def test_rejects_nested_protected_issue_path(self) -> None:
         present = mock.Mock(returncode=0)
         completed = mock.Mock(stdout="multi-runtime-semantic-platform.locked/issues/MSP-00B-model-routing.md\n")
-        with mock.patch.object(validator.subprocess, "run", side_effect=[present, completed]):
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, mock.Mock(returncode=0), mock.Mock(returncode=0), completed]):
             with self.assertRaises(validator.ValidationError):
-                validator.validate_changed_paths(ROOT)
+                validator.validate_issue_63_changeset(ROOT, "HEAD")
 
     def test_rejects_unlisted_control_surface_path(self) -> None:
         present = mock.Mock(returncode=0)
         completed = mock.Mock(stdout="multi-runtime-semantic-platform.locked/00-unlisted-control-surface.md\n")
-        with mock.patch.object(validator.subprocess, "run", side_effect=[present, completed]):
+        with mock.patch.object(validator.subprocess, "run", side_effect=[present, mock.Mock(returncode=0), mock.Mock(returncode=0), completed]):
             with self.assertRaises(validator.ValidationError):
-                validator.validate_changed_paths(ROOT)
+                validator.validate_issue_63_changeset(ROOT, "HEAD")
+
+    def test_default_history_guard_accepts_future_regular_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+            (repo / "anchor.md").write_text("anchor\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-m", "anchor"], check=True, capture_output=True)
+            anchor = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, text=True, capture_output=True).stdout.strip()
+            (repo / "future-plan.md").write_text("future\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-m", "future"], check=True, capture_output=True)
+            with mock.patch.object(validator, "ANCHOR", anchor):
+                validator.validate_changed_paths(repo)
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_issue_63_changeset(repo, "HEAD")
 
     def test_rejects_active_prose_pin_and_table_bypass(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -318,6 +346,18 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             with self.assertRaises(validator.ValidationError):
                 validator.validate_markdown_claims(target, self.matrix)
 
+    def test_rejects_html_comment_split_provider_pin(self) -> None:
+        self._assert_markdown_claim_rejected("pro<!-- inactive -->vider: OpenAI\n")
+
+    def test_rejects_bold_split_provider_pin(self) -> None:
+        self._assert_markdown_claim_rejected("pro**vid**er: OpenAI\n")
+
+    def test_rejects_link_rendered_e2_to_clean_arrow(self) -> None:
+        self._assert_markdown_claim_rejected("[MSP-DOCS-E2](https://example.invalid) → [MSP-DOCS-CLEAN](https://example.invalid)\n")
+
+    def test_rejects_cyrillic_lookalike_pin(self) -> None:
+        self._assert_markdown_claim_rejected("pr\u043evider: OpenAI\n")
+
     def test_rejects_zero_width_provider_and_model_pin(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -401,9 +441,9 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 present = mock.Mock(returncode=0)
                 changed = mock.Mock(stdout=status)
                 raw_result = mock.Mock(stdout=raw)
-                with mock.patch.object(validator.subprocess, "run", side_effect=[present, changed, raw_result]):
+                with mock.patch.object(validator.subprocess, "run", side_effect=[present, mock.Mock(returncode=0), mock.Mock(returncode=0), changed, raw_result]):
                     with self.assertRaises(validator.ValidationError):
-                        validator.validate_changed_paths(ROOT)
+                        validator.validate_issue_63_changeset(ROOT, "HEAD")
 
     def test_rejects_executable_mode_for_each_ad_docs_artifact(self) -> None:
         for artifact in (
@@ -428,7 +468,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                     subprocess.run(["git", "-C", str(repo), "commit", "-m", "make executable"], check=True, capture_output=True)
                     with mock.patch.object(validator, "ANCHOR", anchor):
                         with self.assertRaises(validator.ValidationError):
-                            validator.validate_changed_paths(repo)
+                            validator.validate_issue_63_changeset(repo, "HEAD")
 
     def test_recovers_anchor_from_local_shallow_remote(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

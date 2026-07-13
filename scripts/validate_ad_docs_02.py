@@ -17,6 +17,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 PLAN = "multi-runtime-semantic-platform.locked"
 ANCHOR = "f25d9ac7d3f25f0f45821cdff27ff968a0ef5cfb"
+ISSUE_63_HEAD = "ecfb8e034a73cd285b4ffce101364f92420d5711"
 MATRIX = "92-m0-issue-matrix.yaml"
 INTEGRITY = "106-ad-docs-02-integrity.json"
 EXACT_IDS = (
@@ -136,12 +137,17 @@ MUTABLE_PATHS = frozenset({
     "tests/test_validate_ad_docs_02.py",
     "tests/test_validate_msp_r00_l_ledger.py",
 })
+ISSUE_63_ALLOWED_PATHS = MUTABLE_PATHS
 E2R_PREREQUISITES = (
     "MSP-DOCS-E2, MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH, "
     "MSP-DOCS-E2R-AGGREGATE, MSP-DOCS-CLEAN"
 )
 HTML_UNESCAPE_MAX_ITERATIONS = 8
 ENTITY_LIKE_RE = re.compile(r"&(?:#[0-9]+|#[xX][0-9A-Fa-f]+|[A-Za-z][A-Za-z0-9]+);")
+HTML_COMMENT_RE = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
+MARKDOWN_LINK_RE = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
+MARKDOWN_REFERENCE_LINK_RE = re.compile(r"!?\[([^\]]*)\]\[[^\]]*\]")
+MARKDOWN_EMPHASIS_RE = re.compile(r"(?<!\\)[*_]+")
 
 def active_control_surface_paths() -> tuple[str, ...]:
     """Return the fixed active-plan projection, independent of the allowlist."""
@@ -360,7 +366,7 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
 
 def normalize_markdown(text: str) -> str:
     """Canonicalize active prose before evaluating its security-sensitive claims."""
-    normalized = text
+    normalized = HTML_COMMENT_RE.sub("", text)
     for _ in range(HTML_UNESCAPE_MAX_ITERATIONS):
         unescaped = html.unescape(normalized)
         if unescaped == normalized:
@@ -373,6 +379,17 @@ def normalize_markdown(text: str) -> str:
     normalized = unicodedata.normalize("NFKC", normalized)
     if any(unicodedata.category(character) == "Cf" for character in normalized):
         fail("markdown: Unicode format character")
+    for _ in range(HTML_UNESCAPE_MAX_ITERATIONS):
+        rendered = MARKDOWN_LINK_RE.sub(r"\1", normalized)
+        rendered = MARKDOWN_REFERENCE_LINK_RE.sub(r"\1", rendered)
+        if rendered == normalized:
+            break
+        normalized = rendered
+    else:
+        fail("markdown: link rendering did not reach a fixed point")
+    normalized = MARKDOWN_EMPHASIS_RE.sub("", normalized)
+    if any(character.isalpha() and not character.isascii() for character in normalized):
+        fail("markdown: non-ASCII letter in active control surface")
     return " ".join(normalized.casefold().split())
 
 def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
@@ -438,7 +455,7 @@ def validate_surfaces(root: Path) -> None:
     validate_live_audit(matrix, (plan_dir / "107-ad-docs-02-topology-audit.md").read_text(encoding="utf-8"))
     validate_markdown_claims(plan_dir, matrix)
 
-def validate_changed_paths(root: Path = ROOT) -> None:
+def _ensure_anchor(root: Path) -> None:
     present = subprocess.run(
         ["git", "-C", str(root), "cat-file", "-e", f"{ANCHOR}^{{commit}}"],
         text=True,
@@ -454,9 +471,52 @@ def validate_changed_paths(root: Path = ROOT) -> None:
             )
         except subprocess.CalledProcessError as exc:
             raise ValidationError("protected-path anchor is unavailable") from exc
+
+def _ensure_commit(root: Path, revision: str, message: str) -> None:
+    try:
+        subprocess.run(
+            ["git", "-C", str(root), "cat-file", "-e", f"{revision}^{{commit}}"],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        raise ValidationError(message) from exc
+
+def _require_ancestor(root: Path, ancestor: str, descendant: str, message: str) -> None:
+    result = subprocess.run(
+        ["git", "-C", str(root), "merge-base", "--is-ancestor", ancestor, descendant],
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode == 0:
+        return
+    try:
+        subprocess.run(
+            ["git", "-C", str(root), "fetch", "--quiet", "--unshallow", "origin"],
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError:
+        pass
+    result = subprocess.run(
+        ["git", "-C", str(root), "merge-base", "--is-ancestor", ancestor, descendant],
+        text=True,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        fail(message)
+
+def _validate_changed_paths(
+    root: Path,
+    base: str,
+    head: str,
+    allowed_paths: frozenset[str],
+) -> None:
     try:
         result = subprocess.run(
-            ["git", "-C", str(root), "diff", "--name-status", "-z", ANCHOR, "HEAD", "--"],
+            ["git", "-C", str(root), "diff", "--name-status", "-z", base, head, "--"],
             text=True,
             capture_output=True,
             check=True,
@@ -479,18 +539,18 @@ def validate_changed_paths(root: Path = ROOT) -> None:
         index += 1
         if status[:1] != "M" and status[:1] != "A":
             fail("protected path changed: unsupported status")
-        if path not in MUTABLE_PATHS:
+        if path not in allowed_paths:
             fail(f"protected path changed: {path}")
         changed_paths.append(path)
     for path in changed_paths:
         anchor_tree = subprocess.run(
-            ["git", "-C", str(root), "ls-tree", ANCHOR, "--", path],
+            ["git", "-C", str(root), "ls-tree", base, "--", path],
             text=True,
             capture_output=True,
             check=True,
         )
         head_tree = subprocess.run(
-            ["git", "-C", str(root), "ls-tree", "HEAD", "--", path],
+            ["git", "-C", str(root), "ls-tree", head, "--", path],
             text=True,
             capture_output=True,
             check=True,
@@ -507,6 +567,21 @@ def validate_changed_paths(root: Path = ROOT) -> None:
             head_tree.stdout,
         ):
             fail("protected path changed: mode/type drift")
+
+def validate_issue_63_changeset(
+    root: Path = ROOT,
+    issue_head: str = ISSUE_63_HEAD,
+) -> None:
+    """Verify the immutable #63 change set against its pinned issue head only."""
+    _ensure_anchor(root)
+    _ensure_commit(root, issue_head, "issue changeset head is unavailable")
+    _require_ancestor(root, ANCHOR, issue_head, "issue changeset head does not contain anchor")
+    _validate_changed_paths(root, ANCHOR, issue_head, ISSUE_63_ALLOWED_PATHS)
+
+def validate_changed_paths(root: Path = ROOT) -> None:
+    """Permanent history guard; future regular files are outside the #63 allowlist."""
+    _ensure_anchor(root)
+    _require_ancestor(root, ANCHOR, "HEAD", "protected-path anchor is not in HEAD history")
 
 def main(argv: list[str]) -> int:
     try:
