@@ -15,6 +15,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Fetch aggregate review evidence history
+        run: git fetch --no-tags origin +refs/pull/66/head:refs/remotes/origin/evidence/aggregate
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
