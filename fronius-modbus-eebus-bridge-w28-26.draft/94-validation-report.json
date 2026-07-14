@@ -1,0 +1,1366 @@
+{
+  "attested_check_ids": [
+    "additive_structured_root_architecture",
+    "artifact_dag",
+    "ascii_and_whitespace",
+    "canonical_external_authority_and_blocker_probe",
+    "canonical_matrix_topology_hash_integrity",
+    "catalog_private_expected_specifications",
+    "combined_artifact_schedule_predicate_dag",
+    "concrete_issue_oracle_commitments",
+    "content_addressed_activation_wal",
+    "cross_repo_edge_partition_and_metrics",
+    "deterministic_fixture_clock_and_live_freshness_separation",
+    "durable_tdd_huawei_generation_store",
+    "durable_tdd_unlock",
+    "evaluator_mutation_suite",
+    "exact_git_update_ref_cas_invocation",
+    "exact_preflight_yaml_example",
+    "exact_recursive_manifest_and_negative_fixtures",
+    "external_metadata_pre_post_cas_workflow",
+    "generated_plan_assertions_and_stale_prose_scan",
+    "hashes",
+    "huawei_fact_id_scope_affinity",
+    "huawei_fact_scope_exact_mapping",
+    "inventory_family_aggregation_and_rtu_derivation",
+    "issue_lane_milestone_mirror_parity",
+    "local_model_route_policy_and_resolver_replay",
+    "locked_state_and_gate_negative_fixtures",
+    "m5_order_status_ledger_and_stale_terms",
+    "mandatory_check_execution_and_report_negatives",
+    "openai_only_review_skill_inventory",
+    "plan_lock_excludes_huawei_issue_results",
+    "plan_lock_genesis_transport_boundary",
+    "planning_gates_and_lock_dry_run",
+    "predicate_ancestor_reachability",
+    "predicate_token_mcp_and_write_retry_contracts",
+    "preflight_and_transport",
+    "preflight_row_semantic_replay_negative_suite",
+    "private_manifest_lineage_and_schedule_only",
+    "signed_transport_artifact_derivation",
+    "skill_adapter_external_oracles_and_malicious_probes",
+    "ta5_domain_oracle_profile_sets_and_fresh_genesis",
+    "ta6_isolated_locator_mutants",
+    "tancabesti_merkle_custody_and_clean_room",
+    "terminal_repair_11_all_issue_acceptance_criteria",
+    "terminal_repair_11_consumed_artifact_lineage",
+    "terminal_repair_11_generation_bundle_crash_recovery",
+    "terminal_repair_11_huawei_lineage_fact_identity",
+    "terminal_repair_11_plan_lock_prerequisite_parity",
+    "terminal_repair_11_preflight_schema_mirrors",
+    "terminal_repair_12_all_failure_fixtures",
+    "terminal_repair_12_eebus_successor_lineage",
+    "terminal_repair_12_generation_recovery_successor_harness",
+    "terminal_repair_12_globally_unique_huawei_facts",
+    "terminal_repair_12_issue_execution_class_audit",
+    "terminal_repair_12_neutral_huawei_independence",
+    "terminal_repair_12_ordered_plan_lock_chain",
+    "terminal_repair_12_root_invariant_authority",
+    "terminal_repair_12b_audit_12_review_state",
+    "terminal_repair_12b_eebus_selected_producer_fixture_execution",
+    "terminal_repair_12b_roadmap_chunk_declarations",
+    "terminal_repair_13_current_round_state",
+    "terminal_repair_13_eebus_genesis_mutation_coverage",
+    "terminal_repair_13_emergency_private_owner_inventory",
+    "terminal_repair_13_manual_preflight_exact_schema",
+    "terminal_repair_13_neutral_inventory_parallelism",
+    "terminal_repair_13_root_authority_singular_metadata",
+    "terminal_repair_13_three_named_lock_prerequisites",
+    "terminal_repair_13_transport_mirror_heading",
+    "terminal_repair_14_canonical_coverage_ranges",
+    "terminal_repair_14_current_round_state",
+    "terminal_repair_14_lock_assertion_blocks",
+    "terminal_repair_14_pre_m8_rtu_dispatch",
+    "terminal_repair_14_rtu_baseline_prose",
+    "terminal_repair_14_rtu_scope_executability",
+    "terminal_repair_14_sensitive_relationship_blocks",
+    "terminal_repair_15_authoritative_pre_m8_rtu_evidence",
+    "terminal_repair_15_current_round_state",
+    "terminal_repair_15_lock_block_sensitivity",
+    "terminal_repair_15_neutral_huawei_sensitivity",
+    "terminal_repair_15_predicate_operator_docs",
+    "terminal_repair_15_read_only_v1",
+    "terminal_repair_16_critical_issue_oracles",
+    "terminal_repair_16_current_round_state",
+    "terminal_repair_16_m5_order_and_schema_snapshot",
+    "terminal_repair_16_pre_execution_intents",
+    "terminal_repair_17_audit_closure",
+    "terminal_repair_17_current_round_state",
+    "terminal_repair_17_validator_self_stability",
+    "terminal_repair_18_audit_closure",
+    "terminal_repair_18_current_round_state",
+    "terminal_repair_19_audit_closure",
+    "terminal_repair_19_current_round_state",
+    "terminal_repair_20_audit_closure",
+    "terminal_repair_20_current_round_state",
+    "terminal_repair_21_audit_closure",
+    "terminal_repair_21_current_round_state",
+    "terminal_repair_22_audit_closure",
+    "terminal_repair_22_current_round_state",
+    "terminal_repair_6_executable_contracts_and_mutants",
+    "terminal_repair_7_all_A1_A18_contracts_and_negative_suites",
+    "topology_evaluator_truth_tables_and_reachability",
+    "yaml_milestone_predicate_action_schema"
+  ],
+  "canonical_sha256": "10fba769cda75189fd563b0b8667d0d3f358764d69de808ebc82ad2b9b725c92",
+  "check_set_sha256": "a78ff32f1e6838e796663276e772878d8788afdc742e98e163cdc259e872b6c8",
+  "checks": [
+    {
+      "execution_sha256": "82731349ee806b933d3481a7612b838dd64ec655f7fb48592fea5dacb20caece",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "f739c3109f480edd0d111c857ebc288d4c68aee9feca5a11488727605a57e081",
+      "id": "yaml_milestone_predicate_action_schema",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "757cbde8154093c6c43963f91f1ae241b89c8f4e70ea64bb9b0243ba7903759f",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "c54ef757b61560ab539ca572f580183abc22c88ecbaf4f3c47cac13b2038b89e",
+      "id": "exact_recursive_manifest_and_negative_fixtures",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "3db8e72ee067bf5b307bf0c5a6ec9bbc86e10cae2b80c125d96ea40a49148ff6",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "1468265d8f417afaadc0a11f3b054c89302722d3f24c38edf169c5694bdc54f7",
+      "id": "artifact_dag",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e13066fb68c14b95284c64ea01794288b4d5053a8b852cf747f31c3f3fcf68f4",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "52713e297505b7320e332e5e223bc398f49656ad53c2cf252680cf0a55c5c2f3",
+      "id": "combined_artifact_schedule_predicate_dag",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a1823285f02184c91a4068f6dc8ffc30e3f43aba0e7d2788213329e9446c4202",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "017c155a01b58420b67e674a8720de195404cd7cc55645055e217f29096cc8ae",
+      "id": "predicate_ancestor_reachability",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "68a0d6bca93a298820b9ad3369e91b2237668a3f8112930608d6b89d386e3247",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "f0fd5eab3e48a9c3723c8f460cd1f4618bcbf4dc11ab036b37d8b3177b5abb3d",
+      "id": "planning_gates_and_lock_dry_run",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "7427047e7bd25ae02b4f56e68823791725beee3ed35f3c3884943e78c1676d53",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "bd32f47a90205843120eafc6daba103705c96f56a205d9361a81bb22b7f37b6d",
+      "id": "locked_state_and_gate_negative_fixtures",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "633b5d8d97aea1cd61756611d5730fbef14afdfe053754eb10807a29eeefa00f",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d09cab237601a9d0de8437f8b74fd19982e23f1007d78a35d6c3848fdd860763",
+      "id": "issue_lane_milestone_mirror_parity",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "83cc7cfb0f95683b8bbf7bd3925f7445542c9ffbd8f7b423310da96abc9aeaac",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a4007faa5155ffbbc4a4bcd0853501e0ed146f3603c36778984523103a15a373",
+      "id": "preflight_and_transport",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e6ad2af423304db9e97b832bbf8cc986c146eb43f08e52c72aa300e3cfcab101",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "b96d01074b247443063b2648252ab91526405a5b9bd3a5b415aeb18e7f3e52fe",
+      "id": "plan_lock_genesis_transport_boundary",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "11e1ac7eafd339c13ddd9adc2162222e037c7da5f8ccab2e9f6d61df0be8c809",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "9d46d23538eccf0f1e3cfb7e7816dbd6cc903fa530b1b26148c91f77a411e050",
+      "id": "deterministic_fixture_clock_and_live_freshness_separation",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "fad6d74540a036c1c8bad863cd0697b2fe4e2db04f4208489d81678ed61e3a9e",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d313702693137307343d51ac6dcc064608a1f8431cb3d1a83986d86b77b89666",
+      "id": "huawei_fact_id_scope_affinity",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "82b22d4f98502dc7362e1244ebff57bbbe6a6a921bc1fff14d6fd47ec8c528e0",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "13c22408ca2d6641c45d92ab96e898ab866e7b4c37f75670be5cc12dd264fd69",
+      "id": "local_model_route_policy_and_resolver_replay",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "136d8a8d6a182dc789a7db95b7efe8b372b717e1eafe23c3dff3b2f1e74b33ca",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a892cd75420d71419b4e7a6e2fb445e40bbb5a76602c91f40c36201d6a44d10c",
+      "id": "inventory_family_aggregation_and_rtu_derivation",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "8c6f7e362dab0eb05218e1342d1f5a23006490ee692002b8e55396748fd4e4f9",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a171236350a98c36c1e6c304c04f5273c5da435cf26f98f398c17e0b0cfab5fe",
+      "id": "ta5_domain_oracle_profile_sets_and_fresh_genesis",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "eb5966b48f382394521cc1c046def963ff34c9fdcb3f844bd703f0a8496ccd7b",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "2939090c70978c83263e9c2f42ad93b3193fbff7021cbf31d6d1010507922a8c",
+      "id": "terminal_repair_6_executable_contracts_and_mutants",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "b11f3de4f91a125f748764c99a2861d4acb7a033b7f59e91ffb11413ed5dcf77",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "2d68dd6717f6960b8a937f98de2141451d2c4eb949da95507e3fc111889d386d",
+      "id": "terminal_repair_7_all_A1_A18_contracts_and_negative_suites",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "7b6ea42faa48e3b331c7335af3fca93063eadec2c5139826952fe6a308a8f615",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "160f8aa870dc7f708e0cd86082cb21c90f227946cdd396091260e91806a44ed7",
+      "id": "topology_evaluator_truth_tables_and_reachability",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "1365862abc369092830ef9f731c9db22450417ede2be4a30133ab6e508859e6f",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "f2d775cc000ce94e7a58ae24e4f060384fd18eccd48d2f64318fa045aeb070f9",
+      "id": "evaluator_mutation_suite",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "3ddc25f4e05eb343a1ad3e95ae573afcaa4ceb66ca36a35182d05adcbd62c24b",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "444ae7b1c694c82925742aa9065fae683589e550d1166e0588dcc92057d59ffb",
+      "id": "durable_tdd_unlock",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "3b09ff6db826d58fdb89a180894c75f383eb83f7688c0ef55ce8478557f498c6",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a411b7dda865b15aec7a8359af7844eb9a98da64096bf825e0c96f7349f55c43",
+      "id": "predicate_token_mcp_and_write_retry_contracts",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a2457a78e6b25a1c188b3808872ca890eaaa812ad86b93586c043e26ee740345",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "175149f93a40e9bd3a4b5de148a2ab05f47574c582713a6a1ff835e24713e317",
+      "id": "cross_repo_edge_partition_and_metrics",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e558cdecf22bdf95cb693363753d71d7ca29d102be3e474205ed0d5964b86bf7",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a79d9a38dd0f777544b7899665d29d05cf80211b6e6bbccf3fd89fd98f894679",
+      "id": "m5_order_status_ledger_and_stale_terms",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "1f0391b58fd194bb4e05446715dd456a5c63935d71a758363691de1846e6c49e",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "3902165ffd44a286e784a8454e8989fce7dc0bce7469867a9f28e58cca88eee0",
+      "id": "ascii_and_whitespace",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "4957247876a8a8a4509e34e88f5cbc98395b40fd038424353b5acd6b0f6382d7",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "c9e3662dbd40f152c66face0553614a9f11c97a4dcf88a768fe0c013304fa1d7",
+      "id": "hashes",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "f8b5ca9cf849d6972cd53737697196658927afadc78b6ac266e3771f42549c58",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d7df1097b561e442171e60a5995bdc2fb95e4a344cda698cc8c22fb3f7e38f94",
+      "id": "external_metadata_pre_post_cas_workflow",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "3e6cca7725316d1235328862ae0d1942c33643fdfbc227f054080f0ab5925b84",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "bd268e27b7719f3c7cb619184b18fdcce5ae79ff7babbaa73aff7be7679519e5",
+      "id": "canonical_matrix_topology_hash_integrity",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "0c65c3bb4ffb55e236c11c06c6d63155fc1597a4e2b945db84de36a847ef4ef5",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "1db215f62c142046385e076ea1fdb477b5930073da50d378c954cc82033bf865",
+      "id": "canonical_external_authority_and_blocker_probe",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "c0bd1ca95c386ff92240156526e3fab4fc115dfffba907678ba25c22389bd750",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "e5340644b14f36aeba55001841a0fb29717502461bc8cdefe38aa6d583ebb6b3",
+      "id": "preflight_row_semantic_replay_negative_suite",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "caebde5e955bd5c63d2aaaf065260baf4af0536faf22d3fa60eb1fe6b9c5b5f5",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "b92a75bf4e94bbeee838551a628804c8b6902a4b9fa778d9b3b523872c417437",
+      "id": "skill_adapter_external_oracles_and_malicious_probes",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "60c82ed1f94a0f8e6229425c0ea87c1f1ab6b49a308d218c9979b25d899a8156",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d2c7aae7d48f2323f5f27b5e1a07394c05ab30d807d2c943a30c0f5ef2a64b48",
+      "id": "openai_only_review_skill_inventory",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e01bbfec5d4e3c2e8a1a7299fd60ee526a558d5a12d3305a0144c577e9094e1b",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d9bc9decb606e3736f7b57b789f49c4febb55b20e0382a0cdf5fce40d4062def",
+      "id": "huawei_fact_scope_exact_mapping",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "02d57b0c6da04000de1c70b17b396c7adaff929452329b76bae42ba30845c54c",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "0efa4f4b78dbfac3f1715370bf2ef4369a5c0d02fa0d9beb737e49b333a13a4a",
+      "id": "plan_lock_excludes_huawei_issue_results",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "f681c2ee03280c8e9b6d1b91ba5d89d49ca30d8c9b9341ce58db943a2758912f",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "71c2006d1f244f6889ebdd4d03611405602e90fd520f7e644f3a9091a1846d05",
+      "id": "tancabesti_merkle_custody_and_clean_room",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "602cb8cb7e1e2b88a8cd8e1dec1db6bdc329ca6ce1f04e51ae30a10fc758b721",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "e38d383c704b929138ccdfbb0761d9eb96e0c6e96b6e2cf673cdc565d3ac7494",
+      "id": "signed_transport_artifact_derivation",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "93e3543c26774054de5d7d29fe13b0849e3fdb7b0df899bc2667d8b4c11193f2",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "26a1c6601a39daac773fa4260e7c829792f46ea8f779860bed17d8c0024cf06d",
+      "id": "private_manifest_lineage_and_schedule_only",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "d770a58b554ab9868e272767d1bf7954daeb4a1f53712dafa5dbd91331b8e8ba",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "26a1c6601a39daac773fa4260e7c829792f46ea8f779860bed17d8c0024cf06d",
+      "id": "terminal_repair_12_eebus_successor_lineage",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "97d2c73178f88115b283f19969965f7334976ed94843e79f630cdafac8bdb6d4",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "ce2e9badf43ffa2bd59e67c057c725a8bc0bbb146313853ee64ba411df9439a2",
+      "id": "terminal_repair_12b_eebus_selected_producer_fixture_execution",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "8b3a94920a3bb3e5c76ae00b524aebab408a1728398690380247244bb93b9627",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "1f62a4282a1b3b4f8e41b821e1b9deb69d5f02dc787e09cc238bd78c24323345",
+      "id": "terminal_repair_13_eebus_genesis_mutation_coverage",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "362ea68a4087424999441de35c706f2e55af987ba1fc85f096d9d8b3f84e3335",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a6df2b30f1751a28e975d8d61220da6de813be3b3d84808ca07d93f4213d3dc5",
+      "id": "catalog_private_expected_specifications",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "d0c218c70da33307f174224814be9c2ef45764e507d4c8c0d38da3afb944708c",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "5d493514efb9abf3adb0bcc44e08f3d3f75b8eaf5805abdee437e90e2e1968a4",
+      "id": "concrete_issue_oracle_commitments",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "701c3453ec862acad7837a7ed41dbde445765ae9e373ed63caf408ad0e1ff028",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "6f68de20135084e87caf9b97afa3e995bba15d9c35ea746644afaf657aff4f49",
+      "id": "terminal_repair_11_all_issue_acceptance_criteria",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "666ec4013ed308888d54734597dfb42405f9c6db269f367ead813d4825c8f6be",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d9ce9db8dd766d9ec94a02ebe97804f7794fcb7d5211eb47bbc03f10567808b0",
+      "id": "terminal_repair_12_issue_execution_class_audit",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "7b437c595053a99dbc29d6686ecb09d65c70df6fd1badd595c3b036db93eee26",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "b6d6b45926c6ca17ca02fcb9dede343d532a230cbfe9feb6a79512d401369de3",
+      "id": "terminal_repair_12_all_failure_fixtures",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "323ad6a32a52707e1035c7afeb4ce013cceb66f0459522e6165b9caef5dc2ae9",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "61fe1cd406aa5a46d08a40f0ebd869c782498ec77440a02a9f3bc005806e21a9",
+      "id": "terminal_repair_11_consumed_artifact_lineage",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "08f07d0123abda647c68bdb9cbee194a5aa7b86fc4cf05f97bdde142169e21db",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d2d72bb3c14cb5d385caf5946165b751c604abe1f5fdca779d1dc8f3c30f17af",
+      "id": "terminal_repair_11_huawei_lineage_fact_identity",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e7ae6a31f32db4051873cb74d218fd7b91942c1bb5bbc220e6eab8f75c88493d",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d2d72bb3c14cb5d385caf5946165b751c604abe1f5fdca779d1dc8f3c30f17af",
+      "id": "terminal_repair_12_globally_unique_huawei_facts",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "2a95613afc7b93aa0011999adb9682a0fd07276a962c056e2193d53df57ae2a6",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "527e3106c34337dbac07975b08b3fad73775b8948ecb7a4de28c4c16c31abee2",
+      "id": "durable_tdd_huawei_generation_store",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "d7784f89c3413bb6769b4da027d87f335f5f768a377a5c12f76009c3ffd75a7a",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "ca15e769b3cba43c33d59303c28ceb535ccc342180d26bc717867ce4b3712b4b",
+      "id": "terminal_repair_11_generation_bundle_crash_recovery",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "07eea75c02a90e37b1640823692ca1db49162d4edeb5df59c50a95da5406fbd7",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "170feb37d4990f2b927ce21212e84eff794fee9e533e85dff70ee95599ef7a6f",
+      "id": "terminal_repair_12_generation_recovery_successor_harness",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a744f3e0ed1cafa5865c5e6e0a2f29b0d0d0711dcb4590deda60bc1f50ce8a20",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "5b575dae6b1f7f693f4786a496fb050c33c9231c2661fcddf4acaf3a589c6bfb",
+      "id": "exact_git_update_ref_cas_invocation",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "ff53fb40f10b2882fb1b5d0c69f977efaa6624cc4a508f9351bc872dc0ecf01e",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "4a656825c8d6c211a8e0436e5af95934acd639bff8550d5e1f686f1099df8d61",
+      "id": "content_addressed_activation_wal",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "cfd204f433a593ed74de71158baebce589df95039b6240057700a0386ab30277",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "6d8a81e89dd96a41e19aacf544208e261ce9829465ba8f22fc52e7e7a4ed9a61",
+      "id": "ta6_isolated_locator_mutants",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "6081388b85045cfa2c512d8b8b57a9b804fde760b98729fd5eab59bbe2523a46",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "ac4fe77f202a718ab6b458420543a8b9d26728966ad06bef25be55526383a19f",
+      "id": "additive_structured_root_architecture",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "fe8222435767f6b7154243c14850d43453288f009a833254f051443f72bf83d9",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "ec6060844da76dedc4bfc29c6804e1b7e4c067dd7b20a3344cbeb406c9ec6b01",
+      "id": "terminal_repair_12_root_invariant_authority",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "c1182d3dc3b5c34342971fb917b5d2cc1c6397cd372fc1b8265cceb096aabfae",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d87ace783f95baf00b26eb0e6f8db744482b1547c21d4b0691b46dbaf3ca642f",
+      "id": "terminal_repair_12_neutral_huawei_independence",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a7ecd41d678de7b897a1ea4ba77b82bd353bfceefd506f88bfd01aa8ad2154cb",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "8ae2d5b4246eeb72268652a11cac82559887dcc0012d5f102359772ed78dc739",
+      "id": "terminal_repair_13_manual_preflight_exact_schema",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "8ed4d630e88ee782a2a49d54a0af51bd9bda66853e5594f57f0a5028b57fd72f",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a5986320bbe8c911bb1bf846edf40597d01f454de9cc5294e2ada6880b8b550f",
+      "id": "terminal_repair_13_neutral_inventory_parallelism",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "bb29ff9935eb0f736415650f892e8434828f8d6ce2dafcd0dfa3b6dbd3768e97",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "299e76ca5d13dfe79cede5517a342d674e1caf813111f0455f91eb5faace6b8b",
+      "id": "terminal_repair_13_three_named_lock_prerequisites",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a407d4f4b3a2ca52a7191b6c2f723d24536f3dc4bf26d3efdcb90815e0628bd6",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "dfa3a5e455e41e8df63fa28c26ca675a66f811efe6bcc94b7d9a8494da913306",
+      "id": "terminal_repair_13_root_authority_singular_metadata",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "cad526017f8aff3f72d24a4a479839c8bd2b104a8c1993246fab6aa835ea719e",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "e33173cffeb40fb6a9a1efdb60083a2363a5b464c9cacbf40420cc1b8defce36",
+      "id": "terminal_repair_13_emergency_private_owner_inventory",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a867561877d0331e83e091c53d02a3a131863bd271058afa7cf9f5caee2d86e2",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "24cc16d4053508d22a3a64a0fd69dc340ef2fdb3c46dc138493c669028406625",
+      "id": "terminal_repair_13_transport_mirror_heading",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "54c98472d3d03ffcab6424fcb4f440d4e6b3c22479913d52edd8014b0ec0bb96",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "4b0221983b2f03bf9c1469c2380450da73e4ee45857a97e5112589d4a51e2273",
+      "id": "terminal_repair_13_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "7bbae28ebe9766b2429feab296215b799b97c9e46896c60226e5a941a2e03852",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "4e6aa37b4e5dc006ca151d814f63a2d652fab974fc41a67a5714bda0ab01c0bc",
+      "id": "terminal_repair_14_pre_m8_rtu_dispatch",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "8a095dd5ba53eea519925ce37815b0b7a285109ed1eb5ea56e28f09df4f5db51",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "8a92488eb5f66d3f2a1ec56fc6be74c2544bc7a0adce2f0137e5218db2efb4a6",
+      "id": "terminal_repair_14_rtu_scope_executability",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a104764c2e00a7e529d8759bb79631e364821e4d786b657b7387abf34b711ac9",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "542d951745934e6fa777b93d03a7f2ae1d294a9acc3fa4a59a44378df76d83b1",
+      "id": "terminal_repair_14_sensitive_relationship_blocks",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "41859f56c6c1b0802b8363ae87a02eb6e5a851a08b2466d5735a3d7e1afe3403",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "39cc5d9455ec81f7ed8608a29435c2b6ec6388b05d760bef4ea4b45188962877",
+      "id": "terminal_repair_14_lock_assertion_blocks",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "1e7de7297504d516645380a74e71a0067ca3ee33755757e22fa896fda10cea2f",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "2a3e9dd11e4dc646c2a1c1014a476bbf54e1376575652b54a95f0bacb6fb5fc8",
+      "id": "terminal_repair_14_rtu_baseline_prose",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "73014639a6c91b6748539aa24d20baa53766f113c4e3769e2e3fa066d497283c",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "5d4bf08db036fea93b5c12736eb1de0f27b370322311c12440c5bd1836daeb29",
+      "id": "terminal_repair_14_canonical_coverage_ranges",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "71d9de6662dc12aa656a29de7e1cb34e6ef190ec9d5f1e06c18c1ff32d7b7e0a",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "75366d2af94991dcda63ea4cc5594270ee1dbb6158a7deeb04e92c8aa100e8d4",
+      "id": "terminal_repair_14_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "b9f5fad06f96c83bd4f669ca8fb06a51ec1074df3bd185e4b6801b98962023b0",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "8558775fb38de6a34ed7139bdb9df4f1ad9f4792ee19488d339b0f1c8f8b4055",
+      "id": "terminal_repair_15_read_only_v1",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "beaac20977cb1220ca8ac6ed9eeecd075bd016051f2a08bd158e5eb0ac44ee99",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a7d7c9e718de7a5b1f26d21d97e452bd55635bb6ba5774dfa88f910012552719",
+      "id": "terminal_repair_16_critical_issue_oracles",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "61b791d9552297e0d16a4e0b31a603b67023009734fa02d018fd2469fdd32364",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "74f959b72888614de3b48726318ade3909daeb6733511c2b9be8c6089cd0ff2e",
+      "id": "terminal_repair_16_pre_execution_intents",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "67cc9375382abe5f2d89a33e255daac1f9fa78a4ae63507be8bcd176c3b8f47a",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "3044ca0d304f434269dd57ff9e1b7df6254bcce2c806e8e0332e4de35730757d",
+      "id": "terminal_repair_16_m5_order_and_schema_snapshot",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "670f8a9e8e8c3973b3ff2e43963aab6a8a4abadfac97b9f4e208e04445db807a",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "f2c5aee3603e542d91db05b1bbade222fc31d131d55366f812f9553ecc0b1eb0",
+      "id": "terminal_repair_15_authoritative_pre_m8_rtu_evidence",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "4432f783c5d7bb3dbe1b890a746f19c81cdd7959bf172d20219ad8a3226090e0",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "c8452e14dd2aaab099253c4ec908084e5b13ca67a99460a314d387fc902574fd",
+      "id": "terminal_repair_15_lock_block_sensitivity",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "505b3d005d7133a376e4750aa814ff24062e4c0b8654926712eccbc38864e5a3",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "ed1dbb4ce8e5b98331455b00f78a634d30b72b59e196d4d64189d12d0ba1458a",
+      "id": "terminal_repair_15_neutral_huawei_sensitivity",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "d4d1f2ad7b964062d768a3efcb7adfbd9040ad493f60a06af7838cd83da40d38",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "b1e9ae2adb21598f6eee51d2270c3dced3d61ca5fc49b8dd31c757f782dbdde6",
+      "id": "terminal_repair_15_predicate_operator_docs",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "85cd2db32784d7a8a3d6fb20b3eb1050dc39fa7d6b56181022eca20567157153",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "14ea8f4e2bc3014136c04b6c109a716caecaeeba484be073657b939033e30fd9",
+      "id": "terminal_repair_15_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "c5fe24770751b622e9ebf3f6dc6c2dcec2e66a7ba3a23ef532040b83136eece7",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "e12668fd42732632e7227088d1a9ce8d6dfcdbf1924cc74ffef20bae35e5a402",
+      "id": "terminal_repair_16_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "b8f08c8f7e04370836070892b9d7825da639e115058a7071639398a4d246de71",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "b0d9918efa57312511bb9243e311e55ffef3b6f33628e5152e1ff9c8c5789a5a",
+      "id": "terminal_repair_17_audit_closure",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "5bf90572a7234bb06f7de358bd4a095bf882812addbcd3f460f53f2e87e1032e",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "c167b17510d59490077264bec7d65d2c6e54e72dad9938f356b5abbbbf0a07f5",
+      "id": "terminal_repair_17_validator_self_stability",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "9d47640075ea996a45252d70d0952f42e9d22cab6a3049f33986bbfb2503df14",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "e47cb2dcfdee21236ebae39832067ea4e2330e7eb1e7bf27842b5ea56bbb7edc",
+      "id": "terminal_repair_17_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "abe18f26809e7eaab8f45b3100112f8ee2493680d67fde8ec54e84842faf9aeb",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a056d8a229f244822ff5e05da4c9a38e605ec9c4d589d43358540e259bfa4002",
+      "id": "terminal_repair_18_audit_closure",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "29ea3d1f9e30c266b858fb13025bbfbec2cc4b1c38143e1e7c8bdf262e7f2a33",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "7ddc95b75afda7b163346f886375cfa2c3ee15c13964b70781789820af0b20e3",
+      "id": "terminal_repair_18_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "b840ba43b51335a0bab3afc9d00ef7614c0ace423f775eb89a7e8747734178a7",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "ea1d781dab09cd7f97508afc514cd6088b6802ec71ad56ef8977ccb50f3369a0",
+      "id": "terminal_repair_19_audit_closure",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "52c9bd407fc3b0adf7698d6fc3ad855bafba98866bb910beb3c8ac3a4a5ceeb4",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "72dfdd463184a4e509f7742f82e90ffb48dc0100c3308f81764c7290b4e5e3ee",
+      "id": "terminal_repair_19_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "60ea80d3d2a8b265d0d614815d9252df21c0995484751e50556ce4c398361e2d",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "9976ec588d88005d962f7945831472f7464ab98369c4f47d00a7b995e8788cad",
+      "id": "terminal_repair_20_audit_closure",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "19763c1767f8ae5949ca6fa00fb12c5f1fe6f5511bce3501059e0be7af9fad7a",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "2d1b667e89272fb3a521e629b6df58d09cb0af3692b176c7243d43eb18302e2e",
+      "id": "terminal_repair_20_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "1efbe5eb62f1f3a8f4e201a150f915166674201ba0ab06299405465f6f1d5f44",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "44826ddcd3923b7bf8129a11db055cad1dfe5d282b3abfaa75b2ae013aa29915",
+      "id": "terminal_repair_21_audit_closure",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a708c2bef1ea3d981f6b28655b3b7a2edfcd88763aaa16010440e835ac4538f4",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "3c8de50b0bef1d2401a7de124e15c0e7ab4e387428d6d91e18e8834f9948d18c",
+      "id": "terminal_repair_21_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "fac282e2e3b635df361f533682425f833370b231d3dc84e4a9c936b597d878bc",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "5247fbb4885510f56c30bea68bc0ad1e45ffdfb645a191dbcaa89e7ec7e4db6f",
+      "id": "terminal_repair_22_audit_closure",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e4ce66af5474d8b91b14dafaa06a437c54b18f7fe4e6e3a8f08c814418267d15",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "474f3cb3955be6865cb58aa1c230d6ae194cbd026976e362e5d02c90557caf67",
+      "id": "terminal_repair_22_current_round_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "a8f6b9bf2261965a16efee884467fbd489465236dd47241c8a7d7a1068a76d39",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "a6f9b4a6b60b385c6426ff3a2ab8c451834f7d7ceb022db90a158c5858db0def",
+      "id": "terminal_repair_12b_roadmap_chunk_declarations",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "0166a9bd0463440a646030881bd9c2ddbaf6dbdfb80d27e940226ebdab892b49",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "f9411e42e0bbb1af531d4702ffe8d7e2c3d036287e989f10b45702c4dd56a13b",
+      "id": "terminal_repair_12b_audit_12_review_state",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "d3f2efb56d71afdc0b93c87c539cd5d2f0956819def5aa87215c398ebd8f88bb",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d5acb6181a775aeb39b54f2287d85aa1c3426bc08b32a9fba17b8de391b2402d",
+      "id": "generated_plan_assertions_and_stale_prose_scan",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "aa4ce32201c5930e301a8e909b93bdc8e14be75560f0598f8f7dad13a5411973",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "d6fef30cda4e68a4df1aa2edc54f6c685f0f6780aefb980f762a28dbc21fd606",
+      "id": "terminal_repair_11_plan_lock_prerequisite_parity",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e653847c3818be36c479c70be8d69720e1062ff6753d8efbf83442a1b69b8974",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "35f19757ece2b4764f577881f45b4f82dbb5c912f7dc267867e60854cb31264f",
+      "id": "terminal_repair_12_ordered_plan_lock_chain",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "ed06a66bd3402ba5fbe4b64080cdd8d4e317eb9abdd41777fa3a2a436b0eea7c",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "1718f2fbfb321a162171bfa8c1f1d2fc7b16194e74fd4073b695069f7b7e281e",
+      "id": "terminal_repair_11_preflight_schema_mirrors",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "ac7302f0ed8b044e9f8443808cb10576ecd2c95257a5c859d5f31b375d3f3442",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "49c2f21f71c6102d8496307eff56b60712bf55b5fa2bb857ea80af7dfea40e41",
+      "id": "exact_preflight_yaml_example",
+      "result": "PASS"
+    },
+    {
+      "execution_sha256": "e60a7a7099d3ffb9c0999751c0f97528efcd03814ccd97b24bd26757d0775f82",
+      "execution_state": "COMPLETED",
+      "harness_sha256": "7587cacc2b15ca45c052cc478834f68325c2c969d4d3cb768018f8d165ea262d",
+      "id": "mandatory_check_execution_and_report_negatives",
+      "result": "PASS"
+    }
+  ],
+  "executed_fixture_sets": {
+    "terminal_repair_12b_eebus_selected_producer_fixture_execution": {
+      "composition_schema": "fmb-08eebus-executable-fixture-composition-v1",
+      "executions": [
+        {
+          "base_fixture_oracle_sha256": "0bf1204d81c13e766d85f55bd40a80e5fb506e6d026a3e8b8f3600dcfc1cddc2",
+          "base_test_id": "FMB-08EEBUS-ACCEPT-EEBUS-SUCCESSOR-EXTENSION-V1",
+          "composed_fixture_sha256": "aef21e42bfc8877fd286ecd6f38b05250b482aed510e2e9fcbcefef3e8bed054",
+          "condition_sha256": "018bed803ef7b1c931718e62324cf34d3682664354fef3eca75c1469a1dabe57",
+          "evidence_payload_sha256": "f8dae7ad3a1305dd8e3e5f9479620b12ab5f2561f9cda0993859cdcbc904b2bc",
+          "execution_sha256": "90d213ab435a6e307765b042d161877977cd69acbed9ce93f4d0166b31fa299e",
+          "fixture_id": "FMB-08EEBUS-SELECT-PASS",
+          "machine_contract_sha256": "90fafa33ec120a9daa86b800e9e557ff90a3d61f38221c56c6577074fcecc95f",
+          "predecessor_outcome": "PASS",
+          "result": "PASS",
+          "selected_artifact": "eebus-base-extension-v1",
+          "selected_source": "FMB-07B",
+          "source_contract_sha256": "46ac3f95efcc3d7a6fae65833021dfdefc6f32dcdbd95ae8f4ec7c873daae2d4"
+        },
+        {
+          "base_fixture_oracle_sha256": "0bf1204d81c13e766d85f55bd40a80e5fb506e6d026a3e8b8f3600dcfc1cddc2",
+          "base_test_id": "FMB-08EEBUS-ACCEPT-EEBUS-SUCCESSOR-EXTENSION-V1",
+          "composed_fixture_sha256": "c81120d9c885d714ed545f0e1409209e03d3750dd5398c012d436cc5581c522e",
+          "condition_sha256": "95ac4590ffba15274f46c37947824ee2a4f5e1e400d8e1d081b4e51843a2c4ee",
+          "evidence_payload_sha256": "6ea5c90532927cfc7aa76b08a28d41d2010a1469165a59e0e2af8e43c66af165",
+          "execution_sha256": "3b9a9431b1d7b3bc989582314b1ee6a633d709ef3fa6a883d64d18f9876ca3c6",
+          "fixture_id": "FMB-08EEBUS-SELECT-NO-GO",
+          "machine_contract_sha256": "90fafa33ec120a9daa86b800e9e557ff90a3d61f38221c56c6577074fcecc95f",
+          "predecessor_outcome": "NO_GO",
+          "result": "PASS",
+          "selected_artifact": "eebus-fresh-genesis-v1",
+          "selected_source": "EEBUS-FRESH-GENESIS-AUTHORITY-V1",
+          "source_contract_sha256": "2904b07ee980a834c1568aeca5bcba22b559df3e2628ffd5c696f11737e8230d"
+        },
+        {
+          "base_fixture_oracle_sha256": "0bf1204d81c13e766d85f55bd40a80e5fb506e6d026a3e8b8f3600dcfc1cddc2",
+          "base_test_id": "FMB-08EEBUS-ACCEPT-EEBUS-SUCCESSOR-EXTENSION-V1",
+          "composed_fixture_sha256": "2899a7ba0aed8ce1599ba758115bf8aeaf310a87007ce077d55095e1cfdbf0dd",
+          "condition_sha256": "95ac4590ffba15274f46c37947824ee2a4f5e1e400d8e1d081b4e51843a2c4ee",
+          "evidence_payload_sha256": "6ea5c90532927cfc7aa76b08a28d41d2010a1469165a59e0e2af8e43c66af165",
+          "execution_sha256": "8ca26e490337dd8df02c650b9b08b6ffd45bbf996b8d57847d59dc9af95c8306",
+          "fixture_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "machine_contract_sha256": "90fafa33ec120a9daa86b800e9e557ff90a3d61f38221c56c6577074fcecc95f",
+          "predecessor_outcome": "PRIVATE_UNAVAILABLE",
+          "result": "PASS",
+          "selected_artifact": "eebus-fresh-genesis-v1",
+          "selected_source": "EEBUS-FRESH-GENESIS-AUTHORITY-V1",
+          "source_contract_sha256": "2904b07ee980a834c1568aeca5bcba22b559df3e2628ffd5c696f11737e8230d"
+        },
+        {
+          "base_fixture_oracle_sha256": "0bf1204d81c13e766d85f55bd40a80e5fb506e6d026a3e8b8f3600dcfc1cddc2",
+          "base_test_id": "FMB-08EEBUS-ACCEPT-EEBUS-SUCCESSOR-EXTENSION-V1",
+          "composed_fixture_sha256": "f99fe0758d6bb744d74090a1dd244d70bc3b00e21e256937568fc94dd6dfe65f",
+          "condition_sha256": "95ac4590ffba15274f46c37947824ee2a4f5e1e400d8e1d081b4e51843a2c4ee",
+          "evidence_payload_sha256": "6ea5c90532927cfc7aa76b08a28d41d2010a1469165a59e0e2af8e43c66af165",
+          "execution_sha256": "b93650e4be3f3bd06c10514e014b68ba04f2c6c9cea1cd3dbd348aa7f2697f25",
+          "fixture_id": "FMB-08EEBUS-SELECT-N-A",
+          "machine_contract_sha256": "90fafa33ec120a9daa86b800e9e557ff90a3d61f38221c56c6577074fcecc95f",
+          "predecessor_outcome": "N/A",
+          "result": "PASS",
+          "selected_artifact": "eebus-fresh-genesis-v1",
+          "selected_source": "EEBUS-FRESH-GENESIS-AUTHORITY-V1",
+          "source_contract_sha256": "2904b07ee980a834c1568aeca5bcba22b559df3e2628ffd5c696f11737e8230d"
+        }
+      ],
+      "fixture_ids": [
+        "FMB-08EEBUS-SELECT-PASS",
+        "FMB-08EEBUS-SELECT-NO-GO",
+        "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+        "FMB-08EEBUS-SELECT-N-A"
+      ],
+      "fixture_schema": "fmb-08eebus-selected-producer-envelope-fixture-v1",
+      "fixture_set_sha256": "4a10473946f5105fbbe90ac7aea0e539642bd116cd95138f8c3dac17518b505f",
+      "schema": "executed-fixture-set-v1"
+    },
+    "terminal_repair_13_eebus_genesis_mutation_coverage": {
+      "fixture_classes": {
+        "extension": [
+          "FMB-08EEBUS-SELECT-PASS"
+        ],
+        "fresh-genesis": [
+          "FMB-08EEBUS-SELECT-NO-GO",
+          "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "FMB-08EEBUS-SELECT-N-A"
+        ]
+      },
+      "fixture_schema": "fmb-08eebus-selected-producer-envelope-fixture-v1",
+      "mutation_classes": [
+        "zero-selected",
+        "both-selected",
+        "wrong-producer",
+        "wrong-condition",
+        "stale-identity",
+        "envelope-omission"
+      ],
+      "receipt_ids": [
+        "FMB-08EEBUS-SELECT-PASS::zero-selected",
+        "FMB-08EEBUS-SELECT-PASS::both-selected",
+        "FMB-08EEBUS-SELECT-PASS::wrong-producer",
+        "FMB-08EEBUS-SELECT-PASS::wrong-condition",
+        "FMB-08EEBUS-SELECT-PASS::stale-identity",
+        "FMB-08EEBUS-SELECT-PASS::envelope-omission",
+        "FMB-08EEBUS-SELECT-NO-GO::zero-selected",
+        "FMB-08EEBUS-SELECT-NO-GO::both-selected",
+        "FMB-08EEBUS-SELECT-NO-GO::wrong-producer",
+        "FMB-08EEBUS-SELECT-NO-GO::wrong-condition",
+        "FMB-08EEBUS-SELECT-NO-GO::stale-identity",
+        "FMB-08EEBUS-SELECT-NO-GO::envelope-omission",
+        "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::zero-selected",
+        "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::both-selected",
+        "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::wrong-producer",
+        "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::wrong-condition",
+        "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::stale-identity",
+        "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::envelope-omission",
+        "FMB-08EEBUS-SELECT-N-A::zero-selected",
+        "FMB-08EEBUS-SELECT-N-A::both-selected",
+        "FMB-08EEBUS-SELECT-N-A::wrong-producer",
+        "FMB-08EEBUS-SELECT-N-A::wrong-condition",
+        "FMB-08EEBUS-SELECT-N-A::stale-identity",
+        "FMB-08EEBUS-SELECT-N-A::envelope-omission"
+      ],
+      "receipt_schema": "fmb-08eebus-producer-mutation-execution-receipt-v1",
+      "receipt_set_sha256": "814c4cc62a146da325d6fb5fb14fbabd7524fa7bfed2db435cef23dc17a27ece",
+      "receipts": [
+        {
+          "execution_sha256": "4c9b067f2a21cc42af615da937c0498b959f8b24ee56974c67739a0c9f2653fd",
+          "expected_result": "REJECT",
+          "fixture_class": "extension",
+          "fixture_id": "FMB-08EEBUS-SELECT-PASS",
+          "mutation_class": "zero-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-PASS::zero-selected",
+          "mutation_input_sha256": "a15f4f1092a67ea1a63ac174d5b982fb5b27c669f5572caf07c05b6c6ffab7d8",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PASS",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "06eb52a05619e88e3b4e713877a6056036f9e60bb46eebd247a88b0834a81ad1",
+          "expected_result": "REJECT",
+          "fixture_class": "extension",
+          "fixture_id": "FMB-08EEBUS-SELECT-PASS",
+          "mutation_class": "both-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-PASS::both-selected",
+          "mutation_input_sha256": "c1aa31b3f49aace3b858394923ae6b77f6b28284c5826aed4b3902bde0211850",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PASS",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "a6212fa31f0572fefcf2d780649ad8b9df222eb1f993cab0546d18805b2ff0db",
+          "expected_result": "REJECT",
+          "fixture_class": "extension",
+          "fixture_id": "FMB-08EEBUS-SELECT-PASS",
+          "mutation_class": "wrong-producer",
+          "mutation_id": "FMB-08EEBUS-SELECT-PASS::wrong-producer",
+          "mutation_input_sha256": "0e1df6e5db6ae77c31ff33fda70623d6baede89bc3de21728809c1b481154466",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PASS",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "b9f9cec6db648549a894c31359fae71bf2eac6afded9ba5a95a57520014e43eb",
+          "expected_result": "REJECT",
+          "fixture_class": "extension",
+          "fixture_id": "FMB-08EEBUS-SELECT-PASS",
+          "mutation_class": "wrong-condition",
+          "mutation_id": "FMB-08EEBUS-SELECT-PASS::wrong-condition",
+          "mutation_input_sha256": "b55c5ad2d8322467685f5711b380d1da400f7297e2fedfaffa9660d585b40a70",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PASS",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "493abc236db0f422321daf3ae0e501a3dfe8d0be292c1029c4b2ceb09dbf1c2f",
+          "expected_result": "REJECT",
+          "fixture_class": "extension",
+          "fixture_id": "FMB-08EEBUS-SELECT-PASS",
+          "mutation_class": "stale-identity",
+          "mutation_id": "FMB-08EEBUS-SELECT-PASS::stale-identity",
+          "mutation_input_sha256": "48ebee38553245da19979bc4f0c7cd5e2ae6fd85c3737c58b6186e77d54ae939",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PASS",
+          "rejection_sha256": "b76e1f837250ef8fea33b590bc234d19f6b26c8a253d648a63d97f9e25b451d4",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "0e2457541979c683bfa6a6580d11722896c2a9049f60491d37bd8b86b0b66a2f",
+          "expected_result": "REJECT",
+          "fixture_class": "extension",
+          "fixture_id": "FMB-08EEBUS-SELECT-PASS",
+          "mutation_class": "envelope-omission",
+          "mutation_id": "FMB-08EEBUS-SELECT-PASS::envelope-omission",
+          "mutation_input_sha256": "8cc229f9d6a4d57e69c1e3541d20b6eaeb9cab6fcfd41b3eac788df51846f272",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PASS",
+          "rejection_sha256": "08c1782d1289a6253fef35dd87b8c569a21f2171de51c227b8ee67ac7526d198",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "5962cf8f275fb38fba43a318903060833ad9b28e754d6f82e906cd007c36166a",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-NO-GO",
+          "mutation_class": "zero-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-NO-GO::zero-selected",
+          "mutation_input_sha256": "6a7415c1f30f860a1fffaf1b6ff7da2ade59e4fefdc3542c9c1469286d03c1cf",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "NO_GO",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "0b57844d78041956f362e8d971da96359e8dbcd1ab877404b3fd3080c84acda3",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-NO-GO",
+          "mutation_class": "both-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-NO-GO::both-selected",
+          "mutation_input_sha256": "e91c84f945702c8431368b19273b11e41a524c30a37053b5faa2de9e7c3cb791",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "NO_GO",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "141920685f1279e57fe77ace571d09155dce8c8ac7b9ec1134c1725b87df1b41",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-NO-GO",
+          "mutation_class": "wrong-producer",
+          "mutation_id": "FMB-08EEBUS-SELECT-NO-GO::wrong-producer",
+          "mutation_input_sha256": "f0cf13f933a7815bf3411767bdc88f65d968767c347261465975562e8d28e87e",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "NO_GO",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "7bae50d708d3a3fd2e5a02c7662db1c1d0359e6e462e9710920842675f38cadc",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-NO-GO",
+          "mutation_class": "wrong-condition",
+          "mutation_id": "FMB-08EEBUS-SELECT-NO-GO::wrong-condition",
+          "mutation_input_sha256": "5b4974e4d84f68caa825b36b88052a8b4ad60dbaa8bd0039eafd966939b91386",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "NO_GO",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "4c48b5e82b98442efb12ab3388f53295e5e6068d89fde9fbac8d145827f29527",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-NO-GO",
+          "mutation_class": "stale-identity",
+          "mutation_id": "FMB-08EEBUS-SELECT-NO-GO::stale-identity",
+          "mutation_input_sha256": "ff228fdf865a10693355877b6309a101c3ca28b9c65ab30a2c377bd589c3b2a9",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "NO_GO",
+          "rejection_sha256": "b76e1f837250ef8fea33b590bc234d19f6b26c8a253d648a63d97f9e25b451d4",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "1877a4b95cc5092240bde03bf6ae7f9e5b95a3ce8339b3dadd2c5f6b61a4994d",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-NO-GO",
+          "mutation_class": "envelope-omission",
+          "mutation_id": "FMB-08EEBUS-SELECT-NO-GO::envelope-omission",
+          "mutation_input_sha256": "e5f3c53a2c1083de79251a7fdb7381a956f7bbcc3eda065b79926331e6800c1a",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "NO_GO",
+          "rejection_sha256": "08c1782d1289a6253fef35dd87b8c569a21f2171de51c227b8ee67ac7526d198",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "e433b2d7e16d266e1ffced4f1b7b33291ce93d5d3939c4f140af906057a466fb",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "mutation_class": "zero-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::zero-selected",
+          "mutation_input_sha256": "034290446c6b8eaa47c38c7b11116eb20e51bceeeada2fa0faa451a3e6685ca6",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PRIVATE_UNAVAILABLE",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "05daa5d8ed0e449c1a5b50c39827b34e15ef4f09f31f1f17616c2d8ea377d5a5",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "mutation_class": "both-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::both-selected",
+          "mutation_input_sha256": "76ac51b9cfe53bab2f281b635d8b885800030feeb8178ce468bbb29d56c1e0ff",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PRIVATE_UNAVAILABLE",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "25b0d3ed229221ab67546387c4b9d413ce1362a90089c0624854de5cbbb5b5c3",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "mutation_class": "wrong-producer",
+          "mutation_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::wrong-producer",
+          "mutation_input_sha256": "6375e8943ca9b9c73f930437b140f2b1ae982fc55e196dcf641d7aa13113f77d",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PRIVATE_UNAVAILABLE",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "fa82c0e59d9962d7ba959199a25fe89ab299eb927a2b02e25b89a9354f428713",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "mutation_class": "wrong-condition",
+          "mutation_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::wrong-condition",
+          "mutation_input_sha256": "bde4a922b1cd7abb87489b04e4961d4632bc4a4fb094770b0ff4e36ea943475e",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PRIVATE_UNAVAILABLE",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "21f70a372606298df24e718403ef267bbc55ed7df6702a9f14bad5a131667306",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "mutation_class": "stale-identity",
+          "mutation_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::stale-identity",
+          "mutation_input_sha256": "0a12c1ba36f2aadd3c1fe3923cb2781dccea3a1ec975f9c533b95e47b7c3b16c",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PRIVATE_UNAVAILABLE",
+          "rejection_sha256": "b76e1f837250ef8fea33b590bc234d19f6b26c8a253d648a63d97f9e25b451d4",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "0b5fceea8936980554aaba761bae0c93167aa9995269cd3b0b1a677405dcb689",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE",
+          "mutation_class": "envelope-omission",
+          "mutation_id": "FMB-08EEBUS-SELECT-PRIVATE-UNAVAILABLE::envelope-omission",
+          "mutation_input_sha256": "d6ad9e42a734d280e85879dac727d662e94f82f2ab7c833ffb45a560a2df3040",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "PRIVATE_UNAVAILABLE",
+          "rejection_sha256": "08c1782d1289a6253fef35dd87b8c569a21f2171de51c227b8ee67ac7526d198",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "79c64472c01e3822d113c51635acd44fafcf6a5365c3354b48a44ab488e61c40",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-N-A",
+          "mutation_class": "zero-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-N-A::zero-selected",
+          "mutation_input_sha256": "b5b96050ca6f93f0513d3a1fb4dc41f3d2a8956aa1d75785d052180fb6ef2c32",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "N/A",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "e29c6174a6a6aaa915e171ed9b0c2bfda8e6e28c94f1dad1aa146ce35dcabafe",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-N-A",
+          "mutation_class": "both-selected",
+          "mutation_id": "FMB-08EEBUS-SELECT-N-A::both-selected",
+          "mutation_input_sha256": "2a5990ee49e12858716a98258f3ece51e986f1c75d3bd893e15f08081e931d79",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "N/A",
+          "rejection_sha256": "4642308d243a944b6a725456687641b0d7cd6a2a584c5b68a3cf80fb192c0b6f",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "914b853758081b916d14e30796b25770be4a8b99c36cc009c71931b75834429b",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-N-A",
+          "mutation_class": "wrong-producer",
+          "mutation_id": "FMB-08EEBUS-SELECT-N-A::wrong-producer",
+          "mutation_input_sha256": "d48af8695f5cf80f606b84e61c79c61a325f2ffe10d8f07f44c140679b612658",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "N/A",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "cbb07c1d647caf39bb8e5ccf9b2c47fcda27e05a08df2949cce5e077e540f730",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-N-A",
+          "mutation_class": "wrong-condition",
+          "mutation_id": "FMB-08EEBUS-SELECT-N-A::wrong-condition",
+          "mutation_input_sha256": "c665542ff5eed720bd84d8424c0348113c0141eacb9bd0827f1951d83e2c389d",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "N/A",
+          "rejection_sha256": "d90fd6383565feaae5e4f3f96d3b417824afe58bf592e9ccc56ec8b4c3f26d7a",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "9b06532cf88e71acde3cba01ecf94a3aea304ef920e10697adaa544f744075b8",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-N-A",
+          "mutation_class": "stale-identity",
+          "mutation_id": "FMB-08EEBUS-SELECT-N-A::stale-identity",
+          "mutation_input_sha256": "63b7f841d99ad79e76bb4dd19cff5ebfb3a01ba173b8e9a065d95240b5616d1c",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "N/A",
+          "rejection_sha256": "b76e1f837250ef8fea33b590bc234d19f6b26c8a253d648a63d97f9e25b451d4",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        },
+        {
+          "execution_sha256": "4fe361672c7c7645be2e6ec2a75d45f5582bcf7573bfe62887f038fb5889a84f",
+          "expected_result": "REJECT",
+          "fixture_class": "fresh-genesis",
+          "fixture_id": "FMB-08EEBUS-SELECT-N-A",
+          "mutation_class": "envelope-omission",
+          "mutation_id": "FMB-08EEBUS-SELECT-N-A::envelope-omission",
+          "mutation_input_sha256": "4de2cc54b07155b5304f8a18931521ec6d3bdb07907245260a42fb4c365b8c89",
+          "observed_result": "REJECT",
+          "predecessor_outcome": "N/A",
+          "rejection_sha256": "08c1782d1289a6253fef35dd87b8c569a21f2171de51c227b8ee67ac7526d198",
+          "schema": "fmb-08eebus-producer-mutation-execution-receipt-v1"
+        }
+      ],
+      "schema": "executed-producer-envelope-mutation-set-v1"
+    },
+    "terminal_repair_14_pre_m8_rtu_dispatch": {
+      "executions": [
+        {
+          "content_digest_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "enabled_families_by_issue": {
+            "FMB-04L": [
+              "EBUS_T01_T88",
+              "MODBUS_PDU",
+              "MODBUS_TCP",
+              "MODBUS_REPLAY",
+              "MODBUS_RTU"
+            ],
+            "FMB-04O": [
+              "EBUS_T01_T88",
+              "MODBUS_PDU",
+              "MODBUS_TCP",
+              "MODBUS_REPLAY",
+              "MODBUS_RTU"
+            ],
+            "FMB-06H": [
+              "EBUS_T01_T88",
+              "MODBUS_PDU",
+              "MODBUS_TCP",
+              "MODBUS_REPLAY",
+              "MODBUS_RTU"
+            ]
+          },
+          "execution_sha256": "15983da452f8e8485d937ad03be12f832c2b62f97c719b0c11f7c90af1defc5a",
+          "fixture_id": "pre-m8-m2r-pass",
+          "producer_authority_id": "FMB-02R-A:exact-head-release-authority",
+          "producer_signer_id": "fmb-02r-a-release-authority",
+          "result": "PASS",
+          "schema": "pre-m8-m2r-dispatch-execution-receipt-v1",
+          "source_contract_id": "FMB-02R-A:release-source-contract-v1",
+          "source_head_oid": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_issue": "FMB-02R-A",
+          "source_outcome": "PASS",
+          "source_repo": "helianthus-modbus",
+          "source_tree_oid": "cccccccccccccccccccccccccccccccccccccccc"
+        },
+        {
+          "content_digest_sha256": "ABSENT",
+          "enabled_families_by_issue": {
+            "FMB-04L": [
+              "EBUS_T01_T88",
+              "MODBUS_PDU",
+              "MODBUS_TCP",
+              "MODBUS_REPLAY"
+            ],
+            "FMB-04O": [
+              "EBUS_T01_T88",
+              "MODBUS_PDU",
+              "MODBUS_TCP",
+              "MODBUS_REPLAY"
+            ],
+            "FMB-06H": [
+              "EBUS_T01_T88",
+              "MODBUS_PDU",
+              "MODBUS_TCP",
+              "MODBUS_REPLAY"
+            ]
+          },
+          "execution_sha256": "5e7b7d8e9245da320e171116c18a9ec8456e31d7c2ae64e877dca4441293cfb9",
+          "fixture_id": "pre-m8-m2r-na",
+          "producer_authority_id": "FMB-02R-A:exact-head-release-authority",
+          "producer_signer_id": "fmb-02r-a-release-authority",
+          "result": "PASS",
+          "schema": "pre-m8-m2r-dispatch-execution-receipt-v1",
+          "source_contract_id": "FMB-02R-A:release-source-contract-v1",
+          "source_head_oid": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "source_issue": "FMB-02R-A",
+          "source_outcome": "N/A",
+          "source_repo": "helianthus-modbus",
+          "source_tree_oid": "cccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "fixture_ids": [
+        "pre-m8-m2r-pass",
+        "pre-m8-m2r-na"
+      ],
+      "fixture_set_sha256": "9db062241d59ddf51a0aca05530e060e39c2aecf39030d2376b96a9b65d3efae",
+      "schema": "executed-pre-m8-m2r-dispatch-fixture-set-v1"
+    }
+  },
+  "execution_mode": "draft",
+  "matrix_sha256": "0e548c3ec3627807a72abd22cfc3961888daed6becb5141c9b197b7b686b043a",
+  "metrics": {
+    "artifact_dependency_edges": 216,
+    "conditional_artifact_edges": 69,
+    "cross_repo_artifact_edges": 178,
+    "direct_gate_edges": 178,
+    "executable_issues": 81,
+    "gates": 45,
+    "intent_rows": 81,
+    "lane_schedule_edges": 67,
+    "lanes": 12,
+    "mutation_cases": 73,
+    "promoted_typed_artifact_edges": 14,
+    "schedule_edges": 68,
+    "simulation_cases": 41,
+    "supplemental_artifact_consumption_edges": 0,
+    "ta6_dispatched_mutants": 18,
+    "ta6_killed_mutants": 18,
+    "ta6_mcdc_pairs": 5
+  },
+  "package_tree_sha256": "f5b47180b4aa455fd86251d100a2382ebc4f6e71a5d6c0a4566aa55beb23fac3",
+  "result": "PASS",
+  "schema": "helianthus-plan-validation-report-v3",
+  "topology_sha256": "0eb3baec238255ab04aad773a28e6c2739cbe23c70d540e4619f244e3b348bd2",
+  "validation_payload_sha256": "e95a68254fb8f9cd4a59f74fec8121839dd67e094179ea03ae2ed6b37e9d5bbd",
+  "validator_sha256": "6ee0d1402003e0af470fbc59b8b1dfffa324086fc170b61f290e29c99387453b"
+}
