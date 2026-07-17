@@ -1,15 +1,15 @@
 # Helianthus Multi-Runtime Semantic Platform
 
-Revision: `v1.1-locked-amended`
-Date: `2026-07-10`
+Revision: `v1.2-locked-amended`
+Date: `2026-07-17`
 Status: `Locked`
-Cruise phase: `RECOVERY_RECONCILIATION`
-Current milestone: `RECOVERY_RECONCILIATION`
-Amendment count: `1`
-Amendment: `AD-DOCS-01 external-only-documentation`
-Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
-Dirty rescue candidate: `true`
-Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
+Cruise phase: `M5_PRODUCTION_PREREQUISITES`
+Current milestone: `M5_PRODUCTION_PREREQUISITES`
+Amendment count: `3`
+Amendment: `MSP-05B production-prerequisite correction`
+Accepted through: `MSP-05A with M4.5 trust and admin state frozen`
+Dirty rescue candidate: `false`
+Successor unlocks: `only through the corrected production-prerequisite chain`
 Baseline: `Gateway 0.4.0`
 
 ## AD-DOCS-02 Architecture Gates
@@ -40,11 +40,10 @@ external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
 
-This locked plan records five accepted adversarial rounds plus the accepted
-AD-DOCS-01 amendment. It preserves the true historical evidence through M0,
-M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D EEBUS-G01 fake-peer
-harness slice, but it does not claim dirty rescue code as accepted plan
-evidence.
+This locked plan records five accepted adversarial rounds plus three control
+plane amendments. Recovery through M4.5 and the inert M5A gateway scaffold are
+closed by published evidence. Direct M5B execution is blocked until the
+production activation prerequisites are complete.
 
 The first extension target is raw eeBUS visibility for the
 VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo
@@ -89,23 +88,19 @@ SUN2000 over Modbus RTU/TCP, and Growatt over Modbus RTU/TCP.
 - Whether all future Modbus vendor-private maps can share one registry package
   or need profile-specific repos.
 
-## Recovery Reconciliation Lock State
+## M5 Production-Prerequisite Lock State
 
-The plan is locked while runtime execution is paused in
-`RECOVERY_RECONCILIATION`.
+The plan is locked in `M5_PRODUCTION_PREREQUISITES`.
 
-- `accepted_through` is exactly `MSP-03C plus merged MSP-03D EEBUS-G01
-  fake-peer harness only`.
-- M3 and MSP-03D remain open. The merged fake-peer harness is useful evidence,
-  not completion of MSP-03D.
-- `dirty_rescue_candidate=true` records that useful local rescue work may
-  exist, but dirty code has no acceptance authority and unlocks no successors.
-- `successor_unlocks=false` until the reconciliation gates merge from clean
-  main.
-- `MSP-R00` is completed locally with no code acceptance, no successor unlock,
-  issue `Project-Helianthus/helianthus-eebusreg#14`, and architecture review
-  `PASS`.
-- Initial ready rows are limited to `MSP-R00-L` and `DOCS-VERIFY`.
+- M4.5 trust/admin state and M5A inert gateway configuration are complete.
+- Direct MSP-05B dispatch is forbidden while production protected-material and
+  scoped SHIP construction remain unavailable.
+- The sole ready row is MSP-DOCS-05P.
+- The matrix serializes exact-address SHIP, independent mDNS policy, eebus-go
+  propagation, additive runtime API, protected identity, real production
+  construction, gateway remapping, and then MSP-05B.
+- Pairing remains closed and disabled gateway behavior performs no eeBUS IO or
+  state access.
 
 `MSP-R00` is an `helianthus-eebusreg` recovery row with no predecessor. It
 completed locally and produced only a candidate input for public ledger review.

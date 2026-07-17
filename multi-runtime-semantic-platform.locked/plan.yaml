@@ -1,10 +1,10 @@
 slug: multi-runtime-semantic-platform
 title: Helianthus Multi-Runtime Semantic Platform
 state: locked
-cruise_phase: RECOVERY_RECONCILIATION
-amendment_count: 2
-amended_on: 2026-07-13
-amendment: AD-DOCS-02 architecture-gates
+cruise_phase: M5_PRODUCTION_PREREQUISITES
+amendment_count: 3
+amended_on: 2026-07-17
+amendment: MSP-05B production-prerequisite correction
 source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
 target_repos:
   - helianthus-execution-plans
@@ -13,6 +13,8 @@ target_repos:
   - helianthus-ebusgateway
   - helianthus-ebusreg
   - helianthus-eebusreg
+  - helianthus-ship-go
+  - helianthus-eebus-go
   - helianthus-ha-integration
   - helianthus-ha-addon
 knowledge_repo: helianthus-docs-ebus
@@ -24,20 +26,19 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-12
 locked_on: 2026-07-10
-current_milestone: RECOVERY_RECONCILIATION
+current_milestone: M5_PRODUCTION_PREREQUISITES
 accepted_adversarial_rounds: 5
-accepted_through: MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only
-m3_status: open
-msp_03d_status: open
-dirty_rescue_candidate: true
-successor_unlocks: false
-successor_unlock_condition: MSP-R00-L and MSP-03D-R reconciliation gates merged from clean main
+accepted_through: MSP-05A with M4.5 trust and admin state frozen
+m3_status: closed
+msp_03d_status: closed
+dirty_rescue_candidate: false
+successor_unlocks: true
+successor_unlock_condition: production prerequisites complete through MSP-05A-R1
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
 initial_ready_set:
-  - MSP-R00-L
-  - DOCS-VERIFY
+  - MSP-DOCS-05P
 routing_policy:
   resolver: canonical
   policy_digest: required_at_dispatch

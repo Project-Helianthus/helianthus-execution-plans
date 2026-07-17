@@ -2,14 +2,14 @@
 
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
-Current milestone: `RECOVERY_RECONCILIATION`
-Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
-Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
-Amendment: `AD-DOCS-01 external-only-documentation`
+Current milestone: `M5_PRODUCTION_PREREQUISITES`
+Accepted through: `MSP-05A with M4.5 trust and admin state frozen`
+Successor unlocks: `only through the corrected production-prerequisite chain`
+Amendment: `MSP-05B production-prerequisite correction`
 
-This map preserves historical evidence without treating dirty rescue code as
-accepted. Future runtime work resumes from clean main, with one active PR per
-repo and one `helianthus-eebusreg` PR at a time.
+This map preserves historical evidence and records the M5B preflight NO-GO.
+Runtime activation proceeds through the matrix-defined production prerequisites,
+with one active PR per repo and one `helianthus-eebusreg` PR at a time.
 
 ## Active Control Surface
 
@@ -37,6 +37,13 @@ complete projection for review.
 | MSP-03D-G01 | `helianthus-eebusreg` | [#12](https://github.com/Project-Helianthus/helianthus-eebusreg/issues/12), [execution-plans #50](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/50) | [#13](https://github.com/Project-Helianthus/helianthus-eebusreg/pull/13) | `0e58327dfdb86ef243a19e18d590564813feaa00` | EEBUS-G01 fake peer accepted only; MSP-03D and M3 remain open |
 
 ## Hard Blockers
+
+- Direct `MSP-05B` dispatch is forbidden while the protected-material provider
+  and scoped SHIP service remain production stubs.
+- Gateway configuration must not silently ignore, collapse, or alias interface,
+  subnet, certificate, key, trust-store, state-root, discovery, or pairing policy.
+- The sole ready row is `MSP-DOCS-05P`; the complete prerequisite chain is
+  authoritative only in the matrix and its deterministic topology audit.
 
 ## AD-DOCS-02 token chain
 

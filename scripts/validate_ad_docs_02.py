@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Typed, fail-closed validator for the AD-DOCS-02 control-plane amendment."""
+"""Typed, fail-closed validator for the active eeBUS control plane."""
 from __future__ import annotations
 
 import hashlib
@@ -29,7 +29,9 @@ EXACT_IDS = (
     "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN",
     "MSP-DOCS-CANDIDATE-CLEANUP", "MSP-03D-R", "MSP-035", "MSP-04A",
     "MSP-036", "MSP-DOCS-API-CANDIDATE", "MSP-055", "MSP-DOCS-API-FREEZE",
-    "MSP-04B", "MSP-04C", "MSP-045", "MSP-05A", "MSP-05B", "MSP-06",
+    "MSP-04B", "MSP-04C", "MSP-045", "MSP-05A", "MSP-DOCS-05P",
+    "MSP-05P-SHIP", "MSP-05P-EEBUS", "MSP-05P-REG-API-V2",
+    "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME", "MSP-05A-R1", "MSP-05B", "MSP-06",
     "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-09A", "MSP-09B",
     "MSP-09C", "MSP-09D",
 )
@@ -59,7 +61,15 @@ REQUIRES_COMPLETION_TOKENS = {
     "MSP-035": ["MSP-03D-R"], "MSP-04A": ["MSP-035"], "MSP-036": ["MSP-04A"],
     "MSP-DOCS-API-CANDIDATE": ["MSP-036", "MSP-DOCS-E2"], "MSP-055": ["MSP-036", "MSP-DOCS-API-CANDIDATE"],
     "MSP-DOCS-API-FREEZE": ["MSP-055"], "MSP-04B": ["MSP-DOCS-API-FREEZE"], "MSP-04C": ["MSP-04B"],
-    "MSP-045": ["MSP-04C"], "MSP-05A": ["MSP-045"], "MSP-05B": ["MSP-05A", "MSP-045"],
+    "MSP-045": ["MSP-04C"], "MSP-05A": ["MSP-045"],
+    "MSP-DOCS-05P": ["MSP-05A", "MSP-045"],
+    "MSP-05P-SHIP": ["MSP-DOCS-05P"],
+    "MSP-05P-EEBUS": ["MSP-05P-SHIP"],
+    "MSP-05P-REG-API-V2": ["MSP-05P-EEBUS"],
+    "MSP-05P-REG-ID": ["MSP-05P-REG-API-V2"],
+    "MSP-05P-REG-RUNTIME": ["MSP-05P-REG-ID"],
+    "MSP-05A-R1": ["MSP-05P-REG-RUNTIME"],
+    "MSP-05B": ["MSP-05A-R1", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
     "MSP-06": ["MSP-05B"], "MSP-065": ["MSP-06"], "MSP-07": ["MSP-065"], "MSP-08": ["MSP-07"],
     "MSP-085": ["MSP-08"], "MSP-09A": ["MSP-085"], "MSP-09B": ["MSP-09A"],
     "MSP-09C": ["MSP-09A", "MSP-09B"], "MSP-09D": ["MSP-09A", "MSP-09C"],
@@ -88,9 +98,9 @@ ROW_EXTRAS = {
 HISTORICAL_IDS = frozenset(EXACT_IDS[:17])
 READINESS = {
     "historical_snapshot": list(EXACT_IDS[:17]),
-    "logical_ready": ["MSP-DOCS-API-SCHEMA"],
-    "dispatchable": ["MSP-R00-L", "DOCS-VERIFY", "MSP-DOCS-API-SCHEMA"],
-    "selected_batch": ["MSP-R00-L", "DOCS-VERIFY"],
+    "logical_ready": ["MSP-DOCS-05P"],
+    "dispatchable": ["MSP-DOCS-05P"],
+    "selected_batch": ["MSP-DOCS-05P"],
 }
 MATRIX_ROOT_KEYS = frozenset({
     "schema_version", "status", "plan", "baseline", "cruise_phase", "current_milestone",
@@ -113,10 +123,13 @@ SERIALIZATION = {
     "rule": "one_active_pr_per_repo",
     "memory_guard": "serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise",
     "recovery_sequence": ["MSP-R00", "MSP-R00-L", "DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-PLATFORM", "MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"],
-    "eebusreg_sequence": ["MSP-DOCS-CLEAN", "MSP-03D-R", "MSP-035", "MSP-04A", "MSP-036", "MSP-055", "MSP-04B", "MSP-04C", "MSP-045"],
-    "docs_eebus_sequence": ["DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-E2", "MSP-DOCS-API-CANDIDATE", "MSP-DOCS-API-FREEZE"],
+    "eebusreg_sequence": ["MSP-DOCS-CLEAN", "MSP-03D-R", "MSP-035", "MSP-04A", "MSP-036", "MSP-055", "MSP-04B", "MSP-04C", "MSP-045", "MSP-05P-REG-API-V2", "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME"],
+    "docs_eebus_sequence": ["DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-E2", "MSP-DOCS-API-CANDIDATE", "MSP-DOCS-API-FREEZE", "MSP-DOCS-05P"],
     "docs_ebus_sequence": ["MSP-DOCS-PLATFORM"],
-    "initial_ready_set": ["MSP-R00-L", "DOCS-VERIFY"],
+    "ship_go_sequence": ["MSP-05P-SHIP"],
+    "eebus_go_sequence": ["MSP-05P-EEBUS"],
+    "gateway_sequence": ["MSP-05A", "MSP-05A-R1", "MSP-05B", "MSP-06", "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-09A", "MSP-09B"],
+    "initial_ready_set": ["MSP-DOCS-05P"],
     "dirty_code_unlocks_successors": False,
     "conditional_rows": ["MSP-DOCS-CANDIDATE-CLEANUP"],
     "pr_required_evidence": ["doc_gate_result", "rollback_ledger_entry", "relevant_transport_or_security_gate_artifact", "review_disposition_for_every_comment", "complete_milestone_architecture_review"],
@@ -147,6 +160,7 @@ EXPECTED_ACTIVE_SURFACES = (
     "105-ad-docs-02-amendment.md",
     "106-ad-docs-02-integrity.json",
     "107-ad-docs-02-topology-audit.md",
+    "114-w28-26-m5b-production-prerequisite-correction.md",
 )
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
@@ -164,6 +178,7 @@ MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/105-ad-docs-02-amendment.md",
     "multi-runtime-semantic-platform.locked/106-ad-docs-02-integrity.json",
     "multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md",
+    "multi-runtime-semantic-platform.locked/114-w28-26-m5b-production-prerequisite-correction.md",
     "scripts/validate_ad_docs_02.py",
     "scripts/validate_msp_r00_l_ledger.py",
     "scripts/validate_plans_repo.sh",
@@ -351,7 +366,7 @@ def exact_keys(value: Any, keys: set[str], where: str) -> None:
         fail(f"{where}: closed schema violation")
 
 def validate_integrity(data: dict[str, Any]) -> None:
-    keys = {"schema_version", "e2_merge_roots", "completion_token_roots", "evidence_inputs",
+    keys = {"schema_version", "control_plane_amendment", "e2_merge_roots", "completion_token_roots", "evidence_inputs",
             "routing_contract", "entry_kinds", "publication_entry_kinds", "eligible_channels",
             "exact_memberships", "channel_registry", "absence_constraints",
             "hermetic_git_object_evidence", "token_envelope", "readiness_categories",
@@ -359,6 +374,18 @@ def validate_integrity(data: dict[str, Any]) -> None:
     exact_keys(data, keys, "integrity")
     if data["schema_version"] != 2 or data["e2_merge_roots"] != list(E2_ROOTS):
         fail("integrity: E2 roots drift")
+    exact_keys(data["control_plane_amendment"], {"id", "decision", "next_ready", "required_chain"}, "control_plane_amendment")
+    if data["control_plane_amendment"] != {
+        "id": "MSP-05B-PREREQUISITE-CORRECTION",
+        "decision": "no_go_direct_msp_05b",
+        "next_ready": "MSP-DOCS-05P",
+        "required_chain": [
+            "MSP-DOCS-05P", "MSP-05P-SHIP", "MSP-05P-EEBUS",
+            "MSP-05P-REG-API-V2", "MSP-05P-REG-ID",
+            "MSP-05P-REG-RUNTIME", "MSP-05A-R1", "MSP-05B",
+        ],
+    }:
+        fail("integrity: M5 prerequisite amendment drift")
     if data["completion_token_roots"] != sorted(E2_ROOTS):
         fail("integrity: completion roots drift")
     exact_keys(data["evidence_inputs"], {"MSP-R00", "MSP-03D-G01"}, "evidence_inputs")
@@ -405,6 +432,8 @@ def validate_integrity(data: dict[str, Any]) -> None:
 
 def validate_matrix(data: dict[str, Any]) -> None:
     exact_keys(data, set(MATRIX_ROOT_KEYS), "matrix")
+    if data["schema_version"] != 2:
+        fail("matrix: schema version drift")
     if data["serialization"] != SERIALIZATION:
         fail("matrix: serialization authority drift")
     exact_keys(data["routing_policy"], {"resolver", "policy_digest", "forbidden_tier"}, "matrix.routing_policy")
@@ -416,7 +445,7 @@ def validate_matrix(data: dict[str, Any]) -> None:
         fail("matrix: issues must be mappings")
     ids = [row.get("id") for row in rows]
     if tuple(ids) != EXACT_IDS:
-        fail("matrix: exact 46 ID contract drift")
+        fail("matrix: exact ID contract drift")
     by_id = {row["id"]: row for row in rows}
     visiting: set[str] = set()
     visited: set[str] = set()

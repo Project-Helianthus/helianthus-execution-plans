@@ -3,16 +3,15 @@ schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
-cruise_phase: RECOVERY_RECONCILIATION
-current_milestone: RECOVERY_RECONCILIATION
-amendment_count: 2
-amended_on: '2026-07-13'
-amendment: AD-DOCS-02 architecture-gates
-accepted_through: MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only
-dirty_rescue_candidate: true
-successor_unlocks: false
-successor_unlock_condition: MSP-R00-L and MSP-03D-R reconciliation gates merged from
-  clean main
+cruise_phase: M5_PRODUCTION_PREREQUISITES
+current_milestone: M5_PRODUCTION_PREREQUISITES
+amendment_count: 3
+amended_on: '2026-07-17'
+amendment: MSP-05B production-prerequisite correction
+accepted_through: MSP-05A with M4.5 trust and admin state frozen
+dirty_rescue_candidate: false
+successor_unlocks: true
+successor_unlock_condition: production prerequisites complete through MSP-05A-R1
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
@@ -46,17 +45,35 @@ serialization:
   - MSP-04B
   - MSP-04C
   - MSP-045
+  - MSP-05P-REG-API-V2
+  - MSP-05P-REG-ID
+  - MSP-05P-REG-RUNTIME
   docs_eebus_sequence:
   - DOCS-VERIFY
   - MSP-DOCS-API-SCHEMA
   - MSP-DOCS-E2
   - MSP-DOCS-API-CANDIDATE
   - MSP-DOCS-API-FREEZE
+  - MSP-DOCS-05P
   docs_ebus_sequence:
   - MSP-DOCS-PLATFORM
+  ship_go_sequence:
+  - MSP-05P-SHIP
+  eebus_go_sequence:
+  - MSP-05P-EEBUS
+  gateway_sequence:
+  - MSP-05A
+  - MSP-05A-R1
+  - MSP-05B
+  - MSP-06
+  - MSP-065
+  - MSP-07
+  - MSP-08
+  - MSP-085
+  - MSP-09A
+  - MSP-09B
   initial_ready_set:
-  - MSP-R00-L
-  - DOCS-VERIFY
+  - MSP-DOCS-05P
   dirty_code_unlocks_successors: false
   conditional_rows:
   - MSP-DOCS-CANDIDATE-CLEANUP
@@ -1094,6 +1111,182 @@ issues:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
+- id: MSP-DOCS-05P
+  title: Freeze the production activation, provider, listener-scope, and config mapping contract
+  repo: helianthus-docs-eebus
+  milestone: M5
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: withdraw the candidate activation contract before any dependent code merge
+  review_ledger: complete production activation architecture and security review
+  tdd_mode: strict_red_green
+  smoke_scope: documentation contract and cross-repository acceptance matrix
+  acceptance_state: proposed
+  acceptance:
+  - define exact bind-address, interface, subnet, state-root, protected-material, and discovery policy semantics
+  - reject wildcard or ambiguous listener scope and independently gate mDNS publication
+  - define lossless gateway-to-runtime mapping and fail-closed handling for legacy certificate, key, and trust-store paths
+  - preserve pairing closed and disabled-by-default behavior through every prerequisite
+  requires_completion_tokens:
+  - MSP-05A
+  - MSP-045
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-05P-SHIP
+  title: Add scoped SHIP listener and independently gated mDNS publication
+  repo: helianthus-ship-go
+  milestone: M5
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/protocol
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert additive listener policy and retain the prior default constructor
+  review_ledger: SHIP listener scope, discovery, shutdown, and compatibility review
+  tdd_mode: strict_red_green
+  smoke_scope: exact socket address, mDNS on/off, retry, shutdown, and legacy constructor parity
+  acceptance_state: proposed
+  acceptance:
+  - an additive constructor binds exactly the configured non-wildcard address and port
+  - mDNS publication is controlled independently from listener startup
+  - the existing public constructor remains source and behavior compatible
+  - shutdown closes listener and publication exactly once without races
+  requires_completion_tokens:
+  - MSP-DOCS-05P
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-05P-EEBUS
+  title: Thread listener and discovery policy through eebus-go
+  repo: helianthus-eebus-go
+  milestone: M5
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/protocol
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert additive service constructor and retain legacy construction behavior
+  review_ledger: eebus-go SHIP policy propagation and compatibility review
+  tdd_mode: strict_red_green
+  smoke_scope: scoped fake-peer startup, discovery disabled, error propagation, and legacy parity
+  acceptance_state: proposed
+  acceptance:
+  - an additive service constructor carries explicit listener and discovery policy to ship-go
+  - startup failures propagate without partial publication or retained goroutines
+  - existing constructors and default behavior remain compatible
+  - fake-peer tests prove scoped startup with discovery both enabled and disabled
+  requires_completion_tokens:
+  - MSP-05P-SHIP
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-05P-REG-API-V2
+  title: Add an explicit bind-address runtime API without breaking v1
+  repo: helianthus-eebusreg
+  milestone: M5
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: remove the additive v2 candidate before gateway adoption while preserving v1
+  review_ledger: public API compatibility, configuration cardinality, and listener-scope review
+  tdd_mode: strict_red_green
+  smoke_scope: v1 compatibility and v2 bind-address validation
+  acceptance_state: proposed
+  acceptance:
+  - v1 public API remains source and behavior compatible
+  - v2 accepts one explicit non-wildcard listen address and rejects ambiguous scope
+  - discovery and pairing policy are explicit and default closed
+  - no dependency-specific public types escape the runtime facade
+  requires_completion_tokens:
+  - MSP-05P-EEBUS
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-05P-REG-ID
+  title: Install host-bound protected runtime identity material
+  repo: helianthus-eebusreg
+  milestone: M5
+  complexity: 10
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: disable runtime activation and preserve quarantined state for forward repair
+  review_ledger: key protection, host binding, permissions, atomicity, and clone-denial review
+  tdd_mode: strict_red_green
+  smoke_scope: first boot, restart, wrong host, clone, symlink, permissions, atomic replace, and fsync
+  acceptance_state: proposed
+  acceptance:
+  - certificate, key, local SKI, remote identity, and pairing state survive restart
+  - wrong-host restore, cloned state, symlink, traversal, or weak permissions fail before socket or mDNS activity
+  - secrets do not appear in environment, argv, logs, snapshots, or public errors
+  - key material is host-bound or explicitly excluded from backup
+  requires_completion_tokens:
+  - MSP-05P-REG-API-V2
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-05P-REG-RUNTIME
+  title: Replace production runtime stubs with the scoped SHIP service
+  repo: helianthus-eebusreg
+  milestone: M5
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable production runtime construction and retain replay-only evidence paths
+  review_ledger: runtime lifecycle, trust boundary, scoped networking, and restart architecture review
+  tdd_mode: strict_red_green
+  smoke_scope: protected material load, scoped startup, fake peer, restart, errors, and deterministic shutdown
+  acceptance_state: proposed
+  acceptance:
+  - enabled startup uses the installed protected provider and real scoped service construction
+  - the socket binds only the configured address and no mDNS record appears while discovery is disabled
+  - unknown peers cannot persist trust while pairing is closed
+  - startup failure and shutdown leave no socket, goroutine, publication, or partial state mutation
+  requires_completion_tokens:
+  - MSP-05P-REG-ID
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-05A-R1
+  title: Map gateway eeBUS config exactly onto the production runtime API
+  repo: helianthus-ebusgateway
+  milestone: M5
+  complexity: 5
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: retain the inert M5A scaffold and remove the production mapping candidate
+  review_ledger: gateway config cardinality, fail-closed mapping, and disabled-default review
+  tdd_mode: strict_red_green
+  smoke_scope: state root, one interface, one bind address, legacy path rejection, allowlist, and pairing closed
+  acceptance_state: proposed
+  acceptance:
+  - mapping resolves exactly one configured interface and one non-wildcard address inside the declared subnet
+  - missing state root, wildcard, ambiguous scope, unsupported legacy paths, or non-closed pairing fail before runtime construction
+  - the remote allowlist maps losslessly and an empty allowlist stays explicit
+  - disabled default performs no construction, filesystem access, goroutine, socket, or mDNS operation
+  requires_completion_tokens:
+  - MSP-05P-REG-RUNTIME
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-05B
   title: Add disabled-by-default EEBusRuntimeAdapter sidecar
   repo: helianthus-ebusgateway
@@ -1113,8 +1306,9 @@ issues:
   - eBUS transport/router/registry code paths are unchanged
   - disabled default leaves eBUS CI and transport matrix unchanged
   requires_completion_tokens:
-  - MSP-05A
-  - MSP-045
+  - MSP-05A-R1
+  - MSP-05P-REG-RUNTIME
+  - MSP-DOCS-05P
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest

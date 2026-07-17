@@ -2,34 +2,32 @@
 
 State: `locked`
 Started: `2026-04-12`
-Last revised: `2026-07-10`
-Current milestone: `RECOVERY_RECONCILIATION`
-Cruise phase: `RECOVERY_RECONCILIATION`
-Amendment count: `1`
-Amendment: `AD-DOCS-01 external-only-documentation`
-Accepted through: `MSP-03C plus merged MSP-03D EEBUS-G01 fake-peer harness only`
-Dirty rescue candidate: `true`
-Successor unlocks: `false until MSP-R00-L and MSP-03D-R merge from clean main`
+Last revised: `2026-07-17`
+Current milestone: `M5_PRODUCTION_PREREQUISITES`
+Cruise phase: `M5_PRODUCTION_PREREQUISITES`
+Amendment count: `3`
+Amendment: `MSP-05B production-prerequisite correction`
+Accepted through: `MSP-05A with M4.5 trust and admin state frozen`
+Dirty rescue candidate: `false`
+Successor unlocks: `only through the corrected production-prerequisite chain`
 Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
-AD-DOCS-02 is the current amendment. Publication-contract v2 and the live
-46-row audit are recorded in `106-ad-docs-02-integrity.json` and
+The MSP-05B production-prerequisite correction is current. Publication schema
+v2 remains stable while its control-plane amendment binding and the complete
+live audit are recorded in `106-ad-docs-02-integrity.json` and
 `107-ad-docs-02-topology-audit.md`; `100-topology-audit.md` remains the
 immutable AD-DOCS-01 snapshot. Candidate cleanup fails closed and any consumed
 evidence is corrected only by a forward fix.
 
 Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 
-The plan is locked after five accepted adversarial rounds and the AD-DOCS-01
-external-only-documentation amendment. Historical evidence is preserved through
-M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D EEBUS-G01
-fake-peer harness slice. M3 and MSP-03D remain open.
-
-Dirty rescue work may be useful as a candidate, but it is not accepted code,
-does not unlock successors, and must be reconciled through clean-main recovery
-rows.
+The plan remains locked after five accepted adversarial rounds. Recovery, M3,
+M3.5, M4, M4.5, and the inert M5A gateway scaffold are closed by their
+published artifacts. The M5B preflight found production runtime stubs and a
+lossy gateway-to-runtime configuration boundary, so direct M5B dispatch is now
+forbidden.
 
 `MSP-R00` is completed locally for issue #14 with no code acceptance, no
 runtime successor unlock, and architecture review PASS. Public artifacts omit
@@ -41,8 +39,9 @@ The final plan-lock architecture review is recorded in
 
 ## Ready Rows
 
-- `MSP-DOCS-API-SCHEMA`: ready after execution-plans PR #62 merges; its only
-  predecessor `DOCS-VERIFY` is already complete.
+- `MSP-DOCS-05P`: sole ready row. It freezes production activation, protected
+  material, exact listener scope, independent discovery policy, and lossless
+  gateway configuration mapping before dependent code begins.
 
 ## Completed Recovery Publication
 
@@ -83,24 +82,14 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Run MSP-DOCS-API-SCHEMA after execution-plans PR #62 merges.
-- Run MSP-DOCS-PLATFORM after MSP-DOCS-API-SCHEMA completes; after
-  execution-plans PR #62 merges, its MSP-R00-L side is satisfied.
-- Continue the serialized docs chain with MSP-DOCS-E2, then
-  MSP-DOCS-E2R-PLATFORM, MSP-DOCS-E2R-PUBLISH,
-  MSP-DOCS-E2R-AGGREGATE, and MSP-DOCS-CLEAN only after their respective
-  completion-token predecessors validate.
-- Re-run clean-main MSP-03D-R with revised G17 and G19 only after the
-  MSP-DOCS-CLEAN and MSP-03C completion tokens validate; MSP-03D-G01 remains
-  evidence-only.
-- Close MSP-035, MSP-04A, MSP-036, MSP-055, MSP-04B, MSP-04C, and MSP-045 in
-  one eebusreg PR at a time.
-- After MSP-036, prepare and pin the single MSP-055 source PR, merge
-  MSP-DOCS-API-CANDIDATE against its exact head, then merge MSP-055 only after
-  the exact-match gate passes.
-- Run MSP-DOCS-API-FREEZE after MSP-055 and before MSP-04B.
-- Continue gateway M5, MCP M6, evidence, candidates, coexistence, promotion,
-  and consumer work only after predecessor gates merge.
+- Merge MSP-DOCS-05P in `helianthus-docs-eebus`.
+- Implement exact-address listener and independently gated mDNS in
+  `helianthus-ship-go`, preserving the legacy constructor.
+- Thread the policy through an additive `helianthus-eebus-go` constructor.
+- Serialize the additive bind-address API, host-bound protected identity, and
+  real production runtime construction in `helianthus-eebusreg`.
+- Map gateway configuration exactly in MSP-05A-R1, then implement MSP-05B.
+- Continue M6 and later milestones only after all completion tokens validate.
 
 ## Gate Corrections
 

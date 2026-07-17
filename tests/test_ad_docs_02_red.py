@@ -52,10 +52,10 @@ class AdDocs02RedTests(unittest.TestCase):
         self.assertIn("AD-DOCS-02", amendment)
         self.assertIn("AD-DOCS-02", audit)
 
-    def test_requires_exact_46_row_acyclic_serial_dag(self) -> None:
+    def test_requires_exact_53_row_acyclic_serial_dag(self) -> None:
         self._surfaces()
         rows = self._rows()
-        self.assertEqual(len(rows), 46)
+        self.assertEqual(len(rows), 53)
         required = {
             "MSP-DOCS-E2R-PLATFORM",
             "MSP-DOCS-E2R-PUBLISH",

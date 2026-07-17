@@ -60,6 +60,11 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         validator.validate_matrix(self.matrix)
         validator.validate_integrity(self.integrity)
 
+    def test_rejects_matrix_schema_version_drift(self) -> None:
+        document = copy.deepcopy(self.matrix)
+        document["schema_version"] = 3
+        self.rejects_matrix(document)
+
     def test_rejects_self_cycle(self) -> None:
         document = copy.deepcopy(self.matrix)
         self.row(document, "MSP-DOCS-E2R-PLATFORM")["requires_completion_tokens"] = ["MSP-DOCS-E2R-PLATFORM"]
@@ -166,6 +171,28 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         self.row(document, "MSP-DOCS-E2R-PUBLISH")["requires_completion_tokens"] = []
         self.rejects_matrix(document)
 
+    def test_m5b_requires_the_complete_production_activation_chain(self) -> None:
+        expected_chain = (
+            "MSP-DOCS-05P",
+            "MSP-05P-SHIP",
+            "MSP-05P-EEBUS",
+            "MSP-05P-REG-API-V2",
+            "MSP-05P-REG-ID",
+            "MSP-05P-REG-RUNTIME",
+            "MSP-05A-R1",
+        )
+        ids = tuple(row["id"] for row in self.matrix["issues"])
+        for row_id in expected_chain:
+            self.assertIn(row_id, ids)
+        self.assertEqual(
+            self.row(self.matrix, "MSP-05B")["requires_completion_tokens"],
+            ["MSP-05A-R1", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
+        )
+
+        document = copy.deepcopy(self.matrix)
+        self.row(document, "MSP-05B")["requires_completion_tokens"] = ["MSP-05A"]
+        self.rejects_matrix(document)
+
     def test_rejects_unknown_completion_token(self) -> None:
         document = copy.deepcopy(self.matrix)
         self.row(document, "MSP-DOCS-E2R-PLATFORM")["requires_completion_tokens"] = ["UNKNOWN"]
@@ -189,6 +216,11 @@ class AdDocs02ValidatorTests(unittest.TestCase):
     def test_rejects_token_root_drift(self) -> None:
         document = copy.deepcopy(self.integrity)
         document["completion_token_roots"] = document["completion_token_roots"][:1]
+        self.rejects_integrity(document)
+
+    def test_rejects_m5_prerequisite_integrity_drift(self) -> None:
+        document = copy.deepcopy(self.integrity)
+        document["control_plane_amendment"]["required_chain"].remove("MSP-05P-REG-ID")
         self.rejects_integrity(document)
 
     def test_rejects_token_replay_or_drift_waiver(self) -> None:
@@ -422,6 +454,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "105-ad-docs-02-amendment.md",
                 "106-ad-docs-02-integrity.json",
                 "107-ad-docs-02-topology-audit.md",
+                "114-w28-26-m5b-production-prerequisite-correction.md",
             ),
         )
         self.assertEqual(

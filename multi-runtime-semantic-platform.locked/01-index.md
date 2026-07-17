@@ -2,15 +2,14 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `786f23ae2457c556df300005fcdabdc90b5a2fecb3e7bdb291326d4ba7a43286`
+Canonical-SHA256: `9000544e1f0fdeaff6b27486d561cbfd92bf7c7b10649e43ad065555e89c5fb3`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in
-`RECOVERY_RECONCILIATION`: M3/MSP-03D remain open, accepted evidence stops at
-MSP-03C plus the merged MSP-03D EEBUS-G01 fake-peer harness slice, and dirty
-rescue code has no successor-unlock authority. AD-DOCS-01 amends the locked
-plan with external-only eeBUS documentation ownership, public evidence privacy,
-and the serialized docs/API freeze gates.
+`M5_PRODUCTION_PREREQUISITES`: M4.5 and M5A are complete, while direct M5B is
+blocked until exact listener scope, independent discovery policy, protected
+identity, real runtime construction, and lossless gateway mapping are proven.
+Substantive eeBUS documentation remains external to code repositories.
 
 ## Split Rules
 
@@ -93,6 +92,8 @@ Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml pl
   amendment rounds.
 - [104-msp-r00-l-public-redacted-ledger.json](./104-msp-r00-l-public-redacted-ledger.json)
   records the MSP-R00-L public-safe redacted recovery ledger.
+- [114-w28-26-m5b-production-prerequisite-correction.md](./114-w28-26-m5b-production-prerequisite-correction.md)
+  records the M5B preflight NO-GO and corrected production prerequisite chain.
 - [99-status.md](./99-status.md) records the locked current state.
 
 ## Coverage Matrix
@@ -109,7 +110,9 @@ Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml pl
 
 The locked plan is ready for preflight when reviewers can falsify:
 
-- whether recovery/docs verification is the only initial ready set;
+- whether MSP-DOCS-05P is the only current ready row;
+- whether direct MSP-05B dispatch is prevented until every production
+  prerequisite completion token exists;
 - whether dirty rescue code is prevented from unlocking successors;
 - whether AD-DOCS-01 keeps substantive eeBUS docs out of `helianthus-eebusreg`;
 - whether public recovery evidence uses only opaque IDs/classes/dispositions;

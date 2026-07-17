@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `786f23ae2457c556df300005fcdabdc90b5a2fecb3e7bdb291326d4ba7a43286`
+Canonical-SHA256: `9000544e1f0fdeaff6b27486d561cbfd92bf7c7b10649e43ad065555e89c5fb3`
 
 Depends on:
 All previous chunks.
@@ -135,6 +135,20 @@ Gateway M5, MCP M6, evidence/candidates/coexistence/promotion, and consumers
 remain blocked until the prior canonical docs and eebusreg contracts merge.
 GraphQL, Portal, Home Assistant, command routing, raw writes, and promoted
 semantics stay out until their later milestones and per-leaf locks.
+
+## M5 Production-Prerequisite Correction
+
+The direct MSP-05B path is closed because the production protected-material
+provider and scoped SHIP constructor are not installed, and the M5A gateway
+configuration cannot be mapped losslessly to runtime v1. The sole ready row is
+MSP-DOCS-05P. The matrix then serializes scoped ship-go listener policy,
+eebus-go policy propagation, an additive eebusreg bind-address API, protected
+identity, real runtime construction, exact gateway remapping, and MSP-05B.
+
+No prerequisite may weaken the M4.5 trust freeze. Pairing stays closed, mDNS
+publication is independent from listener startup, wildcard or ambiguous scope
+fails closed, and disabled gateway behavior performs no eeBUS construction,
+filesystem access, goroutine, socket, or publication.
 
 ## Documentation Gates
 
@@ -294,11 +308,10 @@ No PR may merge unless it links:
 
 This plan is locked when:
 
-- plan state is `locked` and current milestone is `RECOVERY_RECONCILIATION`;
-- accepted-through text names only MSP-03C plus merged MSP-03D EEBUS-G01
-  fake-peer harness;
-- dirty rescue code is explicitly non-authoritative;
-- recovery/docs verification rows are the only initial ready rows;
+- plan state is `locked` and current milestone is `M5_PRODUCTION_PREREQUISITES`;
+- accepted-through text records M4.5 and M5A completion;
+- direct MSP-05B dispatch is blocked by the full production prerequisite chain;
+- MSP-DOCS-05P is the only current ready row;
 - AD-DOCS-01 rows are serialized and the dormant cleanup row is not treated as
   initially ready or as a normal required predecessor;
 - all future dependencies are explicit and acyclic;
