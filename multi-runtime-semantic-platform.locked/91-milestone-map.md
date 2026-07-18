@@ -3,7 +3,7 @@
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
 Current milestone: `M5_PRODUCTION_PREREQUISITES`
-Amendment: `MSP-05B production-prerequisite correction`
+Amendment: `MSP-05B gateway lifecycle prerequisite correction`
 
 | Milestone | Primary repo(s) | Depends on | Gate |
 | --- | --- | --- | --- |
@@ -12,7 +12,7 @@ Amendment: `MSP-05B production-prerequisite correction`
 | M3.5 - Raw Runtime Contract Freeze | helianthus-eebusreg | M3 | Raw identity, snapshot envelope, and evidence object replay deterministically; no trust/lifecycle/availability authority is frozen. |
 | M4 - Store, Raw View, Lifecycle Facade, And Trust Security | helianthus-eebusreg, helianthus-docs-eebus | M3.5 | MSP-04A internal store/schema, MSP-036 immutable raw view, exact-head MSP-DOCS-API-CANDIDATE before MSP-055 source merge, MSP-DOCS-API-FREEZE active API docs, then first-trust/OOB/admin and repair flows. |
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
-| M5 - Production Prerequisites And Gateway Sidecar Integration | helianthus-docs-eebus, helianthus-ship-go, helianthus-eebus-go, helianthus-eebusreg, helianthus-ebusgateway | M4.5 and M5A | Freeze activation contract, implement exact-address SHIP plus independent mDNS policy, thread it through eebus-go, install protected identity and real runtime construction, map gateway config losslessly, then add the disabled-by-default sidecar. |
+| M5 - Production Prerequisites And Gateway Sidecar Integration | helianthus-docs-eebus, helianthus-ship-go, helianthus-eebus-go, helianthus-eebusreg, helianthus-ebusgateway | M4.5 and M5A | Freeze activation contract, implement exact-address SHIP plus independent mDNS policy, thread it through eebus-go, install protected identity and real runtime construction, map gateway config losslessly, harden process-exit and remote canonicalization, then add the disabled-by-default sidecar. |
 | M6 - Read-Only eeBUS MCP v1 | helianthus-ebusgateway | M5 | Read-only `eebus.v1.*` tools pass deterministic snapshot/hash/auth/error/anti-leak tests. |
 | M6.5 - Synchronized Evidence Recorder | helianthus-ebusgateway | M6 | Recorder captures synchronized eeBUS/eBUS/myVaillant bundles using existing read-only eBUS surfaces only. |
 | M7 - Draft Candidate Fact Graph | helianthus-ebusgateway | M6.5 | Candidate facts exist with raw evidence and no promotion or consumer exposure. |
@@ -50,9 +50,9 @@ MSP-DOCS-API-CANDIDATE merges the exact-head candidate first. MSP-055 then
 passes exact-match, candidate-state, expiry, and no-active-cleanup gates, and
 MSP-DOCS-API-FREEZE runs before MSP-04B. M4.5 and M5A are now complete.
 
-The sole current ready row is MSP-05P-REG-API-V1-CLEANUP. The completed M5
-production prerequisites are followed by the pre-release API v1 correction,
-gateway remapping, and MSP-05B.
+The sole current ready row is MSP-05A-R2. The production runtime, pre-release
+API v1 correction, and gateway mapping are complete; lifecycle error propagation
+and canonical remote identity must close before MSP-05B.
 MCP, evidence, candidate, coexistence, promotion, and consumer work remain
 downstream.
 

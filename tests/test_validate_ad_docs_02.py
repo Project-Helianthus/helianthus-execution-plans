@@ -181,13 +181,15 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "MSP-05P-REG-RUNTIME",
             "MSP-05P-REG-API-V1-CLEANUP",
             "MSP-05A-R1",
+            "MSP-05B-PLAN-R1",
+            "MSP-05A-R2",
         )
         ids = tuple(row["id"] for row in self.matrix["issues"])
         for row_id in expected_chain:
             self.assertIn(row_id, ids)
         self.assertEqual(
             self.row(self.matrix, "MSP-05B")["requires_completion_tokens"],
-            ["MSP-05A-R1", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
+            ["MSP-05A-R2", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
         )
 
         document = copy.deepcopy(self.matrix)
@@ -197,6 +199,18 @@ class AdDocs02ValidatorTests(unittest.TestCase):
     def test_rejects_unknown_completion_token(self) -> None:
         document = copy.deepcopy(self.matrix)
         self.row(document, "MSP-DOCS-E2R-PLATFORM")["requires_completion_tokens"] = ["UNKNOWN"]
+        self.rejects_matrix(document)
+
+    def test_rejects_m5_lifecycle_acceptance_contract_drift(self) -> None:
+        for row_id in ("MSP-05B-PLAN-R1", "MSP-05A-R2", "MSP-05B"):
+            with self.subTest(row_id=row_id):
+                document = copy.deepcopy(self.matrix)
+                self.row(document, row_id)["acceptance"] = ["placeholder"]
+                self.rejects_matrix(document)
+
+    def test_rejects_current_amendment_projection_drift(self) -> None:
+        document = copy.deepcopy(self.matrix)
+        document["accepted_through"] = "MSP-05A"
         self.rejects_matrix(document)
 
     def test_rejects_model_lane(self) -> None:
@@ -221,7 +235,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
 
     def test_rejects_m5_prerequisite_integrity_drift(self) -> None:
         document = copy.deepcopy(self.integrity)
-        document["control_plane_amendment"]["required_chain"].remove("MSP-05P-REG-API-V1-CLEANUP")
+        document["control_plane_amendment"]["required_chain"].remove("MSP-05A-R2")
         self.rejects_integrity(document)
 
     def test_rejects_token_replay_or_drift_waiver(self) -> None:
@@ -457,6 +471,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "107-ad-docs-02-topology-audit.md",
                 "114-w28-26-m5b-production-prerequisite-correction.md",
                 "115-w28-26-pre-release-api-v1-correction.md",
+                "116-w28-26-m5b-lifecycle-prerequisite-correction.md",
             ),
         )
         self.assertEqual(

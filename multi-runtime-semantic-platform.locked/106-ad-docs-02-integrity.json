@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "control_plane_amendment": {
-    "id": "MSP-05P-API-V1-CORRECTION",
-    "decision": "pre_release_v1_only",
-    "next_ready": "MSP-05P-REG-API-V1-CLEANUP",
+    "id": "MSP-05B-LIFECYCLE-PREREQUISITE-CORRECTION",
+    "decision": "gateway_lifecycle_prerequisite",
+    "next_ready": "MSP-05A-R2",
     "required_chain": [
-      "MSP-05P-REG-API-V1-CLEANUP",
-      "MSP-05A-R1",
+      "MSP-05B-PLAN-R1",
+      "MSP-05A-R2",
       "MSP-05B"
     ]
   },

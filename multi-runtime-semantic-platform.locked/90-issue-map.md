@@ -3,13 +3,14 @@
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
 Current milestone: `M5_PRODUCTION_PREREQUISITES`
-Accepted through: `MSP-05A with M4.5 trust and admin state frozen`
+Accepted through: `MSP-05A-R1 with M4.5 trust and admin state frozen`
 Successor unlocks: `only through the corrected production-prerequisite chain`
-Amendment: `MSP-05B production-prerequisite correction`
+Amendment: `MSP-05B gateway lifecycle prerequisite correction`
 
-This map preserves historical evidence and records the M5B preflight NO-GO.
-Runtime activation proceeds through the matrix-defined production prerequisites,
-with one active PR per repo and one `helianthus-eebusreg` PR at a time.
+This map preserves historical evidence and records both M5B preflight NO-GO
+decisions. Runtime activation proceeds through the matrix-defined production
+prerequisites, with one active PR per repo and one `helianthus-eebusreg` PR at
+a time.
 
 ## Active Control Surface
 
@@ -38,11 +39,13 @@ complete projection for review.
 
 ## Hard Blockers
 
-- Direct `MSP-05B` dispatch is forbidden while the protected-material provider
-  and scoped SHIP service remain production stubs.
+- Direct `MSP-05B` dispatch is forbidden until `MSP-05A-R2` establishes one
+  process-exit boundary and canonical lowercase sorted remote identities.
 - Gateway configuration must not silently ignore, collapse, or alias interface,
   subnet, certificate, key, trust-store, state-root, discovery, or pairing policy.
-- The sole ready row is `MSP-05P-REG-API-V1-CLEANUP`; the complete prerequisite chain is
+- The disabled MSP-05B path must perform zero resolver, New, Start, and Shutdown
+  calls, and Start must not be represented as sustained readiness.
+- The sole ready row is `MSP-05A-R2`; the complete prerequisite chain is
   authoritative only in the matrix and its deterministic topology audit.
 
 ## AD-DOCS-02 token chain

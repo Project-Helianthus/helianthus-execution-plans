@@ -32,7 +32,7 @@ EXACT_IDS = (
     "MSP-04B", "MSP-04C", "MSP-045", "MSP-05A", "MSP-DOCS-05P",
     "MSP-05P-SHIP", "MSP-05P-EEBUS", "MSP-05P-REG-API-V2",
     "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME", "MSP-05P-REG-API-V1-CLEANUP",
-    "MSP-05A-R1", "MSP-05B", "MSP-06",
+    "MSP-05A-R1", "MSP-05B-PLAN-R1", "MSP-05A-R2", "MSP-05B", "MSP-06",
     "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-09A", "MSP-09B",
     "MSP-09C", "MSP-09D",
 )
@@ -71,7 +71,9 @@ REQUIRES_COMPLETION_TOKENS = {
     "MSP-05P-REG-RUNTIME": ["MSP-05P-REG-ID"],
     "MSP-05P-REG-API-V1-CLEANUP": ["MSP-05P-REG-RUNTIME"],
     "MSP-05A-R1": ["MSP-05P-REG-API-V1-CLEANUP"],
-    "MSP-05B": ["MSP-05A-R1", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
+    "MSP-05B-PLAN-R1": ["MSP-05A-R1", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
+    "MSP-05A-R2": ["MSP-05B-PLAN-R1"],
+    "MSP-05B": ["MSP-05A-R2", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
     "MSP-06": ["MSP-05B"], "MSP-065": ["MSP-06"], "MSP-07": ["MSP-065"], "MSP-08": ["MSP-07"],
     "MSP-085": ["MSP-08"], "MSP-09A": ["MSP-085"], "MSP-09B": ["MSP-09A"],
     "MSP-09C": ["MSP-09A", "MSP-09B"], "MSP-09D": ["MSP-09A", "MSP-09C"],
@@ -84,6 +86,38 @@ ACCEPTANCE_STATES = {
     "MSP-R00": "completed_local_no_code_acceptance", "MSP-R00-L": "accepted", "DOCS-VERIFY": "accepted",
     "MSP-DOCS-API-SCHEMA": "ready", "MSP-DOCS-CANDIDATE-CLEANUP": "dormant_conditional",
     **{row_id: "proposed" for row_id in EXACT_IDS[18:] if row_id != "MSP-DOCS-CANDIDATE-CLEANUP"},
+}
+ACCEPTANCE_STATES["MSP-05B-PLAN-R1"] = "accepted"
+CURRENT_AMENDMENT_COUNT = 5
+CURRENT_AMENDMENT = "MSP-05B gateway lifecycle prerequisite correction"
+CURRENT_ACCEPTED_THROUGH = "MSP-05A-R1 with M4.5 trust and admin state frozen"
+CURRENT_SUCCESSOR_UNLOCK_CONDITION = "production prerequisites complete through MSP-05A-R2"
+LOCKED_ACCEPTANCE = {
+    "MSP-05B-PLAN-R1": [
+        "the locked DAG inserts MSP-05A-R2 before MSP-05B and names MSP-05A-R2 as the sole next-ready row",
+        "the MSP-05B rollback retains the merged eebusreg dependency and the inert MSP-05A-R1 mapper/state",
+        "runtime Start is classified as synchronous acquisition and worker launch only, with no sustained-readiness claim",
+        "the disabled MSP-05B path requires zero resolver, New, Start, and Shutdown calls",
+        "93-eebus-transport-gate-v0.md remains semantically unchanged",
+    ],
+    "MSP-05A-R2": [
+        "a tests-only commit is observed RED by external CI before implementation",
+        "the exact implementation head is observed GREEN by external CI after implementation",
+        "main is the sole process-exit boundary; gateway workers and helpers return wrapped errors instead of calling Fatal, Fatalf, Fatalln, os.Exit, or equivalent termination primitives",
+        "remote SKIs are emitted as lowercase ascending values while nil versus explicit empty is preserved and duplicates remain case-insensitively rejected",
+        "cleanup reached through newly returned errors is bounded, idempotent, race-free, and preserves error causes",
+        "no sidecar lifecycle, socket, discovery, trust, MCP, GraphQL, semantic, or eBUS transport behavior is added",
+    ],
+    "MSP-05B": [
+        "prior canonical docs and eebusreg contracts are merged",
+        "disabled configuration performs zero resolver, runtime New, Start, and Shutdown calls",
+        "interface resolution uses net.InterfaceByName plus typed *net.IPNet or *net.IPAddr conversion; IPv6 link-local addresses alone receive the selected interface zone and unknown address types fail closed",
+        "runtime construction or Start failure aborts gateway startup, every constructed runtime is shut down exactly once, and errors.Join combines Shutdown failure with any existing run error including later eBUS or HTTP startup failures",
+        "lifecycle tests prove errors.Is reaches both the existing run error and the Shutdown error after errors.Join",
+        "runtime Start proves synchronous acquisition and worker launch only; no sustained gateway-readiness monitor or claim is introduced",
+        "eBUS transport/router/registry code paths are unchanged",
+        "disabled default leaves eBUS CI and transport matrix unchanged",
+    ],
 }
 BASE_ROW_KEYS = frozenset({"id", "title", "repo", "milestone", "complexity", "docs_owner", "doc_gate", "security_gate", "transport_gate", "rollback_ledger", "review_ledger", "tdd_mode", "smoke_scope", "acceptance_state", "requires_completion_tokens"})
 NO_ACCEPTANCE = frozenset({"MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE"})
@@ -100,9 +134,9 @@ ROW_EXTRAS = {
 HISTORICAL_IDS = frozenset(EXACT_IDS[:17])
 READINESS = {
     "historical_snapshot": list(EXACT_IDS[:17]),
-    "logical_ready": ["MSP-05P-REG-API-V1-CLEANUP"],
-    "dispatchable": ["MSP-05P-REG-API-V1-CLEANUP"],
-    "selected_batch": ["MSP-05P-REG-API-V1-CLEANUP"],
+    "logical_ready": ["MSP-05A-R2"],
+    "dispatchable": ["MSP-05A-R2"],
+    "selected_batch": ["MSP-05A-R2"],
 }
 MATRIX_ROOT_KEYS = frozenset({
     "schema_version", "status", "plan", "baseline", "cruise_phase", "current_milestone",
@@ -130,8 +164,8 @@ SERIALIZATION = {
     "docs_ebus_sequence": ["MSP-DOCS-PLATFORM"],
     "ship_go_sequence": ["MSP-05P-SHIP"],
     "eebus_go_sequence": ["MSP-05P-EEBUS"],
-    "gateway_sequence": ["MSP-05A", "MSP-05A-R1", "MSP-05B", "MSP-06", "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-09A", "MSP-09B"],
-    "initial_ready_set": ["MSP-05P-REG-API-V1-CLEANUP"],
+    "gateway_sequence": ["MSP-05A", "MSP-05A-R1", "MSP-05B-PLAN-R1", "MSP-05A-R2", "MSP-05B", "MSP-06", "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-09A", "MSP-09B"],
+    "initial_ready_set": ["MSP-05A-R2"],
     "dirty_code_unlocks_successors": False,
     "conditional_rows": ["MSP-DOCS-CANDIDATE-CLEANUP"],
     "pr_required_evidence": ["doc_gate_result", "rollback_ledger_entry", "relevant_transport_or_security_gate_artifact", "review_disposition_for_every_comment", "complete_milestone_architecture_review"],
@@ -164,6 +198,7 @@ EXPECTED_ACTIVE_SURFACES = (
     "107-ad-docs-02-topology-audit.md",
     "114-w28-26-m5b-production-prerequisite-correction.md",
     "115-w28-26-pre-release-api-v1-correction.md",
+    "116-w28-26-m5b-lifecycle-prerequisite-correction.md",
 )
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
@@ -182,6 +217,7 @@ MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/106-ad-docs-02-integrity.json",
     "multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md",
     "multi-runtime-semantic-platform.locked/115-w28-26-pre-release-api-v1-correction.md",
+    "multi-runtime-semantic-platform.locked/116-w28-26-m5b-lifecycle-prerequisite-correction.md",
     "multi-runtime-semantic-platform.locked/114-w28-26-m5b-production-prerequisite-correction.md",
     "scripts/validate_ad_docs_02.py",
     "scripts/validate_msp_r00_l_ledger.py",
@@ -380,11 +416,11 @@ def validate_integrity(data: dict[str, Any]) -> None:
         fail("integrity: E2 roots drift")
     exact_keys(data["control_plane_amendment"], {"id", "decision", "next_ready", "required_chain"}, "control_plane_amendment")
     if data["control_plane_amendment"] != {
-        "id": "MSP-05P-API-V1-CORRECTION",
-        "decision": "pre_release_v1_only",
-        "next_ready": "MSP-05P-REG-API-V1-CLEANUP",
+        "id": "MSP-05B-LIFECYCLE-PREREQUISITE-CORRECTION",
+        "decision": "gateway_lifecycle_prerequisite",
+        "next_ready": "MSP-05A-R2",
         "required_chain": [
-            "MSP-05P-REG-API-V1-CLEANUP", "MSP-05A-R1", "MSP-05B",
+            "MSP-05B-PLAN-R1", "MSP-05A-R2", "MSP-05B",
         ],
     }:
         fail("integrity: M5 prerequisite amendment drift")
@@ -436,6 +472,13 @@ def validate_matrix(data: dict[str, Any]) -> None:
     exact_keys(data, set(MATRIX_ROOT_KEYS), "matrix")
     if data["schema_version"] != 2:
         fail("matrix: schema version drift")
+    if (
+        data["amendment_count"] != CURRENT_AMENDMENT_COUNT
+        or data["amendment"] != CURRENT_AMENDMENT
+        or data["accepted_through"] != CURRENT_ACCEPTED_THROUGH
+        or data["successor_unlock_condition"] != CURRENT_SUCCESSOR_UNLOCK_CONDITION
+    ):
+        fail("matrix: current amendment projection drift")
     if data["serialization"] != SERIALIZATION:
         fail("matrix: serialization authority drift")
     exact_keys(data["routing_policy"], {"resolver", "policy_digest", "forbidden_tier"}, "matrix.routing_policy")
@@ -480,6 +523,8 @@ def validate_matrix(data: dict[str, Any]) -> None:
             fail("matrix: evidence-input authority drift")
         if row["acceptance_state"] != ACCEPTANCE_STATES[row_id]:
             fail("matrix: acceptance-state authority drift")
+        if row_id in LOCKED_ACCEPTANCE and row.get("acceptance") != LOCKED_ACCEPTANCE[row_id]:
+            fail("matrix: locked M5 acceptance contract drift")
     def visit(row_id: str) -> None:
         if row_id in visiting:
             fail("matrix: dependency cycle")
@@ -561,6 +606,13 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
     reject_active_routing_pin(policy, "plan.routing_policy")
     if policy != {"resolver": "canonical", "policy_digest": "required_at_dispatch", "forbidden_tier": "highest_reserved_tier"}:
         fail("plan: routing policy drift")
+    if (
+        plan.get("amendment_count") != CURRENT_AMENDMENT_COUNT
+        or plan.get("amendment") != CURRENT_AMENDMENT
+        or plan.get("accepted_through") != CURRENT_ACCEPTED_THROUGH
+        or plan.get("successor_unlock_condition") != CURRENT_SUCCESSOR_UNLOCK_CONDITION
+    ):
+        fail("plan: current amendment projection drift")
     if plan.get("initial_ready_set") != READINESS["selected_batch"]:
         fail("plan: selected batch drift")
 

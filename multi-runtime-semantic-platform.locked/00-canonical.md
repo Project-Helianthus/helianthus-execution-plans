@@ -1,13 +1,13 @@
 # Helianthus Multi-Runtime Semantic Platform
 
-Revision: `v1.2-locked-amended`
-Date: `2026-07-17`
+Revision: `v1.3-locked-amended`
+Date: `2026-07-18`
 Status: `Locked`
 Cruise phase: `M5_PRODUCTION_PREREQUISITES`
 Current milestone: `M5_PRODUCTION_PREREQUISITES`
-Amendment count: `3`
-Amendment: `MSP-05B production-prerequisite correction`
-Accepted through: `MSP-05A with M4.5 trust and admin state frozen`
+Amendment count: `5`
+Amendment: `MSP-05B gateway lifecycle prerequisite correction`
+Accepted through: `MSP-05A-R1 with M4.5 trust and admin state frozen`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the corrected production-prerequisite chain`
 Baseline: `Gateway 0.4.0`
@@ -40,10 +40,11 @@ external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
 
-This locked plan records five accepted adversarial rounds plus three control
-plane amendments. Recovery through M4.5 and the inert M5A gateway scaffold are
-closed by published evidence. Direct M5B execution is blocked until the
-production activation prerequisites are complete.
+This locked plan records five accepted adversarial rounds plus five control
+plane amendments. Recovery through M4.5, the inert M5A gateway scaffold, and
+MSP-05A-R1 are closed by published evidence. Direct M5B execution is blocked
+until MSP-05A-R2 hardens the gateway process-exit boundary and canonical remote
+mapping.
 
 The first extension target is raw eeBUS visibility for the
 VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo
@@ -93,14 +94,17 @@ SUN2000 over Modbus RTU/TCP, and Growatt over Modbus RTU/TCP.
 The plan is locked in `M5_PRODUCTION_PREREQUISITES`.
 
 - M4.5 trust/admin state and M5A inert gateway configuration are complete.
-- Direct MSP-05B dispatch is forbidden while production protected-material and
-  scoped SHIP construction remain unavailable.
-- The sole ready row is MSP-05P-REG-API-V1-CLEANUP.
+- Direct MSP-05B dispatch is forbidden while gateway workers can bypass deferred
+  cleanup or the remote allowlist can drift from the canonical sorted identity.
+- The sole ready row is MSP-05A-R2.
 - The matrix serializes exact-address SHIP, independent mDNS policy, eebus-go
   propagation, protected identity, real production construction, pre-release
-  API v1 cleanup, gateway remapping, and then MSP-05B.
+  API v1 cleanup, gateway remapping, lifecycle hardening, and then MSP-05B.
 - Pairing remains closed and disabled gateway behavior performs no eeBUS IO or
   state access.
+- MSP-05B treats runtime Start as synchronous acquisition and worker launch,
+  not as proof of sustained readiness, and its disabled path calls neither the
+  resolver nor runtime New, Start, or Shutdown.
 
 `MSP-R00` is an `helianthus-eebusreg` recovery row with no predecessor. It
 completed locally and produced only a candidate input for public ledger review.

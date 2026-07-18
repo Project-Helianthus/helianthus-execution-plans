@@ -2,13 +2,13 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `c60f6dfd111bd02af78a28b858f4a9770cd1c4ffa00da837a96c05ec13c91f90`
+Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in
-`M5_PRODUCTION_PREREQUISITES`: M4.5 and M5A are complete, while direct M5B is
-blocked until exact listener scope, independent discovery policy, protected
-identity, real runtime construction, and lossless gateway mapping are proven.
+`M5_PRODUCTION_PREREQUISITES`: M4.5, production activation, API v1, and exact
+gateway mapping are complete, while direct M5B is blocked until MSP-05A-R2
+hardens lifecycle error propagation and canonical remote identity.
 Substantive eeBUS documentation remains external to code repositories.
 
 ## Split Rules
@@ -110,7 +110,7 @@ Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml pl
 
 The locked plan is ready for preflight when reviewers can falsify:
 
-- whether MSP-05P-REG-API-V1-CLEANUP is the only current ready row;
+- whether MSP-05A-R2 is the only current ready row;
 - whether direct MSP-05B dispatch is prevented until every production
   prerequisite completion token exists;
 - whether dirty rescue code is prevented from unlocking successors;

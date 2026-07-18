@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `c60f6dfd111bd02af78a28b858f4a9770cd1c4ffa00da837a96c05ec13c91f90`
+Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
 
 Depends on:
 All previous chunks.
@@ -138,13 +138,24 @@ semantics stay out until their later milestones and per-leaf locks.
 
 ## M5 Production-Prerequisite Correction
 
-The direct MSP-05B path is closed because the production protected-material
-provider and scoped SHIP constructor are not installed, and the M5A gateway
-configuration could not be mapped losslessly to the original runtime shape.
-Those production prerequisites are now complete. Before gateway adoption, the
-sole ready row is MSP-05P-REG-API-V1-CLEANUP: it collapses the unreleased
-additive v2 shape into one initial exact-address API v1. The matrix then
-serializes exact gateway remapping and MSP-05B.
+The earlier direct MSP-05B path was closed because the production
+protected-material provider and scoped SHIP constructor were not installed,
+and the M5A gateway configuration could not be mapped losslessly to the
+original runtime shape.
+Those production prerequisites, the pre-release API v1 correction, and exact
+gateway mapping are now complete. The MSP-05B pre-review found that worker-level
+process termination can bypass deferred cleanup and that the mapped remote
+allowlist is not emitted in its canonical lowercase sorted form. The sole ready
+row is therefore MSP-05A-R2. It establishes one process-exit boundary in main,
+propagates wrapped worker/helper errors, and canonicalizes remote identities
+before MSP-05B.
+
+MSP-05B must keep its disabled path at zero resolver, New, Start, and Shutdown
+calls. Enabled activation uses typed interface-address resolution, zones only
+IPv6 link-local addresses, shuts down every constructed runtime exactly once,
+and joins Shutdown errors with any existing run error. Runtime Start proves
+synchronous acquisition and worker launch only; it does not prove sustained
+gateway readiness.
 
 No prerequisite may weaken the M4.5 trust freeze. Pairing stays closed, mDNS
 publication is independent from listener startup, wildcard or ambiguous scope
@@ -312,7 +323,7 @@ This plan is locked when:
 - plan state is `locked` and current milestone is `M5_PRODUCTION_PREREQUISITES`;
 - accepted-through text records M4.5 and M5A completion;
 - direct MSP-05B dispatch is blocked by the full production prerequisite chain;
-- MSP-05P-REG-API-V1-CLEANUP is the only current ready row;
+- MSP-05A-R2 is the only current ready row;
 - AD-DOCS-01 rows are serialized and the dormant cleanup row is not treated as
   initially ready or as a normal required predecessor;
 - all future dependencies are explicit and acyclic;

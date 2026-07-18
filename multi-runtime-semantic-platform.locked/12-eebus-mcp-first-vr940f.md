@@ -1,6 +1,6 @@
 # eeBUS VR940f Raw-First Track
 
-Canonical-SHA256: `c60f6dfd111bd02af78a28b858f4a9770cd1c4ffa00da837a96c05ec13c91f90`
+Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`, the gateway `0.4.0` baseline

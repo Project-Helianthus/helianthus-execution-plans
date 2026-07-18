@@ -5,18 +5,18 @@ Started: `2026-04-12`
 Last revised: `2026-07-18`
 Current milestone: `M5_PRODUCTION_PREREQUISITES`
 Cruise phase: `M5_PRODUCTION_PREREQUISITES`
-Amendment count: `4`
-Amendment: `MSP-05P pre-release API v1 cleanup`
-Accepted through: `MSP-05A with M4.5 trust and admin state frozen`
+Amendment count: `5`
+Amendment: `MSP-05B gateway lifecycle prerequisite correction`
+Accepted through: `MSP-05A-R1 with M4.5 trust and admin state frozen`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the corrected production-prerequisite chain`
 Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
-The MSP-05P pre-release API v1 correction is current. Publication schema v2
-remains stable while its control-plane amendment binding and the complete
-live audit are recorded in `106-ad-docs-02-integrity.json` and
+The MSP-05B gateway lifecycle prerequisite correction is current. Publication
+schema v2 remains stable while its control-plane amendment binding and the
+complete live audit are recorded in `106-ad-docs-02-integrity.json` and
 `107-ad-docs-02-topology-audit.md`; `100-topology-audit.md` remains the
 immutable AD-DOCS-01 snapshot. Candidate cleanup fails closed and any consumed
 evidence is corrected only by a forward fix.
@@ -24,10 +24,11 @@ evidence is corrected only by a forward fix.
 Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
 
 The plan remains locked after five accepted adversarial rounds. Recovery, M3,
-M3.5, M4, M4.5, and the inert M5A gateway scaffold are closed by their
-published artifacts. The M5B preflight found production runtime stubs and a
-lossy gateway-to-runtime configuration boundary, so direct M5B dispatch is now
-forbidden.
+M3.5, M4, M4.5, the inert M5A gateway scaffold, production runtime, initial API
+v1, and MSP-05A-R1 mapping are closed by published artifacts. The latest M5B
+pre-review found worker-level process termination that can bypass deferred
+cleanup and noncanonical remote output, so direct M5B dispatch remains
+forbidden until MSP-05A-R2.
 
 `MSP-R00` is completed locally for issue #14 with no code acceptance, no
 runtime successor unlock, and architecture review PASS. Public artifacts omit
@@ -39,9 +40,9 @@ The final plan-lock architecture review is recorded in
 
 ## Ready Rows
 
-- `MSP-05P-REG-API-V1-CLEANUP`: sole ready row. It replaces the unreleased
-  dual Config/ConfigV2 surface with one exact-address initial API v1 and
-  republishes the API reference before gateway adoption.
+- `MSP-05A-R2`: sole ready row. It establishes main as the sole process-exit
+  boundary, propagates wrapped worker/helper errors, and emits lowercase sorted
+  remote SKIs while preserving nil versus explicit empty and duplicate rejection.
 
 ## Completed Recovery Publication
 
@@ -82,9 +83,9 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Merge the pre-release API v1 correction in `helianthus-docs-eebus`, then
-  remove the unreleased v2 names in `helianthus-eebusreg`.
-- Map gateway configuration exactly in MSP-05A-R1, then implement MSP-05B.
+- Complete MSP-05A-R2 through strict external RED/GREEN evidence.
+- Implement MSP-05B with a zero-call disabled path, typed resolver, exact-once
+  Shutdown, joined cleanup errors, and no sustained-readiness claim.
 - Continue M6 and later milestones only after all completion tokens validate.
 
 ## Gate Corrections

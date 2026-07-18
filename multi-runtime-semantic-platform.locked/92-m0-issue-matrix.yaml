@@ -5,13 +5,13 @@ plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
 cruise_phase: M5_PRODUCTION_PREREQUISITES
 current_milestone: M5_PRODUCTION_PREREQUISITES
-amendment_count: 4
+amendment_count: 5
 amended_on: '2026-07-18'
-amendment: MSP-05P pre-release API v1 cleanup
-accepted_through: MSP-05A with M4.5 trust and admin state frozen
+amendment: MSP-05B gateway lifecycle prerequisite correction
+accepted_through: MSP-05A-R1 with M4.5 trust and admin state frozen
 dirty_rescue_candidate: false
 successor_unlocks: true
-successor_unlock_condition: production prerequisites complete through MSP-05A-R1
+successor_unlock_condition: production prerequisites complete through MSP-05A-R2
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
@@ -65,6 +65,8 @@ serialization:
   gateway_sequence:
   - MSP-05A
   - MSP-05A-R1
+  - MSP-05B-PLAN-R1
+  - MSP-05A-R2
   - MSP-05B
   - MSP-06
   - MSP-065
@@ -74,7 +76,7 @@ serialization:
   - MSP-09A
   - MSP-09B
   initial_ready_set:
-  - MSP-05P-REG-API-V1-CLEANUP
+  - MSP-05A-R2
   dirty_code_unlocks_successors: false
   conditional_rows:
   - MSP-DOCS-CANDIDATE-CLEANUP
@@ -1313,6 +1315,61 @@ issues:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
+- id: MSP-05B-PLAN-R1
+  title: Correct the M5 gateway lifecycle prerequisite and sidecar contract
+  repo: helianthus-execution-plans
+  milestone: M5
+  complexity: 4
+  docs_owner: helianthus-execution-plans
+  doc_gate: none
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: revert this control-plane correction before MSP-05A-R2 dispatch; never rewrite completed source history
+  review_ledger: independent M5B pre-review plus fresh maximum-effort DAG validation
+  tdd_mode: plan_preflight
+  smoke_scope: deterministic topology, exact predecessor edges, rollback accuracy, and no transport-gate-v0 drift
+  acceptance_state: accepted
+  acceptance:
+  - the locked DAG inserts MSP-05A-R2 before MSP-05B and names MSP-05A-R2 as the sole next-ready row
+  - the MSP-05B rollback retains the merged eebusreg dependency and the inert MSP-05A-R1 mapper/state
+  - runtime Start is classified as synchronous acquisition and worker launch only, with no sustained-readiness claim
+  - the disabled MSP-05B path requires zero resolver, New, Start, and Shutdown calls
+  - 93-eebus-transport-gate-v0.md remains semantically unchanged
+  requires_completion_tokens:
+  - MSP-05A-R1
+  - MSP-05P-REG-RUNTIME
+  - MSP-DOCS-05P
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-05A-R2
+  title: Harden gateway process-exit boundary and canonicalize eeBUS remotes
+  repo: helianthus-ebusgateway
+  milestone: M5
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: verify
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert the worker error propagation and remote canonicalization together before MSP-05B consumption; forward-fix after consumption
+  review_ledger: process-exit boundary, cleanup propagation, deterministic remote identity, and no-sidecar review
+  tdd_mode: strict_red_green
+  smoke_scope: AST process-exit guard, mixed-case remote permutations, cleanup paths, eBUS no-drift, G00, and G05
+  acceptance_state: proposed
+  acceptance:
+  - a tests-only commit is observed RED by external CI before implementation
+  - the exact implementation head is observed GREEN by external CI after implementation
+  - main is the sole process-exit boundary; gateway workers and helpers return wrapped errors instead of calling Fatal, Fatalf, Fatalln, os.Exit, or equivalent termination primitives
+  - remote SKIs are emitted as lowercase ascending values while nil versus explicit empty is preserved and duplicates remain case-insensitively rejected
+  - cleanup reached through newly returned errors is bounded, idempotent, race-free, and preserves error causes
+  - no sidecar lifecycle, socket, discovery, trust, MCP, GraphQL, semantic, or eBUS transport behavior is added
+  requires_completion_tokens:
+  - MSP-05B-PLAN-R1
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-05B
   title: Add disabled-by-default EEBusRuntimeAdapter sidecar
   repo: helianthus-ebusgateway
@@ -1322,17 +1379,22 @@ issues:
   doc_gate: required
   transport_gate: eebus_v0
   security_gate: required
-  rollback_ledger: disable eeBUS sidecar by config and revert import
-  review_ledger: gateway sidecar architecture review
+  rollback_ledger: disable or remove sidecar lifecycle wiring while retaining the merged eebusreg dependency and MSP-05A-R1/MSP-05A-R2 mapper state
+  review_ledger: gateway sidecar lifecycle, typed resolver, cleanup error precedence, and synchronous-activation architecture review
   tdd_mode: strict_red_green
-  smoke_scope: disabled default and eBUS no-drift
+  smoke_scope: disabled zero-call path, typed resolver on Darwin/Linux, lifecycle error joins, G00, G05, and eBUS no-drift
   acceptance_state: proposed
   acceptance:
   - prior canonical docs and eebusreg contracts are merged
+  - disabled configuration performs zero resolver, runtime New, Start, and Shutdown calls
+  - interface resolution uses net.InterfaceByName plus typed *net.IPNet or *net.IPAddr conversion; IPv6 link-local addresses alone receive the selected interface zone and unknown address types fail closed
+  - runtime construction or Start failure aborts gateway startup, every constructed runtime is shut down exactly once, and errors.Join combines Shutdown failure with any existing run error including later eBUS or HTTP startup failures
+  - lifecycle tests prove errors.Is reaches both the existing run error and the Shutdown error after errors.Join
+  - runtime Start proves synchronous acquisition and worker launch only; no sustained gateway-readiness monitor or claim is introduced
   - eBUS transport/router/registry code paths are unchanged
   - disabled default leaves eBUS CI and transport matrix unchanged
   requires_completion_tokens:
-  - MSP-05A-R1
+  - MSP-05A-R2
   - MSP-05P-REG-RUNTIME
   - MSP-DOCS-05P
   routing_contract:
