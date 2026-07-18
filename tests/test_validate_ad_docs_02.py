@@ -179,6 +179,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "MSP-05P-REG-API-V2",
             "MSP-05P-REG-ID",
             "MSP-05P-REG-RUNTIME",
+            "MSP-05P-REG-API-V1-CLEANUP",
             "MSP-05A-R1",
         )
         ids = tuple(row["id"] for row in self.matrix["issues"])
@@ -220,7 +221,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
 
     def test_rejects_m5_prerequisite_integrity_drift(self) -> None:
         document = copy.deepcopy(self.integrity)
-        document["control_plane_amendment"]["required_chain"].remove("MSP-05P-REG-ID")
+        document["control_plane_amendment"]["required_chain"].remove("MSP-05P-REG-API-V1-CLEANUP")
         self.rejects_integrity(document)
 
     def test_rejects_token_replay_or_drift_waiver(self) -> None:
@@ -455,6 +456,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "106-ad-docs-02-integrity.json",
                 "107-ad-docs-02-topology-audit.md",
                 "114-w28-26-m5b-production-prerequisite-correction.md",
+                "115-w28-26-pre-release-api-v1-correction.md",
             ),
         )
         self.assertEqual(

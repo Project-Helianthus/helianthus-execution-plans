@@ -2,11 +2,11 @@
 
 State: `locked`
 Started: `2026-04-12`
-Last revised: `2026-07-17`
+Last revised: `2026-07-18`
 Current milestone: `M5_PRODUCTION_PREREQUISITES`
 Cruise phase: `M5_PRODUCTION_PREREQUISITES`
-Amendment count: `3`
-Amendment: `MSP-05B production-prerequisite correction`
+Amendment count: `4`
+Amendment: `MSP-05P pre-release API v1 cleanup`
 Accepted through: `MSP-05A with M4.5 trust and admin state frozen`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the corrected production-prerequisite chain`
@@ -14,8 +14,8 @@ Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
-The MSP-05B production-prerequisite correction is current. Publication schema
-v2 remains stable while its control-plane amendment binding and the complete
+The MSP-05P pre-release API v1 correction is current. Publication schema v2
+remains stable while its control-plane amendment binding and the complete
 live audit are recorded in `106-ad-docs-02-integrity.json` and
 `107-ad-docs-02-topology-audit.md`; `100-topology-audit.md` remains the
 immutable AD-DOCS-01 snapshot. Candidate cleanup fails closed and any consumed
@@ -39,9 +39,9 @@ The final plan-lock architecture review is recorded in
 
 ## Ready Rows
 
-- `MSP-DOCS-05P`: sole ready row. It freezes production activation, protected
-  material, exact listener scope, independent discovery policy, and lossless
-  gateway configuration mapping before dependent code begins.
+- `MSP-05P-REG-API-V1-CLEANUP`: sole ready row. It replaces the unreleased
+  dual Config/ConfigV2 surface with one exact-address initial API v1 and
+  republishes the API reference before gateway adoption.
 
 ## Completed Recovery Publication
 
@@ -82,12 +82,8 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Merge MSP-DOCS-05P in `helianthus-docs-eebus`.
-- Implement exact-address listener and independently gated mDNS in
-  `helianthus-ship-go`, preserving the legacy constructor.
-- Thread the policy through an additive `helianthus-eebus-go` constructor.
-- Serialize the additive bind-address API, host-bound protected identity, and
-  real production runtime construction in `helianthus-eebusreg`.
+- Merge the pre-release API v1 correction in `helianthus-docs-eebus`, then
+  remove the unreleased v2 names in `helianthus-eebusreg`.
 - Map gateway configuration exactly in MSP-05A-R1, then implement MSP-05B.
 - Continue M6 and later milestones only after all completion tokens validate.
 

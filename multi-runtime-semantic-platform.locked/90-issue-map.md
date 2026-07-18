@@ -42,7 +42,7 @@ complete projection for review.
   and scoped SHIP service remain production stubs.
 - Gateway configuration must not silently ignore, collapse, or alias interface,
   subnet, certificate, key, trust-store, state-root, discovery, or pairing policy.
-- The sole ready row is `MSP-DOCS-05P`; the complete prerequisite chain is
+- The sole ready row is `MSP-05P-REG-API-V1-CLEANUP`; the complete prerequisite chain is
   authoritative only in the matrix and its deterministic topology audit.
 
 ## AD-DOCS-02 token chain

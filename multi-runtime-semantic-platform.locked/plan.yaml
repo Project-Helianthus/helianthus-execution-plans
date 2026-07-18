@@ -2,9 +2,9 @@ slug: multi-runtime-semantic-platform
 title: Helianthus Multi-Runtime Semantic Platform
 state: locked
 cruise_phase: M5_PRODUCTION_PREREQUISITES
-amendment_count: 3
-amended_on: 2026-07-17
-amendment: MSP-05B production-prerequisite correction
+amendment_count: 4
+amended_on: 2026-07-18
+amendment: MSP-05P pre-release API v1 cleanup
 source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
 target_repos:
   - helianthus-execution-plans
@@ -38,7 +38,7 @@ msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
 initial_ready_set:
-  - MSP-DOCS-05P
+  - MSP-05P-REG-API-V1-CLEANUP
 routing_policy:
   resolver: canonical
   policy_digest: required_at_dispatch

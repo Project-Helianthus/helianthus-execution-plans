@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `9000544e1f0fdeaff6b27486d561cbfd92bf7c7b10649e43ad065555e89c5fb3`
+Canonical-SHA256: `c60f6dfd111bd02af78a28b858f4a9770cd1c4ffa00da837a96c05ec13c91f90`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in
@@ -110,7 +110,7 @@ Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml pl
 
 The locked plan is ready for preflight when reviewers can falsify:
 
-- whether MSP-DOCS-05P is the only current ready row;
+- whether MSP-05P-REG-API-V1-CLEANUP is the only current ready row;
 - whether direct MSP-05B dispatch is prevented until every production
   prerequisite completion token exists;
 - whether dirty rescue code is prevented from unlocking successors;

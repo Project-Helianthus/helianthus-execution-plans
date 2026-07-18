@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `9000544e1f0fdeaff6b27486d561cbfd92bf7c7b10649e43ad065555e89c5fb3`
+Canonical-SHA256: `c60f6dfd111bd02af78a28b858f4a9770cd1c4ffa00da837a96c05ec13c91f90`
 
 Depends on:
 All previous chunks.
@@ -140,10 +140,11 @@ semantics stay out until their later milestones and per-leaf locks.
 
 The direct MSP-05B path is closed because the production protected-material
 provider and scoped SHIP constructor are not installed, and the M5A gateway
-configuration cannot be mapped losslessly to runtime v1. The sole ready row is
-MSP-DOCS-05P. The matrix then serializes scoped ship-go listener policy,
-eebus-go policy propagation, an additive eebusreg bind-address API, protected
-identity, real runtime construction, exact gateway remapping, and MSP-05B.
+configuration could not be mapped losslessly to the original runtime shape.
+Those production prerequisites are now complete. Before gateway adoption, the
+sole ready row is MSP-05P-REG-API-V1-CLEANUP: it collapses the unreleased
+additive v2 shape into one initial exact-address API v1. The matrix then
+serializes exact gateway remapping and MSP-05B.
 
 No prerequisite may weaken the M4.5 trust freeze. Pairing stays closed, mDNS
 publication is independent from listener startup, wildcard or ambiguous scope
@@ -311,7 +312,7 @@ This plan is locked when:
 - plan state is `locked` and current milestone is `M5_PRODUCTION_PREREQUISITES`;
 - accepted-through text records M4.5 and M5A completion;
 - direct MSP-05B dispatch is blocked by the full production prerequisite chain;
-- MSP-DOCS-05P is the only current ready row;
+- MSP-05P-REG-API-V1-CLEANUP is the only current ready row;
 - AD-DOCS-01 rows are serialized and the dormant cleanup row is not treated as
   initially ready or as a normal required predecessor;
 - all future dependencies are explicit and acyclic;

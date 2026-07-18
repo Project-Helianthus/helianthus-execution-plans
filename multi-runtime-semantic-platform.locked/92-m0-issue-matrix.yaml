@@ -5,9 +5,9 @@ plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
 cruise_phase: M5_PRODUCTION_PREREQUISITES
 current_milestone: M5_PRODUCTION_PREREQUISITES
-amendment_count: 3
-amended_on: '2026-07-17'
-amendment: MSP-05B production-prerequisite correction
+amendment_count: 4
+amended_on: '2026-07-18'
+amendment: MSP-05P pre-release API v1 cleanup
 accepted_through: MSP-05A with M4.5 trust and admin state frozen
 dirty_rescue_candidate: false
 successor_unlocks: true
@@ -48,6 +48,7 @@ serialization:
   - MSP-05P-REG-API-V2
   - MSP-05P-REG-ID
   - MSP-05P-REG-RUNTIME
+  - MSP-05P-REG-API-V1-CLEANUP
   docs_eebus_sequence:
   - DOCS-VERIFY
   - MSP-DOCS-API-SCHEMA
@@ -73,7 +74,7 @@ serialization:
   - MSP-09A
   - MSP-09B
   initial_ready_set:
-  - MSP-DOCS-05P
+  - MSP-05P-REG-API-V1-CLEANUP
   dirty_code_unlocks_successors: false
   conditional_rows:
   - MSP-DOCS-CANDIDATE-CLEANUP
@@ -1262,6 +1263,31 @@ issues:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
+- id: MSP-05P-REG-API-V1-CLEANUP
+  title: Collapse the unreleased exact-address runtime API into the initial v1 surface
+  repo: helianthus-eebusreg
+  milestone: M5
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: block gateway adoption and retain the unreleased additive API until a forward correction is proven
+  review_ledger: pre-release compatibility evidence, exact public shape, docs provenance, and downstream consumer absence review
+  tdd_mode: strict_red_green
+  smoke_scope: no tags or releases, no consumers, exact v1 compile surface, fake peer, restart, and API manifest regeneration
+  acceptance_state: proposed
+  acceptance:
+  - Config and New expose the exact-address state-root, interface, discovery, allowlist, and closed-pairing contract required by the production runtime
+  - ConfigV2, NewV2, PairingPolicyV2, the legacy ListenPort-only shape, and every stale v2 API claim are absent
+  - no tagged release or external consumer depends on the superseded shapes, and the gateway does not import the module before this correction merges
+  - the active v1 API reference and manifest are regenerated from the final exact source commit with an explicit pre-release correction record
+  requires_completion_tokens:
+  - MSP-05P-REG-RUNTIME
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-05A-R1
   title: Map gateway eeBUS config exactly onto the production runtime API
   repo: helianthus-ebusgateway
@@ -1282,7 +1308,7 @@ issues:
   - the remote allowlist maps losslessly and an empty allowlist stays explicit
   - disabled default performs no construction, filesystem access, goroutine, socket, or mDNS operation
   requires_completion_tokens:
-  - MSP-05P-REG-RUNTIME
+  - MSP-05P-REG-API-V1-CLEANUP
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest

@@ -31,7 +31,8 @@ EXACT_IDS = (
     "MSP-036", "MSP-DOCS-API-CANDIDATE", "MSP-055", "MSP-DOCS-API-FREEZE",
     "MSP-04B", "MSP-04C", "MSP-045", "MSP-05A", "MSP-DOCS-05P",
     "MSP-05P-SHIP", "MSP-05P-EEBUS", "MSP-05P-REG-API-V2",
-    "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME", "MSP-05A-R1", "MSP-05B", "MSP-06",
+    "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME", "MSP-05P-REG-API-V1-CLEANUP",
+    "MSP-05A-R1", "MSP-05B", "MSP-06",
     "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-09A", "MSP-09B",
     "MSP-09C", "MSP-09D",
 )
@@ -68,7 +69,8 @@ REQUIRES_COMPLETION_TOKENS = {
     "MSP-05P-REG-API-V2": ["MSP-05P-EEBUS"],
     "MSP-05P-REG-ID": ["MSP-05P-REG-API-V2"],
     "MSP-05P-REG-RUNTIME": ["MSP-05P-REG-ID"],
-    "MSP-05A-R1": ["MSP-05P-REG-RUNTIME"],
+    "MSP-05P-REG-API-V1-CLEANUP": ["MSP-05P-REG-RUNTIME"],
+    "MSP-05A-R1": ["MSP-05P-REG-API-V1-CLEANUP"],
     "MSP-05B": ["MSP-05A-R1", "MSP-05P-REG-RUNTIME", "MSP-DOCS-05P"],
     "MSP-06": ["MSP-05B"], "MSP-065": ["MSP-06"], "MSP-07": ["MSP-065"], "MSP-08": ["MSP-07"],
     "MSP-085": ["MSP-08"], "MSP-09A": ["MSP-085"], "MSP-09B": ["MSP-09A"],
@@ -98,9 +100,9 @@ ROW_EXTRAS = {
 HISTORICAL_IDS = frozenset(EXACT_IDS[:17])
 READINESS = {
     "historical_snapshot": list(EXACT_IDS[:17]),
-    "logical_ready": ["MSP-DOCS-05P"],
-    "dispatchable": ["MSP-DOCS-05P"],
-    "selected_batch": ["MSP-DOCS-05P"],
+    "logical_ready": ["MSP-05P-REG-API-V1-CLEANUP"],
+    "dispatchable": ["MSP-05P-REG-API-V1-CLEANUP"],
+    "selected_batch": ["MSP-05P-REG-API-V1-CLEANUP"],
 }
 MATRIX_ROOT_KEYS = frozenset({
     "schema_version", "status", "plan", "baseline", "cruise_phase", "current_milestone",
@@ -123,13 +125,13 @@ SERIALIZATION = {
     "rule": "one_active_pr_per_repo",
     "memory_guard": "serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise",
     "recovery_sequence": ["MSP-R00", "MSP-R00-L", "DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-PLATFORM", "MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"],
-    "eebusreg_sequence": ["MSP-DOCS-CLEAN", "MSP-03D-R", "MSP-035", "MSP-04A", "MSP-036", "MSP-055", "MSP-04B", "MSP-04C", "MSP-045", "MSP-05P-REG-API-V2", "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME"],
+    "eebusreg_sequence": ["MSP-DOCS-CLEAN", "MSP-03D-R", "MSP-035", "MSP-04A", "MSP-036", "MSP-055", "MSP-04B", "MSP-04C", "MSP-045", "MSP-05P-REG-API-V2", "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME", "MSP-05P-REG-API-V1-CLEANUP"],
     "docs_eebus_sequence": ["DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-E2", "MSP-DOCS-API-CANDIDATE", "MSP-DOCS-API-FREEZE", "MSP-DOCS-05P"],
     "docs_ebus_sequence": ["MSP-DOCS-PLATFORM"],
     "ship_go_sequence": ["MSP-05P-SHIP"],
     "eebus_go_sequence": ["MSP-05P-EEBUS"],
     "gateway_sequence": ["MSP-05A", "MSP-05A-R1", "MSP-05B", "MSP-06", "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-09A", "MSP-09B"],
-    "initial_ready_set": ["MSP-DOCS-05P"],
+    "initial_ready_set": ["MSP-05P-REG-API-V1-CLEANUP"],
     "dirty_code_unlocks_successors": False,
     "conditional_rows": ["MSP-DOCS-CANDIDATE-CLEANUP"],
     "pr_required_evidence": ["doc_gate_result", "rollback_ledger_entry", "relevant_transport_or_security_gate_artifact", "review_disposition_for_every_comment", "complete_milestone_architecture_review"],
@@ -161,6 +163,7 @@ EXPECTED_ACTIVE_SURFACES = (
     "106-ad-docs-02-integrity.json",
     "107-ad-docs-02-topology-audit.md",
     "114-w28-26-m5b-production-prerequisite-correction.md",
+    "115-w28-26-pre-release-api-v1-correction.md",
 )
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
@@ -178,6 +181,7 @@ MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/105-ad-docs-02-amendment.md",
     "multi-runtime-semantic-platform.locked/106-ad-docs-02-integrity.json",
     "multi-runtime-semantic-platform.locked/107-ad-docs-02-topology-audit.md",
+    "multi-runtime-semantic-platform.locked/115-w28-26-pre-release-api-v1-correction.md",
     "multi-runtime-semantic-platform.locked/114-w28-26-m5b-production-prerequisite-correction.md",
     "scripts/validate_ad_docs_02.py",
     "scripts/validate_msp_r00_l_ledger.py",
@@ -376,13 +380,11 @@ def validate_integrity(data: dict[str, Any]) -> None:
         fail("integrity: E2 roots drift")
     exact_keys(data["control_plane_amendment"], {"id", "decision", "next_ready", "required_chain"}, "control_plane_amendment")
     if data["control_plane_amendment"] != {
-        "id": "MSP-05B-PREREQUISITE-CORRECTION",
-        "decision": "no_go_direct_msp_05b",
-        "next_ready": "MSP-DOCS-05P",
+        "id": "MSP-05P-API-V1-CORRECTION",
+        "decision": "pre_release_v1_only",
+        "next_ready": "MSP-05P-REG-API-V1-CLEANUP",
         "required_chain": [
-            "MSP-DOCS-05P", "MSP-05P-SHIP", "MSP-05P-EEBUS",
-            "MSP-05P-REG-API-V2", "MSP-05P-REG-ID",
-            "MSP-05P-REG-RUNTIME", "MSP-05A-R1", "MSP-05B",
+            "MSP-05P-REG-API-V1-CLEANUP", "MSP-05A-R1", "MSP-05B",
         ],
     }:
         fail("integrity: M5 prerequisite amendment drift")

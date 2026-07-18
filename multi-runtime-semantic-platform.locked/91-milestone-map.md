@@ -50,9 +50,9 @@ MSP-DOCS-API-CANDIDATE merges the exact-head candidate first. MSP-055 then
 passes exact-match, candidate-state, expiry, and no-active-cleanup gates, and
 MSP-DOCS-API-FREEZE runs before MSP-04B. M4.5 and M5A are now complete.
 
-The sole current ready row is MSP-DOCS-05P. The M5 production chain then runs
-through scoped ship-go, eebus-go policy propagation, the additive eebusreg API,
-protected identity, real runtime construction, gateway remapping, and MSP-05B.
+The sole current ready row is MSP-05P-REG-API-V1-CLEANUP. The completed M5
+production prerequisites are followed by the pre-release API v1 correction,
+gateway remapping, and MSP-05B.
 MCP, evidence, candidate, coexistence, promotion, and consumer work remain
 downstream.
 

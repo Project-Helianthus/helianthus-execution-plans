@@ -95,10 +95,10 @@ The plan is locked in `M5_PRODUCTION_PREREQUISITES`.
 - M4.5 trust/admin state and M5A inert gateway configuration are complete.
 - Direct MSP-05B dispatch is forbidden while production protected-material and
   scoped SHIP construction remain unavailable.
-- The sole ready row is MSP-DOCS-05P.
+- The sole ready row is MSP-05P-REG-API-V1-CLEANUP.
 - The matrix serializes exact-address SHIP, independent mDNS policy, eebus-go
-  propagation, additive runtime API, protected identity, real production
-  construction, gateway remapping, and then MSP-05B.
+  propagation, protected identity, real production construction, pre-release
+  API v1 cleanup, gateway remapping, and then MSP-05B.
 - Pairing remains closed and disabled gateway behavior performs no eeBUS IO or
   state access.
 
