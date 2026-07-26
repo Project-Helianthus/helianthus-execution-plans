@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -18,7 +19,7 @@ VALIDATOR = PLAN / "validate_plan.py"
 class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def authorize(self, issue_id: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            ["python3", str(VALIDATOR), "--authorize-issue", issue_id],
+            [sys.executable, str(VALIDATOR), "--authorize-issue", issue_id],
             cwd=ROOT,
             capture_output=True,
             text=True,
@@ -50,7 +51,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             issue["what"] = "Drifted authorized action"
             plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
             result = subprocess.run(
-                ["python3", str(VALIDATOR), str(copied)],
+                [sys.executable, str(VALIDATOR), str(copied)],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
@@ -87,7 +88,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
                 path.write_text(text, encoding="utf-8")
 
             result = subprocess.run(
-                ["python3", str(VALIDATOR), str(copied)],
+                [sys.executable, str(VALIDATOR), str(copied)],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
