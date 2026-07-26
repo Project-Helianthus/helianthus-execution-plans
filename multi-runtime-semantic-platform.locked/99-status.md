@@ -2,33 +2,36 @@
 
 State: `locked`
 Started: `2026-04-12`
-Last revised: `2026-07-18`
-Current milestone: `M5_PRODUCTION_PREREQUISITES`
-Cruise phase: `M5_PRODUCTION_PREREQUISITES`
-Amendment count: `5`
-Amendment: `MSP-05B gateway lifecycle prerequisite correction`
-Accepted through: `MSP-05A-R1 with M4.5 trust and admin state frozen`
+Last revised: `2026-07-26`
+Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
+Cruise phase: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
+Amendment count: `6`
+Amendment: `M6.25 raw SPINE feature acquisition`
+Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
 Dirty rescue candidate: `false`
-Successor unlocks: `only through the corrected production-prerequisite chain`
+Successor unlocks: `only through the M6.25 and live-completion chain`
 Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
-The MSP-05B gateway lifecycle prerequisite correction is current. Publication
-schema v2 remains stable while its control-plane amendment binding and the
-complete live audit are recorded in `106-ad-docs-02-integrity.json` and
-`107-ad-docs-02-topology-audit.md`; `100-topology-audit.md` remains the
-immutable AD-DOCS-01 snapshot. Candidate cleanup fails closed and any consumed
-evidence is corrected only by a forward fix.
+The forward-only M6.25 amendment is current. M0-M6 history remains valid;
+`100-topology-audit.md` remains the immutable AD-DOCS-01 snapshot.
+`106-ad-docs-02-integrity.json` remains the unchanged AD-DOCS-02 integrity
+record, while `107-ad-docs-02-topology-audit.md` is regenerated from the active
+matrix. Candidate cleanup still fails closed and consumed evidence is corrected
+only by a forward fix.
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 
-The plan remains locked after five accepted adversarial rounds. Recovery, M3,
-M3.5, M4, M4.5, the inert M5A gateway scaffold, production runtime, initial API
-v1, and MSP-05A-R1 mapping are closed by published artifacts. The latest M5B
-pre-review found worker-level process termination that can bypass deferred
-cleanup and noncanonical remote output, so direct M5B dispatch remains
-forbidden until MSP-05A-R2.
+The plan remains locked after five accepted adversarial rounds. M5 and M6 are
+complete. The current live gap is canonical typed SPINE function-data
+acquisition: topology is available, but generic full READ/WRITE, verified
+rollback, and direct-value evidence are not.
+
+Historical M6.5 is framework-complete/live-partial. Historical M7, M8, and M8.5
+are synthetic-only/partial, with zero promoted leaves. Their administrative
+closure does not prove live completion and cannot unlock M9. M9 has not started
+substantively.
 
 `MSP-R00` is completed locally for issue #14 with no code acceptance, no
 runtime successor unlock, and architecture review PASS. Public artifacts omit
@@ -40,9 +43,8 @@ The final plan-lock architecture review is recorded in
 
 ## Ready Rows
 
-- `MSP-05A-R2`: sole ready row. It establishes main as the sole process-exit
-  boundary, propagates wrapped worker/helper errors, and emits lowercase sorted
-  remote SKIs while preserving nil versus explicit empty and duplicate rejection.
+- `MSP-0625-PLAN`: sole ready row. It publishes the additive M6.25 contract and
+  DAG without reopening or resetting M0-M6.
 
 ## Completed Recovery Publication
 
@@ -83,10 +85,13 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Complete MSP-05A-R2 through strict external RED/GREEN evidence.
-- Implement MSP-05B with a zero-call disabled path, typed resolver, exact-once
-  Shutdown, joined cleanup errors, and no sustained-readiness claim.
-- Continue M6 and later milestones only after all completion tokens validate.
+- Publish `MSP-0625-PLAN`, then complete the serialized M6.25 docs and code
+  rows through `MSP-0625-LAB`.
+- Complete `MSP-0625-DOCS-P` before `MSP-065-LIVE-R1`; it does not block the
+  earlier spine-go path.
+- Execute the live M6.5-R1 through M8.5-R1 chain.
+- Keep M9 blocked until `MSP-085-LIVE-R1` and
+  machine-checkable `promoted_leaf_count > 0`.
 
 ## Gate Corrections
 
@@ -103,8 +108,10 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Scope Blocks
 
-GraphQL, Portal, Home Assistant, command routing, raw writes, and promoted
-semantics remain out of scope until their later milestones and per-leaf locks.
+GraphQL, Portal, Home Assistant, candidate references, aliases, v2 surfaces,
+and promoted semantics remain out of scope until their later milestones and
+live per-leaf locks. M6.25 raw WRITE exists only as owner-local bounded
+acquisition through the gateway router and durable mutation coordinator.
 
 No public artifact may contain packet captures, raw transcripts, keys, PEM
 blocks, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw

@@ -1,6 +1,6 @@
 # Platform Taxonomy And Boundaries
 
-Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
+Canonical-SHA256: `1e1b4c67d294f6b2d9cdd9420632bf8d0fa83cab916c1da57411d593e6c29e87`
 
 Depends on:
 None. This is the vocabulary root for the draft.
@@ -19,7 +19,7 @@ component as transport, base protocol, profile, runtime instance, native
 registry, semantic projection, or semantic integration. If not, the taxonomy is
 incomplete.
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 
 Coverage:
 Covers the canonical platform model, architectural rules, and target gateway
