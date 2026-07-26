@@ -22,13 +22,6 @@ if len(PLAN_CANDIDATES) != 1:
 PLAN = PLAN_CANDIDATES[0]
 VALIDATOR = PLAN / "validate_plan.py"
 PLAN_DATA = yaml.safe_load((PLAN / "plan.yaml").read_text(encoding="utf-8"))
-CONTRACT_DIGEST = PLAN_DATA["execution_authorization"]["authorized_issue_contract_sha256"]
-PLAN_HEAD = subprocess.run(
-    ["git", "-C", str(PLAN), "rev-parse", "HEAD"],
-    check=True,
-    capture_output=True,
-    text=True,
-).stdout.strip()
 
 
 class FroniusExecutionAuthorizationTests(unittest.TestCase):
@@ -41,17 +34,52 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             check=False,
         )
 
-    def authorize(self, issue_id: str) -> subprocess.CompletedProcess[str]:
+    def git(self, repo: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            ["git", "-C", str(repo), *args],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    def published_plan(self, temp: str) -> tuple[Path, str]:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        copied = repo / PLAN.name
+        shutil.copytree(PLAN, copied)
+        self.git(repo, "init", "-b", "main")
+        self.git(repo, "config", "user.name", "Authorization Test")
+        self.git(repo, "config", "user.email", "authorization-test@example.invalid")
+        self.git(repo, "add", ".")
+        self.git(repo, "commit", "-m", "publish plan")
+        head = self.git(repo, "rev-parse", "HEAD").stdout.strip()
+        remote = Path(temp) / "remote.git"
+        subprocess.run(
+            ["git", "init", "--bare", str(remote)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        self.git(repo, "remote", "add", "origin", str(remote))
+        self.git(repo, "push", "-u", "origin", "main")
+        return copied, head
+
+    def authorize(
+        self, plan_root: Path, anchor_sha: str, issue_id: str
+    ) -> subprocess.CompletedProcess[str]:
+        plan = yaml.safe_load((plan_root / "plan.yaml").read_text(encoding="utf-8"))
+        contract_digest = plan["execution_authorization"]["authorized_issue_contract_sha256"]
         return subprocess.run(
             [
                 sys.executable,
                 str(VALIDATOR),
+                str(plan_root),
                 "--authorize-issue",
                 issue_id,
                 "--plan-head-sha",
-                PLAN_HEAD,
+                anchor_sha,
                 "--authorization-contract-sha256",
-                CONTRACT_DIGEST,
+                contract_digest,
             ],
             cwd=ROOT,
             capture_output=True,
@@ -96,19 +124,38 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         return copied
 
     def test_last_pre_gateway_issue_is_authorized(self) -> None:
-        result = self.authorize("FMV3-M3-03")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("fail-closed execution allowlist", result.stdout)
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            result = self.authorize(plan_root, anchor, "FMV3-M3-03")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("fail-closed execution allowlist", result.stdout)
 
     def test_gateway_boundary_is_rejected(self) -> None:
-        result = self.authorize("FMV3-M4-01")
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("outside the fail-closed execution allowlist", result.stderr)
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            result = self.authorize(plan_root, anchor, "FMV3-M4-01")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("absent from the merged authorization anchor", result.stderr)
 
     def test_deferred_private_governance_is_rejected(self) -> None:
-        result = self.authorize("FMV3-M0-04")
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("outside the fail-closed execution allowlist", result.stderr)
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            result = self.authorize(plan_root, anchor, "FMV3-M0-04")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("absent from the merged authorization anchor", result.stderr)
+
+    def test_unmerged_feature_head_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            repo = plan_root.parent
+            self.git(repo, "checkout", "-b", "unmerged")
+            marker = repo / "unmerged.txt"
+            marker.write_text("unmerged\n", encoding="utf-8")
+            self.git(repo, "add", "unmerged.txt")
+            self.git(repo, "commit", "-m", "unmerged branch")
+            result = self.authorize(plan_root, anchor, "FMV3-M3-03")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("authoritative origin/main HEAD", result.stderr)
 
     def test_authorized_action_drift_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

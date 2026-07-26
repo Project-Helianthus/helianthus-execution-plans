@@ -31,7 +31,14 @@ execution_authorization:
     required: true
     record_type: github_meta_issue_comment_v1
     meta_issue: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71
+    authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/72
     marker: execution-authorization:v1
+    plan_repo: Project-Helianthus/helianthus-execution-plans
+    plan_path: fronius-modbus-multivendor-v3-w29-26.locked/plan.yaml
+    authorized_issuer: d3vi1
+    allowed_author_associations: [MEMBER, OWNER]
+    comment_edit_policy: created_at_equals_updated_at
+    merge_requirement: anchor_equals_pr_merge_commit_and_is_ancestor_of_origin_main
     bind: [plan_head_sha, authorized_issue_contract_sha256, authorized_issue]
     state: pending_until_authorization_pr_merge
   repository_creation_authorized: true

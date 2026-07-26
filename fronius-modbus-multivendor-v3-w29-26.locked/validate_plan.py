@@ -148,7 +148,14 @@ def validate(root: Path) -> tuple[int, int]:
             "required": True,
             "record_type": "github_meta_issue_comment_v1",
             "meta_issue": "https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71",
+            "authorization_pr": "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/72",
             "marker": "execution-authorization:v1",
+            "plan_repo": "Project-Helianthus/helianthus-execution-plans",
+            "plan_path": "fronius-modbus-multivendor-v3-w29-26.locked/plan.yaml",
+            "authorized_issuer": "d3vi1",
+            "allowed_author_associations": ["MEMBER", "OWNER"],
+            "comment_edit_policy": "created_at_equals_updated_at",
+            "merge_requirement": "anchor_equals_pr_merge_commit_and_is_ancestor_of_origin_main",
             "bind": ["plan_head_sha", "authorized_issue_contract_sha256", "authorized_issue"],
             "state": "pending_until_authorization_pr_merge",
         },
@@ -618,7 +625,18 @@ def main() -> int:
                 capture_output=True,
                 text=True,
             ).stdout.strip()
-            require(args.plan_head_sha == actual_head, "authorization plan HEAD does not match the checked-out plan")
+            origin_main = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "refs/remotes/origin/main"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            require(actual_head == origin_main, "authorization requires the checked-out authoritative origin/main HEAD")
+            anchor_is_merged = subprocess.run(
+                ["git", "-C", str(root), "merge-base", "--is-ancestor", args.plan_head_sha, origin_main],
+                check=False,
+            ).returncode == 0
+            require(anchor_is_merged, "authorization anchor is not reachable from authoritative origin/main")
             plan_worktree_status = subprocess.run(
                 ["git", "-C", str(root), "status", "--porcelain", "--untracked-files=all", "--", "."],
                 check=True,
@@ -630,6 +648,33 @@ def main() -> int:
                 args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
                 "authorization contract digest does not match the plan",
             )
+            repo_root = Path(
+                subprocess.run(
+                    ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            )
+            plan_relpath = (root / "plan.yaml").relative_to(repo_root).as_posix()
+            anchored_plan_text = subprocess.run(
+                ["git", "-C", str(root), "show", f"{args.plan_head_sha}:{plan_relpath}"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+            anchored_plan = yaml.load(anchored_plan_text, Loader=UniqueLoader)
+            require(isinstance(anchored_plan, dict), "anchored plan.yaml must be a mapping")
+            anchored_authorization = anchored_plan.get("execution_authorization", {})
+            require(
+                anchored_authorization.get("authorized_issue_contract_sha256")
+                == args.authorization_contract_sha256,
+                "authorization contract digest is absent from the merged anchor",
+            )
+            require(
+                args.authorize_issue in anchored_authorization.get("authorized_issues", []),
+                "issue is absent from the merged authorization anchor",
+            )
             require(
                 args.authorize_issue in authorization["authorized_issues"],
                 f"issue {args.authorize_issue} is outside the fail-closed execution allowlist",
@@ -638,7 +683,7 @@ def main() -> int:
                 args.authorize_issue != authorization["stop_before_issue"],
                 f"issue {args.authorize_issue} reaches the hard stop",
             )
-    except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:
+    except (OSError, UnicodeError, yaml.YAMLError, ValidationError, subprocess.SubprocessError) as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 1
     if args.authorize_issue is not None:
