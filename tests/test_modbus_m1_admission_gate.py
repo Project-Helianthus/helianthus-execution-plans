@@ -39,7 +39,7 @@ def validate_gate(require_open: bool) -> list[str]:
         "Project-Helianthus/helianthus-docs-ebus"
     ):
         errors.append("docs repository mismatch")
-    if value["docs_pr"] != 374 or type(value["docs_pr"]) is not int:
+    if value["docs_pr"] != 376 or type(value["docs_pr"]) is not int:
         errors.append("docs PR mismatch")
     if value["trust_anchor_repository"] != (
         "Project-Helianthus/helianthus-execution-plans"

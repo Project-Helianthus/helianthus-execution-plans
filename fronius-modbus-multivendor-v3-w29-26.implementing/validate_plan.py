@@ -40,6 +40,7 @@ M2_IMPLEMENTATION_IDS = {f"FMV3-M2-{number:02d}" for number in range(1, 4)}
 COMPANION_IDS = M1_IMPLEMENTATION_IDS | M2_IMPLEMENTATION_IDS
 CHUNKS = [f"{number}-{name}.md" for number, name in ((10, "architecture-and-repo-boundaries"), (11, "fronius-readonly-and-semantic-lock"), (12, "vendor-expansion-and-private-bindings"), (13, "roadmap-gates-and-risks"))]
 M1_ADMISSION_GATE = Path("runtime-gates/fronius-modbus-m1-admission.json")
+M1_DOCS_PR = 376
 M1_TRUST_ANCHOR_VALIDATOR_SHA256 = (
     "77c41742a84bde193ef0b2adfc5ed220c5da937cec7cb0e2ce96cca047b3614c"
 )
@@ -94,14 +95,14 @@ def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
     require(isinstance(gate, dict) and set(gate) == M1_ADMISSION_KEYS, "Modbus M1 admission gate schema mismatch")
     require(gate["schema"] == "helianthus.execution.modbus-m1-admission" and gate["version"] == 1 and type(gate["version"]) is int, "Modbus M1 admission gate identity mismatch")
     require(gate["state"] == "OPEN", "Modbus M1 admission gate is not OPEN")
-    require(gate["docs_repository"] == "Project-Helianthus/helianthus-docs-ebus" and gate["docs_pr"] == 374 and type(gate["docs_pr"]) is int, "Modbus M1 admission docs identity mismatch")
+    require(gate["docs_repository"] == "Project-Helianthus/helianthus-docs-ebus" and gate["docs_pr"] == M1_DOCS_PR and type(gate["docs_pr"]) is int, "Modbus M1 admission docs identity mismatch")
     require(gate["trust_anchor_repository"] == "Project-Helianthus/helianthus-execution-plans", "Modbus M1 trust anchor repository mismatch")
     require(gate["required_check"] == "Modbus Trusted Revision", "Modbus M1 required check mismatch")
     for key in ("docs_merge_sha", "trust_anchor_commit"):
         require(isinstance(gate[key], str) and re.fullmatch(r"[0-9a-f]{40}", gate[key]) is not None, f"Modbus M1 gate {key} must be a full lowercase SHA")
     require(gate["branch_protection_evidence_url"] == "https://api.github.com/repos/Project-Helianthus/helianthus-docs-ebus/branches/main/protection/required_status_checks", "Modbus M1 branch-protection evidence URL mismatch")
     require(isinstance(gate["required_check_verified_at"], str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", gate["required_check_verified_at"]) is not None, "Modbus M1 gate verification timestamp is invalid")
-    require(isinstance(gate["verification_pr"], int) and type(gate["verification_pr"]) is int and gate["verification_pr"] > 374, "Modbus M1 gate verification PR is invalid")
+    require(isinstance(gate["verification_pr"], int) and type(gate["verification_pr"]) is int and gate["verification_pr"] > M1_DOCS_PR, "Modbus M1 gate verification PR is invalid")
     require(isinstance(gate["verification_head_sha"], str) and re.fullmatch(r"[0-9a-f]{40}", gate["verification_head_sha"]) is not None, "Modbus M1 verification head SHA is invalid")
     require(isinstance(gate["required_check_run_url"], str) and gate["required_check_run_url"].startswith("https://github.com/Project-Helianthus/helianthus-docs-ebus/actions/runs/"), "Modbus M1 required-check run URL is invalid")
     anchor_is_merged = subprocess.run(
@@ -121,8 +122,10 @@ def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
         "Modbus trust anchor script is not the independently frozen M1 anchor",
     )
 
-    docs_pr = github_api("repos/Project-Helianthus/helianthus-docs-ebus/pulls/374")
-    require(docs_pr.get("merged") is True and docs_pr.get("merge_commit_sha") == gate["docs_merge_sha"], "docs PR #374 merge evidence mismatch")
+    docs_pr = github_api(
+        f"repos/Project-Helianthus/helianthus-docs-ebus/pulls/{M1_DOCS_PR}"
+    )
+    require(docs_pr.get("merged") is True and docs_pr.get("merge_commit_sha") == gate["docs_merge_sha"], f"docs PR #{M1_DOCS_PR} merge evidence mismatch")
     verification_pr = github_api(f"repos/Project-Helianthus/helianthus-docs-ebus/pulls/{gate['verification_pr']}")
     require(
         verification_pr.get("merged") is True
