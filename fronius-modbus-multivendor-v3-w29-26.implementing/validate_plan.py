@@ -2,6 +2,7 @@
 """Validate only the structural contract of this locked execution-plan package."""
 from __future__ import annotations
 import argparse
+import base64
 import hashlib
 import json
 import re
@@ -45,11 +46,14 @@ M1_ADMISSION_KEYS = {
     "docs_pr",
     "docs_repository",
     "required_check",
+    "required_check_run_url",
     "required_check_verified_at",
     "schema",
     "state",
     "trust_anchor_commit",
     "trust_anchor_repository",
+    "verification_head_sha",
+    "verification_pr",
     "version",
 }
 class ValidationError(Exception): pass
@@ -64,9 +68,25 @@ def unique_mapping(loader: UniqueLoader, node: yaml.MappingNode, deep: bool = Fa
 UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
 def require(condition: bool, message: str) -> None:
     if not condition: raise ValidationError(message)
-def require_m1_admission_open(repo_root: Path) -> None:
+def github_api(endpoint: str) -> Any:
+    result = subprocess.run(
+        ["gh", "api", endpoint],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    value = json.loads(result.stdout)
+    require(isinstance(value, (dict, list)), f"GitHub API returned invalid JSON for {endpoint}")
+    return value
+def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
     gate_path = repo_root / M1_ADMISSION_GATE
     require(gate_path.is_file() and not gate_path.is_symlink(), "Modbus M1 admission gate is missing")
+    committed_gate = subprocess.run(
+        ["git", "-C", str(repo_root), "show", f"HEAD:{M1_ADMISSION_GATE.as_posix()}"],
+        check=True,
+        capture_output=True,
+    ).stdout
+    require(gate_path.read_bytes() == committed_gate, "Modbus M1 admission gate differs from committed HEAD")
     gate = json.loads(gate_path.read_text(encoding="utf-8"))
     require(isinstance(gate, dict) and set(gate) == M1_ADMISSION_KEYS, "Modbus M1 admission gate schema mismatch")
     require(gate["schema"] == "helianthus.execution.modbus-m1-admission" and gate["version"] == 1 and type(gate["version"]) is int, "Modbus M1 admission gate identity mismatch")
@@ -76,8 +96,59 @@ def require_m1_admission_open(repo_root: Path) -> None:
     require(gate["required_check"] == "Modbus Trusted Revision", "Modbus M1 required check mismatch")
     for key in ("docs_merge_sha", "trust_anchor_commit"):
         require(isinstance(gate[key], str) and re.fullmatch(r"[0-9a-f]{40}", gate[key]) is not None, f"Modbus M1 gate {key} must be a full lowercase SHA")
-    require(isinstance(gate["branch_protection_evidence_url"], str) and gate["branch_protection_evidence_url"].startswith("https://github.com/"), "Modbus M1 gate lacks branch-protection evidence")
+    require(gate["branch_protection_evidence_url"] == "https://api.github.com/repos/Project-Helianthus/helianthus-docs-ebus/branches/main/protection/required_status_checks", "Modbus M1 branch-protection evidence URL mismatch")
     require(isinstance(gate["required_check_verified_at"], str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", gate["required_check_verified_at"]) is not None, "Modbus M1 gate verification timestamp is invalid")
+    require(isinstance(gate["verification_pr"], int) and type(gate["verification_pr"]) is int and gate["verification_pr"] > 374, "Modbus M1 gate verification PR is invalid")
+    require(isinstance(gate["verification_head_sha"], str) and re.fullmatch(r"[0-9a-f]{40}", gate["verification_head_sha"]) is not None, "Modbus M1 verification head SHA is invalid")
+    require(isinstance(gate["required_check_run_url"], str) and gate["required_check_run_url"].startswith("https://github.com/Project-Helianthus/helianthus-docs-ebus/actions/runs/"), "Modbus M1 required-check run URL is invalid")
+    anchor_is_merged = subprocess.run(
+        ["git", "-C", str(repo_root), "merge-base", "--is-ancestor", gate["trust_anchor_commit"], origin_main],
+        check=False,
+    ).returncode == 0
+    require(anchor_is_merged, "Modbus trust anchor commit is not merged on execution-plans main")
+    anchor_script = subprocess.run(
+        ["git", "-C", str(repo_root), "show", f"{gate['trust_anchor_commit']}:scripts/validate_modbus_docs_trust.py"],
+        check=False,
+        capture_output=True,
+    )
+    require(anchor_script.returncode == 0 and anchor_script.stdout, "Modbus trust anchor script is absent from its merged commit")
+
+    docs_pr = github_api("repos/Project-Helianthus/helianthus-docs-ebus/pulls/374")
+    require(docs_pr.get("merged") is True and docs_pr.get("merge_commit_sha") == gate["docs_merge_sha"], "docs PR #374 merge evidence mismatch")
+    verification_pr = github_api(f"repos/Project-Helianthus/helianthus-docs-ebus/pulls/{gate['verification_pr']}")
+    require(
+        verification_pr.get("merged") is True
+        and verification_pr.get("base", {}).get("ref") == "main"
+        and verification_pr.get("head", {}).get("sha") == gate["verification_head_sha"],
+        "required-check verification PR evidence mismatch",
+    )
+    protection = github_api("repos/Project-Helianthus/helianthus-docs-ebus/branches/main/protection/required_status_checks")
+    contexts = protection.get("contexts", [])
+    checks = protection.get("checks", [])
+    require(
+        gate["required_check"] in contexts
+        or any(isinstance(check, dict) and check.get("context") == gate["required_check"] for check in checks),
+        "Modbus Trusted Revision is not a required main check",
+    )
+    check_runs = github_api(f"repos/Project-Helianthus/helianthus-docs-ebus/commits/{gate['verification_head_sha']}/check-runs")
+    runs = check_runs.get("check_runs", [])
+    require(
+        any(
+            isinstance(run, dict)
+            and run.get("name") == gate["required_check"]
+            and run.get("conclusion") == "success"
+            and run.get("details_url") == gate["required_check_run_url"]
+            for run in runs
+        ),
+        "successful required-check run evidence mismatch",
+    )
+    workflow_api = github_api(
+        "repos/Project-Helianthus/helianthus-docs-ebus/contents/"
+        f".github/workflows/modbus-trusted-revision.yml?ref={gate['docs_merge_sha']}"
+    )
+    require(workflow_api.get("encoding") == "base64" and isinstance(workflow_api.get("content"), str), "docs workflow content evidence is invalid")
+    workflow_text = base64.b64decode(workflow_api["content"]).decode("utf-8")
+    require(gate["trust_anchor_commit"] in workflow_text and "anchor/scripts/validate_modbus_docs_trust.py" in workflow_text, "docs workflow does not pin and invoke the merged trust anchor")
 def require_unique_metadata(text: str, key: str, expected: str, label: str) -> None:
     values = re.findall(rf"^{re.escape(key)}: (.+)$", text, re.MULTILINE)
     require(len(values) == 1, f"{label} must contain exactly one {key} field")
@@ -673,6 +744,16 @@ def main() -> int:
                     text=True,
                 ).stdout.strip()
             )
+            index_flags = subprocess.run(
+                ["git", "-C", str(repo_root), "ls-files", "-v"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.splitlines()
+            require(
+                all(line.startswith("H ") for line in index_flags),
+                "authorization rejects assume-unchanged, skip-worktree, or other nonstandard index flags",
+            )
             plan_worktree_status = subprocess.run(
                 ["git", "-C", str(repo_root), "status", "--porcelain", "--untracked-files=all"],
                 check=True,
@@ -685,7 +766,7 @@ def main() -> int:
                 is not None
                 and args.authorize_issue != "FMV3-M1-00"
             ):
-                require_m1_admission_open(repo_root)
+                require_m1_admission_open(repo_root, origin_main)
             require(
                 args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
                 "authorization contract digest does not match the plan",

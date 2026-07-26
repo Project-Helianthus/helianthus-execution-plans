@@ -7,6 +7,7 @@ import hashlib
 import json
 import pathlib
 import re
+import subprocess
 import sys
 from typing import Any
 
@@ -120,8 +121,12 @@ def _revision_payload(manifest: dict[str, Any]) -> dict[str, Any]:
 def _validate_protected_paths(
     prior_root: pathlib.Path,
     current_root: pathlib.Path,
+    trust_anchor_sha: str,
     errors: list[str],
 ) -> None:
+    bootstrap = any(
+        not (prior_root / relative).exists() for relative in PROTECTED_PATHS
+    )
     for relative in PROTECTED_PATHS:
         prior = prior_root / relative
         current = current_root / relative
@@ -139,16 +144,50 @@ def _validate_protected_paths(
             continue
         if _digest(prior) != _digest(current):
             errors.append(f"protected path is immutable: {relative.as_posix()}")
+    if not bootstrap:
+        return
+    mirror = current_root / PROTECTED_PATHS[1]
+    workflow = current_root / PROTECTED_PATHS[0]
+    if mirror.is_file() and _digest(mirror) != _digest(
+        pathlib.Path(__file__).resolve()
+    ):
+        errors.append("bootstrap transition mirror must equal the trust anchor")
+    if not workflow.is_file():
+        return
+    text = workflow.read_text(encoding="utf-8")
+    required_fragments = (
+        "pull_request_target:",
+        "repository: Project-Helianthus/helianthus-execution-plans",
+        f"ref: {trust_anchor_sha}",
+        "python3 anchor/scripts/validate_modbus_docs_trust.py",
+        f"--trust-anchor-sha {trust_anchor_sha}",
+        "ref: ${{ github.event.pull_request.base.sha }}",
+        "ref: ${{ github.event.pull_request.head.sha }}",
+        "persist-credentials: false",
+    )
+    for fragment in required_fragments:
+        if fragment not in text:
+            errors.append(f"bootstrap trusted workflow missing: {fragment}")
+    if "python3 current/" in text or "run: current/" in text:
+        errors.append("bootstrap trusted workflow must not execute PR-head code")
 
 
 def validate_transition(
     prior_root: pathlib.Path,
     current_root: pathlib.Path,
+    trust_anchor_sha: str,
 ) -> list[str]:
     errors: list[str] = []
+    if re.fullmatch(r"[0-9a-f]{40}", trust_anchor_sha) is None:
+        errors.append("trust anchor SHA must be full lowercase 40-hex")
     prior = _read_manifest(prior_root, "prior", errors)
     current = _read_manifest(current_root, "current", errors)
-    _validate_protected_paths(prior_root, current_root, errors)
+    _validate_protected_paths(
+        prior_root,
+        current_root,
+        trust_anchor_sha,
+        errors,
+    )
 
     if prior is None and current is None:
         return errors
@@ -210,11 +249,39 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--prior-root", type=pathlib.Path, required=True)
     parser.add_argument("--current-root", type=pathlib.Path, required=True)
+    parser.add_argument("--trust-anchor-sha", required=True)
     args = parser.parse_args()
     errors = validate_transition(
         args.prior_root.resolve(),
         args.current_root.resolve(),
+        args.trust_anchor_sha,
     )
+    anchor_root = pathlib.Path(__file__).resolve().parents[1]
+    try:
+        anchor_head = subprocess.check_output(
+            ["git", "-C", str(anchor_root), "rev-parse", "HEAD"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+        anchor_status = subprocess.check_output(
+            [
+                "git",
+                "-C",
+                str(anchor_root),
+                "status",
+                "--porcelain",
+                "--untracked-files=all",
+            ],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        errors.append("trust anchor must execute from a Git checkout")
+    else:
+        if anchor_head != args.trust_anchor_sha:
+            errors.append("executed trust anchor HEAD does not match pinned SHA")
+        if anchor_status:
+            errors.append("trust anchor checkout must be fully clean")
     if errors:
         for error in errors:
             print(f"modbus_docs_trust_invalid: {error}", file=sys.stderr)

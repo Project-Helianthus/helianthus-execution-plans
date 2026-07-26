@@ -14,11 +14,14 @@ EXPECTED_KEYS = {
     "docs_pr",
     "docs_repository",
     "required_check",
+    "required_check_run_url",
     "required_check_verified_at",
     "schema",
     "state",
     "trust_anchor_commit",
     "trust_anchor_repository",
+    "verification_head_sha",
+    "verification_pr",
     "version",
 }
 
@@ -49,7 +52,10 @@ def validate_gate(require_open: bool) -> list[str]:
             "branch_protection_evidence_url",
             "docs_merge_sha",
             "required_check_verified_at",
+            "required_check_run_url",
             "trust_anchor_commit",
+            "verification_head_sha",
+            "verification_pr",
         ):
             if value[key] is not None:
                 errors.append(f"blocked gate {key} must be null")
@@ -65,6 +71,14 @@ def validate_gate(require_open: bool) -> list[str]:
             errors.append("open gate requires branch-protection evidence")
         if not isinstance(value["required_check_verified_at"], str):
             errors.append("open gate requires verification timestamp")
+        if not isinstance(value["required_check_run_url"], str):
+            errors.append("open gate requires required-check run URL")
+        if not isinstance(value["verification_pr"], int):
+            errors.append("open gate requires verification PR")
+        if not isinstance(value["verification_head_sha"], str) or re.fullmatch(
+            r"[0-9a-f]{40}", value["verification_head_sha"]
+        ) is None:
+            errors.append("open gate requires verification head SHA")
     else:
         errors.append("unknown gate state")
     return errors
