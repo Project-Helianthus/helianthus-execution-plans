@@ -5,6 +5,7 @@ import json
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
 from scripts import validate_modbus_docs_trust as trust_validator
 
@@ -18,12 +19,20 @@ MANIFEST = pathlib.Path(
 PROTECTED = (
     pathlib.Path(".github/workflows/modbus-trusted-revision.yml"),
     pathlib.Path("scripts/validate_modbus_revision_transition.py"),
+    pathlib.Path("scripts/validate_modbus_companion.py"),
 )
+SEMANTIC_VALIDATOR_BYTES = b"frozen semantic validator fixture\n"
 ARTIFACTS = {
     "consumer_lock_schema": (
         "docs/platform/schemas/modbus-companion-consumer-lock-v1.schema.json"
     ),
     "policy": "docs/platform/modbus-foundation-profile-contract-v1.md",
+    "trusted_revision_validator": (
+        "scripts/validate_modbus_revision_transition.py"
+    ),
+    "trusted_revision_workflow": (
+        ".github/workflows/modbus-trusted-revision.yml"
+    ),
     "wire": "protocols/modbus/modbus-phase-one-wire-v1.md",
 }
 
@@ -50,8 +59,14 @@ class ModbusDocsTrustTests(unittest.TestCase):
                     + "\n",
                     encoding="utf-8",
                 )
-            else:
+            elif relative == PROTECTED[1]:
                 target.write_bytes(VALIDATOR.read_bytes())
+            else:
+                target.write_bytes(SEMANTIC_VALIDATOR_BYTES)
+        hashes = {
+            key: hashlib.sha256((root / raw_path).read_bytes()).hexdigest()
+            for key, raw_path in ARTIFACTS.items()
+        }
         manifest = {
             "artifact_sha256": hashes,
             "artifacts": ARTIFACTS,
@@ -62,6 +77,17 @@ class ModbusDocsTrustTests(unittest.TestCase):
             "source_policy": {
                 "restricted_source_copy": "forbidden",
             },
+            "trust_anchor": {
+                "commit_sha": ANCHOR_SHA,
+                "local_mirror": PROTECTED[1].as_posix(),
+                "m1_admission_gate": (
+                    "runtime-gates/fronius-modbus-m1-admission.json"
+                ),
+                "repository": (
+                    "Project-Helianthus/helianthus-execution-plans"
+                ),
+                "workflow": PROTECTED[0].as_posix(),
+            },
             "version": 1,
         }
         target = root / MANIFEST
@@ -70,6 +96,9 @@ class ModbusDocsTrustTests(unittest.TestCase):
             json.dumps(manifest, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
+        normalized_digest = trust_validator._normalized_manifest_digest(manifest)
+        assert normalized_digest is not None
+        self.normalized_manifest_digest = normalized_digest
         return root
 
     def run_validator(
@@ -77,11 +106,23 @@ class ModbusDocsTrustTests(unittest.TestCase):
         prior: pathlib.Path,
         current: pathlib.Path,
     ) -> list[str]:
-        return trust_validator.validate_transition(
-            prior.resolve(),
-            current.resolve(),
-            ANCHOR_SHA,
-        )
+        with (
+            mock.patch.object(
+                trust_validator,
+                "V1_SEMANTIC_VALIDATOR_SHA256",
+                hashlib.sha256(SEMANTIC_VALIDATOR_BYTES).hexdigest(),
+            ),
+            mock.patch.object(
+                trust_validator,
+                "V1_NORMALIZED_MANIFEST_SHA256",
+                self.normalized_manifest_digest,
+            ),
+        ):
+            return trust_validator.validate_transition(
+                prior.resolve(),
+                current.resolve(),
+                ANCHOR_SHA,
+            )
 
     def test_bootstrap_introduction_passes(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -190,6 +231,37 @@ class ModbusDocsTrustTests(unittest.TestCase):
             errors = self.run_validator(prior, current)
             self.assertTrue(
                 any("protected path is immutable" in error for error in errors)
+            )
+
+    def test_two_pr_semantic_validator_weakening_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = self.materialize(root / "prior")
+            current = self.materialize(root / "current")
+            validator = current / PROTECTED[2]
+            validator.write_text("# permissive semantic validator\n")
+            errors = self.run_validator(prior, current)
+            self.assertTrue(
+                any("protected path is immutable" in error for error in errors)
+            )
+
+    def test_revision_bump_cannot_mutate_frozen_v1_semantics(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = self.materialize(root / "prior")
+            current = self.materialize(root / "current")
+            manifest_path = current / MANIFEST
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["content_revision"] = 2
+            manifest["consumer_pin"]["content_revision"] = 2
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "current manifest is not the independently frozen V1 contract",
+                errors,
             )
 
     def test_semantic_manifest_change_requires_revision(self) -> None:
