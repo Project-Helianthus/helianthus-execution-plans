@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Validate only the structural contract of this locked execution-plan package."""
 from __future__ import annotations
+import argparse
 import hashlib
+import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -14,7 +17,7 @@ plan.yaml 00-canonical.md 01-index.md 10-architecture-and-repo-boundaries.md
 92-adversarial-review.md 99-status.md validate_plan.py
 """.split())
 REQUIRED_KEYS = set("""
-    slug title state lock_authorized source_discussion target_repos knowledge_repo canonical_file canonical_sha256
+    slug title state lock_authorized execution_authorization source_discussion target_repos knowledge_repo canonical_file canonical_sha256
 split_index started_on current_milestone supersedes availability_mode accepted_adversarial_rounds
 repository_mutex review_epoch review_scope decisions milestones risks phase_gates conditional_gates issues
 """.split())
@@ -29,7 +32,7 @@ Project-Helianthus/helianthus-execution-plans
 """.split())
 REVIEW_SCOPE = {"implementability", "correctness/data integrity", "protocol interoperability", "security/safety", "licensing/IP boundary", "operability/recovery", "testability", "dependency/DAG feasibility"}
 REQUIRED_PHASE_GATES = set("PG-REPOSITORY-CREATION PG-MODBUS-BOOT PG-MODBUS-DOC-GATE PG-MODBUSREG-BOOT PG-EEBUS-BOOT PG-MATTER-BOOT PG-RAW-FIRST PG-PV-DOC-GATE PG-SEMANTIC-LOCK PG-CONSUMER-PROMOTION PG-GRAPHQL-DOC-GATE PG-PUBLIC-ROLLOUT PG-EEBUS-DOC-GATE PG-MATTER-DOC-GATE PG-VENDOR-EXPANSION PG-READ-ONLY PG-RECOVERABLE-RELEASE".split())
-EXPECTED_ISSUE_COUNT = 43
+EXPECTED_ISSUE_COUNT = 44
 CONDITIONAL_GATE_IDS = {"CG-M4-LIVE-GO", "CG-M5-SEMANTIC-GO"}
 M1_IMPLEMENTATION_IDS = {f"FMV3-M1-{number:02d}" for number in range(1, 5)}
 M2_IMPLEMENTATION_IDS = {f"FMV3-M2-{number:02d}" for number in range(1, 4)}
@@ -47,6 +50,15 @@ def unique_mapping(loader: UniqueLoader, node: yaml.MappingNode, deep: bool = Fa
 UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
 def require(condition: bool, message: str) -> None:
     if not condition: raise ValidationError(message)
+def require_unique_metadata(text: str, key: str, expected: str, label: str) -> None:
+    values = re.findall(rf"^{re.escape(key)}: (.+)$", text, re.MULTILINE)
+    require(len(values) == 1, f"{label} must contain exactly one {key} field")
+    require(values[0] == expected, f"{label} {key} mismatch")
+def render_issue_map_gates(issue: dict[str, Any]) -> str:
+    values = list(issue["gates"])
+    if issue.get("companion_issue"):
+        values.append(f"companion {issue['companion_issue']}")
+    return ", ".join(values)
 def load_plan(path: Path) -> dict[str, Any]:
     value = yaml.load(path.read_text(encoding="utf-8"), Loader=UniqueLoader)
     require(isinstance(value, dict), "plan.yaml root must be a mapping")
@@ -112,10 +124,69 @@ def validate(root: Path) -> tuple[int, int]:
     missing_keys = REQUIRED_KEYS - set(plan)
     require(not missing_keys, f"plan.yaml missing keys: {sorted(missing_keys)}")
     require(plan["slug"] == "fronius-modbus-multivendor-v3-w29-26", "slug mismatch")
-    require(plan["state"] == "locked", "state must be locked")
+    supported_states = {"locked", "implementing", "maintenance"}
+    require(plan["state"] in supported_states, "state must be locked, implementing, or maintenance")
+    require(root.name == f"{plan['slug']}.{plan['state']}", "directory suffix/state mismatch")
     require(plan["lock_authorized"] is True, "lock_authorized must be true")
+    authorized_issues = [
+        "FMV3-M0-01", "FMV3-M0-02", "FMV3-M0-03", "FMV3-M0-06",
+        "FMV3-M1-00", "FMV3-M1-01", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04",
+        "FMV3-M2-01", "FMV3-M2-02", "FMV3-M2-03",
+        "FMV3-M3-01", "FMV3-M3-02", "FMV3-M3-03",
+    ]
+    require(plan["execution_authorization"] == {
+        "authorized_on": "2026-07-26",
+        "availability_mode": "openai_only",
+        "scope": "pre_gateway_transport_docs_registry",
+        "scope_authority": "authorized_issues_only",
+        "selection_policy": "fail_closed",
+        "preflight_enforcement": "validate_plan.py --authorize-issue <ID>",
+        "milestone_labels_non_authoritative": ["M0", "M1", "M2", "M3"],
+        "authorized_issues": authorized_issues,
+        "authorized_issue_contract_sha256": plan["execution_authorization"].get("authorized_issue_contract_sha256"),
+        "authorization_anchor": {
+            "required": True,
+            "record_type": "github_meta_issue_comment_v1",
+            "meta_issue": "https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71",
+            "authorization_pr": "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/72",
+            "marker": "execution-authorization:v1",
+            "plan_repo": "Project-Helianthus/helianthus-execution-plans",
+            "plan_path": "fronius-modbus-multivendor-v3-w29-26.locked/plan.yaml",
+            "authorized_issuer": "d3vi1",
+            "allowed_author_associations": ["MEMBER", "OWNER"],
+            "comment_edit_policy": "created_at_equals_updated_at",
+            "merge_requirement": "anchor_equals_pr_merge_commit_and_is_ancestor_of_origin_main",
+            "bind": ["plan_head_sha", "authorized_issue_contract_sha256", "authorized_issue"],
+            "state": "pending_until_authorization_pr_merge",
+        },
+        "repository_creation_authorized": True,
+        "repository_creation_targets": {
+            "public": ["helianthus-modbus", "helianthus-modbusreg"],
+            "private": [],
+        },
+        "private_repository_creation": "deferred_requires_future_explicit_authorization",
+        "implementation_authorized": True,
+        "issue_commit_push_authorized": True,
+        "deferred_issues": ["FMV3-M0-04", "FMV3-M0-05", "FMV3-M0-07"],
+        "stop_before_issue": "FMV3-M4-01",
+        "gateway_work_authorized": False,
+    }, "execution authorization mismatch")
     require(plan["started_on"] == "2026-07-14", "started_on mismatch")
-    require(plan["current_milestone"] == "M0", "current_milestone must remain M0")
+    if plan["state"] == "locked":
+        require(plan["current_milestone"] == "M0", "locked plan current_milestone must be M0")
+    elif plan["state"] == "implementing":
+        authorized_milestone_numbers = {
+            int(re.fullmatch(r"FMV3-M([0-8])-\d{2}", issue_id).group(1))
+            for issue_id in plan["execution_authorization"]["authorized_issues"]
+        }
+        maximum = max(authorized_milestone_numbers)
+        current_match = re.fullmatch(r"M([0-8])", str(plan["current_milestone"]))
+        require(current_match is not None, "implementing current_milestone must be M0..M8")
+        current = int(current_match.group(1))
+        require(current <= maximum, f"implementing current_milestone exceeds authorized M{maximum} boundary")
+    else:
+        require(plan["execution_authorization"]["gateway_work_authorized"] is True, "maintenance is forbidden by the pre-gateway authorization")
+        require(plan["current_milestone"] == "M8", "maintenance current_milestone must be M8")
     require(plan["supersedes"] == "fronius-modbus-eebus-bridge-w28-26.draft", "supersedes mismatch")
     require(plan["availability_mode"] == "openai_only", "availability_mode must be openai_only")
     require(plan["repository_mutex"] == {"scope": "per_repository", "owners": ["cruise-topology", "cruise-preflight"], "max_active_issues": 1, "max_active_prs": 1, "validation": "structural_contract_only"}, "repository mutex contract mismatch")
@@ -230,6 +301,60 @@ def validate(root: Path) -> tuple[int, int]:
     require(len(issue_ids) == len(set(issue_ids)), "duplicate issue ID")
     require(len(issue_ids) == EXPECTED_ISSUE_COUNT, f"expected {EXPECTED_ISSUE_COUNT} issues")
     validate_dag(set(issue_ids), issue_deps, "issue")
+    authorization = plan["execution_authorization"]
+    authorized_set = set(authorization["authorized_issues"])
+    deferred_set = set(authorization["deferred_issues"])
+    require(authorized_set <= set(issue_ids), "execution authorization references unknown issues")
+    require(deferred_set <= set(issue_ids), "execution deferral references unknown issues")
+    require(not (authorized_set & deferred_set), "authorized and deferred issue sets overlap")
+    require(
+        {issues_by_id[issue_id]["milestone"] for issue_id in authorized_set} <= {"M0", "M1", "M2", "M3"},
+        "authorized issue falls outside the pre-gateway M0-M3 labels",
+    )
+    require(
+        all(issue_id not in authorized_set for issue_id in ("FMV3-M0-04", "FMV3-M0-05", "FMV3-M0-07", "FMV3-M4-01")),
+        "private bootstrap or gateway issue entered the execution allowlist",
+    )
+    authorized_repo_map = {
+        "FMV3-M0-01": "Project-Helianthus/.github",
+        "FMV3-M0-02": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M0-03": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M0-06": "Project-Helianthus/helianthus-docs-ebus",
+        "FMV3-M1-00": "Project-Helianthus/helianthus-docs-ebus",
+        "FMV3-M1-01": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M1-02": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M1-03": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M1-04": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M2-01": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M2-02": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M2-03": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M3-01": "Project-Helianthus/helianthus-docs-ebus",
+        "FMV3-M3-02": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M3-03": "Project-Helianthus/helianthus-modbusreg",
+    }
+    require(set(authorized_repo_map) == authorized_set, "authorized issue/repository map is incomplete")
+    require(
+        all(issues_by_id[issue_id]["repo"] == repo for issue_id, repo in authorized_repo_map.items()),
+        "authorized issue ownership differs from the exact execution map",
+    )
+    require(
+        all(repo != "Project-Helianthus/helianthus-ebusgateway" for repo in authorized_repo_map.values()),
+        "gateway-owned issue entered the authorized execution map",
+    )
+    m0_public = issues_by_id["FMV3-M0-01"]
+    require(
+        m0_public["acceptance"]
+        == "Governance creates empty public helianthus-modbus and helianthus-modbusreg repositories with no Git objects, default branch, bootstrap content, or product code; private governance creation remains deferred to FMV3-M0-04 under future explicit authorization.",
+        "M0-01 public create-empty acceptance mismatch",
+    )
+    contract_rows = [issues_by_id[issue_id] for issue_id in authorization["authorized_issues"]]
+    contract_digest = hashlib.sha256(
+        json.dumps(contract_rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    require(
+        authorization["authorized_issue_contract_sha256"] == contract_digest,
+        "authorized issue action contract digest mismatch",
+    )
     require(set(repo_owners.values()) == TARGET_REPOS, "every target repo must own at least one issue")
     companion = issues_by_id["FMV3-M1-00"]
     require(companion["repo"] == "Project-Helianthus/helianthus-docs-ebus" and companion.get("doc_gate") == "companion" and set(companion.get("companion_for", [])) == COMPANION_IDS, "M1 docs companion metadata mismatch")
@@ -371,22 +496,21 @@ def validate(root: Path) -> tuple[int, int]:
         require(row[2] == issue["repo"], f"issue-map repo mismatch: {issue_id}")
         mapped_deps = [] if row[3] == "-" else [item.strip() for item in row[3].split(",")]
         require(mapped_deps == issue["depends_on"], f"issue-map dependency mismatch: {issue_id}")
-        require(all(row[position] for position in range(4, 8)), f"issue-map missing acceptance/gate data: {issue_id}")
+        require(row[4] == issue["what"], f"issue-map action mismatch: {issue_id}")
+        require(row[5] == issue["acceptance"], f"issue-map acceptance mismatch: {issue_id}")
+        require(row[6] == render_issue_map_gates(issue), f"issue-map gates mismatch: {issue_id}")
+        require(row[7] == issue["rollback"], f"issue-map rollback mismatch: {issue_id}")
     require(all(gate_id in issue_map_text for gate_id in CONDITIONAL_GATE_IDS),
             "issue map missing conditional gate mirror")
     for issue_id in COMPANION_IDS:
         require("FMV3-M1-00" in issue_rows[issue_id][6], f"issue map companion metadata missing: {issue_id}")
-    require(all(all(case in issue_rows[issue_id][5] for case in abnormal_results) for issue_id in ("FMV3-M1-00", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04")), "issue map abnormal-result mirror mismatch")
-    require(all(all(term in issue_rows[issue_id][5] for term in ("full_transmit_success", "response_wait")) for issue_id in ("FMV3-M1-00", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04")) and all(row in issue_rows["FMV3-M1-04"][5] for row in recovery_matrix[5:7] + recovery_matrix[15:17]), "issue map full-transmit mirror mismatch")
     for docs_id, consumers in profile_companions.items():
         require(all(docs_id in issue_rows[consumer_id][6] for consumer_id in consumers), f"issue map {docs_id} companion mirror missing")
     require("FMV3-M5-09" in issue_rows["FMV3-M5-05"][6], "issue map GraphQL companion metadata missing")
-    require(issue_rows["FMV3-M7-03"][6] == "CI, licensing, protocol_interop, hardware_conditional, doc_gate companion FMV3-M7-01, TDD_RED_IF_PROFILE_ADMITTED" and "already-merged M7-01" in issue_rows["FMV3-M7-03"][5], "issue map Growatt prepublication mismatch")
-    require(all(term in issue_rows["FMV3-M6-02"][5] for term in ("live Fronius", "post-run-start", "same identity/value", "cannot GO")), "issue map myVaillant live evidence mismatch")
     milestone_map = (root / "91-milestone-map.md").read_text(encoding="utf-8")
     require(all(gate_id in milestone_map for gate_id in CONDITIONAL_GATE_IDS),
             "milestone map missing conditional gate mirror")
-    require("FMV3-M5-09" in milestone_map and "43 issues" in issue_map_text and "repository mutex" in issue_map_text,
+    require("FMV3-M5-09" in milestone_map and "44 issues" in issue_map_text and "repository mutex" in issue_map_text,
             "issue/milestone maps missing docs, mutex, or issue-count mirror")
     for chunk_name in CHUNKS:
         text = (root / chunk_name).read_text(encoding="utf-8")
@@ -446,35 +570,128 @@ def validate(root: Path) -> tuple[int, int]:
     for category in REVIEW_SCOPE:
         require(category in review, f"review contract missing category: {category}")
     canonical_bytes = (root / "00-canonical.md").read_bytes()
+    canonical_text = canonical_bytes.decode("utf-8")
+    require_unique_metadata(canonical_text, "State", f"`{plan['state']}`", "canonical")
     digest = hashlib.sha256(canonical_bytes).hexdigest()
     require(plan["canonical_sha256"] == digest, "plan.yaml canonical_sha256 mismatch")
     for mirror_name in ("01-index.md", "99-status.md"):
         mirror = (root / mirror_name).read_text(encoding="utf-8")
         require(f"Canonical-SHA256: `{digest}`" in mirror, f"{mirror_name} canonical hash mirror mismatch")
     status = (root / "99-status.md").read_text(encoding="utf-8")
-    for line in (
-        "State: locked",
-        "Current milestone: M0",
-        f"Review epoch: {epoch['number']}",
-        f"Review state: {epoch['state']}",
-        f"Accepted adversarial rounds: {accepted_rounds}/5",
-        f"Review target: {review_target}",
-        "Lock authorized: yes, for plan publication only",
-        "Implementation authorized: no",
-        "Repository creation authorized: no",
-        "Commit/push authorized: yes, for this plan package only",
-    ):
-        require(line in status, f"status mismatch: {line}")
-    require(root.name == f"{plan['slug']}.locked", "directory suffix/state mismatch")
+    require(
+        status.startswith(f"# {plan['state'].capitalize()} status\n"),
+        "status heading/state mirror mismatch",
+    )
+    status_fields = {
+        "State": str(plan["state"]),
+        "Current milestone": str(plan["current_milestone"]),
+        "Review epoch": str(epoch["number"]),
+        "Review state": str(epoch["state"]),
+        "Accepted adversarial rounds": f"{accepted_rounds}/5",
+        "Review target": str(review_target),
+        "Lock authorized": "yes, for plan publication only",
+        "Implementation authorized": "yes, for the pre-gateway M0-M3 issue allowlist only",
+        "Authorization scope authority": "exact authorized_issues allowlist; milestone labels are non-authoritative",
+        "Repository creation authorized": "yes, through FMV3-M0-01",
+        "Private repository action": "deferred; creation requires future explicit authorization",
+        "Commit/push authorized": "yes, for the plan package and authorized pre-gateway issues only",
+        "Gateway work authorized": "no; stop before FMV3-M4-01",
+        "Private creation/bootstrap authorized": "no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-07 deferred",
+    }
+    for key, expected in status_fields.items():
+        require_unique_metadata(status, key, expected, "status")
     validate_content_hygiene(root)
     return len(issues), len(milestones)
 def main() -> int:
-    root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("root", nargs="?", type=Path)
+    parser.add_argument("--authorize-issue")
+    parser.add_argument("--plan-head-sha")
+    parser.add_argument("--authorization-contract-sha256")
+    args = parser.parse_args()
+    root = args.root.resolve() if args.root is not None else Path(__file__).resolve().parent
     try:
         issue_count, milestone_count = validate(root)
-    except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:
+        if args.authorize_issue is not None:
+            plan = load_plan(root / "plan.yaml")
+            authorization = plan["execution_authorization"]
+            require(
+                args.plan_head_sha is not None and re.fullmatch(r"[0-9a-f]{40}", args.plan_head_sha) is not None,
+                "--plan-head-sha with a full lowercase 40-character SHA is mandatory",
+            )
+            actual_head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            origin_main = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "refs/remotes/origin/main"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            require(actual_head == origin_main, "authorization requires the checked-out authoritative origin/main HEAD")
+            anchor_is_merged = subprocess.run(
+                ["git", "-C", str(root), "merge-base", "--is-ancestor", args.plan_head_sha, origin_main],
+                check=False,
+            ).returncode == 0
+            require(anchor_is_merged, "authorization anchor is not reachable from authoritative origin/main")
+            repo_root = Path(
+                subprocess.run(
+                    ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                ).stdout.strip()
+            )
+            plan_worktree_status = subprocess.run(
+                ["git", "-C", str(repo_root), "status", "--porcelain", "--untracked-files=all"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            require(not plan_worktree_status, "authorization requires the entire checkout to match the committed main HEAD")
+            require(
+                args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
+                "authorization contract digest does not match the plan",
+            )
+            plan_relpath = (root / "plan.yaml").relative_to(repo_root).as_posix()
+            anchored_plan_text = subprocess.run(
+                ["git", "-C", str(root), "show", f"{args.plan_head_sha}:{plan_relpath}"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+            anchored_plan = yaml.load(anchored_plan_text, Loader=UniqueLoader)
+            require(isinstance(anchored_plan, dict), "anchored plan.yaml must be a mapping")
+            anchored_authorization = anchored_plan.get("execution_authorization", {})
+            require(
+                anchored_authorization.get("authorized_issue_contract_sha256")
+                == args.authorization_contract_sha256,
+                "authorization contract digest is absent from the merged anchor",
+            )
+            require(
+                args.authorize_issue in anchored_authorization.get("authorized_issues", []),
+                "issue is absent from the merged authorization anchor",
+            )
+            require(
+                args.authorize_issue in authorization["authorized_issues"],
+                f"issue {args.authorize_issue} is outside the fail-closed execution allowlist",
+            )
+            require(
+                args.authorize_issue != authorization["stop_before_issue"],
+                f"issue {args.authorize_issue} reaches the hard stop",
+            )
+    except (OSError, UnicodeError, yaml.YAMLError, ValidationError, subprocess.SubprocessError) as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 1
-    print(f"PASS: {root.name}; {issue_count} issues; {milestone_count} milestones; locked consistent")
+    if args.authorize_issue is not None:
+        print(
+            f"PASS: {args.authorize_issue} is inside the fail-closed execution allowlist "
+            f"at {args.plan_head_sha} with contract {args.authorization_contract_sha256}"
+        )
+    else:
+        print(f"PASS: {root.name}; {issue_count} issues; {milestone_count} milestones; lifecycle consistent")
     return 0
 if __name__ == "__main__": raise SystemExit(main())

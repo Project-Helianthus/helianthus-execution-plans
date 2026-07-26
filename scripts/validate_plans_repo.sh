@@ -48,6 +48,20 @@ else
   "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py"
 fi
 "$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
+fronius_plan_dir=""
+fronius_plan_count=0
+for state in locked implementing maintenance; do
+  candidate="$ROOT/fronius-modbus-multivendor-v3-w29-26.$state"
+  if [ -d "$candidate" ]; then
+    fronius_plan_dir="$candidate"
+    fronius_plan_count=$((fronius_plan_count + 1))
+  fi
+done
+if [ "$fronius_plan_count" -ne 1 ]; then
+  echo "Expected exactly one active Fronius Modbus plan lifecycle directory." >&2
+  exit 1
+fi
+"$TOKEN_VENV/bin/python" "$fronius_plan_dir/validate_plan.py" "$fronius_plan_dir"
 
 NODE_DIR="${TMPDIR:-/tmp}/helianthus-plans-node"
 if [ ! -d "$NODE_DIR/node_modules/@anthropic-ai/tokenizer" ]; then

@@ -1,6 +1,6 @@
 # Locked status
 
-Canonical-SHA256: `d01dcf33f46878f30c3a627e7e037a69660d55ab8d23ee8294923261b3979ee6`
+Canonical-SHA256: `cbdd5483892231aa432efc4e87567f9d578fd2af5aabe029c96dd92f6ecf3295`
 
 State: locked
 Current milestone: M0
@@ -9,9 +9,13 @@ Review state: PASSED
 Accepted adversarial rounds: 5/5
 Review target: TERMINAL_NO_FINDINGS
 Lock authorized: yes, for plan publication only
-Implementation authorized: no
-Repository creation authorized: no
-Commit/push authorized: yes, for this plan package only
+Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
+Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative
+Repository creation authorized: yes, through FMV3-M0-01
+Private repository action: deferred; creation requires future explicit authorization
+Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
+Gateway work authorized: no; stop before FMV3-M4-01
+Private creation/bootstrap authorized: no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-07 deferred
 
 This package supersedes `fronius-modbus-eebus-bridge-w28-26.draft` as execution
 intent while preserving that directory unchanged as forensic history.
@@ -19,7 +23,7 @@ intent while preserving that directory unchanged as forensic history.
 Completed through terminal epoch 3 R5:
 
 - canonical and four isolated implementation chunks authored;
-- 43-issue one-repository DAG and nine milestone groupings authored;
+- 44-issue one-repository DAG and nine milestone groupings authored;
 - R1 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and eleven
   preserved CLOSED findings;
 - R2 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and seven
@@ -74,9 +78,10 @@ Completed through terminal epoch 3 R5:
 - structural validator remains bounded and does not simulate runtime behavior.
 
 Terminal review closure did not itself lock the plan. The operator separately authorized
-lock and publication on 2026-07-14 without authorizing implementation or repository creation.
+lock and publication on 2026-07-14, then authorized the bounded pre-gateway execution wave
+on 2026-07-26 without authorizing gateway or private binding work.
 
 Not performed:
 
-- semantic lock or product implementation;
-- target-repository creation or implementation issue creation.
+- semantic lock, gateway implementation, or private binding implementation;
+- any issue outside the explicit M0-M3 pre-gateway allowlist.

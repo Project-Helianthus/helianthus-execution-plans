@@ -2,6 +2,55 @@ slug: fronius-modbus-multivendor-v3-w29-26
 title: Fronius-first Modbus runtime, multi-profile registry, and private output bindings
 state: locked
 lock_authorized: true
+execution_authorization:
+  authorized_on: '2026-07-26'
+  availability_mode: openai_only
+  scope: pre_gateway_transport_docs_registry
+  scope_authority: authorized_issues_only
+  selection_policy: fail_closed
+  preflight_enforcement: validate_plan.py --authorize-issue <ID>
+  milestone_labels_non_authoritative: [M0, M1, M2, M3]
+  authorized_issues:
+    - FMV3-M0-01
+    - FMV3-M0-02
+    - FMV3-M0-03
+    - FMV3-M0-06
+    - FMV3-M1-00
+    - FMV3-M1-01
+    - FMV3-M1-02
+    - FMV3-M1-03
+    - FMV3-M1-04
+    - FMV3-M2-01
+    - FMV3-M2-02
+    - FMV3-M2-03
+    - FMV3-M3-01
+    - FMV3-M3-02
+    - FMV3-M3-03
+  authorized_issue_contract_sha256: e2700e6da559b851fef6b9d510033f1f9b9004964d19cb8c136885c78e7da8a5
+  authorization_anchor:
+    required: true
+    record_type: github_meta_issue_comment_v1
+    meta_issue: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71
+    authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/72
+    marker: execution-authorization:v1
+    plan_repo: Project-Helianthus/helianthus-execution-plans
+    plan_path: fronius-modbus-multivendor-v3-w29-26.locked/plan.yaml
+    authorized_issuer: d3vi1
+    allowed_author_associations: [MEMBER, OWNER]
+    comment_edit_policy: created_at_equals_updated_at
+    merge_requirement: anchor_equals_pr_merge_commit_and_is_ancestor_of_origin_main
+    bind: [plan_head_sha, authorized_issue_contract_sha256, authorized_issue]
+    state: pending_until_authorization_pr_merge
+  repository_creation_authorized: true
+  repository_creation_targets:
+    public: [helianthus-modbus, helianthus-modbusreg]
+    private: []
+  private_repository_creation: deferred_requires_future_explicit_authorization
+  implementation_authorized: true
+  issue_commit_push_authorized: true
+  deferred_issues: [FMV3-M0-04, FMV3-M0-05, FMV3-M0-07]
+  stop_before_issue: FMV3-M4-01
+  gateway_work_authorized: false
 source_discussion: operator-brief-2026-07-14-fronius-modbus-multivendor-v3
 target_repos:
   - Project-Helianthus/.github
@@ -17,7 +66,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: d01dcf33f46878f30c3a627e7e037a69660d55ab8d23ee8294923261b3979ee6
+canonical_sha256: cbdd5483892231aa432efc4e87567f9d578fd2af5aabe029c96dd92f6ecf3295
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0
@@ -242,8 +291,8 @@ phase_gates:
   - id: PG-REPOSITORY-CREATION
     kind: dependency
     after_issues: [FMV3-M0-01]
-    before_issues: [FMV3-M0-02, FMV3-M0-03, FMV3-M0-04, FMV3-M0-05]
-    requirement: Existing governance creates all four planned repositories before any destination bootstrap issue runs.
+    before_issues: [FMV3-M0-02, FMV3-M0-03]
+    requirement: Existing governance creates both public Modbus repositories before either public destination bootstrap issue runs; private governance creation FMV3-M0-04 and private bootstraps FMV3-M0-05/FMV3-M0-07 require future explicit authorization.
   - id: PG-MODBUS-BOOT
     kind: dependency
     after_issues: [FMV3-M0-02]
@@ -261,12 +310,12 @@ phase_gates:
     requirement: The public profile repository is bootstrapped before profile code.
   - id: PG-EEBUS-BOOT
     kind: dependency
-    after_issues: [FMV3-M0-04]
+    after_issues: [FMV3-M0-05]
     before_issues: [FMV3-M6-01]
     requirement: The private eeBUS repository is bootstrapped before binding code.
   - id: PG-MATTER-BOOT
     kind: dependency
-    after_issues: [FMV3-M0-05]
+    after_issues: [FMV3-M0-07]
     before_issues: [FMV3-M8-01]
     requirement: The private Matter repository is bootstrapped before binding code.
   - id: PG-RAW-FIRST
@@ -386,8 +435,8 @@ issues:
     milestone: M0
     repo: Project-Helianthus/.github
     depends_on: []
-    what: Create the four planned public/private repositories under organization governance.
-    acceptance: Governance creates helianthus-modbus, helianthus-modbusreg, helianthus-eebus-binding-private, and helianthus-matter-binding-private with intended visibility and no product code.
+    what: Create the two planned public Modbus repositories under organization governance.
+    acceptance: Governance creates empty public helianthus-modbus and helianthus-modbusreg repositories with no Git objects, default branch, bootstrap content, or product code; private governance creation remains deferred to FMV3-M0-04 under future explicit authorization.
     gates: [governance, licensing, security]
     rollback: Remove only an unused empty repository created in error; once used, correct governance without rewriting history.
   - id: FMV3-M0-02
@@ -408,17 +457,25 @@ issues:
     rollback: Remove an unused empty bootstrap; once published, deprecate instead of rewriting history.
   - id: FMV3-M0-04
     milestone: M0
-    repo: Project-Helianthus/helianthus-eebus-binding-private
+    repo: Project-Helianthus/.github
     depends_on: [FMV3-M0-01]
-    what: Bootstrap the newly created generic private eeBUS output-binding repository.
+    what: Under future explicit authorization, create the two empty private binding repositories under organization governance.
+    acceptance: Governance creates empty private helianthus-eebus-binding-private and helianthus-matter-binding-private repositories with no Git objects, default branches, bootstrap content, or product code.
+    gates: [governance, licensing, security]
+    rollback: Remove only an unused empty repository created in error; once used, correct governance without rewriting history.
+  - id: FMV3-M0-05
+    milestone: M0
+    repo: Project-Helianthus/helianthus-eebus-binding-private
+    depends_on: [FMV3-M0-04]
+    what: Bootstrap the generic private eeBUS output-binding repository after governance creation.
     acceptance: After repository existence is verified, private access, private license, CI, and a public-contract-only dependency policy exist; PV is the first slice, not repository scope.
     gates: [governance, licensing, security]
     rollback: Remove an unused empty bootstrap or disable access before any artifact is distributed.
-  - id: FMV3-M0-05
+  - id: FMV3-M0-07
     milestone: M0
     repo: Project-Helianthus/helianthus-matter-binding-private
-    depends_on: [FMV3-M0-01]
-    what: Bootstrap the newly created generic private Matter output-binding repository.
+    depends_on: [FMV3-M0-04]
+    what: Bootstrap the generic private Matter output-binding repository after governance creation.
     acceptance: After repository existence is verified, private access, private license, CI, and a public-contract-only dependency policy exist; M8 remains independent of M6.
     gates: [governance, licensing, security]
     rollback: Remove an unused empty bootstrap or disable access before any artifact is distributed.
@@ -742,7 +799,7 @@ issues:
   - id: FMV3-M6-01
     milestone: M6
     repo: Project-Helianthus/helianthus-eebus-binding-private
-    depends_on: [FMV3-M0-04, FMV3-M6-00]
+    depends_on: [FMV3-M0-05, FMV3-M6-00]
     what: Deploy a generic private eeBUS output binding that polls exactly the packaged public GraphQL machine-to-machine PV contract as its only semantic ingress.
     acceptance: A test-only RED commit is CI-observed before implementation; deployment/config tests consume exactly PUBLIC_GRAPHQL_M2M_V1 as externally tested by FMV3-M5-08, use its noninteractive least-privilege authorization, bounded polling/resources, and authenticated confidential channel with verified server identity, reject plaintext external access and untrusted server identity before credential use without prescribing the mechanism, reject incompatible schema/contract versions, and prove credential disable/recovery, reconnect/backoff, explicit capability disable, and unavailable/stale handling from ingress through output; deterministic peer tests also cover minimum SHIP/SPINE discovery, SHIP TLS/pairing, trust persistence, reconnect, revocation/reset, disable recovery, session/capability negotiation, identity, encoding, and a complete PV exchange, with no invented GraphQL subscription, Modbus, Fronius, register, gateway-internal logic, or public eeBUS repo.
     gates: [TDD_RED, CI, licensing, private_boundary, protocol_interop, security, recovery]
@@ -871,7 +928,7 @@ issues:
   - id: FMV3-M8-01
     milestone: M8
     repo: Project-Helianthus/helianthus-matter-binding-private
-    depends_on: [FMV3-M0-05, FMV3-M8-00]
+    depends_on: [FMV3-M0-07, FMV3-M8-00]
     what: Implement a generic private Matter output-binding kernel from exactly PUBLIC_GRAPHQL_M2M_V1.
     acceptance: After packaged FMV3-M5-08 ancestry, RED-first security tests consume exactly PUBLIC_GRAPHQL_M2M_V1 by authenticated bounded query/polling, reject incompatible contract versions, require noninteractive least privilege, a confidential channel and verified server identity, reject plaintext/untrusted identity, and prove credential provision/rotation/revocation/disable/recovery plus reconnect, disable, and stale/unavailable handling. Imports from helianthus-modbus, helianthus-modbusreg, gateway internals, undocumented network paths, and GraphQL subscriptions are rejected.
     gates: [TDD_RED, CI, licensing, private_boundary, security, recovery]
