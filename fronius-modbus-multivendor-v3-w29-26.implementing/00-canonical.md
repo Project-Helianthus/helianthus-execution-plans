@@ -1,11 +1,11 @@
 # Fronius-first Modbus runtime, multi-profile registry, and private output bindings
 
 Date: `2026-07-14`
-State: `locked`
+State: `implementing`
 Availability: `openai_only`, `gpt-5.6-sol`, reasoning `max`
 Supersedes: `fronius-modbus-eebus-bridge-w28-26.draft`
 
-This locked plan replaces the W28 package as execution intent. The W28 directory remains
+This implementing plan replaces the W28 package as execution intent. The W28 directory remains
 unchanged as forensic history. The operator action on 2026-07-14 authorized plan lock and
 publication. A separate operator action on 2026-07-26 authorizes execution of the M0-M3
 transport, documentation, and registry wave only.
