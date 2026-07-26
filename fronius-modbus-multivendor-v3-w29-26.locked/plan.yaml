@@ -26,7 +26,14 @@ execution_authorization:
     - FMV3-M3-01
     - FMV3-M3-02
     - FMV3-M3-03
-  authorized_issue_contract_sha256: 1915f7cc3389a88f11d9dcdc62578e4cbb2edddc9c2627436080ad4004329070
+  authorized_issue_contract_sha256: e2700e6da559b851fef6b9d510033f1f9b9004964d19cb8c136885c78e7da8a5
+  authorization_anchor:
+    required: true
+    record_type: github_meta_issue_comment_v1
+    meta_issue: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71
+    marker: execution-authorization:v1
+    bind: [plan_head_sha, authorized_issue_contract_sha256, authorized_issue]
+    state: pending_until_authorization_pr_merge
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]

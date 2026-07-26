@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -49,6 +50,15 @@ def unique_mapping(loader: UniqueLoader, node: yaml.MappingNode, deep: bool = Fa
 UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
 def require(condition: bool, message: str) -> None:
     if not condition: raise ValidationError(message)
+def require_unique_metadata(text: str, key: str, expected: str, label: str) -> None:
+    values = re.findall(rf"^{re.escape(key)}: (.+)$", text, re.MULTILINE)
+    require(len(values) == 1, f"{label} must contain exactly one {key} field")
+    require(values[0] == expected, f"{label} {key} mismatch")
+def render_issue_map_gates(issue: dict[str, Any]) -> str:
+    values = list(issue["gates"])
+    if issue.get("companion_issue"):
+        values.append(f"companion {issue['companion_issue']}")
+    return ", ".join(values)
 def load_plan(path: Path) -> dict[str, Any]:
     value = yaml.load(path.read_text(encoding="utf-8"), Loader=UniqueLoader)
     require(isinstance(value, dict), "plan.yaml root must be a mapping")
@@ -134,6 +144,14 @@ def validate(root: Path) -> tuple[int, int]:
         "milestone_labels_non_authoritative": ["M0", "M1", "M2", "M3"],
         "authorized_issues": authorized_issues,
         "authorized_issue_contract_sha256": plan["execution_authorization"].get("authorized_issue_contract_sha256"),
+        "authorization_anchor": {
+            "required": True,
+            "record_type": "github_meta_issue_comment_v1",
+            "meta_issue": "https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71",
+            "marker": "execution-authorization:v1",
+            "bind": ["plan_head_sha", "authorized_issue_contract_sha256", "authorized_issue"],
+            "state": "pending_until_authorization_pr_merge",
+        },
         "repository_creation_authorized": True,
         "repository_creation_targets": {
             "public": ["helianthus-modbus", "helianthus-modbusreg"],
@@ -150,8 +168,17 @@ def validate(root: Path) -> tuple[int, int]:
     if plan["state"] == "locked":
         require(plan["current_milestone"] == "M0", "locked plan current_milestone must be M0")
     elif plan["state"] == "implementing":
-        require(plan["current_milestone"] in {f"M{i}" for i in range(9)}, "implementing current_milestone must be M0..M8")
+        authorized_milestone_numbers = {
+            int(re.fullmatch(r"FMV3-M([0-8])-\d{2}", issue_id).group(1))
+            for issue_id in plan["execution_authorization"]["authorized_issues"]
+        }
+        maximum = max(authorized_milestone_numbers)
+        current_match = re.fullmatch(r"M([0-8])", str(plan["current_milestone"]))
+        require(current_match is not None, "implementing current_milestone must be M0..M8")
+        current = int(current_match.group(1))
+        require(current <= maximum, f"implementing current_milestone exceeds authorized M{maximum} boundary")
     else:
+        require(plan["execution_authorization"]["gateway_work_authorized"] is True, "maintenance is forbidden by the pre-gateway authorization")
         require(plan["current_milestone"] == "M8", "maintenance current_milestone must be M8")
     require(plan["supersedes"] == "fronius-modbus-eebus-bridge-w28-26.draft", "supersedes mismatch")
     require(plan["availability_mode"] == "openai_only", "availability_mode must be openai_only")
@@ -313,13 +340,7 @@ def validate(root: Path) -> tuple[int, int]:
         == "Governance creates empty public helianthus-modbus and helianthus-modbusreg repositories with no Git objects, default branch, bootstrap content, or product code; private governance creation remains deferred to FMV3-M0-04 under future explicit authorization.",
         "M0-01 public create-empty acceptance mismatch",
     )
-    contract_rows = [
-        {
-            field: issues_by_id[issue_id][field]
-            for field in ("id", "repo", "depends_on", "what", "acceptance", "gates")
-        }
-        for issue_id in authorization["authorized_issues"]
-    ]
+    contract_rows = [issues_by_id[issue_id] for issue_id in authorization["authorized_issues"]]
     contract_digest = hashlib.sha256(
         json.dumps(contract_rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
@@ -468,18 +489,17 @@ def validate(root: Path) -> tuple[int, int]:
         require(row[2] == issue["repo"], f"issue-map repo mismatch: {issue_id}")
         mapped_deps = [] if row[3] == "-" else [item.strip() for item in row[3].split(",")]
         require(mapped_deps == issue["depends_on"], f"issue-map dependency mismatch: {issue_id}")
-        require(all(row[position] for position in range(4, 8)), f"issue-map missing acceptance/gate data: {issue_id}")
+        require(row[4] == issue["what"], f"issue-map action mismatch: {issue_id}")
+        require(row[5] == issue["acceptance"], f"issue-map acceptance mismatch: {issue_id}")
+        require(row[6] == render_issue_map_gates(issue), f"issue-map gates mismatch: {issue_id}")
+        require(row[7] == issue["rollback"], f"issue-map rollback mismatch: {issue_id}")
     require(all(gate_id in issue_map_text for gate_id in CONDITIONAL_GATE_IDS),
             "issue map missing conditional gate mirror")
     for issue_id in COMPANION_IDS:
         require("FMV3-M1-00" in issue_rows[issue_id][6], f"issue map companion metadata missing: {issue_id}")
-    require(all(all(case in issue_rows[issue_id][5] for case in abnormal_results) for issue_id in ("FMV3-M1-00", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04")), "issue map abnormal-result mirror mismatch")
-    require(all(all(term in issue_rows[issue_id][5] for term in ("full_transmit_success", "response_wait")) for issue_id in ("FMV3-M1-00", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04")) and all(row in issue_rows["FMV3-M1-04"][5] for row in recovery_matrix[5:7] + recovery_matrix[15:17]), "issue map full-transmit mirror mismatch")
     for docs_id, consumers in profile_companions.items():
         require(all(docs_id in issue_rows[consumer_id][6] for consumer_id in consumers), f"issue map {docs_id} companion mirror missing")
     require("FMV3-M5-09" in issue_rows["FMV3-M5-05"][6], "issue map GraphQL companion metadata missing")
-    require(issue_rows["FMV3-M7-03"][6] == "CI, licensing, protocol_interop, hardware_conditional, doc_gate companion FMV3-M7-01, TDD_RED_IF_PROFILE_ADMITTED" and "already-merged M7-01" in issue_rows["FMV3-M7-03"][5], "issue map Growatt prepublication mismatch")
-    require(all(term in issue_rows["FMV3-M6-02"][5] for term in ("live Fronius", "post-run-start", "same identity/value", "cannot GO")), "issue map myVaillant live evidence mismatch")
     milestone_map = (root / "91-milestone-map.md").read_text(encoding="utf-8")
     require(all(gate_id in milestone_map for gate_id in CONDITIONAL_GATE_IDS),
             "milestone map missing conditional gate mirror")
@@ -544,7 +564,7 @@ def validate(root: Path) -> tuple[int, int]:
         require(category in review, f"review contract missing category: {category}")
     canonical_bytes = (root / "00-canonical.md").read_bytes()
     canonical_text = canonical_bytes.decode("utf-8")
-    require(f"State: `{plan['state']}`" in canonical_text, "canonical state mirror mismatch")
+    require_unique_metadata(canonical_text, "State", f"`{plan['state']}`", "canonical")
     digest = hashlib.sha256(canonical_bytes).hexdigest()
     require(plan["canonical_sha256"] == digest, "plan.yaml canonical_sha256 mismatch")
     for mirror_name in ("01-index.md", "99-status.md"):
@@ -555,29 +575,32 @@ def validate(root: Path) -> tuple[int, int]:
         status.startswith(f"# {plan['state'].capitalize()} status\n"),
         "status heading/state mirror mismatch",
     )
-    for line in (
-        f"State: {plan['state']}",
-        f"Current milestone: {plan['current_milestone']}",
-        f"Review epoch: {epoch['number']}",
-        f"Review state: {epoch['state']}",
-        f"Accepted adversarial rounds: {accepted_rounds}/5",
-        f"Review target: {review_target}",
-        "Lock authorized: yes, for plan publication only",
-        "Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only",
-        "Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative",
-        "Repository creation authorized: yes, through FMV3-M0-01",
-        "Private repository action: deferred; creation requires future explicit authorization",
-        "Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only",
-        "Gateway work authorized: no; stop before FMV3-M4-01",
-        "Private creation/bootstrap authorized: no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-07 deferred",
-    ):
-        require(line in status, f"status mismatch: {line}")
+    status_fields = {
+        "State": str(plan["state"]),
+        "Current milestone": str(plan["current_milestone"]),
+        "Review epoch": str(epoch["number"]),
+        "Review state": str(epoch["state"]),
+        "Accepted adversarial rounds": f"{accepted_rounds}/5",
+        "Review target": str(review_target),
+        "Lock authorized": "yes, for plan publication only",
+        "Implementation authorized": "yes, for the pre-gateway M0-M3 issue allowlist only",
+        "Authorization scope authority": "exact authorized_issues allowlist; milestone labels are non-authoritative",
+        "Repository creation authorized": "yes, through FMV3-M0-01",
+        "Private repository action": "deferred; creation requires future explicit authorization",
+        "Commit/push authorized": "yes, for the plan package and authorized pre-gateway issues only",
+        "Gateway work authorized": "no; stop before FMV3-M4-01",
+        "Private creation/bootstrap authorized": "no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-07 deferred",
+    }
+    for key, expected in status_fields.items():
+        require_unique_metadata(status, key, expected, "status")
     validate_content_hygiene(root)
     return len(issues), len(milestones)
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("root", nargs="?", type=Path)
     parser.add_argument("--authorize-issue")
+    parser.add_argument("--plan-head-sha")
+    parser.add_argument("--authorization-contract-sha256")
     args = parser.parse_args()
     root = args.root.resolve() if args.root is not None else Path(__file__).resolve().parent
     try:
@@ -585,6 +608,21 @@ def main() -> int:
         if args.authorize_issue is not None:
             plan = load_plan(root / "plan.yaml")
             authorization = plan["execution_authorization"]
+            require(
+                args.plan_head_sha is not None and re.fullmatch(r"[0-9a-f]{40}", args.plan_head_sha) is not None,
+                "--plan-head-sha with a full lowercase 40-character SHA is mandatory",
+            )
+            actual_head = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            require(args.plan_head_sha == actual_head, "authorization plan HEAD does not match the checked-out plan")
+            require(
+                args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
+                "authorization contract digest does not match the plan",
+            )
             require(
                 args.authorize_issue in authorization["authorized_issues"],
                 f"issue {args.authorize_issue} is outside the fail-closed execution allowlist",
@@ -597,7 +635,10 @@ def main() -> int:
         print(f"FAIL: {error}", file=sys.stderr)
         return 1
     if args.authorize_issue is not None:
-        print(f"PASS: {args.authorize_issue} is inside the fail-closed execution allowlist")
+        print(
+            f"PASS: {args.authorize_issue} is inside the fail-closed execution allowlist "
+            f"at {args.plan_head_sha} with contract {args.authorization_contract_sha256}"
+        )
     else:
         print(f"PASS: {root.name}; {issue_count} issues; {milestone_count} milestones; lifecycle consistent")
     return 0

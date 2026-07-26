@@ -12,19 +12,88 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN = ROOT / "fronius-modbus-multivendor-v3-w29-26.locked"
+PLAN_CANDIDATES = [
+    ROOT / f"fronius-modbus-multivendor-v3-w29-26.{state}"
+    for state in ("locked", "implementing", "maintenance")
+    if (ROOT / f"fronius-modbus-multivendor-v3-w29-26.{state}").is_dir()
+]
+if len(PLAN_CANDIDATES) != 1:
+    raise RuntimeError("expected exactly one active Fronius Modbus lifecycle directory")
+PLAN = PLAN_CANDIDATES[0]
 VALIDATOR = PLAN / "validate_plan.py"
+PLAN_DATA = yaml.safe_load((PLAN / "plan.yaml").read_text(encoding="utf-8"))
+CONTRACT_DIGEST = PLAN_DATA["execution_authorization"]["authorized_issue_contract_sha256"]
+PLAN_HEAD = subprocess.run(
+    ["git", "-C", str(PLAN), "rev-parse", "HEAD"],
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.strip()
 
 
 class FroniusExecutionAuthorizationTests(unittest.TestCase):
-    def authorize(self, issue_id: str) -> subprocess.CompletedProcess[str]:
+    def run_validator(self, root: Path) -> subprocess.CompletedProcess[str]:
         return subprocess.run(
-            [sys.executable, str(VALIDATOR), "--authorize-issue", issue_id],
+            [sys.executable, str(VALIDATOR), str(root)],
             cwd=ROOT,
             capture_output=True,
             text=True,
             check=False,
         )
+
+    def authorize(self, issue_id: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [
+                sys.executable,
+                str(VALIDATOR),
+                "--authorize-issue",
+                issue_id,
+                "--plan-head-sha",
+                PLAN_HEAD,
+                "--authorization-contract-sha256",
+                CONTRACT_DIGEST,
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+    def copy_lifecycle(self, temp: str, state: str, milestone: str) -> Path:
+        copied = Path(temp) / f"fronius-modbus-multivendor-v3-w29-26.{state}"
+        shutil.copytree(PLAN, copied)
+        plan_path = copied / "plan.yaml"
+        plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+        old_state = plan["state"]
+        old_digest = plan["canonical_sha256"]
+        plan["state"] = state
+        plan["current_milestone"] = milestone
+
+        canonical_path = copied / "00-canonical.md"
+        canonical = canonical_path.read_text(encoding="utf-8").replace(
+            f"State: `{old_state}`", f"State: `{state}`", 1
+        )
+        canonical_path.write_text(canonical, encoding="utf-8")
+        new_digest = hashlib.sha256(canonical_path.read_bytes()).hexdigest()
+        plan["canonical_sha256"] = new_digest
+        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+
+        for path in copied.glob("*.md"):
+            if path == canonical_path:
+                continue
+            text = path.read_text(encoding="utf-8").replace(old_digest, new_digest)
+            if path.name == "99-status.md":
+                text = text.replace(
+                    f"# {old_state.capitalize()} status", f"# {state.capitalize()} status", 1
+                )
+                text = text.replace(f"State: {old_state}", f"State: {state}", 1)
+                text = text.replace(
+                    f"Current milestone: {PLAN_DATA['current_milestone']}",
+                    f"Current milestone: {milestone}",
+                    1,
+                )
+            path.write_text(text, encoding="utf-8")
+        return copied
 
     def test_last_pre_gateway_issue_is_authorized(self) -> None:
         result = self.authorize("FMV3-M3-03")
@@ -50,51 +119,52 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             issue = next(row for row in plan["issues"] if row["id"] == "FMV3-M3-03")
             issue["what"] = "Drifted authorized action"
             plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
-            result = subprocess.run(
-                [sys.executable, str(VALIDATOR), str(copied)],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
+            result = self.run_validator(copied)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("action contract digest mismatch", result.stderr)
 
     def test_implementing_lifecycle_state_is_consistent(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
-            copied = Path(temp) / PLAN.name.replace(".locked", ".implementing")
-            shutil.copytree(PLAN, copied)
-            plan_path = copied / "plan.yaml"
-            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
-            old_digest = plan["canonical_sha256"]
-            plan["state"] = "implementing"
-
-            canonical_path = copied / "00-canonical.md"
-            canonical = canonical_path.read_text(encoding="utf-8").replace(
-                "State: `locked`", "State: `implementing`", 1
-            )
-            canonical_path.write_text(canonical, encoding="utf-8")
-            new_digest = hashlib.sha256(canonical_path.read_bytes()).hexdigest()
-            plan["canonical_sha256"] = new_digest
-            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
-
-            for path in copied.glob("*.md"):
-                if path == canonical_path:
-                    continue
-                text = path.read_text(encoding="utf-8").replace(old_digest, new_digest)
-                if path.name == "99-status.md":
-                    text = text.replace("# Locked status", "# Implementing status", 1)
-                    text = text.replace("State: locked", "State: implementing", 1)
-                path.write_text(text, encoding="utf-8")
-
-            result = subprocess.run(
-                [sys.executable, str(VALIDATOR), str(copied)],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
+            copied = self.copy_lifecycle(temp, "implementing", "M0")
+            result = self.run_validator(copied)
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_implementing_gateway_milestone_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copy_lifecycle(temp, "implementing", "M4")
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exceeds authorized M3 boundary", result.stderr)
+
+    def test_issue_map_action_drift_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = Path(temp) / PLAN.name
+            shutil.copytree(PLAN, copied)
+            issue_map = copied / "90-issue-map.md"
+            issue_map.write_text(
+                issue_map.read_text(encoding="utf-8").replace(
+                    "Determine Fronius phase-1 applicability and implement only any evidence-required TCP read-only overlay.",
+                    "Broadened map-only action",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("issue-map action mismatch", result.stderr)
+
+    def test_duplicate_status_state_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = Path(temp) / PLAN.name
+            shutil.copytree(PLAN, copied)
+            status = copied / "99-status.md"
+            status.write_text(
+                status.read_text(encoding="utf-8") + f"\nState: {PLAN_DATA['state']}\n",
+                encoding="utf-8",
+            )
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exactly one State field", result.stderr)
 
 
 if __name__ == "__main__":
