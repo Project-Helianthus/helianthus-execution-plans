@@ -1,6 +1,6 @@
 # Locked status
 
-Canonical-SHA256: `91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e`
+Canonical-SHA256: `cbdd5483892231aa432efc4e87567f9d578fd2af5aabe029c96dd92f6ecf3295`
 
 State: locked
 Current milestone: M0
@@ -15,7 +15,7 @@ Repository creation authorized: yes, through FMV3-M0-01
 Private repository action: deferred; creation requires future explicit authorization
 Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
 Gateway work authorized: no; stop before FMV3-M4-01
-Private bootstrap authorized: no; FMV3-M0-04 and FMV3-M0-05 deferred
+Private creation/bootstrap authorized: no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-07 deferred
 
 This package supersedes `fronius-modbus-eebus-bridge-w28-26.draft` as execution
 intent while preserving that directory unchanged as forensic history.
@@ -23,7 +23,7 @@ intent while preserving that directory unchanged as forensic history.
 Completed through terminal epoch 3 R5:
 
 - canonical and four isolated implementation chunks authored;
-- 43-issue one-repository DAG and nine milestone groupings authored;
+- 44-issue one-repository DAG and nine milestone groupings authored;
 - R1 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and eleven
   preserved CLOSED findings;
 - R2 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and seven

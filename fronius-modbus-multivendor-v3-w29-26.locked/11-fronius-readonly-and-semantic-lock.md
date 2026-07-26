@@ -1,6 +1,6 @@
 # Fronius read-only vertical and semantic lock
 
-Canonical-SHA256: `91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e`
+Canonical-SHA256: `cbdd5483892231aa432efc4e87567f9d578fd2af5aabe029c96dd92f6ecf3295`
 
 Depends on: `10-architecture-and-repo-boundaries.md`; M1 TCP and M2 profile contracts.
 Scope: Fronius phase-1 evidence, fixtures, profile detection, gateway raw MCP, live hardware proof, canonical PV lock, and public consumer order.

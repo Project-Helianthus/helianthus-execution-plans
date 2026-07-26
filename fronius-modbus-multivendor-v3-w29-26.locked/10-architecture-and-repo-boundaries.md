@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e`
+Canonical-SHA256: `cbdd5483892231aa432efc4e87567f9d578fd2af5aabe029c96dd92f6ecf3295`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -54,8 +54,9 @@ reviewable public evidence before it can affect a public profile or semantic con
 
 The `.github` M0 issue creates the two empty public Modbus repositories. Their destination
 bootstrap issues depend on that governance issue and run only after their repositories
-exist. Private repository creation and bootstrap remain deferred to FMV3-M0-04 and
-FMV3-M0-05 under future explicit authorization.
+exist. Private governance creation remains deferred to `.github` issue FMV3-M0-04; only
+after it creates both empty targets may destination bootstraps FMV3-M0-05/FMV3-M0-07 run.
+All three require future explicit authorization.
 Milestones group related issues but do not own code. Each issue row names exactly one
 repository. Cross-repository behavior is joined by explicit dependencies and versioned
 contracts, never by one issue editing multiple repositories.
