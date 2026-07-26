@@ -12,11 +12,15 @@ transport, documentation, and registry wave only.
 
 ## Execution authorization
 
-The 2026-07-26 authorization covers FMV3-M0-01, M0-02, M0-03, M0-06, M1-00 through
-M1-04, M2-01 through M2-03, and M3-01 through M3-03 in `openai_only` mode. FMV3-M0-01
-still creates all four repositories required by its locked acceptance contract, but the
-private repository bootstrap issues FMV3-M0-04 and FMV3-M0-05 remain deferred. No private
-binding implementation is authorized.
+The exact `authorized_issues` list in `plan.yaml` is the sole normative execution scope;
+milestone names are non-authoritative grouping labels and do not authorize every issue in
+those milestones. The 2026-07-26 authorization covers FMV3-M0-01, M0-02, M0-03, M0-06,
+M1-00 through M1-04, M2-01 through M2-03, and M3-01 through M3-03 in `openai_only` mode.
+FMV3-M0-01 still creates all four repositories required by its locked acceptance contract.
+The operator had explicitly named both generic private binding targets and subsequently
+authorized autonomous full-access execution without intermediate approval prompts. The
+private repository actions are nevertheless create-empty only: bootstrap issues FMV3-M0-04
+and FMV3-M0-05 remain deferred, and no private binding implementation is authorized.
 
 The hard stop is immediately before FMV3-M4-01. No gateway issue, branch, PR, import, or
 code change is authorized by this action. Repository creation, implementation issues,

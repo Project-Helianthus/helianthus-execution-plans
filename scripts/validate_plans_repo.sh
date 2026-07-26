@@ -48,6 +48,8 @@ else
   "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py"
 fi
 "$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
+"$TOKEN_VENV/bin/python" \
+  "$ROOT/fronius-modbus-multivendor-v3-w29-26.locked/validate_plan.py"
 
 NODE_DIR="${TMPDIR:-/tmp}/helianthus-plans-node"
 if [ ! -d "$NODE_DIR/node_modules/@anthropic-ai/tokenizer" ]; then

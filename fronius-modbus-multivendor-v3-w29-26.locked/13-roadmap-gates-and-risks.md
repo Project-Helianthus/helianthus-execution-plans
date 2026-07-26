@@ -1,6 +1,6 @@
 # Roadmap gates and risks
 
-Canonical-SHA256: `b04d31703d2ee96710b58048cf3f63c30006039995233611b9358c464b67b95a`
+Canonical-SHA256: `19ce9e01857ff4bf0b391e7f6abeec50742050c2605fd369592b12c289f15e68`
 
 Depends on: Chunks 10-12 and the issue DAG in `plan.yaml`.
 Scope: Milestone grouping, critical path, TDD, documentation and transport gates, hardware classes, rollback/recovery, review, and stop/go decisions.

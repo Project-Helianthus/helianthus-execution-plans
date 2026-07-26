@@ -124,9 +124,21 @@ def validate(root: Path) -> tuple[int, int]:
         "authorized_on": "2026-07-26",
         "availability_mode": "openai_only",
         "scope": "pre_gateway_transport_docs_registry",
-        "authorized_milestones": ["M0", "M1", "M2", "M3"],
+        "scope_authority": "authorized_issues_only",
+        "milestone_labels_non_authoritative": ["M0", "M1", "M2", "M3"],
         "authorized_issues": authorized_issues,
         "repository_creation_authorized": True,
+        "repository_creation_targets": {
+            "public": ["helianthus-modbus", "helianthus-modbusreg"],
+            "private_create_only": [
+                "helianthus-eebus-binding-private",
+                "helianthus-matter-binding-private",
+            ],
+        },
+        "authorization_basis": [
+            "The operator explicitly named helianthus-eebus-binding-private and helianthus-matter-binding-private as generic private binding targets.",
+            "The operator authorized autonomous full-access execution without intermediate approval prompts.",
+        ],
         "implementation_authorized": True,
         "issue_commit_push_authorized": True,
         "creates_but_does_not_bootstrap_private_repos": True,
@@ -250,6 +262,20 @@ def validate(root: Path) -> tuple[int, int]:
     require(len(issue_ids) == len(set(issue_ids)), "duplicate issue ID")
     require(len(issue_ids) == EXPECTED_ISSUE_COUNT, f"expected {EXPECTED_ISSUE_COUNT} issues")
     validate_dag(set(issue_ids), issue_deps, "issue")
+    authorization = plan["execution_authorization"]
+    authorized_set = set(authorization["authorized_issues"])
+    deferred_set = set(authorization["deferred_issues"])
+    require(authorized_set <= set(issue_ids), "execution authorization references unknown issues")
+    require(deferred_set <= set(issue_ids), "execution deferral references unknown issues")
+    require(not (authorized_set & deferred_set), "authorized and deferred issue sets overlap")
+    require(
+        {issues_by_id[issue_id]["milestone"] for issue_id in authorized_set} <= {"M0", "M1", "M2", "M3"},
+        "authorized issue falls outside the pre-gateway M0-M3 labels",
+    )
+    require(
+        all(issue_id not in authorized_set for issue_id in ("FMV3-M0-04", "FMV3-M0-05", "FMV3-M4-01")),
+        "private bootstrap or gateway issue entered the execution allowlist",
+    )
     require(set(repo_owners.values()) == TARGET_REPOS, "every target repo must own at least one issue")
     companion = issues_by_id["FMV3-M1-00"]
     require(companion["repo"] == "Project-Helianthus/helianthus-docs-ebus" and companion.get("doc_gate") == "companion" and set(companion.get("companion_for", [])) == COMPANION_IDS, "M1 docs companion metadata mismatch")
@@ -481,7 +507,9 @@ def validate(root: Path) -> tuple[int, int]:
         f"Review target: {review_target}",
         "Lock authorized: yes, for plan publication only",
         "Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only",
+        "Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative",
         "Repository creation authorized: yes, through FMV3-M0-01",
+        "Private repository action: create empty targets only; no bootstrap or product code",
         "Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only",
         "Gateway work authorized: no; stop before FMV3-M4-01",
         "Private bootstrap authorized: no; FMV3-M0-04 and FMV3-M0-05 deferred",
@@ -491,7 +519,7 @@ def validate(root: Path) -> tuple[int, int]:
     validate_content_hygiene(root)
     return len(issues), len(milestones)
 def main() -> int:
-    root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    root = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parent
     try:
         issue_count, milestone_count = validate(root)
     except (OSError, UnicodeError, yaml.YAMLError, ValidationError) as error:

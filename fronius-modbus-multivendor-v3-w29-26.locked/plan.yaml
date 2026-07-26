@@ -6,7 +6,8 @@ execution_authorization:
   authorized_on: '2026-07-26'
   availability_mode: openai_only
   scope: pre_gateway_transport_docs_registry
-  authorized_milestones: [M0, M1, M2, M3]
+  scope_authority: authorized_issues_only
+  milestone_labels_non_authoritative: [M0, M1, M2, M3]
   authorized_issues:
     - FMV3-M0-01
     - FMV3-M0-02
@@ -24,6 +25,12 @@ execution_authorization:
     - FMV3-M3-02
     - FMV3-M3-03
   repository_creation_authorized: true
+  repository_creation_targets:
+    public: [helianthus-modbus, helianthus-modbusreg]
+    private_create_only: [helianthus-eebus-binding-private, helianthus-matter-binding-private]
+  authorization_basis:
+    - The operator explicitly named helianthus-eebus-binding-private and helianthus-matter-binding-private as generic private binding targets.
+    - The operator authorized autonomous full-access execution without intermediate approval prompts.
   implementation_authorized: true
   issue_commit_push_authorized: true
   creates_but_does_not_bootstrap_private_repos: true
@@ -45,7 +52,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: b04d31703d2ee96710b58048cf3f63c30006039995233611b9358c464b67b95a
+canonical_sha256: 19ce9e01857ff4bf0b391e7f6abeec50742050c2605fd369592b12c289f15e68
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0
