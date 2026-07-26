@@ -264,6 +264,26 @@ class ModbusDocsTrustTests(unittest.TestCase):
                 errors,
             )
 
+    def test_manifest_anchor_must_match_executing_anchor(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            prior.mkdir()
+            current = self.materialize(root / "current")
+            manifest_path = current / MANIFEST
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["trust_anchor"]["commit_sha"] = "d" * 40
+            manifest_path.write_text(
+                json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "current manifest trust anchor does not match the executing "
+                "anchor",
+                errors,
+            )
+
     def test_semantic_manifest_change_requires_revision(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp)
