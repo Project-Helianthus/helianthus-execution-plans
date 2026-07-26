@@ -38,6 +38,20 @@ M1_IMPLEMENTATION_IDS = {f"FMV3-M1-{number:02d}" for number in range(1, 5)}
 M2_IMPLEMENTATION_IDS = {f"FMV3-M2-{number:02d}" for number in range(1, 4)}
 COMPANION_IDS = M1_IMPLEMENTATION_IDS | M2_IMPLEMENTATION_IDS
 CHUNKS = [f"{number}-{name}.md" for number, name in ((10, "architecture-and-repo-boundaries"), (11, "fronius-readonly-and-semantic-lock"), (12, "vendor-expansion-and-private-bindings"), (13, "roadmap-gates-and-risks"))]
+M1_ADMISSION_GATE = Path("runtime-gates/fronius-modbus-m1-admission.json")
+M1_ADMISSION_KEYS = {
+    "branch_protection_evidence_url",
+    "docs_merge_sha",
+    "docs_pr",
+    "docs_repository",
+    "required_check",
+    "required_check_verified_at",
+    "schema",
+    "state",
+    "trust_anchor_commit",
+    "trust_anchor_repository",
+    "version",
+}
 class ValidationError(Exception): pass
 class UniqueLoader(yaml.SafeLoader): pass
 def unique_mapping(loader: UniqueLoader, node: yaml.MappingNode, deep: bool = False) -> dict[Any, Any]:
@@ -50,6 +64,20 @@ def unique_mapping(loader: UniqueLoader, node: yaml.MappingNode, deep: bool = Fa
 UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, unique_mapping)
 def require(condition: bool, message: str) -> None:
     if not condition: raise ValidationError(message)
+def require_m1_admission_open(repo_root: Path) -> None:
+    gate_path = repo_root / M1_ADMISSION_GATE
+    require(gate_path.is_file() and not gate_path.is_symlink(), "Modbus M1 admission gate is missing")
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    require(isinstance(gate, dict) and set(gate) == M1_ADMISSION_KEYS, "Modbus M1 admission gate schema mismatch")
+    require(gate["schema"] == "helianthus.execution.modbus-m1-admission" and gate["version"] == 1 and type(gate["version"]) is int, "Modbus M1 admission gate identity mismatch")
+    require(gate["state"] == "OPEN", "Modbus M1 admission gate is not OPEN")
+    require(gate["docs_repository"] == "Project-Helianthus/helianthus-docs-ebus" and gate["docs_pr"] == 374 and type(gate["docs_pr"]) is int, "Modbus M1 admission docs identity mismatch")
+    require(gate["trust_anchor_repository"] == "Project-Helianthus/helianthus-execution-plans", "Modbus M1 trust anchor repository mismatch")
+    require(gate["required_check"] == "Modbus Trusted Revision", "Modbus M1 required check mismatch")
+    for key in ("docs_merge_sha", "trust_anchor_commit"):
+        require(isinstance(gate[key], str) and re.fullmatch(r"[0-9a-f]{40}", gate[key]) is not None, f"Modbus M1 gate {key} must be a full lowercase SHA")
+    require(isinstance(gate["branch_protection_evidence_url"], str) and gate["branch_protection_evidence_url"].startswith("https://github.com/"), "Modbus M1 gate lacks branch-protection evidence")
+    require(isinstance(gate["required_check_verified_at"], str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", gate["required_check_verified_at"]) is not None, "Modbus M1 gate verification timestamp is invalid")
 def require_unique_metadata(text: str, key: str, expected: str, label: str) -> None:
     values = re.findall(rf"^{re.escape(key)}: (.+)$", text, re.MULTILINE)
     require(len(values) == 1, f"{label} must contain exactly one {key} field")
@@ -652,6 +680,12 @@ def main() -> int:
                 text=True,
             ).stdout.strip()
             require(not plan_worktree_status, "authorization requires the entire checkout to match the committed main HEAD")
+            if (
+                re.fullmatch(r"FMV3-M[123]-\d{2}", args.authorize_issue)
+                is not None
+                and args.authorize_issue != "FMV3-M1-00"
+            ):
+                require_m1_admission_open(repo_root)
             require(
                 args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
                 "authorization contract digest does not match the plan",
