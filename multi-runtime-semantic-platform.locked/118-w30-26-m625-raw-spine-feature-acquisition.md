@@ -121,6 +121,8 @@ is exactly:
 - `mutations.get`
 - `mutations.rollback`
 
+M6.25 tool suffixes JSON: `["features.get","features.data.get","features.data.set","mutations.get","mutations.rollback"]`
+
 The corresponding registered names are those five suffixes under
 `eebus.v1`; no alias or compatibility endpoint is permitted.
 

@@ -1621,6 +1621,12 @@ issues:
     forbidden_tier: Ultra
 - id: MSP-0625-GW-MCP
   title: Register exact M6.25 eebus.v1 tools
+  tool_suffixes:
+  - features.get
+  - features.data.get
+  - features.data.set
+  - mutations.get
+  - mutations.rollback
   repo: helianthus-ebusgateway
   milestone: M6.25
   complexity: 8

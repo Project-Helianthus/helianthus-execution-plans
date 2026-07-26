@@ -252,6 +252,52 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 self.row(document, row_id)["acceptance"] = ["placeholder"]
                 self.rejects_matrix(document)
 
+    def test_m625_tool_suffix_contract_is_exact_and_structured(self) -> None:
+        row = self.row(self.matrix, "MSP-0625-GW-MCP")
+        self.assertEqual(row["tool_suffixes"], validator.M625_TOOL_SUFFIXES)
+        for tool_suffixes in (
+            validator.M625_TOOL_SUFFIXES + ["features.data.invoke"],
+            validator.M625_TOOL_SUFFIXES[:-1],
+            [
+                "features.get",
+                "features.data.get",
+                "features.data.write",
+                "mutations.get",
+                "mutations.rollback",
+            ],
+        ):
+            with self.subTest(tool_suffixes=tool_suffixes):
+                document = copy.deepcopy(self.matrix)
+                self.row(document, "MSP-0625-GW-MCP")[
+                    "tool_suffixes"
+                ] = tool_suffixes
+                self.rejects_matrix(document)
+
+    def test_m625_markdown_tool_suffix_record_matches_matrix(self) -> None:
+        replacements = (
+            '["features.get","features.data.get","features.data.set",'
+            '"mutations.get","mutations.rollback","features.data.invoke"]',
+            '["features.get","features.data.get","features.data.write",'
+            '"mutations.get","mutations.rollback"]',
+        )
+        for replacement in replacements:
+            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                target = root / validator.PLAN
+                shutil.copytree(PLAN, target)
+                path = target / "118-w30-26-m625-raw-spine-feature-acquisition.md"
+                path.write_text(
+                    re.sub(
+                        r"^M6\.25 tool suffixes JSON: `\[[^\r\n]+\]`$",
+                        f"M6.25 tool suffixes JSON: `{replacement}`",
+                        path.read_text(encoding="utf-8"),
+                        flags=re.MULTILINE,
+                    ),
+                    encoding="utf-8",
+                )
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_markdown_claims(target, self.matrix)
+
     def test_pre_m625_history_is_protected_except_forward_acceptance_state(self) -> None:
         for row_id, field, value in (
             ("MSP-04A", "title", "rewritten historical contract"),

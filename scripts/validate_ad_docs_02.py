@@ -206,6 +206,13 @@ M625_ACCEPTANCE_FRAGMENTS = {
         "JCS digest-bound machine-checkable promoted_leaf_count greater than zero",
     ),
 }
+M625_TOOL_SUFFIXES = [
+    "features.get",
+    "features.data.get",
+    "features.data.set",
+    "mutations.get",
+    "mutations.rollback",
+]
 LIVE_COMPLETION_TOKEN_CONTRACT = {
     "schema": "helianthus.m625-live-promotion",
     "version": 1,
@@ -241,6 +248,7 @@ ROW_EXTRAS = {
     "MSP-DOCS-E2R-AGGREGATE": frozenset({"issue_ref"}),
     "MSP-DOCS-CANDIDATE-CLEANUP": frozenset({"acceptance", "conditional"}),
     "MSP-03D-R": frozenset({"acceptance", "evidence_inputs"}),
+    "MSP-0625-GW-MCP": frozenset({"tool_suffixes"}),
     "MSP-085-LIVE-R1": frozenset({"completion_token_contract"}),
     "MSP-09A": frozenset({"unlock_predicate"}),
     "MSP-09B": frozenset({"unlock_predicate"}),
@@ -897,6 +905,11 @@ def validate_matrix(data: dict[str, Any]) -> None:
             if not any(fragment in item for item in row.get("acceptance", [])):
                 fail(f"matrix: {row_id} M6.25 acceptance drift")
         if (
+            row_id == "MSP-0625-GW-MCP"
+            and row.get("tool_suffixes") != M625_TOOL_SUFFIXES
+        ):
+            fail("matrix: exact M6.25 tool suffix contract drift")
+        if (
             row_id == "MSP-085-LIVE-R1"
             and row.get("completion_token_contract") != LIVE_COMPLETION_TOKEN_CONTRACT
         ):
@@ -949,6 +962,11 @@ def render_live_audit(matrix: dict[str, Any]) -> str:
             row["id"]: row["completion_token_contract"]
             for row in rows
             if "completion_token_contract" in row
+        },
+        "tool_suffix_contracts": {
+            row["id"]: row["tool_suffixes"]
+            for row in rows
+            if "tool_suffixes" in row
         },
         "routing_authority": {row["id"]: "contract" if "routing_contract" in row else "evidence" for row in rows},
         "evidence_inputs": {row["id"]: row["evidence_inputs"] for row in rows if "evidence_inputs" in row},
@@ -1189,6 +1207,24 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
             normalized,
         ):
             fail(f"surfaces.{surface}: CLEAN token bypass")
+    m625_contract = (
+        plan_dir / "118-w30-26-m625-raw-spine-feature-acquisition.md"
+    ).read_text(encoding="utf-8")
+    tool_suffix_matches = re.findall(
+        r"^M6\.25 tool suffixes JSON: `(\[[^\r\n]+\])`$",
+        m625_contract,
+        re.MULTILINE,
+    )
+    if len(tool_suffix_matches) != 1:
+        fail("surfaces.118: exact M6.25 tool suffix record missing or duplicated")
+    try:
+        documented_tool_suffixes = json.loads(tool_suffix_matches[0])
+    except json.JSONDecodeError as exc:
+        raise ValidationError(
+            "surfaces.118: malformed M6.25 tool suffix JSON"
+        ) from exc
+    if documented_tool_suffixes != M625_TOOL_SUFFIXES:
+        fail("surfaces.118: exact M6.25 tool suffix contract drift")
     roadmap = (plan_dir / "14-execution-roadmap-issues-and-gates.md").read_text(encoding="utf-8")
     for row_id, tokens in REQUIRES_COMPLETION_TOKENS.items():
         if row_id in {"MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"}:
