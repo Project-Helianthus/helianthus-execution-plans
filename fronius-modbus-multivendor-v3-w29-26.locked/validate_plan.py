@@ -619,6 +619,13 @@ def main() -> int:
                 text=True,
             ).stdout.strip()
             require(args.plan_head_sha == actual_head, "authorization plan HEAD does not match the checked-out plan")
+            plan_worktree_status = subprocess.run(
+                ["git", "-C", str(root), "status", "--porcelain", "--untracked-files=all", "--", "."],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            require(not plan_worktree_status, "authorization requires plan files to match the committed plan HEAD")
             require(
                 args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
                 "authorization contract digest does not match the plan",
