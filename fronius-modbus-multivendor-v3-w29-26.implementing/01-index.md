@@ -1,6 +1,6 @@
-# Locked package index
+# Implementing package index
 
-Canonical-SHA256: `cbdd5483892231aa432efc4e87567f9d578fd2af5aabe029c96dd92f6ecf3295`
+Canonical-SHA256: `f97c2ff9dc212d5a3eb19302111078d5c7372077061c8959a4793b141b9f1af8`
 
 | File | Purpose |
 |---|---|
@@ -14,8 +14,8 @@ Canonical-SHA256: `cbdd5483892231aa432efc4e87567f9d578fd2af5aabe029c96dd92f6ecf3
 | `90-issue-map.md` | Executable one-repository issue rows |
 | `91-milestone-map.md` | Cross-repository grouping and critical-path view |
 | `92-adversarial-review.md` | Bounded review epochs, immutable history, and active placeholders |
-| `99-status.md` | Current locked and authorization state |
-| `validate_plan.py` | Structural validator for this locked package |
+| `99-status.md` | Current implementing and authorization state |
+| `validate_plan.py` | Structural validator for this lifecycle package |
 
 Review order: canonical, chunks 10 through 13, issue map, milestone map, review
 contract, then status. `plan.yaml` is authoritative for machine-readable topology;
