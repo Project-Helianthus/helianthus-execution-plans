@@ -42,14 +42,12 @@ class ModbusDocsTrustTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             if relative == PROTECTED[0]:
                 target.write_text(
-                    "pull_request_target:\n"
-                    "repository: Project-Helianthus/helianthus-execution-plans\n"
-                    f"ref: {ANCHOR_SHA}\n"
-                    "python3 anchor/scripts/validate_modbus_docs_trust.py "
-                    f"--trust-anchor-sha {ANCHOR_SHA}\n"
-                    "ref: ${{ github.event.pull_request.base.sha }}\n"
-                    "ref: ${{ github.event.pull_request.head.sha }}\n"
-                    "persist-credentials: false\n",
+                    json.dumps(
+                        trust_validator.expected_workflow(ANCHOR_SHA),
+                        indent=2,
+                        sort_keys=True,
+                    )
+                    + "\n",
                     encoding="utf-8",
                 )
             else:
@@ -116,16 +114,48 @@ class ModbusDocsTrustTests(unittest.TestCase):
             prior.mkdir()
             current = self.materialize(root / "current")
             workflow = current / PROTECTED[0]
+            value = json.loads(workflow.read_text(encoding="utf-8"))
+            value["jobs"]["trusted-revision"]["steps"][0]["with"]["ref"] = "main"
             workflow.write_text(
-                workflow.read_text(encoding="utf-8").replace(
-                    f"ref: {ANCHOR_SHA}",
-                    "ref: main",
-                ),
+                json.dumps(value, indent=2, sort_keys=True) + "\n",
                 encoding="utf-8",
             )
             errors = self.run_validator(prior, current)
-            self.assertTrue(
-                any("bootstrap trusted workflow missing" in error for error in errors)
+            self.assertIn(
+                "bootstrap trusted workflow structure is not exact",
+                errors,
+            )
+
+    def test_bootstrap_rejects_comment_only_noop_workflow(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            prior.mkdir()
+            current = self.materialize(root / "current")
+            workflow = current / PROTECTED[0]
+            workflow.write_text(
+                json.dumps(
+                    {
+                        "jobs": {
+                            "noop": {
+                                "runs-on": "ubuntu-latest",
+                                "steps": [{"run": "true"}],
+                            }
+                        },
+                        "name": "Modbus Trusted Revision",
+                        "on": {"push": {}},
+                        "_comments": trust_validator.expected_workflow(ANCHOR_SHA),
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "bootstrap trusted workflow structure is not exact",
+                errors,
             )
 
     def test_two_pr_validator_weakening_is_rejected(self) -> None:

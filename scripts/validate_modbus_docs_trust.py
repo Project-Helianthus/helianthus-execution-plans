@@ -23,6 +23,105 @@ MAX_MANIFEST_BYTES = 256 * 1024
 MAX_ARTIFACT_BYTES = 4 * 1024 * 1024
 
 
+def expected_workflow(trust_anchor_sha: str) -> dict[str, Any]:
+    checkout = (
+        "actions/checkout@"
+        "11bd71901bbe5b1630ceea73d27597364c9af683"
+    )
+    return {
+        "jobs": {
+            "trusted-revision": {
+                "name": "Modbus Trusted Revision",
+                "runs-on": "ubuntu-latest",
+                "steps": [
+                    {
+                        "name": "Checkout immutable trust anchor",
+                        "uses": checkout,
+                        "with": {
+                            "clean": True,
+                            "path": "anchor",
+                            "persist-credentials": False,
+                            "ref": trust_anchor_sha,
+                            "repository": (
+                                "Project-Helianthus/"
+                                "helianthus-execution-plans"
+                            ),
+                        },
+                    },
+                    {
+                        "name": "Checkout trusted prior state",
+                        "uses": checkout,
+                        "with": {
+                            "clean": True,
+                            "path": "prior",
+                            "persist-credentials": False,
+                            "ref": "${{ github.event.pull_request.base.sha }}",
+                            "repository": (
+                                "Project-Helianthus/helianthus-docs-ebus"
+                            ),
+                        },
+                    },
+                    {
+                        "name": "Checkout untrusted PR head as data",
+                        "uses": checkout,
+                        "with": {
+                            "clean": True,
+                            "path": "current",
+                            "persist-credentials": False,
+                            "ref": "${{ github.event.pull_request.head.sha }}",
+                            "repository": (
+                                "${{ github.event.pull_request.head.repo.full_name }}"
+                            ),
+                        },
+                    },
+                    {
+                        "env": {
+                            "TRUSTED_BASE_SHA": (
+                                "${{ github.event.pull_request.base.sha }}"
+                            ),
+                            "UNTRUSTED_HEAD_SHA": (
+                                "${{ github.event.pull_request.head.sha }}"
+                            ),
+                        },
+                        "name": "Verify immutable checkout identities",
+                        "run": (
+                            'set -euo pipefail\n'
+                            'test "$(git -C anchor rev-parse HEAD)" = '
+                            f'"{trust_anchor_sha}"\n'
+                            'test "$(git -C prior rev-parse HEAD)" = '
+                            '"${TRUSTED_BASE_SHA}"\n'
+                            'test "$(git -C current rev-parse HEAD)" = '
+                            '"${UNTRUSTED_HEAD_SHA}"'
+                        ),
+                        "shell": "bash",
+                    },
+                    {
+                        "name": (
+                            "Validate Modbus revision transition "
+                            "with immutable anchor"
+                        ),
+                        "run": (
+                            "python3 "
+                            "anchor/scripts/validate_modbus_docs_trust.py "
+                            "--prior-root prior "
+                            "--current-root current "
+                            f"--trust-anchor-sha {trust_anchor_sha}"
+                        ),
+                        "shell": "bash",
+                    },
+                ],
+            }
+        },
+        "name": "Modbus Trusted Revision",
+        "on": {
+            "pull_request_target": {
+                "types": ["opened", "reopened", "synchronize"],
+            }
+        },
+        "permissions": {"contents": "read"},
+    }
+
+
 def _read_manifest(
     root: pathlib.Path,
     label: str,
@@ -154,22 +253,17 @@ def _validate_protected_paths(
         errors.append("bootstrap transition mirror must equal the trust anchor")
     if not workflow.is_file():
         return
-    text = workflow.read_text(encoding="utf-8")
-    required_fragments = (
-        "pull_request_target:",
-        "repository: Project-Helianthus/helianthus-execution-plans",
-        f"ref: {trust_anchor_sha}",
-        "python3 anchor/scripts/validate_modbus_docs_trust.py",
-        f"--trust-anchor-sha {trust_anchor_sha}",
-        "ref: ${{ github.event.pull_request.base.sha }}",
-        "ref: ${{ github.event.pull_request.head.sha }}",
-        "persist-credentials: false",
-    )
-    for fragment in required_fragments:
-        if fragment not in text:
-            errors.append(f"bootstrap trusted workflow missing: {fragment}")
-    if "python3 current/" in text or "run: current/" in text:
-        errors.append("bootstrap trusted workflow must not execute PR-head code")
+    try:
+        raw = workflow.read_text(encoding="utf-8")
+        parsed = json.loads(raw)
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"bootstrap trusted workflow must be canonical JSON: {exc}")
+        return
+    canonical = json.dumps(parsed, indent=2, sort_keys=True) + "\n"
+    if raw != canonical:
+        errors.append("bootstrap trusted workflow must use canonical sorted JSON")
+    if parsed != expected_workflow(trust_anchor_sha):
+        errors.append("bootstrap trusted workflow structure is not exact")
 
 
 def validate_transition(

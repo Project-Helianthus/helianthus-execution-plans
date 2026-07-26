@@ -9,6 +9,8 @@ import tempfile
 import unittest
 from unittest import mock
 
+from scripts import validate_modbus_docs_trust as trust_validator
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 VALIDATOR_PATH = (
@@ -33,9 +35,8 @@ class ModbusM1LiveGateTests(unittest.TestCase):
     def repository(self, temp: str) -> tuple[pathlib.Path, dict[str, object], str]:
         repo = pathlib.Path(temp) / "repo"
         (repo / "scripts").mkdir(parents=True)
-        (repo / "scripts/validate_modbus_docs_trust.py").write_text(
-            "trusted\n",
-            encoding="utf-8",
+        (repo / "scripts/validate_modbus_docs_trust.py").write_bytes(
+            (ROOT / "scripts/validate_modbus_docs_trust.py").read_bytes()
         )
         self.git(repo, "init", "-b", "main")
         self.git(repo, "config", "user.name", "Gate Test")
@@ -109,10 +110,14 @@ class ModbusM1LiveGateTests(unittest.TestCase):
                     ]
                 }
             if "/contents/" in endpoint:
-                workflow = (
-                    f"ref: {gate['trust_anchor_commit']}\n"
-                    "python3 anchor/scripts/validate_modbus_docs_trust.py\n"
+                workflow = json.dumps(
+                    trust_validator.expected_workflow(
+                        str(gate["trust_anchor_commit"])
+                    ),
+                    indent=2,
+                    sort_keys=True,
                 )
+                workflow += "\n"
                 return {
                     "encoding": "base64",
                     "content": base64.b64encode(workflow.encode()).decode(),

@@ -148,7 +148,23 @@ def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
     )
     require(workflow_api.get("encoding") == "base64" and isinstance(workflow_api.get("content"), str), "docs workflow content evidence is invalid")
     workflow_text = base64.b64decode(workflow_api["content"]).decode("utf-8")
-    require(gate["trust_anchor_commit"] in workflow_text and "anchor/scripts/validate_modbus_docs_trust.py" in workflow_text, "docs workflow does not pin and invoke the merged trust anchor")
+    try:
+        workflow_value = json.loads(workflow_text)
+        anchor_namespace: dict[str, Any] = {"__name__": "modbus_trust_anchor"}
+        exec(
+            compile(
+                anchor_script.stdout.decode("utf-8"),
+                "merged-modbus-trust-anchor",
+                "exec",
+            ),
+            anchor_namespace,
+        )
+        expected_workflow = anchor_namespace["expected_workflow"](
+            gate["trust_anchor_commit"]
+        )
+    except (UnicodeError, json.JSONDecodeError, KeyError, TypeError) as exc:
+        raise ValidationError(f"docs trusted workflow evidence is invalid: {exc}") from exc
+    require(workflow_value == expected_workflow, "docs workflow does not exactly match the merged trust anchor contract")
 def require_unique_metadata(text: str, key: str, expected: str, label: str) -> None:
     values = re.findall(rf"^{re.escape(key)}: (.+)$", text, re.MULTILINE)
     require(len(values) == 1, f"{label} must contain exactly one {key} field")
@@ -724,13 +740,32 @@ def main() -> int:
                 capture_output=True,
                 text=True,
             ).stdout.strip()
-            origin_main = subprocess.run(
-                ["git", "-C", str(root), "rev-parse", "refs/remotes/origin/main"],
+            remote_main_result = subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(root),
+                    "ls-remote",
+                    "--exit-code",
+                    "origin",
+                    "refs/heads/main",
+                ],
                 check=True,
                 capture_output=True,
                 text=True,
-            ).stdout.strip()
-            require(actual_head == origin_main, "authorization requires the checked-out authoritative origin/main HEAD")
+            )
+            remote_main_rows = remote_main_result.stdout.splitlines()
+            require(
+                len(remote_main_rows) == 1
+                and re.fullmatch(
+                    r"[0-9a-f]{40}\trefs/heads/main",
+                    remote_main_rows[0],
+                )
+                is not None,
+                "authorization requires one exact live origin main ref",
+            )
+            origin_main = remote_main_rows[0].split("\t", 1)[0]
+            require(actual_head == origin_main, "authorization requires the checked-out live origin main HEAD")
             anchor_is_merged = subprocess.run(
                 ["git", "-C", str(root), "merge-base", "--is-ancestor", args.plan_head_sha, origin_main],
                 check=False,
