@@ -637,17 +637,6 @@ def main() -> int:
                 check=False,
             ).returncode == 0
             require(anchor_is_merged, "authorization anchor is not reachable from authoritative origin/main")
-            plan_worktree_status = subprocess.run(
-                ["git", "-C", str(root), "status", "--porcelain", "--untracked-files=all", "--", "."],
-                check=True,
-                capture_output=True,
-                text=True,
-            ).stdout.strip()
-            require(not plan_worktree_status, "authorization requires plan files to match the committed plan HEAD")
-            require(
-                args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
-                "authorization contract digest does not match the plan",
-            )
             repo_root = Path(
                 subprocess.run(
                     ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
@@ -655,6 +644,17 @@ def main() -> int:
                     capture_output=True,
                     text=True,
                 ).stdout.strip()
+            )
+            plan_worktree_status = subprocess.run(
+                ["git", "-C", str(repo_root), "status", "--porcelain", "--untracked-files=all"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            require(not plan_worktree_status, "authorization requires the entire checkout to match the committed main HEAD")
+            require(
+                args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
+                "authorization contract digest does not match the plan",
             )
             plan_relpath = (root / "plan.yaml").relative_to(repo_root).as_posix()
             anchored_plan_text = subprocess.run(

@@ -47,6 +47,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         repo.mkdir()
         copied = repo / PLAN.name
         shutil.copytree(PLAN, copied)
+        (repo / "repository-marker.txt").write_text("clean\n", encoding="utf-8")
         self.git(repo, "init", "-b", "main")
         self.git(repo, "config", "user.name", "Authorization Test")
         self.git(repo, "config", "user.email", "authorization-test@example.invalid")
@@ -156,6 +157,22 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             result = self.authorize(plan_root, anchor, "FMV3-M3-03")
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("authoritative origin/main HEAD", result.stderr)
+
+    def test_untracked_file_outside_plan_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            (plan_root.parent / "outside-plan.txt").write_text("dirty\n", encoding="utf-8")
+            result = self.authorize(plan_root, anchor, "FMV3-M3-03")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("entire checkout", result.stderr)
+
+    def test_modified_file_outside_plan_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            (plan_root.parent / "repository-marker.txt").write_text("modified\n", encoding="utf-8")
+            result = self.authorize(plan_root, anchor, "FMV3-M3-03")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("entire checkout", result.stderr)
 
     def test_authorized_action_drift_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
