@@ -656,13 +656,25 @@ def main() -> int:
                 args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
                 "authorization contract digest does not match the plan",
             )
-            plan_relpath = (root / "plan.yaml").relative_to(repo_root).as_posix()
-            anchored_plan_text = subprocess.run(
-                ["git", "-C", str(root), "show", f"{args.plan_head_sha}:{plan_relpath}"],
-                check=True,
+            anchor_relpath = authorization["authorization_anchor"]["plan_path"]
+            require(
+                isinstance(anchor_relpath, str)
+                and not Path(anchor_relpath).is_absolute()
+                and ".." not in Path(anchor_relpath).parts
+                and Path(anchor_relpath).name == "plan.yaml",
+                "authorization anchor plan_path must be a safe repository-relative plan.yaml path",
+            )
+            anchored_plan_result = subprocess.run(
+                ["git", "-C", str(root), "show", f"{args.plan_head_sha}:{anchor_relpath}"],
+                check=False,
                 capture_output=True,
                 text=True,
-            ).stdout
+            )
+            require(
+                anchored_plan_result.returncode == 0,
+                "authorization anchor plan_path is absent from the merged anchor",
+            )
+            anchored_plan_text = anchored_plan_result.stdout
             anchored_plan = yaml.load(anchored_plan_text, Loader=UniqueLoader)
             require(isinstance(anchored_plan, dict), "anchored plan.yaml must be a mapping")
             anchored_authorization = anchored_plan.get("execution_authorization", {})

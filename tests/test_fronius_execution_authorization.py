@@ -45,14 +45,19 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def published_plan(self, temp: str) -> tuple[Path, str]:
         repo = Path(temp) / "repo"
         repo.mkdir()
-        copied = repo / PLAN.name
-        shutil.copytree(PLAN, copied)
+        if PLAN_DATA["state"] == "locked":
+            anchored = repo / PLAN.name
+            shutil.copytree(PLAN, anchored)
+        else:
+            locked = self.copy_lifecycle(temp, "locked", "M0")
+            anchored = repo / locked.name
+            shutil.move(str(locked), anchored)
         (repo / "repository-marker.txt").write_text("clean\n", encoding="utf-8")
         self.git(repo, "init", "-b", "main")
         self.git(repo, "config", "user.name", "Authorization Test")
         self.git(repo, "config", "user.email", "authorization-test@example.invalid")
         self.git(repo, "add", ".")
-        self.git(repo, "commit", "-m", "publish plan")
+        self.git(repo, "commit", "-m", "publish authorization anchor")
         head = self.git(repo, "rev-parse", "HEAD").stdout.strip()
         remote = Path(temp) / "remote.git"
         subprocess.run(
@@ -63,6 +68,15 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         )
         self.git(repo, "remote", "add", "origin", str(remote))
         self.git(repo, "push", "-u", "origin", "main")
+        if PLAN_DATA["state"] != "locked":
+            shutil.rmtree(anchored)
+            copied = repo / PLAN.name
+            shutil.copytree(PLAN, copied)
+            self.git(repo, "add", "-A")
+            self.git(repo, "commit", "-m", "enter current lifecycle")
+            self.git(repo, "push", "origin", "main")
+        else:
+            copied = anchored
         return copied, head
 
     def authorize(
@@ -192,6 +206,14 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             copied = self.copy_lifecycle(temp, "implementing", "M0")
             result = self.run_validator(copied)
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_implementing_lifecycle_authorizes_against_locked_anchor(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            self.assertTrue(implementing.name.endswith(".implementing"))
+            result = self.authorize(implementing, anchor, "FMV3-M0-02")
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("fail-closed execution allowlist", result.stdout)
 
     def test_implementing_gateway_milestone_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
