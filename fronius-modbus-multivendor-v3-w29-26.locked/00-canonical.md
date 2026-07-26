@@ -6,9 +6,22 @@ Availability: `openai_only`, `gpt-5.6-sol`, reasoning `max`
 Supersedes: `fronius-modbus-eebus-bridge-w28-26.draft`
 
 This locked plan replaces the W28 package as execution intent. The W28 directory remains
-unchanged as forensic history. The operator action on 2026-07-14 authorizes this plan lock
-and publication only; it authorizes no product implementation, target-repository creation,
-or implementation issue creation.
+unchanged as forensic history. The operator action on 2026-07-14 authorized plan lock and
+publication. A separate operator action on 2026-07-26 authorizes execution of the M0-M3
+transport, documentation, and registry wave only.
+
+## Execution authorization
+
+The 2026-07-26 authorization covers FMV3-M0-01, M0-02, M0-03, M0-06, M1-00 through
+M1-04, M2-01 through M2-03, and M3-01 through M3-03 in `openai_only` mode. FMV3-M0-01
+still creates all four repositories required by its locked acceptance contract, but the
+private repository bootstrap issues FMV3-M0-04 and FMV3-M0-05 remain deferred. No private
+binding implementation is authorized.
+
+The hard stop is immediately before FMV3-M4-01. No gateway issue, branch, PR, import, or
+code change is authorized by this action. Repository creation, implementation issues,
+commits, pushes, reviews, and merges are authorized only for the issue set above and remain
+subject to every locked dependency and gate.
 
 ## Claim discipline
 

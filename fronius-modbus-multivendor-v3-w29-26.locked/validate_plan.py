@@ -14,7 +14,7 @@ plan.yaml 00-canonical.md 01-index.md 10-architecture-and-repo-boundaries.md
 92-adversarial-review.md 99-status.md validate_plan.py
 """.split())
 REQUIRED_KEYS = set("""
-    slug title state lock_authorized source_discussion target_repos knowledge_repo canonical_file canonical_sha256
+    slug title state lock_authorized execution_authorization source_discussion target_repos knowledge_repo canonical_file canonical_sha256
 split_index started_on current_milestone supersedes availability_mode accepted_adversarial_rounds
 repository_mutex review_epoch review_scope decisions milestones risks phase_gates conditional_gates issues
 """.split())
@@ -114,6 +114,26 @@ def validate(root: Path) -> tuple[int, int]:
     require(plan["slug"] == "fronius-modbus-multivendor-v3-w29-26", "slug mismatch")
     require(plan["state"] == "locked", "state must be locked")
     require(plan["lock_authorized"] is True, "lock_authorized must be true")
+    authorized_issues = [
+        "FMV3-M0-01", "FMV3-M0-02", "FMV3-M0-03", "FMV3-M0-06",
+        "FMV3-M1-00", "FMV3-M1-01", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04",
+        "FMV3-M2-01", "FMV3-M2-02", "FMV3-M2-03",
+        "FMV3-M3-01", "FMV3-M3-02", "FMV3-M3-03",
+    ]
+    require(plan["execution_authorization"] == {
+        "authorized_on": "2026-07-26",
+        "availability_mode": "openai_only",
+        "scope": "pre_gateway_transport_docs_registry",
+        "authorized_milestones": ["M0", "M1", "M2", "M3"],
+        "authorized_issues": authorized_issues,
+        "repository_creation_authorized": True,
+        "implementation_authorized": True,
+        "issue_commit_push_authorized": True,
+        "creates_but_does_not_bootstrap_private_repos": True,
+        "deferred_issues": ["FMV3-M0-04", "FMV3-M0-05"],
+        "stop_before_issue": "FMV3-M4-01",
+        "gateway_work_authorized": False,
+    }, "execution authorization mismatch")
     require(plan["started_on"] == "2026-07-14", "started_on mismatch")
     require(plan["current_milestone"] == "M0", "current_milestone must remain M0")
     require(plan["supersedes"] == "fronius-modbus-eebus-bridge-w28-26.draft", "supersedes mismatch")
@@ -460,9 +480,11 @@ def validate(root: Path) -> tuple[int, int]:
         f"Accepted adversarial rounds: {accepted_rounds}/5",
         f"Review target: {review_target}",
         "Lock authorized: yes, for plan publication only",
-        "Implementation authorized: no",
-        "Repository creation authorized: no",
-        "Commit/push authorized: yes, for this plan package only",
+        "Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only",
+        "Repository creation authorized: yes, through FMV3-M0-01",
+        "Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only",
+        "Gateway work authorized: no; stop before FMV3-M4-01",
+        "Private bootstrap authorized: no; FMV3-M0-04 and FMV3-M0-05 deferred",
     ):
         require(line in status, f"status mismatch: {line}")
     require(root.name == f"{plan['slug']}.locked", "directory suffix/state mismatch")

@@ -2,6 +2,34 @@ slug: fronius-modbus-multivendor-v3-w29-26
 title: Fronius-first Modbus runtime, multi-profile registry, and private output bindings
 state: locked
 lock_authorized: true
+execution_authorization:
+  authorized_on: '2026-07-26'
+  availability_mode: openai_only
+  scope: pre_gateway_transport_docs_registry
+  authorized_milestones: [M0, M1, M2, M3]
+  authorized_issues:
+    - FMV3-M0-01
+    - FMV3-M0-02
+    - FMV3-M0-03
+    - FMV3-M0-06
+    - FMV3-M1-00
+    - FMV3-M1-01
+    - FMV3-M1-02
+    - FMV3-M1-03
+    - FMV3-M1-04
+    - FMV3-M2-01
+    - FMV3-M2-02
+    - FMV3-M2-03
+    - FMV3-M3-01
+    - FMV3-M3-02
+    - FMV3-M3-03
+  repository_creation_authorized: true
+  implementation_authorized: true
+  issue_commit_push_authorized: true
+  creates_but_does_not_bootstrap_private_repos: true
+  deferred_issues: [FMV3-M0-04, FMV3-M0-05]
+  stop_before_issue: FMV3-M4-01
+  gateway_work_authorized: false
 source_discussion: operator-brief-2026-07-14-fronius-modbus-multivendor-v3
 target_repos:
   - Project-Helianthus/.github
@@ -17,7 +45,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: d01dcf33f46878f30c3a627e7e037a69660d55ab8d23ee8294923261b3979ee6
+canonical_sha256: b04d31703d2ee96710b58048cf3f63c30006039995233611b9358c464b67b95a
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0

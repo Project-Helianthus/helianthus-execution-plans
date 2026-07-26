@@ -1,6 +1,6 @@
 # Locked status
 
-Canonical-SHA256: `d01dcf33f46878f30c3a627e7e037a69660d55ab8d23ee8294923261b3979ee6`
+Canonical-SHA256: `b04d31703d2ee96710b58048cf3f63c30006039995233611b9358c464b67b95a`
 
 State: locked
 Current milestone: M0
@@ -9,9 +9,11 @@ Review state: PASSED
 Accepted adversarial rounds: 5/5
 Review target: TERMINAL_NO_FINDINGS
 Lock authorized: yes, for plan publication only
-Implementation authorized: no
-Repository creation authorized: no
-Commit/push authorized: yes, for this plan package only
+Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
+Repository creation authorized: yes, through FMV3-M0-01
+Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
+Gateway work authorized: no; stop before FMV3-M4-01
+Private bootstrap authorized: no; FMV3-M0-04 and FMV3-M0-05 deferred
 
 This package supersedes `fronius-modbus-eebus-bridge-w28-26.draft` as execution
 intent while preserving that directory unchanged as forensic history.
@@ -74,9 +76,10 @@ Completed through terminal epoch 3 R5:
 - structural validator remains bounded and does not simulate runtime behavior.
 
 Terminal review closure did not itself lock the plan. The operator separately authorized
-lock and publication on 2026-07-14 without authorizing implementation or repository creation.
+lock and publication on 2026-07-14, then authorized the bounded pre-gateway execution wave
+on 2026-07-26 without authorizing gateway or private binding work.
 
 Not performed:
 
-- semantic lock or product implementation;
-- target-repository creation or implementation issue creation.
+- semantic lock, gateway implementation, or private binding implementation;
+- any issue outside the explicit M0-M3 pre-gateway allowlist.
