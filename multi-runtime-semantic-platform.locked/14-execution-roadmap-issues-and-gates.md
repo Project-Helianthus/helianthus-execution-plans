@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
+Canonical-SHA256: `1e1b4c67d294f6b2d9cdd9420632bf8d0fa83cab916c1da57411d593e6c29e87`
 
 Depends on:
 All previous chunks.
@@ -35,7 +35,7 @@ Every row in `92-m0-issue-matrix.yaml` must include:
 - transport and security gate classification;
 - rollback ledger, review ledger, TDD mode, smoke scope, and acceptance list.
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 
 ## Locked Milestone Order
 
@@ -46,18 +46,28 @@ Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml pl
 5. `M4.5 - Trust And Admin State Freeze`
 6. `M5 - Gateway Sidecar Integration`
 7. `M6 - Read-Only eeBUS MCP v1`
-8. `M6.5 - Synchronized Evidence Recorder`
-9. `M7 - Draft Candidate Fact Graph`
-10. `M8 - Multi-Runtime Coexistence`
-11. `M8.5 - Leaf Promotion Lock`
-12. `M9 - GraphQL, Portal, And HA Consumers`
+8. `M6.25 - Raw SPINE Feature Acquisition`
+9. `M6.5-LIVE-R1 - Synchronized Evidence Recorder`
+10. `M7-LIVE-R1 - Draft Candidate Fact Graph`
+11. `M8-LIVE-R1 - Multi-Runtime Coexistence`
+12. `M8.5-LIVE-R1 - Leaf Promotion Lock`
+13. `M9 - GraphQL, Portal, And HA Consumers`
 
 Historical M0, M1, M2, MSP-03A, MSP-03B, MSP-03C, and the merged MSP-03D
 EEBUS-G01 fake-peer harness slice remain preserved evidence. They do not let
 M3 close without MSP-R00-L, DOCS-VERIFY, the AD-DOCS-01 documentation chain,
 and MSP-03D-R.
 
-## Initial Ready Rows
+## Current Ready Row
+
+M0-M6 history is accepted. The current selected batch is exactly:
+
+- `MSP-0625-PLAN` in `helianthus-execution-plans`.
+
+The M6.25 plan row preserves all prior milestone records and publishes the
+additive contract before code or documentation successors start.
+
+## Historical Initial Ready Rows
 
 After AD-DOCS-01, `MSP-R00` is completed locally with no code acceptance,
 issue `Project-Helianthus/helianthus-eebusreg#14`, architecture review
@@ -136,17 +146,17 @@ remain blocked until the prior canonical docs and eebusreg contracts merge.
 GraphQL, Portal, Home Assistant, command routing, raw writes, and promoted
 semantics stay out until their later milestones and per-leaf locks.
 
-## M5 Production-Prerequisite Correction
+## Historical M5 Production-Prerequisite Correction
 
 The earlier direct MSP-05B path was closed because the production
 protected-material provider and scoped SHIP constructor were not installed,
 and the M5A gateway configuration could not be mapped losslessly to the
 original runtime shape.
 Those production prerequisites, the pre-release API v1 correction, and exact
-gateway mapping are now complete. The MSP-05B pre-review found that worker-level
+gateway mapping later completed. The MSP-05B pre-review found that worker-level
 process termination can bypass deferred cleanup and that the mapped remote
-allowlist is not emitted in its canonical lowercase sorted form. The sole ready
-row is therefore MSP-05A-R2. It establishes one process-exit boundary in main,
+allowlist was not emitted in its canonical lowercase sorted form. The sole ready
+row at that historical snapshot was therefore MSP-05A-R2. It establishes one process-exit boundary in main,
 propagates wrapped worker/helper errors, and canonicalizes remote identities
 before MSP-05B.
 
@@ -296,12 +306,36 @@ stays in later admin-local gated rows.
 
 ## MCP And Consumer Gates
 
-M6 freezes final read-only `eebus.v1.*` only after raw contracts, immutable raw
+M6 freezes its read-only baseline in the still-unreleased `eebus.v1.*` only after raw contracts, immutable raw
 views, lifecycle facade constraints, and trust/admin state are composed.
 
-M7 creates draft candidate facts only. M8 proves coexistence. M8.5 locks
-individual leaf promotion. M9 consumers are ordered GraphQL, Portal, Home
-Assistant, then add-on exposure, and they expose only promoted leaves.
+M6.25 then adds the exact full READ/WRITE function-data path without semantic
+promotion:
+
+1. `MSP-0625-PLAN` requires `MSP-06`;
+2. `MSP-0625-DOCS-E` requires `MSP-0625-PLAN`;
+3. `MSP-0625-SPINE` requires `MSP-0625-DOCS-E`;
+4. `MSP-0625-EEBUS` requires `MSP-0625-SPINE`;
+5. `MSP-0625-REG-EXEC` requires `MSP-0625-EEBUS`;
+6. `MSP-0625-REG-MUT` requires `MSP-0625-REG-EXEC`;
+7. `MSP-0625-GW-ROUTER` requires `MSP-0625-REG-MUT`;
+8. `MSP-0625-GW-MCP` requires `MSP-0625-GW-ROUTER`;
+9. `MSP-0625-LAB` requires `MSP-0625-GW-MCP`;
+10. `MSP-0625-DOCS-P` requires `MSP-0625-DOCS-E`, does not block
+    `MSP-0625-SPINE`, and must complete before `MSP-065-LIVE-R1`.
+
+The live completion chain is `MSP-0625-LAB` plus `MSP-0625-DOCS-P` ->
+`MSP-065-LIVE-R1` -> `MSP-07-LIVE-R1` -> `MSP-08-LIVE-R1` ->
+`MSP-085-LIVE-R1`.
+
+Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` remain present as
+`framework_complete` or `synthetic_only`. Those states are not accepted
+completion-token states and cannot unlock the live chain.
+
+M9 consumers are ordered GraphQL, Portal, Home Assistant, then add-on exposure.
+Every M9 row requires `MSP-085-LIVE-R1` and the machine-checkable predicate
+JCS digest-bound completion-token claim with `promoted_leaf_count > 0`. A
+zero-leaf administrative no-op cannot unlock M9.
 
 ## Review Gates
 
@@ -320,10 +354,16 @@ No PR may merge unless it links:
 
 This plan is locked when:
 
-- plan state is `locked` and current milestone is `M5_PRODUCTION_PREREQUISITES`;
-- accepted-through text records M4.5 and M5A completion;
-- direct MSP-05B dispatch is blocked by the full production prerequisite chain;
-- MSP-05A-R2 is the only current ready row;
+- plan state is `locked` and current milestone is
+  `M6_25_RAW_SPINE_FEATURE_ACQUISITION`;
+- accepted-through text records M6 raw topology/privacy completion and zero
+  promoted leaves;
+- `MSP-0625-PLAN` is the only current ready row;
+- the M6.25 code path, tool set, authorization, durable mutation FSM, recovery,
+  and anti-leak contract are frozen;
+- historical framework/synthetic rows cannot unlock live rows;
+- M9 requires `MSP-085-LIVE-R1` and its JCS digest-bound completion-token claim
+  with `promoted_leaf_count > 0`;
 - AD-DOCS-01 rows are serialized and the dormant cleanup row is not treated as
   initially ready or as a normal required predecessor;
 - all future dependencies are explicit and acyclic;

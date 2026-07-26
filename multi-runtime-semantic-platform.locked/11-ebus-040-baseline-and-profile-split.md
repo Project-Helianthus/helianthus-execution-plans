@@ -1,6 +1,6 @@
 # eBUS 0.4.0 Baseline And Profile Split
 
-Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
+Canonical-SHA256: `1e1b4c67d294f6b2d9cdd9420632bf8d0fa83cab916c1da57411d593e6c29e87`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`.
@@ -19,7 +19,7 @@ With Vaillant profile logic disabled, raw/classic eBUS discovery and evidence
 must remain available. With the profile enabled, current Vaillant semantics must
 match gateway `0.4.0` behavior.
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 
 Coverage:
 Covers M0, M2, and M3 from the canonical milestone list.

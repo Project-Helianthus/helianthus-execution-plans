@@ -196,6 +196,158 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         self.row(document, "MSP-05B")["requires_completion_tokens"] = ["MSP-05A"]
         self.rejects_matrix(document)
 
+    def test_m625_dag_and_live_chain_are_exact(self) -> None:
+        expected = {
+            "MSP-0625-PLAN": ["MSP-06"],
+            "MSP-0625-DOCS-E": ["MSP-0625-PLAN"],
+            "MSP-0625-SPINE": ["MSP-0625-DOCS-E"],
+            "MSP-0625-EEBUS": ["MSP-0625-SPINE"],
+            "MSP-0625-REG-EXEC": ["MSP-0625-EEBUS"],
+            "MSP-0625-REG-MUT": ["MSP-0625-REG-EXEC"],
+            "MSP-0625-GW-ROUTER": ["MSP-0625-REG-MUT"],
+            "MSP-0625-GW-MCP": ["MSP-0625-GW-ROUTER"],
+            "MSP-0625-LAB": ["MSP-0625-GW-MCP"],
+            "MSP-0625-DOCS-P": ["MSP-0625-DOCS-E"],
+            "MSP-065-LIVE-R1": ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
+            "MSP-07-LIVE-R1": ["MSP-065-LIVE-R1"],
+            "MSP-08-LIVE-R1": ["MSP-07-LIVE-R1"],
+            "MSP-085-LIVE-R1": ["MSP-08-LIVE-R1"],
+        }
+        for row_id, dependencies in expected.items():
+            with self.subTest(row_id=row_id):
+                self.assertEqual(
+                    self.row(self.matrix, row_id)["requires_completion_tokens"],
+                    dependencies,
+                )
+        self.assertEqual(validator.READINESS["selected_batch"], ["MSP-0625-PLAN"])
+
+    def test_historical_synthetic_rows_cannot_unlock_live_chain(self) -> None:
+        expected_states = {
+            "MSP-065": "framework_complete",
+            "MSP-07": "synthetic_only",
+            "MSP-08": "synthetic_only",
+            "MSP-085": "synthetic_only",
+        }
+        for row_id, state in expected_states.items():
+            self.assertEqual(self.row(self.matrix, row_id)["acceptance_state"], state)
+        document = copy.deepcopy(self.matrix)
+        self.row(document, "MSP-065-LIVE-R1")["requires_completion_tokens"] = ["MSP-085"]
+        self.rejects_matrix(document)
+
+    def test_m9_requires_live_m85_and_positive_promoted_leaf_count(self) -> None:
+        for row_id in ("MSP-09A", "MSP-09B", "MSP-09C", "MSP-09D"):
+            with self.subTest(row_id=row_id):
+                row = self.row(self.matrix, row_id)
+                self.assertIn("MSP-085-LIVE-R1", row["requires_completion_tokens"])
+                self.assertEqual(row["unlock_predicate"], validator.M9_UNLOCK_PREDICATE)
+        document = copy.deepcopy(self.matrix)
+        self.row(document, "MSP-09A")["unlock_predicate"]["value"] = 0
+        self.row(document, "MSP-09A")["unlock_predicate"]["operator"] = "greater_than_or_equal"
+        self.rejects_matrix(document)
+
+    def test_m625_acceptance_fragments_are_fail_closed(self) -> None:
+        for row_id in validator.M625_ACCEPTANCE_FRAGMENTS:
+            with self.subTest(row_id=row_id):
+                document = copy.deepcopy(self.matrix)
+                self.row(document, row_id)["acceptance"] = ["placeholder"]
+                self.rejects_matrix(document)
+
+    def test_pre_m625_history_is_protected_except_forward_acceptance_state(self) -> None:
+        for row_id, field, value in (
+            ("MSP-04A", "title", "rewritten historical contract"),
+            ("MSP-06", "acceptance", ["rewritten M6 acceptance"]),
+        ):
+            with self.subTest(row_id=row_id, field=field):
+                document = copy.deepcopy(self.matrix)
+                self.row(document, row_id)[field] = value
+                self.rejects_matrix(document)
+        document = copy.deepcopy(self.matrix)
+        self.row(document, "MSP-04A")["acceptance_state"] = "proposed"
+        with self.assertRaises(validator.ValidationError):
+            validator.validate_matrix(document)
+        self.assertEqual(
+            validator.pre_m625_history_sha256(self.matrix["issues"]),
+            validator.PRE_M625_HISTORY_SHA256,
+        )
+
+    def test_live_promotion_completion_token_is_digest_bound_and_positive(self) -> None:
+        row = self.row(self.matrix, "MSP-085-LIVE-R1")
+        self.assertEqual(
+            row["completion_token_contract"],
+            validator.LIVE_COMPLETION_TOKEN_CONTRACT,
+        )
+        document = copy.deepcopy(self.matrix)
+        self.row(document, "MSP-085-LIVE-R1")["completion_token_contract"][
+            "promoted_leaf_count"
+        ]["exclusive_minimum"] = -1
+        self.rejects_matrix(document)
+        claim = {
+            "milestone_id": "MSP-085-LIVE-R1",
+            "promoted_leaf_count": 1,
+            "promotion_dossier_root": "a" * 64,
+            "evidence_root": "b" * 64,
+        }
+        token = {
+            "claim": claim,
+            "claim_sha256": validator.promotion_claim_sha256(claim),
+        }
+        validator.validate_promotion_completion_token(token)
+        mutations = (
+            lambda value: value["claim"].pop("promoted_leaf_count"),
+            lambda value: value["claim"].__setitem__("promoted_leaf_count", "1"),
+            lambda value: value["claim"].__setitem__("promoted_leaf_count", 0),
+            lambda value: value["claim"].__setitem__("promoted_leaf_count", -1),
+            lambda value: value["claim"].__setitem__("promoted_leaf_count", True),
+            lambda value: value.__setitem__("claim_sha256", "0" * 64),
+        )
+        for mutate in mutations:
+            with self.subTest(mutate=mutate):
+                invalid = copy.deepcopy(token)
+                mutate(invalid)
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_promotion_completion_token(invalid)
+
+    def test_live_audit_is_current_integrity_projection(self) -> None:
+        audit = validator.render_live_audit(self.matrix)
+        self.assertIn('"current_control"', audit)
+        self.assertIn('"selected_batch":["MSP-0625-PLAN"]', audit)
+        self.assertIn(validator.PRE_M625_HISTORY_SHA256, audit)
+        self.assertIn(
+            "106-ad-docs-02-integrity.json is the immutable historical M5 record",
+            audit,
+        )
+
+    def test_current_state_evidence_is_canonical_and_restricted_field_free(self) -> None:
+        path = PLAN / "120-w30-26-current-state-evidence.json"
+        document = json.loads(path.read_text(encoding="utf-8"))
+        validator.validate_current_state_evidence(path, document)
+        mutations = (
+            lambda value: value.__setitem__("raw_identity", "forbidden"),
+            lambda value: value["repositories"][0].__setitem__(
+                "repository",
+                "-----BEGIN PRIVATE KEY-----\nsecret\n-----END PRIVATE KEY-----",
+            ),
+            lambda value: value["repositories"][0].__setitem__(
+                "tag",
+                "https://192.0.2.1:9999/private",
+            ),
+            lambda value: value["proof_classification"].__setitem__(
+                "current_state",
+                "/private/tmp/restricted",
+            ),
+        )
+        for mutate in mutations:
+            with self.subTest(mutate=mutate), tempfile.TemporaryDirectory() as tmp:
+                invalid = copy.deepcopy(document)
+                mutate(invalid)
+                mutated = Path(tmp) / path.name
+                mutated.write_text(
+                    json.dumps(invalid, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_current_state_evidence(mutated, invalid)
+
     def test_rejects_unknown_completion_token(self) -> None:
         document = copy.deepcopy(self.matrix)
         self.row(document, "MSP-DOCS-E2R-PLATFORM")["requires_completion_tokens"] = ["UNKNOWN"]
@@ -440,6 +592,10 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                         document = yaml.safe_load(path.read_text(encoding="utf-8"))
                         document["routing_policy"]["provider"] = "openai"
                         path.write_text(yaml.safe_dump(document), encoding="utf-8")
+                    elif path.name == "120-w30-26-current-state-evidence.json":
+                        document = json.loads(path.read_text(encoding="utf-8"))
+                        document["counts"]["devices"] = 2
+                        path.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
                     else:
                         path.write_text(
                             path.read_text(encoding="utf-8").replace(
@@ -472,6 +628,10 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "114-w28-26-m5b-production-prerequisite-correction.md",
                 "115-w28-26-pre-release-api-v1-correction.md",
                 "116-w28-26-m5b-lifecycle-prerequisite-correction.md",
+                "117-w30-26-original-plan-current-state-reconciliation.md",
+                "118-w30-26-m625-raw-spine-feature-acquisition.md",
+                "119-w30-26-post-m6-hardening-inventory.md",
+                "120-w30-26-current-state-evidence.json",
             ),
         )
         self.assertEqual(

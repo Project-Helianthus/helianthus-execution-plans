@@ -1,15 +1,15 @@
 # Helianthus Multi-Runtime Semantic Platform
 
-Revision: `v1.3-locked-amended`
-Date: `2026-07-18`
+Revision: `v1.4-locked-amended`
+Date: `2026-07-26`
 Status: `Locked`
-Cruise phase: `M5_PRODUCTION_PREREQUISITES`
-Current milestone: `M5_PRODUCTION_PREREQUISITES`
-Amendment count: `5`
-Amendment: `MSP-05B gateway lifecycle prerequisite correction`
-Accepted through: `MSP-05A-R1 with M4.5 trust and admin state frozen`
+Cruise phase: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
+Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
+Amendment count: `6`
+Amendment: `M6.25 raw SPINE feature acquisition`
+Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
 Dirty rescue candidate: `false`
-Successor unlocks: `only through the corrected production-prerequisite chain`
+Successor unlocks: `only through the M6.25 and live-completion chain`
 Baseline: `Gateway 0.4.0`
 
 ## AD-DOCS-02 Architecture Gates
@@ -24,8 +24,9 @@ MSP-03D-G01 remain evidence inputs, never token producers. Publication contract
 v2 uses closed publication entry kinds, separate channel eligibility from exact
 membership, absence constraints, a channel registry, and hermetic git-object
 proof; process attestations do not substitute for technical proof. See
-`105-ad-docs-02-amendment.md`, `106-ad-docs-02-integrity.json`, and the live
-`107-ad-docs-02-topology-audit.md`.
+`105-ad-docs-02-amendment.md`, the immutable historical M5 record
+`106-ad-docs-02-integrity.json`, and the generated current integrity/readiness
+projection `107-ad-docs-02-topology-audit.md`.
 
 ## Summary
 
@@ -40,11 +41,11 @@ external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
 
-This locked plan records five accepted adversarial rounds plus five control
-plane amendments. Recovery through M4.5, the inert M5A gateway scaffold, and
-MSP-05A-R1 are closed by published evidence. Direct M5B execution is blocked
-until MSP-05A-R2 hardens the gateway process-exit boundary and canonical remote
-mapping.
+This locked plan records five accepted adversarial rounds plus six control
+plane amendments. M0-M6 history remains valid and M5/M6 are complete. The
+forward-only M6.25 amendment closes the gap between live topology and canonical
+typed SPINE function-data acquisition. Historical M6.5-M8.5 framework or
+synthetic closures remain recorded but cannot unlock the new live chain or M9.
 
 The first extension target is raw eeBUS visibility for the
 VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo
@@ -89,14 +90,14 @@ SUN2000 over Modbus RTU/TCP, and Growatt over Modbus RTU/TCP.
 - Whether all future Modbus vendor-private maps can share one registry package
   or need profile-specific repos.
 
-## M5 Production-Prerequisite Lock State
+## Historical M5 Production-Prerequisite Lock State
 
-The plan is locked in `M5_PRODUCTION_PREREQUISITES`.
+At the M5 lock snapshot, the plan was in `M5_PRODUCTION_PREREQUISITES`.
 
 - M4.5 trust/admin state and M5A inert gateway configuration are complete.
 - Direct MSP-05B dispatch is forbidden while gateway workers can bypass deferred
   cleanup or the remote allowlist can drift from the canonical sorted identity.
-- The sole ready row is MSP-05A-R2.
+- The sole ready row at that historical snapshot was MSP-05A-R2.
 - The matrix serializes exact-address SHIP, independent mDNS policy, eebus-go
   propagation, protected identity, real production construction, pre-release
   API v1 cleanup, gateway remapping, lifecycle hardening, and then MSP-05B.
@@ -436,12 +437,42 @@ behavior unchanged.
 
 ### M6 - Read-Only eeBUS MCP v1
 
-Freeze final read-only `eebus.v1.*` MCP after raw identity and trust/admin
-state are composed. Stable tools expose runtime status, services, sessions,
-topology, snapshots, and pairing status only.
+Freeze the M6 read-only baseline in the still-unreleased `eebus.v1.*` namespace
+after raw identity and trust/admin state are composed. M6 tools expose runtime
+status, services, sessions, topology, snapshots, and pairing status only.
 
 Gate: snapshot, hash, auth/mask binding, error precedence, drop, evolution, and
 anti-leak tests pass.
+
+### M6.25 - Raw SPINE Feature Acquisition
+
+Add canonical typed SPINE function-data READ/WRITE without exposing arbitrary
+SHIP/SPINE frames or headers. Topology remains capability metadata, not data
+acquisition. The only path is MCP -> gateway `EEBusCommandRouter` -> eebusreg
+`RawFeatureRuntimeV1`/coordinator -> eebus-go exact feature executor ->
+spine-go atomic correlated round-trip -> existing SHIP.
+
+M6.25 supports full READ and full WRITE only. Partial operations, selectors,
+`filterDelete`, and invoke are rejected before remote contact. `ship-go`
+remains unchanged. The unreleased `eebus.v1` namespace gains only
+`features.get`, `features.data.get`, `features.data.set`, `mutations.get`, and
+`mutations.rollback`; it gains no v2, alias, candidate, semantic, GraphQL,
+Portal, or Home Assistant surface.
+
+eebusreg owns durable `runtime_epoch`/`connection_generation` binding, DTOs,
+WAL/FSM, the single global runtime writer lease, CAS/read tokens, scoped
+idempotency, constraints, JCS commitments, and audit. Writes require owner-only
+`AF_UNIX` plus `eebus.raw.write`; public denial occurs before provider, router,
+runtime, or remote contact. Every accepted write and rollback requires full
+readback. ACK or send success alone is never applied. Probe TTL survives
+restart, rollback conflicts quarantine writes, and `outcome_unknown` converges
+by readback without blind resend.
+
+Gate: the acceptance/falsification contract in
+`118-w30-26-m625-raw-spine-feature-acquisition.md` passes, including synchronous
+reply race, callback cleanup, zero-frame CAS/session mismatch, idempotency,
+concurrent writers, constraints/changeability, crash recovery, probe rollback,
+conflict quarantine, JCS, and anti-leak.
 
 ### M6.5 - Synchronized Evidence Recorder
 
@@ -480,7 +511,10 @@ Gate: no leaf can enter GraphQL, Portal, or HA without a locked dossier.
 ### M9 - GraphQL, Portal, And HA Consumers
 
 Split consumer work by repo: gateway GraphQL first, Portal second, Home
-Assistant third. Consumers expose only promoted leaves.
+Assistant third. Consumers expose only promoted leaves. M9 requires completion
+of `MSP-085-LIVE-R1` and a JCS digest-bound completion-token claim with
+machine-checkable `promoted_leaf_count > 0`;
+historical framework/synthetic rows and a zero-leaf no-op cannot unlock it.
 
 Gate: GraphQL schema/value snapshots, HA entity identity/class/unit/availability
 snapshots, and MCP/debug compatibility prove no unapproved drift.
@@ -493,7 +527,7 @@ snapshots, and MCP/debug compatibility prove no unapproved drift.
   native registry, semantic projection, MCP, GraphQL, Portal, or Home
   Assistant.
 - If an issue needs two layers, split it.
-- Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+- Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 - Do not promote any semantic field to consumers without raw evidence and
   provenance.
 - Do not rename or generalize eBUS public API namespaces until compatibility

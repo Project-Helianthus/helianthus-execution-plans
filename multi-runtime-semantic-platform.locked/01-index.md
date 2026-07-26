@@ -2,13 +2,13 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
+Canonical-SHA256: `1e1b4c67d294f6b2d9cdd9420632bf8d0fa83cab916c1da57411d593e6c29e87`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in
-`M5_PRODUCTION_PREREQUISITES`: M4.5, production activation, API v1, and exact
-gateway mapping are complete, while direct M5B is blocked until MSP-05A-R2
-hardens lifecycle error propagation and canonical remote identity.
+`M6_25_RAW_SPINE_FEATURE_ACQUISITION`: M5 and M6 are complete, while the
+forward-only amendment adds canonical typed SPINE function-data READ/WRITE
+before the live M6.5-M8.5 chain.
 Substantive eeBUS documentation remains external to code repositories.
 
 ## Split Rules
@@ -55,7 +55,7 @@ Substantive eeBUS documentation remains external to code repositories.
   routing evidence, completion-token dependencies, docs owner/gate, transport/security gate, rollback ledger,
   review ledger, TDD mode, smoke scope, and acceptance.
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 - [93-eebus-transport-gate-v0.md](./93-eebus-transport-gate-v0.md) defines the
   eeBUS transport/protocol gate and exact G17/G18/G19 meanings.
 - [94-m1-docs-bootstrap-evidence.md](./94-m1-docs-bootstrap-evidence.md)
@@ -94,6 +94,16 @@ Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml pl
   records the MSP-R00-L public-safe redacted recovery ledger.
 - [114-w28-26-m5b-production-prerequisite-correction.md](./114-w28-26-m5b-production-prerequisite-correction.md)
   records the M5B preflight NO-GO and corrected production prerequisite chain.
+- [117-w30-26-original-plan-current-state-reconciliation.md](./117-w30-26-original-plan-current-state-reconciliation.md)
+  reconciles original lock provenance with M5/M6 completion, partial/synthetic
+  later milestones, zero promoted leaves, and substantive M9 non-start.
+- [118-w30-26-m625-raw-spine-feature-acquisition.md](./118-w30-26-m625-raw-spine-feature-acquisition.md)
+  freezes the M6.25 component path, exact tools, authorization, durable
+  mutation FSM, recovery, DAG, and falsification contract.
+- [119-w30-26-post-m6-hardening-inventory.md](./119-w30-26-post-m6-hardening-inventory.md)
+  inventories public-safe hardening implemented beyond the original plan.
+- [120-w30-26-current-state-evidence.json](./120-w30-26-current-state-evidence.json)
+  records canonical sorted public-safe repo/tag/CI/binary/count classifications.
 - [99-status.md](./99-status.md) records the locked current state.
 
 ## Coverage Matrix
@@ -110,9 +120,16 @@ Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml pl
 
 The locked plan is ready for preflight when reviewers can falsify:
 
-- whether MSP-05A-R2 is the only current ready row;
-- whether direct MSP-05B dispatch is prevented until every production
-  prerequisite completion token exists;
+- whether `MSP-0625-PLAN` is the only current ready row;
+- whether the M6.25 typed function-data path rejects arbitrary frame access,
+  partial/selective operations, invoke, and all unauthorized public contact;
+- whether the correlated round-trip registers callbacks before send and cleans
+  every terminal path;
+- whether the durable mutation FSM requires verified readback and converges
+  after every crash point without blind resend;
+- whether the live M6.5-M8.5 rows, rather than historical synthetic rows,
+  control progress;
+- whether M9 requires `MSP-085-LIVE-R1` and positive promoted-leaf count;
 - whether dirty rescue code is prevented from unlocking successors;
 - whether AD-DOCS-01 keeps substantive eeBUS docs out of `helianthus-eebusreg`;
 - whether public recovery evidence uses only opaque IDs/classes/dispositions;
@@ -120,5 +137,5 @@ The locked plan is ready for preflight when reviewers can falsify:
 - whether `helianthus-eebusreg` remains raw runtime/evidence plumbing rather
   than a semantic registry fork;
 - whether docs ownership prevents protocol/platform duplication;
-- whether GraphQL, Portal, Home Assistant, command routing, raw writes, and
-  promoted semantics remain out until their later locks.
+- whether GraphQL, Portal, Home Assistant, and promoted semantics remain out
+  until their later locks.

@@ -3,21 +3,21 @@ schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
-cruise_phase: M5_PRODUCTION_PREREQUISITES
-current_milestone: M5_PRODUCTION_PREREQUISITES
-amendment_count: 5
-amended_on: '2026-07-18'
-amendment: MSP-05B gateway lifecycle prerequisite correction
-accepted_through: MSP-05A-R1 with M4.5 trust and admin state frozen
+cruise_phase: M6_25_RAW_SPINE_FEATURE_ACQUISITION
+current_milestone: M6_25_RAW_SPINE_FEATURE_ACQUISITION
+amendment_count: 6
+amended_on: '2026-07-26'
+amendment: M6.25 raw SPINE feature acquisition
+accepted_through: M6 raw topology and privacy boundary with zero promoted leaves
 dirty_rescue_candidate: false
 successor_unlocks: true
-successor_unlock_condition: production prerequisites complete through MSP-05A-R2
+successor_unlock_condition: M6.25 live DAG completes through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
-purpose: 'Machine-readable locked control-plane matrix for the eeBUS VR940f raw-first
-  plan after five accepted adversarial rounds and the AD-DOCS-01 external-only-documentation
-  amendment.
+purpose: 'Machine-readable locked control-plane matrix for the eeBUS raw-first
+  plan after five accepted adversarial rounds and the forward-only M6.25
+  typed SPINE function-data amendment.
 
 '
 serialization:
@@ -49,6 +49,8 @@ serialization:
   - MSP-05P-REG-ID
   - MSP-05P-REG-RUNTIME
   - MSP-05P-REG-API-V1-CLEANUP
+  - MSP-0625-REG-EXEC
+  - MSP-0625-REG-MUT
   docs_eebus_sequence:
   - DOCS-VERIFY
   - MSP-DOCS-API-SCHEMA
@@ -56,12 +58,18 @@ serialization:
   - MSP-DOCS-API-CANDIDATE
   - MSP-DOCS-API-FREEZE
   - MSP-DOCS-05P
+  - MSP-0625-DOCS-E
+  - MSP-0625-LAB
   docs_ebus_sequence:
   - MSP-DOCS-PLATFORM
+  - MSP-0625-DOCS-P
   ship_go_sequence:
   - MSP-05P-SHIP
   eebus_go_sequence:
   - MSP-05P-EEBUS
+  - MSP-0625-EEBUS
+  spine_go_sequence:
+  - MSP-0625-SPINE
   gateway_sequence:
   - MSP-05A
   - MSP-05A-R1
@@ -69,14 +77,20 @@ serialization:
   - MSP-05A-R2
   - MSP-05B
   - MSP-06
+  - MSP-0625-GW-ROUTER
+  - MSP-0625-GW-MCP
   - MSP-065
   - MSP-07
   - MSP-08
   - MSP-085
+  - MSP-065-LIVE-R1
+  - MSP-07-LIVE-R1
+  - MSP-08-LIVE-R1
+  - MSP-085-LIVE-R1
   - MSP-09A
   - MSP-09B
   initial_ready_set:
-  - MSP-05A-R2
+  - MSP-0625-PLAN
   dirty_code_unlocks_successors: false
   conditional_rows:
   - MSP-DOCS-CANDIDATE-CLEANUP
@@ -588,7 +602,7 @@ issues:
   tdd_mode: docs_schema_red_green
   smoke_scope: schema validation, canonical normalization, and golden positive/negative
     fixtures
-  acceptance_state: ready
+  acceptance_state: accepted
   readiness_note: ready after execution-plans PR
   acceptance:
   - helianthus.eebus.api-surface.v1 schema is merged in helianthus-docs-eebus/api
@@ -617,7 +631,7 @@ issues:
   review_ledger: platform ownership, privacy, and promotion contract review
   tdd_mode: docs_manifest_contract
   smoke_scope: platform manifest validation and cross-runtime ownership lint
-  acceptance_state: proposed
+  acceptance_state: accepted
   blocked_note: after execution-plans PR
   acceptance:
   - language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary,
@@ -649,7 +663,7 @@ issues:
   review_ledger: eeBUS docs ownership, candidate-state, and evidence review
   tdd_mode: docs_manifest_contract
   smoke_scope: canonical_source lint, candidate hiding, and source evidence audit
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - architecture/ and api/ are created beside existing protocols/
   - protocols/ owns eeBUS/SHIP/SPINE protocol behavior
@@ -683,7 +697,7 @@ issues:
   review_ledger: architecture_review
   tdd_mode: strict_red_green
   smoke_scope: hermetic_validator
-  acceptance_state: proposed
+  acceptance_state: accepted
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -703,7 +717,7 @@ issues:
   review_ledger: architecture_review
   tdd_mode: strict_red_green
   smoke_scope: hermetic_validator
-  acceptance_state: proposed
+  acceptance_state: accepted
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -723,7 +737,7 @@ issues:
   review_ledger: architecture_review
   tdd_mode: strict_red_green
   smoke_scope: hermetic_validator
-  acceptance_state: proposed
+  acceptance_state: accepted
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -744,7 +758,7 @@ issues:
   review_ledger: code-repo documentation ownership and API extractor gate review
   tdd_mode: strict_red_green
   smoke_scope: local and GitHub docs ownership gates plus API extractor gate
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - work starts from clean main and never uses code-repo docs as migration input
   - docs/ is idempotently deleted if present and never restored to main
@@ -820,7 +834,7 @@ issues:
   review_ledger: G17/G19 live interop and redaction review
   tdd_mode: strict_red_green
   smoke_scope: revised G17, G19, denied-access negative, reconnect-failure negative
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - G17 configured local SHIP advertisement/discovery passes
   - G17 myVaillant trust visibility passes
@@ -855,7 +869,7 @@ issues:
   review_ledger: raw contract freeze review
   tdd_mode: strict_red_green
   smoke_scope: deterministic raw identity/snapshot/evidence replay
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - raw identity, snapshot envelope, and evidence object are frozen only
   - trust, lifecycle authority, availability guarantees, and admin semantics remain
@@ -879,7 +893,7 @@ issues:
   review_ledger: store schema and migration review
   tdd_mode: strict_red_green
   smoke_scope: migration, corruption, and conformance tests
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - internal persistent store schema exists
   - migration and conformance tests pass
@@ -903,7 +917,7 @@ issues:
   review_ledger: raw view conformance review
   tdd_mode: strict_red_green
   smoke_scope: immutable raw view migration/conformance
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - only versioned immutable raw snapshot/view fields are public
   - no semantic device ID is exported
@@ -929,7 +943,7 @@ issues:
   tdd_mode: docs_schema_red_green
   smoke_scope: candidate hiding, attestation verification, exact-head match, and source-push
     invalidation
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - after MSP-036, the single MSP-055 source PR may be prepared on an org-owned branch
     and pinned at an immutable candidate-ready head, but it remains unmerged
@@ -964,7 +978,7 @@ issues:
   tdd_mode: strict_red_green
   smoke_scope: disabled default, explicit config, pre-seeded trust/allowlist, feature
     graph/reconnect scope
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - the same single source issue, branch, and PR prepared for MSP-DOCS-API-CANDIDATE
     is used; no second eebusreg PR is opened
@@ -1000,7 +1014,7 @@ issues:
   tdd_mode: docs_schema_red_green
   smoke_scope: compile examples, compare Go AST/API manifest, and promote active API
     version
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - freeze runs against the exact merged helianthus-eebusreg source commit
   - org-owned Project-Helianthus branches are used; forks are rejected
@@ -1034,7 +1048,7 @@ issues:
   review_ledger: first-trust threat review
   tdd_mode: strict_red_green
   smoke_scope: OOB fingerprint, admin-local binding, race denial
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - first-trust and OOB confirmation are admin-local gated
   - no trust-store write occurs before OOB fingerprint confirmation
@@ -1058,7 +1072,7 @@ issues:
   review_ledger: restore/quarantine review
   tdd_mode: strict_red_green
   smoke_scope: restore/clone lock, tombstone, quarantine/backoff
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - clone/rollback cannot reach PAIRED_TRUSTED
   - quarantine/backoff persists across restart
@@ -1081,7 +1095,7 @@ issues:
   review_ledger: security contract freeze review
   tdd_mode: strict_red_green
   smoke_scope: trust/admin state migration and conformance
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - gateway and MCP can consume trust state without ad hoc security decisions
   - state changes after this point require explicit contract migration
@@ -1104,7 +1118,7 @@ issues:
   review_ledger: gateway config review
   tdd_mode: strict_red_green
   smoke_scope: disabled config parse and no import
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - default config opens no eeBUS socket
   - no helianthus-eebusreg import is introduced
@@ -1127,7 +1141,7 @@ issues:
   review_ledger: complete production activation architecture and security review
   tdd_mode: strict_red_green
   smoke_scope: documentation contract and cross-repository acceptance matrix
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - define exact bind-address, interface, subnet, state-root, protected-material, and discovery policy semantics
   - reject wildcard or ambiguous listener scope and independently gate mDNS publication
@@ -1153,7 +1167,7 @@ issues:
   review_ledger: SHIP listener scope, discovery, shutdown, and compatibility review
   tdd_mode: strict_red_green
   smoke_scope: exact socket address, mDNS on/off, retry, shutdown, and legacy constructor parity
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - an additive constructor binds exactly the configured non-wildcard address and port
   - mDNS publication is controlled independently from listener startup
@@ -1178,7 +1192,7 @@ issues:
   review_ledger: eebus-go SHIP policy propagation and compatibility review
   tdd_mode: strict_red_green
   smoke_scope: scoped fake-peer startup, discovery disabled, error propagation, and legacy parity
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - an additive service constructor carries explicit listener and discovery policy to ship-go
   - startup failures propagate without partial publication or retained goroutines
@@ -1203,7 +1217,7 @@ issues:
   review_ledger: public API compatibility, configuration cardinality, and listener-scope review
   tdd_mode: strict_red_green
   smoke_scope: v1 compatibility and v2 bind-address validation
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - v1 public API remains source and behavior compatible
   - v2 accepts one explicit non-wildcard listen address and rejects ambiguous scope
@@ -1228,7 +1242,7 @@ issues:
   review_ledger: key protection, host binding, permissions, atomicity, and clone-denial review
   tdd_mode: strict_red_green
   smoke_scope: first boot, restart, wrong host, clone, symlink, permissions, atomic replace, and fsync
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - certificate, key, local SKI, remote identity, and pairing state survive restart
   - wrong-host restore, cloned state, symlink, traversal, or weak permissions fail before socket or mDNS activity
@@ -1253,7 +1267,7 @@ issues:
   review_ledger: runtime lifecycle, trust boundary, scoped networking, and restart architecture review
   tdd_mode: strict_red_green
   smoke_scope: protected material load, scoped startup, fake peer, restart, errors, and deterministic shutdown
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - enabled startup uses the installed protected provider and real scoped service construction
   - the socket binds only the configured address and no mDNS record appears while discovery is disabled
@@ -1278,7 +1292,7 @@ issues:
   review_ledger: pre-release compatibility evidence, exact public shape, docs provenance, and downstream consumer absence review
   tdd_mode: strict_red_green
   smoke_scope: no tags or releases, no consumers, exact v1 compile surface, fake peer, restart, and API manifest regeneration
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - Config and New expose the exact-address state-root, interface, discovery, allowlist, and closed-pairing contract required by the production runtime
   - ConfigV2, NewV2, PairingPolicyV2, the legacy ListenPort-only shape, and every stale v2 API claim are absent
@@ -1303,7 +1317,7 @@ issues:
   review_ledger: gateway config cardinality, fail-closed mapping, and disabled-default review
   tdd_mode: strict_red_green
   smoke_scope: state root, one interface, one bind address, legacy path rejection, allowlist, and pairing closed
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - mapping resolves exactly one configured interface and one non-wildcard address inside the declared subnet
   - missing state root, wildcard, ambiguous scope, unsupported legacy paths, or non-closed pairing fail before runtime construction
@@ -1356,7 +1370,7 @@ issues:
   review_ledger: process-exit boundary, cleanup propagation, deterministic remote identity, and no-sidecar review
   tdd_mode: strict_red_green
   smoke_scope: AST process-exit guard, mixed-case remote permutations, cleanup paths, eBUS no-drift, G00, and G05
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - a tests-only commit is observed RED by external CI before implementation
   - the exact implementation head is observed GREEN by external CI after implementation
@@ -1383,7 +1397,7 @@ issues:
   review_ledger: gateway sidecar lifecycle, typed resolver, cleanup error precedence, and synchronous-activation architecture review
   tdd_mode: strict_red_green
   smoke_scope: disabled zero-call path, typed resolver on Darwin/Linux, lifecycle error joins, G00, G05, and eBUS no-drift
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - prior canonical docs and eebusreg contracts are merged
   - disabled configuration performs zero resolver, runtime New, Start, and Shutdown calls
@@ -1414,7 +1428,7 @@ issues:
   review_ledger: MCP contract review
   tdd_mode: strict_red_green
   smoke_scope: snapshot auth/mask/error/drop/anti-leak and reconnect durability
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - snapshot auth/mask binding tests pass
   - reconnect durability passes
@@ -1425,8 +1439,265 @@ issues:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
+- id: MSP-0625-PLAN
+  title: Publish forward-only M6.25 raw SPINE feature acquisition amendment
+  repo: helianthus-execution-plans
+  milestone: M6.25
+  complexity: 7
+  docs_owner: helianthus-execution-plans
+  doc_gate: none
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: supersede only through a later append-only amendment
+  review_ledger: one focused architecture and DAG review
+  tdd_mode: plan_preflight
+  smoke_scope: plan validator, DAG, protected-history, canonical JSON, and anti-leak
+  acceptance_state: ready
+  acceptance:
+  - 100-topology-audit.md is byte-identical to the protected anchor
+  - M0-M6 history remains valid and M6.25 is additive
+  - historical framework and synthetic rows cannot unlock the live chain
+  - M9 requires MSP-085-LIVE-R1 and promoted_leaf_count greater than zero
+  requires_completion_tokens:
+  - MSP-06
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-DOCS-E
+  title: Freeze M6.25 SPINE function-data, runtime, and API contract
+  repo: helianthus-docs-eebus
+  milestone: M6.25
+  complexity: 8
+  docs_owner: helianthus-docs-eebus
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: withdraw M6.25 candidate docs without changing M6 stable docs
+  review_ledger: protocol/runtime/API contract review
+  tdd_mode: docs_schema_red_green
+  smoke_scope: full READ/WRITE schema, exclusions, auth, FSM, recovery, and anti-leak
+  acceptance_state: proposed
+  acceptance:
+  - raw means canonical typed SPINE function-data and never arbitrary frames or headers
+  - full READ and full WRITE only; partial, selectors, filterDelete, and invoke are rejected
+  - exact five M6.25 tool suffixes remain under the single unreleased eebus.v1 namespace
+  requires_completion_tokens:
+  - MSP-0625-PLAN
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-SPINE
+  title: Add atomic correlated SPINE round-trip
+  repo: helianthus-spine-go
+  milestone: M6.25
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: remove round-trip API and retain existing asynchronous SPINE behavior
+  review_ledger: correlation, cancellation, disconnect, and race review
+  tdd_mode: strict_red_green
+  smoke_scope: callback-before-send synchronous reply plus terminal cleanup and race tests
+  acceptance_state: proposed
+  acceptance:
+  - callback registration completes before send
+  - synchronous reply during send is correlated exactly once
+  - success, send failure, timeout, cancellation, disconnect, and late reply clean callbacks
+  - connection-generation-bound monotonic keys and tombstones prevent late-reply ABA reuse
+  - ship-go remains unchanged
+  requires_completion_tokens:
+  - MSP-0625-DOCS-E
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-EEBUS
+  title: Add exact full READ/WRITE feature executor
+  repo: helianthus-eebus-go
+  milestone: M6.25
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/protocols
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: remove exact executor and preserve M6 topology behavior
+  review_ledger: SPINE function and possible-operations review
+  tdd_mode: strict_red_green
+  smoke_scope: typed full READ/WRITE, remote errors, and unsupported-operation zero-send
+  acceptance_state: proposed
+  acceptance:
+  - exact feature and function selection is deterministic
+  - only full READ and full WRITE requests are emitted
+  - partial, selectors, filterDelete, and invoke emit zero frames
+  requires_completion_tokens:
+  - MSP-0625-SPINE
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-REG-EXEC
+  title: Add RawFeatureRuntimeV1 typed acquisition executor
+  repo: helianthus-eebusreg
+  milestone: M6.25
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable RawFeatureRuntimeV1 while retaining M6 raw snapshots
+  review_ledger: DTO, epoch/generation, read-token, and bounded-concurrency review
+  tdd_mode: strict_red_green
+  smoke_scope: typed read DTOs, durable epoch, generation mismatch zero-frame, and JCS
+  acceptance_state: proposed
+  acceptance:
+  - durable runtime_epoch and monotonic connection_generation bind every operation
+  - features.data.get returns canonical typed data plus a bound read_token
+  - stale token or session binding emits zero frames
+  - JCS request and result hashes are deterministic
+  requires_completion_tokens:
+  - MSP-0625-EEBUS
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-REG-MUT
+  title: Add durable bounded mutation coordinator
+  repo: helianthus-eebusreg
+  milestone: M6.25
+  complexity: 10
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable new mutations, recover or quarantine every durable nonterminal record
+  review_ledger: WAL/FSM, lease, CAS, idempotency, constraints, recovery, and audit review
+  tdd_mode: strict_red_green
+  smoke_scope: crash every transition, probe restart rollback, conflict, outcome-unknown, and concurrent writers
+  acceptance_state: proposed
+  acceptance:
+  - one global runtime writer lease serializes writes and rollbacks
+  - idempotency is scoped by runtime epoch, principal, tool, and key
+  - known constraints and changeability fail before dispatch
+  - constraints_unknown requires an exact versioned lab profile allowlist
+  - a fresh full READ under the writer lease guards the current value and mismatch emits zero WRITE frames
+  - ACK or send success alone is never applied
+  - full read-after-write and read-after-rollback are mandatory
+  - probe TTL survives restart and rollback conflict quarantines writes
+  - rollback_intent restart reacquires the lease and verifies current value before rollback dispatch
+  - outcome_unknown converges by readback without blind resend
+  requires_completion_tokens:
+  - MSP-0625-REG-EXEC
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-GW-ROUTER
+  title: Add EEBusCommandRouter policy boundary
+  repo: helianthus-ebusgateway
+  milestone: M6.25
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/architecture
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: unregister EEBusCommandRouter and retain M6 read-only provider
+  review_ledger: gateway routing, auth order, and eBUS no-drift review
+  tdd_mode: strict_red_green
+  smoke_scope: public zero-contact denial, owner-local routing, and eBUS regression
+  acceptance_state: proposed
+  acceptance:
+  - all M6.25 writes pass through EEBusCommandRouter
+  - no entity adapter or MCP handler writes directly
+  - public denial precedes provider, router, runtime, connection, and remote contact
+  - existing eBUS routing and consumers do not drift
+  requires_completion_tokens:
+  - MSP-0625-REG-MUT
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-GW-MCP
+  title: Register exact M6.25 eebus.v1 tools
+  repo: helianthus-ebusgateway
+  milestone: M6.25
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: unregister the five M6.25 tools without changing M6 tools
+  review_ledger: MCP schema, scope, error precedence, and anti-leak review
+  tdd_mode: strict_red_green
+  smoke_scope: exact tool inventory, read/write scopes, AF_UNIX write gate, JCS, and anti-leak
+  acceptance_state: proposed
+  acceptance:
+  - the M6.25 suffix set is exactly features.get, features.data.get, features.data.set, mutations.get, mutations.rollback
+  - only the single unreleased eebus.v1 namespace is used
+  - eebus.raw.read and eebus.raw.write scopes are enforced
+  - write and rollback require owner-authorized AF_UNIX
+  - integrated public denial causes zero provider, router, runtime, connection, and remote contact
+  - no v2, aliases, candidate_ref, semantics, GraphQL, Portal, or HA surface appears
+  requires_completion_tokens:
+  - MSP-0625-GW-ROUTER
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-LAB
+  title: Prove live typed acquisition and bounded rollback
+  repo: helianthus-docs-eebus
+  milestone: M6.25
+  complexity: 10
+  docs_owner: helianthus-docs-eebus/evidence
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable write scope and preserve public-safe failed evidence
+  review_ledger: live safety, recovery, privacy, and evidence review
+  tdd_mode: strict_red_green
+  smoke_scope: live READ, reversible WRITE, readback, restart probe rollback, conflict, and anti-leak
+  acceptance_state: proposed
+  acceptance:
+  - public-safe evidence proves full typed READ without exposing restricted material
+  - bounded lab WRITE is verified by READ and then restored by verified rollback
+  - restart during probe TTL still rolls back or quarantines on conflict
+  - public denial at the registered tool boundary proves zero provider, router, runtime, connection, and remote contact
+  - public, ebus.v1, semantic, GraphQL, Portal, and HA anti-leak checks pass
+  requires_completion_tokens:
+  - MSP-0625-GW-MCP
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-DOCS-P
+  title: Cross-seed thin public acquisition methodology
+  repo: helianthus-docs-ebus
+  milestone: M6.25
+  complexity: 5
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: remove the cross-seed while retaining protocol-native docs
+  review_ledger: ownership, methodology-only, and privacy review
+  tdd_mode: docs_manifest_contract
+  smoke_scope: thin methodology cross-seed, ownership manifest, links, and anti-leak
+  acceptance_state: proposed
+  acceptance:
+  - only language-neutral acquisition and evidence methodology is cross-seeded
+  - no protocol-native duplication or restricted material is published
+  - this row does not block MSP-0625-SPINE
+  requires_completion_tokens:
+  - MSP-0625-DOCS-E
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
 - id: MSP-065
-  title: Add synchronized evidence recorder
+  title: Preserve historical synchronized evidence recorder framework
   repo: helianthus-ebusgateway
   milestone: M6.5
   complexity: 8
@@ -1438,7 +1709,7 @@ issues:
   review_ledger: evidence/privacy review
   tdd_mode: strict_red_green
   smoke_scope: redacted synchronized replay
-  acceptance_state: proposed
+  acceptance_state: framework_complete
   acceptance:
   - existing read-only eBUS surfaces only
   - replay uses captured timestamps and regenerates redacted hashes
@@ -1449,7 +1720,7 @@ issues:
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
 - id: MSP-07
-  title: Add draft candidate fact graph
+  title: Preserve historical synthetic draft candidate fact graph
   repo: helianthus-ebusgateway
   milestone: M7
   complexity: 8
@@ -1461,7 +1732,7 @@ issues:
   review_ledger: semantic candidate review
   tdd_mode: strict_red_green
   smoke_scope: candidate-only no consumer exposure
-  acceptance_state: proposed
+  acceptance_state: synthetic_only
   acceptance:
   - no candidate fact reaches consumers
   - negative states remain withheld raw/debug only
@@ -1472,7 +1743,7 @@ issues:
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
 - id: MSP-08
-  title: Prove multi-runtime coexistence
+  title: Preserve historical synthetic multi-runtime coexistence
   repo: helianthus-ebusgateway
   milestone: M8
   complexity: 10
@@ -1484,7 +1755,7 @@ issues:
   review_ledger: coexistence architecture review
   tdd_mode: strict_red_green
   smoke_scope: EEBUS-G18 no drift only
-  acceptance_state: proposed
+  acceptance_state: synthetic_only
   acceptance:
   - eBUS promoted leaves remain authoritative
   - existing GraphQL/HA/MCP outputs do not drift
@@ -1495,7 +1766,7 @@ issues:
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
 - id: MSP-085
-  title: Lock per-leaf promotion dossiers
+  title: Preserve historical zero-leaf promotion closure
   repo: helianthus-ebusgateway
   milestone: M8.5
   complexity: 9
@@ -1507,12 +1778,123 @@ issues:
   review_ledger: leaf-promotion lock review
   tdd_mode: strict_red_green
   smoke_scope: per-leaf dossier replay and redacted hashes
-  acceptance_state: proposed
+  acceptance_state: synthetic_only
   acceptance:
   - every promoted leaf has a locked dossier
   - mutable leaves satisfy lab lease and rollback requirements
   requires_completion_tokens:
   - MSP-08
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-065-LIVE-R1
+  title: Complete live synchronized evidence recorder revision 1
+  repo: helianthus-ebusgateway
+  milestone: M6.5-LIVE-R1
+  complexity: 9
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: required
+  rollback_ledger: disable live recorder while preserving historical framework evidence
+  review_ledger: synchronized live evidence and privacy review
+  tdd_mode: strict_red_green
+  smoke_scope: synchronized live eeBUS, eBUS, and cloud replay
+  acceptance_state: proposed
+  acceptance:
+  - direct M6.25 typed values feed synchronized capture
+  - existing read-only eBUS surfaces are used without a new capture path
+  - replay uses captured timestamps and regenerates public-safe hashes
+  requires_completion_tokens:
+  - MSP-0625-LAB
+  - MSP-0625-DOCS-P
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-07-LIVE-R1
+  title: Build live draft candidate fact graph revision 1
+  repo: helianthus-ebusgateway
+  milestone: M7-LIVE-R1
+  complexity: 8
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: disable live candidate graph and retain raw evidence
+  review_ledger: live candidate provenance and no-consumer review
+  tdd_mode: strict_red_green
+  smoke_scope: live candidate facts with direct observations and no exposure
+  acceptance_state: proposed
+  acceptance:
+  - candidate values derive from direct synchronized observations
+  - no candidate fact reaches consumers
+  - negative states remain withheld raw/debug only
+  requires_completion_tokens:
+  - MSP-065-LIVE-R1
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-08-LIVE-R1
+  title: Prove live multi-runtime coexistence revision 1
+  repo: helianthus-ebusgateway
+  milestone: M8-LIVE-R1
+  complexity: 10
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: none
+  rollback_ledger: disable live candidate graph while retaining M6 raw runtime
+  review_ledger: live coexistence and no-drift architecture review
+  tdd_mode: strict_red_green
+  smoke_scope: live EEBUS-G18 with existing eBUS and consumer no-drift
+  acceptance_state: proposed
+  acceptance:
+  - live eBUS and eeBUS coexist with separate raw surfaces
+  - eBUS promoted leaves remain authoritative
+  - existing GraphQL, Portal, HA, and MCP outputs do not drift
+  requires_completion_tokens:
+  - MSP-07-LIVE-R1
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-085-LIVE-R1
+  title: Lock live per-leaf promotion dossiers revision 1
+  repo: helianthus-ebusgateway
+  milestone: M8.5-LIVE-R1
+  complexity: 9
+  docs_owner: helianthus-docs-ebus/docs/platform
+  doc_gate: required
+  transport_gate: none
+  security_gate: none
+  rollback_ledger: demote affected live leaves before consumer exposure
+  review_ledger: live per-leaf promotion lock review
+  tdd_mode: strict_red_green
+  smoke_scope: direct-evidence dossier replay, public-safe hashes, and promoted-leaf count
+  acceptance_state: proposed
+  acceptance:
+  - every promoted leaf has direct live evidence and a locked dossier
+  - mutable leaves satisfy lab lease and verified rollback requirements
+  - completion token carries a JCS digest-bound machine-checkable promoted_leaf_count greater than zero
+  completion_token_contract:
+    schema: helianthus.m625-live-promotion
+    version: 1
+    milestone_id: MSP-085-LIVE-R1
+    canonicalization: RFC8785_JCS
+    digest: SHA-256
+    digest_bound_fields:
+    - milestone_id
+    - promoted_leaf_count
+    - promotion_dossier_root
+    - evidence_root
+    promoted_leaf_count:
+      type: integer
+      exclusive_minimum: 0
+  requires_completion_tokens:
+  - MSP-08-LIVE-R1
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -1535,7 +1917,13 @@ issues:
   - GraphQL exposes promoted leaves only
   - schema/value before-after artifacts show no unrelated drift
   requires_completion_tokens:
-  - MSP-085
+  - MSP-085-LIVE-R1
+  unlock_predicate:
+    completion_token: MSP-085-LIVE-R1
+    digest_bound: true
+    field: promoted_leaf_count
+    operator: greater_than
+    value: 0
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -1559,6 +1947,13 @@ issues:
   - Portal can show raw/debug provenance for operators
   requires_completion_tokens:
   - MSP-09A
+  - MSP-085-LIVE-R1
+  unlock_predicate:
+    completion_token: MSP-085-LIVE-R1
+    digest_bound: true
+    field: promoted_leaf_count
+    operator: greater_than
+    value: 0
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -1583,6 +1978,13 @@ issues:
   requires_completion_tokens:
   - MSP-09A
   - MSP-09B
+  - MSP-085-LIVE-R1
+  unlock_predicate:
+    completion_token: MSP-085-LIVE-R1
+    digest_bound: true
+    field: promoted_leaf_count
+    operator: greater_than
+    value: 0
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -1607,6 +2009,13 @@ issues:
   requires_completion_tokens:
   - MSP-09A
   - MSP-09C
+  - MSP-085-LIVE-R1
+  unlock_predicate:
+    completion_token: MSP-085-LIVE-R1
+    digest_bound: true
+    field: promoted_leaf_count
+    operator: greater_than
+    value: 0
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest

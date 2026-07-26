@@ -1,6 +1,6 @@
 # eeBUS VR940f Raw-First Track
 
-Canonical-SHA256: `258e75ba6e0aaa784f00e8e4acd34bd727fc2c5d6ab32bdbd39083d34bb6357a`
+Canonical-SHA256: `1e1b4c67d294f6b2d9cdd9420632bf8d0fa83cab916c1da57411d593e6c29e87`
 
 Depends on:
 `10-platform-taxonomy-and-boundaries.md`, the gateway `0.4.0` baseline
@@ -22,7 +22,7 @@ services, topology, raw evidence, trust state, and deterministic snapshots
 through MCP, then restart and verify stable raw state without promoting a
 single semantic field.
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 
 Coverage:
 Covers recovery reconciliation, M3 completion, M3.5 through M8.5 for eeBUS raw
@@ -272,9 +272,55 @@ previously issued ref lifecycle, backend reachability/latency, then impossible
 internal invariant break. `snapshot.drop` returns `dropped` or `already_gone`
 and never `not_found`.
 
+## M6.25 Raw SPINE Function-Data Contract
+
+Topology is not data acquisition. For M6.25, `raw` is canonical typed SPINE
+function-data only; it is never arbitrary SHIP/SPINE frames, headers, trust
+material, or transport transcripts.
+
+The new tool suffixes under the one unreleased `eebus.v1` namespace are exactly
+`features.get`, `features.data.get`, `features.data.set`, `mutations.get`, and
+`mutations.rollback`. M6.25 adds no aliases, v2 namespace, candidate reference,
+semantic projection, GraphQL, Portal, or Home Assistant surface.
+
+Only full READ and full WRITE are supported. Partial operations, selectors,
+`filterDelete`, and invoke fail before provider lookup or remote contact.
+`eebus.raw.read` authorizes discovery/read/status. `eebus.raw.write` authorizes
+write/rollback only on the owner-controlled `AF_UNIX` surface. Public/LAN
+denial has zero provider, router, runtime, connection, or remote calls.
+
+The call path is MCP -> gateway `EEBusCommandRouter` -> eebusreg
+`RawFeatureRuntimeV1` and coordinator -> eebus-go exact feature executor ->
+spine-go atomic correlated round-trip -> existing SHIP. `ship-go` is unchanged.
+spine-go registers a connection-generation-bound monotonic key and callback
+before send, tombstones retired keys against late-reply ABA reuse, and removes
+the live callback after reply, send failure, timeout, cancellation, disconnect,
+or remote error.
+
+eebusreg persists `runtime_epoch`, `connection_generation`, typed DTOs, WAL/FSM
+transitions, one global writer lease, CAS/read tokens, idempotency scoped by
+runtime/principal/tool/key, constraints, and public-safe audit commitments.
+Epoch/generation or read-token mismatch emits zero frames. Constraints and
+changeability fail closed; `constraints_unknown` requires an exact versioned
+lab profile allowlist. Under the writer lease, a fresh full READ guards the
+token's before-image immediately before dispatch; mismatch emits zero WRITE
+frames.
+
+A correlated reply is not an applied value. Full READ-after-WRITE must verify
+the requested canonical typed value, and full READ-after-rollback must verify
+the before-image. Probe TTL is durable across restart. A conflict quarantines
+writes. A possible send without trustworthy observation enters
+`outcome_unknown` and converges by readback without blind resend.
+Recovery from durable `rollback_intent` reacquires the lease, rebinds the
+runtime/session, and verifies current value before any rollback dispatch.
+
+The complete state machine, recovery table, DAG, and falsification matrix are
+locked in `118-w30-26-m625-raw-spine-feature-acquisition.md`.
+
 ## Evidence And Candidate Facts
 
-M6.5 records synchronized eeBUS, eBUS, and myVaillant/myPyllant evidence using
+M6.5 live revision 1 records synchronized eeBUS, eBUS, and
+myVaillant/myPyllant evidence using
 existing read-only eBUS debug, MCP, or log surfaces only. If exact
 B509/B524/B555 source identity is absent, the leaf is `WITHHELD` or
 `NOT_TESTED`; no inferred register identity, log-scraping guess, or new eBUS
@@ -284,9 +330,11 @@ Recorder acceptance requires one capture clock, monotonic timestamps for eBUS,
 eeBUS, and cloud observations, measured max drift/latency, pre/action/post
 windows bound to that clock, and replay using captured timestamps only.
 
-M7 creates draft candidate facts only. M8 proves coexistence. M8.5 locks leaf
-promotion after coexistence evidence exists. Feature graph completeness and
-reconnect durability are MSP-055/M6 concerns, not G17 acceptance.
+M7 live revision 1 creates draft candidate facts only. M8 live revision 1
+proves coexistence. M8.5 live revision 1 locks leaf promotion after coexistence
+evidence exists. Historical MSP-065/MSP-07/MSP-08/MSP-085 framework or
+synthetic closures cannot satisfy those live rows. Feature graph completeness
+and reconnect durability are MSP-055/M6 concerns, not G17 acceptance.
 
 Each Leaf Promotion Dossier includes:
 

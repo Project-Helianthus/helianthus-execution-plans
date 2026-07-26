@@ -2,8 +2,8 @@
 
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
-Current milestone: `M5_PRODUCTION_PREREQUISITES`
-Amendment: `MSP-05B gateway lifecycle prerequisite correction`
+Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
+Amendment: `M6.25 raw SPINE feature acquisition`
 
 | Milestone | Primary repo(s) | Depends on | Gate |
 | --- | --- | --- | --- |
@@ -14,15 +14,16 @@ Amendment: `MSP-05B gateway lifecycle prerequisite correction`
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
 | M5 - Production Prerequisites And Gateway Sidecar Integration | helianthus-docs-eebus, helianthus-ship-go, helianthus-eebus-go, helianthus-eebusreg, helianthus-ebusgateway | M4.5 and M5A | Freeze activation contract, implement exact-address SHIP plus independent mDNS policy, thread it through eebus-go, install protected identity and real runtime construction, map gateway config losslessly, harden process-exit and remote canonicalization, then add the disabled-by-default sidecar. |
 | M6 - Read-Only eeBUS MCP v1 | helianthus-ebusgateway | M5 | Read-only `eebus.v1.*` tools pass deterministic snapshot/hash/auth/error/anti-leak tests. |
-| M6.5 - Synchronized Evidence Recorder | helianthus-ebusgateway | M6 | Recorder captures synchronized eeBUS/eBUS/myVaillant bundles using existing read-only eBUS surfaces only. |
-| M7 - Draft Candidate Fact Graph | helianthus-ebusgateway | M6.5 | Candidate facts exist with raw evidence and no promotion or consumer exposure. |
-| M8 - Multi-Runtime Coexistence | helianthus-ebusgateway | M7 | EEBUS-G18 proves eBUS and eeBUS coexist with separate raw surfaces and no existing consumer drift. |
-| M8.5 - Leaf Promotion Lock | helianthus-ebusgateway | M8 | Per-leaf dossiers are locked after coexistence evidence. |
-| M9 - GraphQL, Portal, And HA Consumers | helianthus-ebusgateway, helianthus-ha-integration, helianthus-ha-addon | M8.5 | Consumers expose only promoted leaves and preserve existing eBUS/HA identity. |
+| M6.25 - Raw SPINE Feature Acquisition | execution-plans, docs-eebus, spine-go, eebus-go, eebusreg, gateway, docs-ebus | M6 | Full typed READ/WRITE only through router/coordinator/executor/round-trip path; no arbitrary frames, partial/selective operations, invoke, semantics, or consumers. |
+| M6.5-LIVE-R1 - Synchronized Evidence Recorder | helianthus-ebusgateway | MSP-0625-LAB and MSP-0625-DOCS-P | Recorder captures synchronized live eeBUS/eBUS/cloud evidence. Historical framework closure is insufficient. |
+| M7-LIVE-R1 - Draft Candidate Fact Graph | helianthus-ebusgateway | M6.5-LIVE-R1 | Candidate facts exist from direct observations with no promotion or consumer exposure. |
+| M8-LIVE-R1 - Multi-Runtime Coexistence | helianthus-ebusgateway | M7-LIVE-R1 | Live coexistence proves no existing consumer drift. |
+| M8.5-LIVE-R1 - Leaf Promotion Lock | helianthus-ebusgateway | M8-LIVE-R1 | Per-leaf dossiers are locked after live coexistence evidence. |
+| M9 - GraphQL, Portal, And HA Consumers | helianthus-ebusgateway, helianthus-ha-integration, helianthus-ha-addon | M8.5-LIVE-R1 and a JCS digest-bound `promoted_leaf_count > 0` claim | Consumers expose only promoted leaves and preserve existing eBUS/HA identity. |
 
 ## Parallelism
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 
 AD-DOCS-02 inserts serial PLATFORM, PUBLISH, and issue-backed AGGREGATE gates.
 Historical readiness snapshot,
@@ -50,11 +51,14 @@ MSP-DOCS-API-CANDIDATE merges the exact-head candidate first. MSP-055 then
 passes exact-match, candidate-state, expiry, and no-active-cleanup gates, and
 MSP-DOCS-API-FREEZE runs before MSP-04B. M4.5 and M5A are now complete.
 
-The sole current ready row is MSP-05A-R2. The production runtime, pre-release
-API v1 correction, and gateway mapping are complete; lifecycle error propagation
-and canonical remote identity must close before MSP-05B.
-MCP, evidence, candidate, coexistence, promotion, and consumer work remain
-downstream.
+The sole current ready row is `MSP-0625-PLAN`. M5 and M6 are complete.
+M6.25 serializes spine-go, eebus-go, eebusreg, and gateway code by repository.
+`MSP-0625-DOCS-P` may proceed after `MSP-0625-DOCS-E` without blocking
+`MSP-0625-SPINE`, but both `MSP-0625-LAB` and `MSP-0625-DOCS-P` must complete
+before `MSP-065-LIVE-R1`.
+
+Historical M6.5-M8.5 rows remain preserved as framework/synthetic evidence with
+zero promoted leaves. They do not satisfy the live chain.
 
 ## Review Checkpoints
 

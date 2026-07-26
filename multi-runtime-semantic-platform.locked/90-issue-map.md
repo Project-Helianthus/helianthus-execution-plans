@@ -2,19 +2,17 @@
 
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
-Current milestone: `M5_PRODUCTION_PREREQUISITES`
-Accepted through: `MSP-05A-R1 with M4.5 trust and admin state frozen`
-Successor unlocks: `only through the corrected production-prerequisite chain`
-Amendment: `MSP-05B gateway lifecycle prerequisite correction`
+Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
+Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
+Successor unlocks: `only through the M6.25 and live-completion chain`
+Amendment: `M6.25 raw SPINE feature acquisition`
 
-This map preserves historical evidence and records both M5B preflight NO-GO
-decisions. Runtime activation proceeds through the matrix-defined production
-prerequisites, with one active PR per repo and one `helianthus-eebusreg` PR at
-a time.
+This map preserves historical evidence and adds the M6.25/live-completion rows
+without rewriting M0-M6. One active PR per repo remains mandatory.
 
 ## Active Control Surface
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 This page deliberately does not duplicate active routing contracts, provider or
 model selections, or completion-token edges. The live matrix is the only
 source that can authorize a successor; its 107 audit is a deterministic,
@@ -39,14 +37,38 @@ complete projection for review.
 
 ## Hard Blockers
 
-- Direct `MSP-05B` dispatch is forbidden until `MSP-05A-R2` establishes one
-  process-exit boundary and canonical lowercase sorted remote identities.
-- Gateway configuration must not silently ignore, collapse, or alias interface,
-  subnet, certificate, key, trust-store, state-root, discovery, or pairing policy.
-- The disabled MSP-05B path must perform zero resolver, New, Start, and Shutdown
-  calls, and Start must not be represented as sustained readiness.
-- The sole ready row is `MSP-05A-R2`; the complete prerequisite chain is
-  authoritative only in the matrix and its deterministic topology audit.
+- The sole current ready row is `MSP-0625-PLAN`.
+- M6 topology and live counts do not prove canonical typed feature-data
+  acquisition.
+- Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` closure cannot
+  authorize any `*-LIVE-R1` row.
+- Public write denial must occur before every downstream contact.
+- M9 is blocked until `MSP-085-LIVE-R1` completes and
+  `promoted_leaf_count > 0`.
+
+## M6.25 Additive Rows
+
+| ID | Repo | Purpose | State |
+| --- | --- | --- | --- |
+| MSP-0625-PLAN | `helianthus-execution-plans` | Publish additive contract and DAG | ready |
+| MSP-0625-DOCS-E | `helianthus-docs-eebus` | Freeze SPINE data/operation, runtime, and API contract | proposed |
+| MSP-0625-SPINE | `helianthus-spine-go` | Atomic correlated callback-before-send round-trip | proposed |
+| MSP-0625-EEBUS | `helianthus-eebus-go` | Exact full READ/WRITE feature executor | proposed |
+| MSP-0625-REG-EXEC | `helianthus-eebusreg` | `RawFeatureRuntimeV1`, epochs, generations, DTOs, reads | proposed |
+| MSP-0625-REG-MUT | `helianthus-eebusreg` | WAL/FSM, lease, CAS, idempotency, rollback, audit | proposed |
+| MSP-0625-GW-ROUTER | `helianthus-ebusgateway` | Add `EEBusCommandRouter` policy boundary | proposed |
+| MSP-0625-GW-MCP | `helianthus-ebusgateway` | Register the exact five M6.25 tool suffixes | proposed |
+| MSP-0625-LAB | `helianthus-docs-eebus` | Public-safe live acquisition/mutation/rollback evidence | proposed |
+| MSP-0625-DOCS-P | `helianthus-docs-ebus` | Thin public methodology cross-seed | proposed |
+
+## Preserved Historical And Live Rows
+
+| Row family | Classification | Unlock authority |
+| --- | --- | --- |
+| `MSP-065` | `framework_complete` | none for live chain |
+| `MSP-07`, `MSP-08`, `MSP-085` | `synthetic_only` | none for live chain |
+| `MSP-065-LIVE-R1` -> `MSP-07-LIVE-R1` -> `MSP-08-LIVE-R1` -> `MSP-085-LIVE-R1` | proposed live chain | completion tokens only |
+| `MSP-09A` through `MSP-09D` | not started substantively | require live M8.5 plus positive promoted-leaf count |
 
 ## AD-DOCS-02 token chain
 
@@ -63,5 +85,4 @@ observations, authorize every active edge.
 - No `helianthus-eebusreg/docs/` on clean main and no substantive code-repo
   protocol, architecture, API, harness, test, or user documentation.
 - No gateway import before canonical docs and eebusreg contracts merge.
-- No GraphQL, Portal, HA, command routing, raw writes, or promoted semantics
-  before the later milestone and per-leaf lock.
+- No GraphQL, Portal, HA, or promoted semantics before the live per-leaf lock.

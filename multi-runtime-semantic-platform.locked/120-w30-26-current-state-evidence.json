@@ -1,0 +1,93 @@
+{
+  "binary": {
+    "architecture": "arm64",
+    "gateway_version": "0.6.32",
+    "process_file_hash_match": true,
+    "proof_classification": "screen_observed_public_safe",
+    "sha256": "d75f0ba8fd52671e5165f37e70bbeaa37ce27e90bd6acc8136145b08c4195cd9"
+  },
+  "ci": {
+    "docs_ebus": "passed",
+    "docs_eebus": "passed",
+    "eebus_go": "passed",
+    "eebusreg": "passed",
+    "gateway": "passed",
+    "proof_classification": "screen_observed_public_safe",
+    "ship_go": "passed",
+    "spine_go": "passed"
+  },
+  "counts": {
+    "devices": 1,
+    "distinct_use_case_names": 13,
+    "entities": 11,
+    "features": 20,
+    "proof_classification": "live_topology_public_safe",
+    "use_case_claims": 22
+  },
+  "proof_classification": {
+    "current_state": "screen_observed_requires_dispatch_reverification",
+    "milestone_history": "locked_plan_and_public_repository_evidence",
+    "promotion_state": "zero_promoted_leaves",
+    "restricted_material": "excluded"
+  },
+  "repositories": [
+    {
+      "ci": "passed",
+      "commit": "cfb9e17c3e045b2a53bd39afef2d33cd38326bc5",
+      "ref": "v0.6.1-helianthus.9",
+      "ref_kind": "tag",
+      "repository": "Project-Helianthus/helianthus-ship-go"
+    },
+    {
+      "ci": "passed",
+      "commit": "7383c108f72309c3636d896948d7a8de6d001708",
+      "ref": "v0.7.1-helianthus.4",
+      "ref_kind": "tag",
+      "repository": "Project-Helianthus/helianthus-spine-go"
+    },
+    {
+      "ci": "passed",
+      "commit": "298567a297eb8767f24e7ed228f979ed6500fc60",
+      "ref": "v0.7.1-helianthus.9",
+      "ref_kind": "tag",
+      "repository": "Project-Helianthus/helianthus-eebus-go"
+    },
+    {
+      "ci": "passed",
+      "commit": "7175bf777df9013af979bf76b51daa93e55bf873",
+      "ref": "v0.1.16",
+      "ref_kind": "tag",
+      "repository": "Project-Helianthus/helianthus-eebusreg"
+    },
+    {
+      "ci": "passed",
+      "commit": "a11a953f7392c44870374d1c29a148d4ebbc69b8",
+      "ref": "main",
+      "ref_kind": "branch",
+      "repository": "Project-Helianthus/helianthus-eebusreg"
+    },
+    {
+      "ci": "passed",
+      "commit": "34aac6d05075fae689815d21a5dabf2c5d3e2259",
+      "ref": "main",
+      "ref_kind": "branch",
+      "repository": "Project-Helianthus/helianthus-ebusgateway"
+    },
+    {
+      "ci": "passed",
+      "commit": "3c25767f63e8e14069f3a2308f2fd5d8998f5332",
+      "ref": "main",
+      "ref_kind": "branch",
+      "repository": "Project-Helianthus/helianthus-docs-eebus"
+    },
+    {
+      "ci": "passed",
+      "commit": "7b0dd0abba8bc3420f1d8d2bae2db5bc229b75f3",
+      "ref": "main",
+      "ref_kind": "branch",
+      "repository": "Project-Helianthus/helianthus-docs-ebus"
+    }
+  ],
+  "schema": "helianthus.m625-current-state-evidence",
+  "version": 1
+}

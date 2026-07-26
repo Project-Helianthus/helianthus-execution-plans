@@ -1,10 +1,10 @@
 slug: multi-runtime-semantic-platform
 title: Helianthus Multi-Runtime Semantic Platform
 state: locked
-cruise_phase: M5_PRODUCTION_PREREQUISITES
-amendment_count: 5
-amended_on: 2026-07-18
-amendment: MSP-05B gateway lifecycle prerequisite correction
+cruise_phase: M6_25_RAW_SPINE_FEATURE_ACQUISITION
+amendment_count: 6
+amended_on: 2026-07-26
+amendment: M6.25 raw SPINE feature acquisition
 source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
 target_repos:
   - helianthus-execution-plans
@@ -14,6 +14,7 @@ target_repos:
   - helianthus-ebusreg
   - helianthus-eebusreg
   - helianthus-ship-go
+  - helianthus-spine-go
   - helianthus-eebus-go
   - helianthus-ha-integration
   - helianthus-ha-addon
@@ -26,19 +27,19 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-12
 locked_on: 2026-07-10
-current_milestone: M5_PRODUCTION_PREREQUISITES
+current_milestone: M6_25_RAW_SPINE_FEATURE_ACQUISITION
 accepted_adversarial_rounds: 5
-accepted_through: MSP-05A-R1 with M4.5 trust and admin state frozen
+accepted_through: M6 raw topology and privacy boundary with zero promoted leaves
 m3_status: closed
 msp_03d_status: closed
 dirty_rescue_candidate: false
 successor_unlocks: true
-successor_unlock_condition: production prerequisites complete through MSP-05A-R2
+successor_unlock_condition: M6.25 live DAG completes through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
 initial_ready_set:
-  - MSP-05A-R2
+  - MSP-0625-PLAN
 routing_policy:
   resolver: canonical
   policy_digest: required_at_dispatch
