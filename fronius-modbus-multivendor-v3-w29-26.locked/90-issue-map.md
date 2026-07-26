@@ -1,8 +1,9 @@
 # Executable issue map
 
 Each row is one future executable issue owned by exactly one repository. The existing
-`.github` governance issue creates the four planned repositories; destination bootstrap
-rows depend on it and run only after each repository exists. This draft creates none.
+`.github` governance issue creates the two public Modbus repositories; their destination
+bootstrap rows depend on it and run only after each repository exists. Private repository
+creation/bootstrap remains deferred to M0-04/M0-05 under future explicit authorization.
 This map contains 43 issues. Milestones are groupings only.
 
 Conditional outcomes are additional to dependency completion:
@@ -33,11 +34,11 @@ active PR per repository.
 
 | ID | Milestone | Repo | Depends on | What | Acceptance | Gates | Rollback |
 |---|---|---|---|---|---|---|---|
-| FMV3-M0-01 | M0 | Project-Helianthus/.github | - | Create four planned repositories | Governance creates both public Modbus and both private binding repos with intended visibility and no product code | governance, licensing, security | Remove only unused erroneous repo; otherwise correct governance |
+| FMV3-M0-01 | M0 | Project-Helianthus/.github | - | Create two public Modbus repositories | Governance creates empty public modbus/modbusreg repos with no Git objects, default branch, bootstrap content, or product code; private creation remains deferred | governance, licensing, security | Remove only unused erroneous repo; otherwise correct governance |
 | FMV3-M0-02 | M0 | Project-Helianthus/helianthus-modbus | FMV3-M0-01 | Bootstrap existing public Modbus runtime repo | After existence, license, Go module, ownership, CI, and read-only scope exist | governance, licensing, CI | Remove unused empty bootstrap; otherwise deprecate |
 | FMV3-M0-03 | M0 | Project-Helianthus/helianthus-modbusreg | FMV3-M0-01 | Bootstrap existing public multi-profile repo | After existence, license, Go module, ownership, CI, and no-per-vendor-repo policy exist | governance, licensing, CI | Remove unused empty bootstrap; otherwise deprecate |
-| FMV3-M0-04 | M0 | Project-Helianthus/helianthus-eebus-binding-private | FMV3-M0-01 | Bootstrap existing private eeBUS binding repo | After existence, private access/license, CI, public-only dependencies, and generic scope exist | governance, licensing, security | Remove unused bootstrap or disable access |
-| FMV3-M0-05 | M0 | Project-Helianthus/helianthus-matter-binding-private | FMV3-M0-01 | Bootstrap existing private Matter binding repo | After existence, private access/license, CI, public-only dependencies, and M6 independence exist | governance, licensing, security | Remove unused bootstrap or disable access |
+| FMV3-M0-04 | M0 | Project-Helianthus/helianthus-eebus-binding-private | FMV3-M0-01 | Under future authorization, create/bootstrap private eeBUS binding repo | Governance creates the empty private repo, then private access/license, CI, public-only dependencies, and generic scope are established | governance, licensing, security | Remove unused bootstrap or disable access |
+| FMV3-M0-05 | M0 | Project-Helianthus/helianthus-matter-binding-private | FMV3-M0-01 | Under future authorization, create/bootstrap private Matter binding repo | Governance creates the empty private repo, then private access/license, CI, public-only dependencies, and M6 independence are established | governance, licensing, security | Remove unused bootstrap or disable access |
 | FMV3-M0-06 | M0 | Project-Helianthus/helianthus-docs-ebus | - | Publish ownership and licensing boundaries | Layers, standard/overlay split, claims, clean-room intake, import direction, and write deferral are documented | doc_gate, licensing | Revert before lock; otherwise correct forward |
 | FMV3-M1-00 | M1 | Project-Helianthus/helianthus-docs-ebus | FMV3-M0-02, FMV3-M0-06 | Publish one bounded M1/M2 companion contract | Docs define FC03/FC04/FC2B-MEI0E plus bounded Device Identification on TCP/RTU; preserve provable_zero, partial_write, indeterminate_error, cancellation_race, ambiguous_completion and separate full_transmit_success -> response_wait recovery, coalescing, RTU qualification, and M2 contracts | doc_gate, licensing, protocol_interop | Correct before implementation; later version forward |
 | FMV3-M1-01 | M1 | Project-Helianthus/helianthus-modbus | FMV3-M0-02, FMV3-M1-00 | Implement strict read-only Modbus protocol core | RED tests cover exact FC03/FC04/FC2B-MEI0E allowlist, register provenance, Device Identification conformity/object/segmentation/bounds/exceptions/malformed responses, and no profile semantics | TDD_RED, CI, doc_gate companion FMV3-M1-00, transport_gate, security | Revert unpublished API or correct compatibly |

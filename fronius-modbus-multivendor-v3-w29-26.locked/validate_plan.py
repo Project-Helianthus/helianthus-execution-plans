@@ -112,7 +112,9 @@ def validate(root: Path) -> tuple[int, int]:
     missing_keys = REQUIRED_KEYS - set(plan)
     require(not missing_keys, f"plan.yaml missing keys: {sorted(missing_keys)}")
     require(plan["slug"] == "fronius-modbus-multivendor-v3-w29-26", "slug mismatch")
-    require(plan["state"] == "locked", "state must be locked")
+    supported_states = {"locked", "implementing", "maintenance"}
+    require(plan["state"] in supported_states, "state must be locked, implementing, or maintenance")
+    require(root.name == f"{plan['slug']}.{plan['state']}", "directory suffix/state mismatch")
     require(plan["lock_authorized"] is True, "lock_authorized must be true")
     authorized_issues = [
         "FMV3-M0-01", "FMV3-M0-02", "FMV3-M0-03", "FMV3-M0-06",
@@ -130,18 +132,11 @@ def validate(root: Path) -> tuple[int, int]:
         "repository_creation_authorized": True,
         "repository_creation_targets": {
             "public": ["helianthus-modbus", "helianthus-modbusreg"],
-            "private_create_only": [
-                "helianthus-eebus-binding-private",
-                "helianthus-matter-binding-private",
-            ],
+            "private": [],
         },
-        "authorization_basis": [
-            "The operator explicitly named helianthus-eebus-binding-private and helianthus-matter-binding-private as generic private binding targets.",
-            "The operator authorized autonomous full-access execution without intermediate approval prompts.",
-        ],
+        "private_repository_creation": "deferred_requires_future_explicit_authorization",
         "implementation_authorized": True,
         "issue_commit_push_authorized": True,
-        "creates_but_does_not_bootstrap_private_repos": True,
         "deferred_issues": ["FMV3-M0-04", "FMV3-M0-05"],
         "stop_before_issue": "FMV3-M4-01",
         "gateway_work_authorized": False,
@@ -275,6 +270,38 @@ def validate(root: Path) -> tuple[int, int]:
     require(
         all(issue_id not in authorized_set for issue_id in ("FMV3-M0-04", "FMV3-M0-05", "FMV3-M4-01")),
         "private bootstrap or gateway issue entered the execution allowlist",
+    )
+    authorized_repo_map = {
+        "FMV3-M0-01": "Project-Helianthus/.github",
+        "FMV3-M0-02": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M0-03": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M0-06": "Project-Helianthus/helianthus-docs-ebus",
+        "FMV3-M1-00": "Project-Helianthus/helianthus-docs-ebus",
+        "FMV3-M1-01": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M1-02": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M1-03": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M1-04": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M2-01": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M2-02": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M2-03": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M3-01": "Project-Helianthus/helianthus-docs-ebus",
+        "FMV3-M3-02": "Project-Helianthus/helianthus-modbusreg",
+        "FMV3-M3-03": "Project-Helianthus/helianthus-modbusreg",
+    }
+    require(set(authorized_repo_map) == authorized_set, "authorized issue/repository map is incomplete")
+    require(
+        all(issues_by_id[issue_id]["repo"] == repo for issue_id, repo in authorized_repo_map.items()),
+        "authorized issue ownership differs from the exact execution map",
+    )
+    require(
+        all(repo != "Project-Helianthus/helianthus-ebusgateway" for repo in authorized_repo_map.values()),
+        "gateway-owned issue entered the authorized execution map",
+    )
+    m0_public = issues_by_id["FMV3-M0-01"]
+    require(
+        m0_public["acceptance"]
+        == "Governance creates empty public helianthus-modbus and helianthus-modbusreg repositories with no Git objects, default branch, bootstrap content, or product code; private repository creation remains deferred to FMV3-M0-04 and FMV3-M0-05 under future explicit authorization.",
+        "M0-01 public create-empty acceptance mismatch",
     )
     require(set(repo_owners.values()) == TARGET_REPOS, "every target repo must own at least one issue")
     companion = issues_by_id["FMV3-M1-00"]
@@ -499,7 +526,7 @@ def validate(root: Path) -> tuple[int, int]:
         require(f"Canonical-SHA256: `{digest}`" in mirror, f"{mirror_name} canonical hash mirror mismatch")
     status = (root / "99-status.md").read_text(encoding="utf-8")
     for line in (
-        "State: locked",
+        f"State: {plan['state']}",
         "Current milestone: M0",
         f"Review epoch: {epoch['number']}",
         f"Review state: {epoch['state']}",
@@ -509,13 +536,12 @@ def validate(root: Path) -> tuple[int, int]:
         "Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only",
         "Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative",
         "Repository creation authorized: yes, through FMV3-M0-01",
-        "Private repository action: create empty targets only; no bootstrap or product code",
+        "Private repository action: deferred; creation requires future explicit authorization",
         "Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only",
         "Gateway work authorized: no; stop before FMV3-M4-01",
         "Private bootstrap authorized: no; FMV3-M0-04 and FMV3-M0-05 deferred",
     ):
         require(line in status, f"status mismatch: {line}")
-    require(root.name == f"{plan['slug']}.locked", "directory suffix/state mismatch")
     validate_content_hygiene(root)
     return len(issues), len(milestones)
 def main() -> int:

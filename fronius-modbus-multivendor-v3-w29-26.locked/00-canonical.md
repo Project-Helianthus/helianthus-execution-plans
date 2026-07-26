@@ -16,11 +16,10 @@ The exact `authorized_issues` list in `plan.yaml` is the sole normative executio
 milestone names are non-authoritative grouping labels and do not authorize every issue in
 those milestones. The 2026-07-26 authorization covers FMV3-M0-01, M0-02, M0-03, M0-06,
 M1-00 through M1-04, M2-01 through M2-03, and M3-01 through M3-03 in `openai_only` mode.
-FMV3-M0-01 still creates all four repositories required by its locked acceptance contract.
-The operator had explicitly named both generic private binding targets and subsequently
-authorized autonomous full-access execution without intermediate approval prompts. The
-private repository actions are nevertheless create-empty only: bootstrap issues FMV3-M0-04
-and FMV3-M0-05 remain deferred, and no private binding implementation is authorized.
+FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
+`helianthus-modbusreg`. Private repository creation and bootstrap issues FMV3-M0-04 and
+FMV3-M0-05 remain deferred pending future explicit authorization; no private repository or
+private binding implementation is authorized in this wave.
 
 The hard stop is immediately before FMV3-M4-01. No gateway issue, branch, PR, import, or
 code change is authorized by this action. Repository creation, implementation issues,
@@ -31,9 +30,8 @@ subject to every locked dependency and gate.
 
 **Proven**
 
-- `Project-Helianthus/.github` is the existing organization-governance repository and is
-  the only issue host that can create all four planned repositories before destination
-  bootstrap work exists.
+- `Project-Helianthus/.github` is the existing organization-governance repository that
+  owns creation of the two public Modbus repositories in this execution wave.
 - The four planned repositories `helianthus-modbus`, `helianthus-modbusreg`,
   `helianthus-eebus-binding-private`, and `helianthus-matter-binding-private` do not
   have local checkouts at drafting time.
@@ -319,10 +317,12 @@ but never owns PDU framing.
 ### M0: governance and bootstrap
 
 The existing `Project-Helianthus/.github` governance repository owns one issue that creates
-all four planned repositories with intended visibility. Each destination then owns a
-separate bootstrap issue that depends on governance creation and runs only after that
-repository exists. Destination work sets license, module identity, ownership, CI, and
-dependency policy before product code. Documentation fixes layer/licensing boundaries.
+the two empty public Modbus repositories. Each public destination then owns a separate
+bootstrap issue that depends on governance creation and runs only after that repository
+exists. Private repository creation and bootstrap remain deferred to FMV3-M0-04 and
+FMV3-M0-05 under future explicit authorization. Destination work sets license, module
+identity, ownership, CI, and dependency policy before product code. Documentation fixes
+layer/licensing boundaries.
 After the public Modbus repository bootstrap and boundary-doc issue, the existing bounded
 companion issue FMV3-M1-00 publishes both the M1 Modbus protocol/read-only, TCP/RTU,
 scheduling/recovery, response-correct MBAP matching, socket-lifetime tombstone/generation

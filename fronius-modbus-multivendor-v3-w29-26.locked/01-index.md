@@ -1,6 +1,6 @@
 # Locked package index
 
-Canonical-SHA256: `19ce9e01857ff4bf0b391e7f6abeec50742050c2605fd369592b12c289f15e68`
+Canonical-SHA256: `91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e`
 
 | File | Purpose |
 |---|---|

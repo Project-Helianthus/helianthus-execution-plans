@@ -1,6 +1,6 @@
 # Roadmap gates and risks
 
-Canonical-SHA256: `19ce9e01857ff4bf0b391e7f6abeec50742050c2605fd369592b12c289f15e68`
+Canonical-SHA256: `91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e`
 
 Depends on: Chunks 10-12 and the issue DAG in `plan.yaml`.
 Scope: Milestone grouping, critical path, TDD, documentation and transport gates, hardware classes, rollback/recovery, review, and stop/go decisions.
@@ -81,9 +81,10 @@ reliable discrimination is unavailable. M8 starts after packaged FMV3-M5-08, con
 the coarse graph and critical path.
 
 No executable issue edits more than one repository. The existing `.github` governance
-issue creates four repositories; each destination bootstrap issue depends on creation and
-runs only after its repository exists. A consumer issue depends on the producing repository
-issue and consumes a versioned artifact or contract. This draft creates no repository.
+issue creates the two public Modbus repositories; each public destination bootstrap issue
+depends on creation and runs only after its repository exists. Private repository
+creation/bootstrap remains deferred under future explicit authorization. A consumer issue
+depends on the producing repository issue and consumes a versioned artifact or contract.
 The machine-readable per-repository mutex is owned by `cruise-topology` and
 `cruise-preflight` and permits at most one active issue and one active PR in each repository.
 The validator checks that declaration and required DAG edges without runtime scheduling simulation.

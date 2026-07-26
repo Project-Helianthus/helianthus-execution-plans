@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `19ce9e01857ff4bf0b391e7f6abeec50742050c2605fd369592b12c289f15e68`
+Canonical-SHA256: `91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -52,8 +52,10 @@ contracts. Public packages, CI, fixtures, docs, and release artifacts must build
 private access. A private discovery must be restated as sanitized, independently
 reviewable public evidence before it can affect a public profile or semantic contract.
 
-The `.github` M0 issue creates the four planned repositories. Each destination bootstrap
-issue depends on that governance issue and runs only after its repository exists.
+The `.github` M0 issue creates the two empty public Modbus repositories. Their destination
+bootstrap issues depend on that governance issue and run only after their repositories
+exist. Private repository creation and bootstrap remain deferred to FMV3-M0-04 and
+FMV3-M0-05 under future explicit authorization.
 Milestones group related issues but do not own code. Each issue row names exactly one
 repository. Cross-repository behavior is joined by explicit dependencies and versioned
 contracts, never by one issue editing multiple repositories.
@@ -244,7 +246,8 @@ profile code may request these operations but cannot frame them. No generic writ
 use. Write support requires a separate plan covering authorization, interlocks, device
 capability, value validation, confirmation, audit, timeout uncertainty, and recovery.
 
-M0 governance creates repositories before destination bootstrap; bootstraps record public
-and private licenses before code. Evidence intake records source,
+M0 governance creates public repositories before public destination bootstrap; deferred
+private issues create their repositories only under future explicit authorization and then
+record private licenses before code. Evidence intake records source,
 license/permission, transformation, applicability, and sanitization. Any unresolved IP
 or provenance question blocks the affected profile without blocking unrelated profiles.

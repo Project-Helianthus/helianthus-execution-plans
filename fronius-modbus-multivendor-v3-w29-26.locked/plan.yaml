@@ -27,13 +27,10 @@ execution_authorization:
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]
-    private_create_only: [helianthus-eebus-binding-private, helianthus-matter-binding-private]
-  authorization_basis:
-    - The operator explicitly named helianthus-eebus-binding-private and helianthus-matter-binding-private as generic private binding targets.
-    - The operator authorized autonomous full-access execution without intermediate approval prompts.
+    private: []
+  private_repository_creation: deferred_requires_future_explicit_authorization
   implementation_authorized: true
   issue_commit_push_authorized: true
-  creates_but_does_not_bootstrap_private_repos: true
   deferred_issues: [FMV3-M0-04, FMV3-M0-05]
   stop_before_issue: FMV3-M4-01
   gateway_work_authorized: false
@@ -52,7 +49,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: 19ce9e01857ff4bf0b391e7f6abeec50742050c2605fd369592b12c289f15e68
+canonical_sha256: 91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0
@@ -277,8 +274,8 @@ phase_gates:
   - id: PG-REPOSITORY-CREATION
     kind: dependency
     after_issues: [FMV3-M0-01]
-    before_issues: [FMV3-M0-02, FMV3-M0-03, FMV3-M0-04, FMV3-M0-05]
-    requirement: Existing governance creates all four planned repositories before any destination bootstrap issue runs.
+    before_issues: [FMV3-M0-02, FMV3-M0-03]
+    requirement: Existing governance creates both public Modbus repositories before either public destination bootstrap issue runs; private repository creation is deferred with FMV3-M0-04 and FMV3-M0-05 and requires future explicit authorization.
   - id: PG-MODBUS-BOOT
     kind: dependency
     after_issues: [FMV3-M0-02]
@@ -421,8 +418,8 @@ issues:
     milestone: M0
     repo: Project-Helianthus/.github
     depends_on: []
-    what: Create the four planned public/private repositories under organization governance.
-    acceptance: Governance creates helianthus-modbus, helianthus-modbusreg, helianthus-eebus-binding-private, and helianthus-matter-binding-private with intended visibility and no product code.
+    what: Create the two planned public Modbus repositories under organization governance.
+    acceptance: Governance creates empty public helianthus-modbus and helianthus-modbusreg repositories with no Git objects, default branch, bootstrap content, or product code; private repository creation remains deferred to FMV3-M0-04 and FMV3-M0-05 under future explicit authorization.
     gates: [governance, licensing, security]
     rollback: Remove only an unused empty repository created in error; once used, correct governance without rewriting history.
   - id: FMV3-M0-02
@@ -445,16 +442,16 @@ issues:
     milestone: M0
     repo: Project-Helianthus/helianthus-eebus-binding-private
     depends_on: [FMV3-M0-01]
-    what: Bootstrap the newly created generic private eeBUS output-binding repository.
-    acceptance: After repository existence is verified, private access, private license, CI, and a public-contract-only dependency policy exist; PV is the first slice, not repository scope.
+    what: Under future explicit authorization, create and bootstrap the generic private eeBUS output-binding repository.
+    acceptance: Governance first creates the empty private repository, then its destination issue establishes private access, private license, CI, and a public-contract-only dependency policy; PV is the first slice, not repository scope.
     gates: [governance, licensing, security]
     rollback: Remove an unused empty bootstrap or disable access before any artifact is distributed.
   - id: FMV3-M0-05
     milestone: M0
     repo: Project-Helianthus/helianthus-matter-binding-private
     depends_on: [FMV3-M0-01]
-    what: Bootstrap the newly created generic private Matter output-binding repository.
-    acceptance: After repository existence is verified, private access, private license, CI, and a public-contract-only dependency policy exist; M8 remains independent of M6.
+    what: Under future explicit authorization, create and bootstrap the generic private Matter output-binding repository.
+    acceptance: Governance first creates the empty private repository, then its destination issue establishes private access, private license, CI, and a public-contract-only dependency policy; M8 remains independent of M6.
     gates: [governance, licensing, security]
     rollback: Remove an unused empty bootstrap or disable access before any artifact is distributed.
   - id: FMV3-M0-06

@@ -1,6 +1,6 @@
 # Locked status
 
-Canonical-SHA256: `19ce9e01857ff4bf0b391e7f6abeec50742050c2605fd369592b12c289f15e68`
+Canonical-SHA256: `91e4ace673ce7c3f753cb856d7611d0c0d45b67831fac6b73ab72edfe6b21c6e`
 
 State: locked
 Current milestone: M0
@@ -12,7 +12,7 @@ Lock authorized: yes, for plan publication only
 Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
 Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative
 Repository creation authorized: yes, through FMV3-M0-01
-Private repository action: create empty targets only; no bootstrap or product code
+Private repository action: deferred; creation requires future explicit authorization
 Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
 Gateway work authorized: no; stop before FMV3-M4-01
 Private bootstrap authorized: no; FMV3-M0-04 and FMV3-M0-05 deferred
