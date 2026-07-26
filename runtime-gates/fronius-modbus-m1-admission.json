@@ -4,10 +4,13 @@
   "docs_pr": 374,
   "docs_repository": "Project-Helianthus/helianthus-docs-ebus",
   "required_check": "Modbus Trusted Revision",
+  "required_check_run_url": null,
   "required_check_verified_at": null,
   "schema": "helianthus.execution.modbus-m1-admission",
   "state": "BLOCKED_PENDING_DOCS_TRUST",
   "trust_anchor_commit": null,
   "trust_anchor_repository": "Project-Helianthus/helianthus-execution-plans",
+  "verification_head_sha": null,
+  "verification_pr": null,
   "version": 1
 }
