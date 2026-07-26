@@ -44,6 +44,19 @@ class ModbusM1LiveGateTests(unittest.TestCase):
         self.git(repo, "add", ".")
         self.git(repo, "commit", "-m", "anchor")
         anchor = self.git(repo, "rev-parse", "HEAD")
+        (repo / "scripts/validate_modbus_docs_trust.py").write_text(
+            "# historical weak trust anchor\n",
+            encoding="utf-8",
+        )
+        self.git(repo, "add", ".")
+        self.git(repo, "commit", "-m", "historical weak anchor")
+        self.historical_anchor = self.git(repo, "rev-parse", "HEAD")
+        (repo / "scripts/validate_modbus_docs_trust.py").write_bytes(
+            (ROOT / "scripts/validate_modbus_docs_trust.py").read_bytes()
+        )
+        self.git(repo, "add", ".")
+        self.git(repo, "commit", "-m", "restore frozen anchor")
+        anchor = self.git(repo, "rev-parse", "HEAD")
 
         gate = {
             "branch_protection_evidence_url": (
@@ -149,6 +162,24 @@ class ModbusM1LiveGateTests(unittest.TestCase):
                     "docs PR #374 merge evidence mismatch",
                 ):
                     VALIDATOR.require_m1_admission_open(repo, head)
+
+    def test_open_gate_rejects_historical_weak_anchor(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            repo, gate, _ = self.repository(temp)
+            gate["trust_anchor_commit"] = self.historical_anchor
+            gate_path = repo / GATE_REL
+            gate_path.write_text(
+                json.dumps(gate, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            self.git(repo, "add", ".")
+            self.git(repo, "commit", "-m", "attempt historical anchor")
+            head = self.git(repo, "rev-parse", "HEAD")
+            with self.assertRaisesRegex(
+                VALIDATOR.ValidationError,
+                "not the independently frozen M1 anchor",
+            ):
+                VALIDATOR.require_m1_admission_open(repo, head)
 
 
 if __name__ == "__main__":

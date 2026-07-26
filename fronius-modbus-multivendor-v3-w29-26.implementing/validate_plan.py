@@ -40,6 +40,9 @@ M2_IMPLEMENTATION_IDS = {f"FMV3-M2-{number:02d}" for number in range(1, 4)}
 COMPANION_IDS = M1_IMPLEMENTATION_IDS | M2_IMPLEMENTATION_IDS
 CHUNKS = [f"{number}-{name}.md" for number, name in ((10, "architecture-and-repo-boundaries"), (11, "fronius-readonly-and-semantic-lock"), (12, "vendor-expansion-and-private-bindings"), (13, "roadmap-gates-and-risks"))]
 M1_ADMISSION_GATE = Path("runtime-gates/fronius-modbus-m1-admission.json")
+M1_TRUST_ANCHOR_VALIDATOR_SHA256 = (
+    "77c41742a84bde193ef0b2adfc5ed220c5da937cec7cb0e2ce96cca047b3614c"
+)
 M1_ADMISSION_KEYS = {
     "branch_protection_evidence_url",
     "docs_merge_sha",
@@ -112,6 +115,11 @@ def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
         capture_output=True,
     )
     require(anchor_script.returncode == 0 and anchor_script.stdout, "Modbus trust anchor script is absent from its merged commit")
+    require(
+        hashlib.sha256(anchor_script.stdout).hexdigest()
+        == M1_TRUST_ANCHOR_VALIDATOR_SHA256,
+        "Modbus trust anchor script is not the independently frozen M1 anchor",
+    )
 
     docs_pr = github_api("repos/Project-Helianthus/helianthus-docs-ebus/pulls/374")
     require(docs_pr.get("merged") is True and docs_pr.get("merge_commit_sha") == gate["docs_merge_sha"], "docs PR #374 merge evidence mismatch")
