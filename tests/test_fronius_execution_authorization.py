@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import shutil
 import subprocess
 import sys
@@ -81,29 +80,6 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             copied = anchored
         return copied, head
 
-    def open_m1_gate(self, repo: Path) -> None:
-        gate_path = repo / "runtime-gates/fronius-modbus-m1-admission.json"
-        gate = json.loads(gate_path.read_text(encoding="utf-8"))
-        gate.update(
-            {
-                "branch_protection_evidence_url": (
-                    "https://github.com/Project-Helianthus/"
-                    "helianthus-execution-plans/issues/71#issuecomment-1"
-                ),
-                "docs_merge_sha": "a" * 40,
-                "required_check_verified_at": "2026-07-26T22:00:00Z",
-                "state": "OPEN",
-                "trust_anchor_commit": "b" * 40,
-            }
-        )
-        gate_path.write_text(
-            json.dumps(gate, indent=2, sort_keys=True) + "\n",
-            encoding="utf-8",
-        )
-        self.git(repo, "add", gate_path.relative_to(repo).as_posix())
-        self.git(repo, "commit", "-m", "open test M1 gate")
-        self.git(repo, "push", "origin", "main")
-
     def authorize(
         self, plan_root: Path, anchor_sha: str, issue_id: str
     ) -> subprocess.CompletedProcess[str]:
@@ -163,13 +139,12 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             path.write_text(text, encoding="utf-8")
         return copied
 
-    def test_last_pre_gateway_issue_is_authorized(self) -> None:
+    def test_last_pre_gateway_issue_is_blocked_until_docs_trust_opens(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             plan_root, anchor = self.published_plan(temp)
-            self.open_m1_gate(plan_root.parent)
             result = self.authorize(plan_root, anchor, "FMV3-M3-03")
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn("fail-closed execution allowlist", result.stdout)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("Modbus M1 admission gate is not OPEN", result.stderr)
 
     def test_m1_implementation_is_blocked_until_docs_trust_opens(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -203,7 +178,34 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             self.git(repo, "commit", "-m", "unmerged branch")
             result = self.authorize(plan_root, anchor, "FMV3-M3-03")
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("authoritative origin/main HEAD", result.stderr)
+            self.assertIn("live origin main HEAD", result.stderr)
+
+    def test_stale_local_origin_main_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            remote = Path(temp) / "remote.git"
+            other = Path(temp) / "other"
+            subprocess.run(
+                ["git", "clone", str(remote), str(other)],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.git(other, "checkout", "-b", "main", "origin/main")
+            self.git(other, "config", "user.name", "Remote Advance")
+            self.git(
+                other,
+                "config",
+                "user.email",
+                "remote-advance@example.invalid",
+            )
+            (other / "advance.txt").write_text("advanced\n", encoding="utf-8")
+            self.git(other, "add", "advance.txt")
+            self.git(other, "commit", "-m", "advance live main")
+            self.git(other, "push", "origin", "main")
+            result = self.authorize(plan_root, anchor, "FMV3-M0-02")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("live origin main HEAD", result.stderr)
 
     def test_untracked_file_outside_plan_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -220,6 +222,21 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             result = self.authorize(plan_root, anchor, "FMV3-M3-03")
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("entire checkout", result.stderr)
+
+    def test_assume_unchanged_gate_mutation_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            repo = plan_root.parent
+            gate_rel = "runtime-gates/fronius-modbus-m1-admission.json"
+            self.git(repo, "update-index", "--assume-unchanged", gate_rel)
+            gate = repo / gate_rel
+            gate.write_text(
+                gate.read_text(encoding="utf-8") + "\n",
+                encoding="utf-8",
+            )
+            result = self.authorize(plan_root, anchor, "FMV3-M1-01")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("nonstandard index flags", result.stderr)
 
     def test_authorized_action_drift_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

@@ -3,13 +3,15 @@ from __future__ import annotations
 import hashlib
 import json
 import pathlib
-import subprocess
 import tempfile
 import unittest
+
+from scripts import validate_modbus_docs_trust as trust_validator
 
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts/validate_modbus_docs_trust.py"
+ANCHOR_SHA = "c" * 40
 MANIFEST = pathlib.Path(
     "docs/platform/manifests/modbus-foundation-profile-contract-v1.json"
 )
@@ -38,12 +40,18 @@ class ModbusDocsTrustTests(unittest.TestCase):
         for relative in PROTECTED:
             target = root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
-            content = (
-                "python3 anchor/scripts/validate_modbus_docs_trust.py\n"
-                if relative == PROTECTED[0]
-                else f"{relative.as_posix()} fixture\n"
-            )
-            target.write_text(content, encoding="utf-8")
+            if relative == PROTECTED[0]:
+                target.write_text(
+                    json.dumps(
+                        trust_validator.expected_workflow(ANCHOR_SHA),
+                        indent=2,
+                        sort_keys=True,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+            else:
+                target.write_bytes(VALIDATOR.read_bytes())
         manifest = {
             "artifact_sha256": hashes,
             "artifacts": ARTIFACTS,
@@ -68,19 +76,11 @@ class ModbusDocsTrustTests(unittest.TestCase):
         self,
         prior: pathlib.Path,
         current: pathlib.Path,
-    ) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(
-            [
-                "python3",
-                str(VALIDATOR),
-                "--prior-root",
-                str(prior),
-                "--current-root",
-                str(current),
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
+    ) -> list[str]:
+        return trust_validator.validate_transition(
+            prior.resolve(),
+            current.resolve(),
+            ANCHOR_SHA,
         )
 
     def test_bootstrap_introduction_passes(self) -> None:
@@ -89,8 +89,74 @@ class ModbusDocsTrustTests(unittest.TestCase):
             prior = root / "prior"
             prior.mkdir()
             current = self.materialize(root / "current")
-            result = self.run_validator(prior, current)
-            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(self.run_validator(prior, current), [])
+
+    def test_bootstrap_rejects_weakened_transition_mirror(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            prior.mkdir()
+            current = self.materialize(root / "current")
+            (current / PROTECTED[1]).write_text(
+                "# permissive mirror\n",
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "bootstrap transition mirror must equal the trust anchor",
+                errors,
+            )
+
+    def test_bootstrap_rejects_unpinned_workflow(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            prior.mkdir()
+            current = self.materialize(root / "current")
+            workflow = current / PROTECTED[0]
+            value = json.loads(workflow.read_text(encoding="utf-8"))
+            value["jobs"]["trusted-revision"]["steps"][0]["with"]["ref"] = "main"
+            workflow.write_text(
+                json.dumps(value, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "bootstrap trusted workflow structure is not exact",
+                errors,
+            )
+
+    def test_bootstrap_rejects_comment_only_noop_workflow(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            prior.mkdir()
+            current = self.materialize(root / "current")
+            workflow = current / PROTECTED[0]
+            workflow.write_text(
+                json.dumps(
+                    {
+                        "jobs": {
+                            "noop": {
+                                "runs-on": "ubuntu-latest",
+                                "steps": [{"run": "true"}],
+                            }
+                        },
+                        "name": "Modbus Trusted Revision",
+                        "on": {"push": {}},
+                        "_comments": trust_validator.expected_workflow(ANCHOR_SHA),
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "bootstrap trusted workflow structure is not exact",
+                errors,
+            )
 
     def test_two_pr_validator_weakening_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -103,9 +169,10 @@ class ModbusDocsTrustTests(unittest.TestCase):
                 + "\n# weakened in intermediate PR\n",
                 encoding="utf-8",
             )
-            result = self.run_validator(prior, current)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("protected path is immutable", result.stderr)
+            errors = self.run_validator(prior, current)
+            self.assertTrue(
+                any("protected path is immutable" in error for error in errors)
+            )
 
     def test_two_pr_workflow_repin_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -120,9 +187,10 @@ class ModbusDocsTrustTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
-            result = self.run_validator(prior, current)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("protected path is immutable", result.stderr)
+            errors = self.run_validator(prior, current)
+            self.assertTrue(
+                any("protected path is immutable" in error for error in errors)
+            )
 
     def test_semantic_manifest_change_requires_revision(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -136,9 +204,10 @@ class ModbusDocsTrustTests(unittest.TestCase):
                 json.dumps(manifest, indent=2, sort_keys=True) + "\n",
                 encoding="utf-8",
             )
-            result = self.run_validator(prior, current)
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn("require exactly the next", result.stderr)
+            errors = self.run_validator(prior, current)
+            self.assertTrue(
+                any("require exactly the next" in error for error in errors)
+            )
 
 
 if __name__ == "__main__":

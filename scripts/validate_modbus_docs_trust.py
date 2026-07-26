@@ -7,6 +7,7 @@ import hashlib
 import json
 import pathlib
 import re
+import subprocess
 import sys
 from typing import Any
 
@@ -20,6 +21,105 @@ PROTECTED_PATHS = (
 )
 MAX_MANIFEST_BYTES = 256 * 1024
 MAX_ARTIFACT_BYTES = 4 * 1024 * 1024
+
+
+def expected_workflow(trust_anchor_sha: str) -> dict[str, Any]:
+    checkout = (
+        "actions/checkout@"
+        "11bd71901bbe5b1630ceea73d27597364c9af683"
+    )
+    return {
+        "jobs": {
+            "trusted-revision": {
+                "name": "Modbus Trusted Revision",
+                "runs-on": "ubuntu-latest",
+                "steps": [
+                    {
+                        "name": "Checkout immutable trust anchor",
+                        "uses": checkout,
+                        "with": {
+                            "clean": True,
+                            "path": "anchor",
+                            "persist-credentials": False,
+                            "ref": trust_anchor_sha,
+                            "repository": (
+                                "Project-Helianthus/"
+                                "helianthus-execution-plans"
+                            ),
+                        },
+                    },
+                    {
+                        "name": "Checkout trusted prior state",
+                        "uses": checkout,
+                        "with": {
+                            "clean": True,
+                            "path": "prior",
+                            "persist-credentials": False,
+                            "ref": "${{ github.event.pull_request.base.sha }}",
+                            "repository": (
+                                "Project-Helianthus/helianthus-docs-ebus"
+                            ),
+                        },
+                    },
+                    {
+                        "name": "Checkout untrusted PR head as data",
+                        "uses": checkout,
+                        "with": {
+                            "clean": True,
+                            "path": "current",
+                            "persist-credentials": False,
+                            "ref": "${{ github.event.pull_request.head.sha }}",
+                            "repository": (
+                                "${{ github.event.pull_request.head.repo.full_name }}"
+                            ),
+                        },
+                    },
+                    {
+                        "env": {
+                            "TRUSTED_BASE_SHA": (
+                                "${{ github.event.pull_request.base.sha }}"
+                            ),
+                            "UNTRUSTED_HEAD_SHA": (
+                                "${{ github.event.pull_request.head.sha }}"
+                            ),
+                        },
+                        "name": "Verify immutable checkout identities",
+                        "run": (
+                            'set -euo pipefail\n'
+                            'test "$(git -C anchor rev-parse HEAD)" = '
+                            f'"{trust_anchor_sha}"\n'
+                            'test "$(git -C prior rev-parse HEAD)" = '
+                            '"${TRUSTED_BASE_SHA}"\n'
+                            'test "$(git -C current rev-parse HEAD)" = '
+                            '"${UNTRUSTED_HEAD_SHA}"'
+                        ),
+                        "shell": "bash",
+                    },
+                    {
+                        "name": (
+                            "Validate Modbus revision transition "
+                            "with immutable anchor"
+                        ),
+                        "run": (
+                            "python3 "
+                            "anchor/scripts/validate_modbus_docs_trust.py "
+                            "--prior-root prior "
+                            "--current-root current "
+                            f"--trust-anchor-sha {trust_anchor_sha}"
+                        ),
+                        "shell": "bash",
+                    },
+                ],
+            }
+        },
+        "name": "Modbus Trusted Revision",
+        "on": {
+            "pull_request_target": {
+                "types": ["opened", "reopened", "synchronize"],
+            }
+        },
+        "permissions": {"contents": "read"},
+    }
 
 
 def _read_manifest(
@@ -120,8 +220,12 @@ def _revision_payload(manifest: dict[str, Any]) -> dict[str, Any]:
 def _validate_protected_paths(
     prior_root: pathlib.Path,
     current_root: pathlib.Path,
+    trust_anchor_sha: str,
     errors: list[str],
 ) -> None:
+    bootstrap = any(
+        not (prior_root / relative).exists() for relative in PROTECTED_PATHS
+    )
     for relative in PROTECTED_PATHS:
         prior = prior_root / relative
         current = current_root / relative
@@ -139,16 +243,45 @@ def _validate_protected_paths(
             continue
         if _digest(prior) != _digest(current):
             errors.append(f"protected path is immutable: {relative.as_posix()}")
+    if not bootstrap:
+        return
+    mirror = current_root / PROTECTED_PATHS[1]
+    workflow = current_root / PROTECTED_PATHS[0]
+    if mirror.is_file() and _digest(mirror) != _digest(
+        pathlib.Path(__file__).resolve()
+    ):
+        errors.append("bootstrap transition mirror must equal the trust anchor")
+    if not workflow.is_file():
+        return
+    try:
+        raw = workflow.read_text(encoding="utf-8")
+        parsed = json.loads(raw)
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"bootstrap trusted workflow must be canonical JSON: {exc}")
+        return
+    canonical = json.dumps(parsed, indent=2, sort_keys=True) + "\n"
+    if raw != canonical:
+        errors.append("bootstrap trusted workflow must use canonical sorted JSON")
+    if parsed != expected_workflow(trust_anchor_sha):
+        errors.append("bootstrap trusted workflow structure is not exact")
 
 
 def validate_transition(
     prior_root: pathlib.Path,
     current_root: pathlib.Path,
+    trust_anchor_sha: str,
 ) -> list[str]:
     errors: list[str] = []
+    if re.fullmatch(r"[0-9a-f]{40}", trust_anchor_sha) is None:
+        errors.append("trust anchor SHA must be full lowercase 40-hex")
     prior = _read_manifest(prior_root, "prior", errors)
     current = _read_manifest(current_root, "current", errors)
-    _validate_protected_paths(prior_root, current_root, errors)
+    _validate_protected_paths(
+        prior_root,
+        current_root,
+        trust_anchor_sha,
+        errors,
+    )
 
     if prior is None and current is None:
         return errors
@@ -210,11 +343,39 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--prior-root", type=pathlib.Path, required=True)
     parser.add_argument("--current-root", type=pathlib.Path, required=True)
+    parser.add_argument("--trust-anchor-sha", required=True)
     args = parser.parse_args()
     errors = validate_transition(
         args.prior_root.resolve(),
         args.current_root.resolve(),
+        args.trust_anchor_sha,
     )
+    anchor_root = pathlib.Path(__file__).resolve().parents[1]
+    try:
+        anchor_head = subprocess.check_output(
+            ["git", "-C", str(anchor_root), "rev-parse", "HEAD"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+        anchor_status = subprocess.check_output(
+            [
+                "git",
+                "-C",
+                str(anchor_root),
+                "status",
+                "--porcelain",
+                "--untracked-files=all",
+            ],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        errors.append("trust anchor must execute from a Git checkout")
+    else:
+        if anchor_head != args.trust_anchor_sha:
+            errors.append("executed trust anchor HEAD does not match pinned SHA")
+        if anchor_status:
+            errors.append("trust anchor checkout must be fully clean")
     if errors:
         for error in errors:
             print(f"modbus_docs_trust_invalid: {error}", file=sys.stderr)
