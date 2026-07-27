@@ -141,6 +141,85 @@ class ModbusDocsTrustTests(unittest.TestCase):
             current = self.materialize(root / "current")
             self.assertEqual(self.run_validator(prior, current), [])
 
+    def test_incomplete_bootstrap_allows_exact_workflow_repin(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            workflow = prior / PROTECTED[0]
+            workflow.parent.mkdir(parents=True)
+            workflow.write_text(
+                json.dumps(
+                    trust_validator.expected_workflow("d" * 40),
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            current = self.materialize(root / "current")
+            self.assertEqual(self.run_validator(prior, current), [])
+
+    def test_incomplete_bootstrap_rejects_nonexact_workflow_repin(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            workflow = prior / PROTECTED[0]
+            workflow.parent.mkdir(parents=True)
+            workflow.write_text(
+                json.dumps(
+                    trust_validator.expected_workflow("d" * 40),
+                    indent=2,
+                    sort_keys=True,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+            current = self.materialize(root / "current")
+            current_workflow = current / PROTECTED[0]
+            current_workflow.write_text(
+                current_workflow.read_text(encoding="utf-8").replace(
+                    "validate_modbus_docs_trust.py",
+                    "weakened_validator.py",
+                ),
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "bootstrap trusted workflow structure is not exact",
+                errors,
+            )
+
+    def test_incomplete_bootstrap_keeps_existing_mirror_immutable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            mirror = prior / PROTECTED[1]
+            mirror.parent.mkdir(parents=True)
+            mirror.write_bytes(VALIDATOR.read_bytes())
+            current = self.materialize(root / "current")
+            (current / PROTECTED[1]).write_text(
+                "# changed existing mirror\n",
+                encoding="utf-8",
+            )
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                f"protected path is immutable: {PROTECTED[1].as_posix()}",
+                errors,
+            )
+
+    def test_bootstrap_rejects_protected_paths_without_manifest(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            prior = root / "prior"
+            prior.mkdir()
+            current = self.materialize(root / "current")
+            (current / MANIFEST).unlink()
+            errors = self.run_validator(prior, current)
+            self.assertIn(
+                "bootstrap must introduce the closed V1 manifest",
+                errors,
+            )
+
     def test_bootstrap_rejects_weakened_transition_mirror(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = pathlib.Path(temp)
