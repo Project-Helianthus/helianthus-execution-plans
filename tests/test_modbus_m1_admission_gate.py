@@ -88,9 +88,8 @@ class ModbusM1AdmissionGateTests(unittest.TestCase):
     def test_gate_schema_is_valid(self) -> None:
         self.assertEqual(validate_gate(require_open=False), [])
 
-    def test_m1_admission_is_currently_fail_closed(self) -> None:
-        errors = validate_gate(require_open=True)
-        self.assertIn("Modbus M1 admission gate is not OPEN", errors)
+    def test_m1_admission_is_open_with_closed_evidence_schema(self) -> None:
+        self.assertEqual(validate_gate(require_open=True), [])
 
 
 if __name__ == "__main__":
