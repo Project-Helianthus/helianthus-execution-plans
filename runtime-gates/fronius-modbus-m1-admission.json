@@ -1,7 +1,7 @@
 {
   "branch_protection_evidence_url": null,
   "docs_merge_sha": null,
-  "docs_pr": 374,
+  "docs_pr": 376,
   "docs_repository": "Project-Helianthus/helianthus-docs-ebus",
   "required_check": "Modbus Trusted Revision",
   "required_check_run_url": null,

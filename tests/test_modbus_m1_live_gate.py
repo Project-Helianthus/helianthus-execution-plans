@@ -65,7 +65,7 @@ class ModbusM1LiveGateTests(unittest.TestCase):
                 "required_status_checks"
             ),
             "docs_merge_sha": "a" * 40,
-            "docs_pr": 374,
+            "docs_pr": 376,
             "docs_repository": "Project-Helianthus/helianthus-docs-ebus",
             "required_check": "Modbus Trusted Revision",
             "required_check_run_url": (
@@ -80,7 +80,7 @@ class ModbusM1LiveGateTests(unittest.TestCase):
                 "Project-Helianthus/helianthus-execution-plans"
             ),
             "verification_head_sha": "b" * 40,
-            "verification_pr": 375,
+            "verification_pr": 377,
             "version": 1,
         }
         gate_path = repo / GATE_REL
@@ -96,7 +96,7 @@ class ModbusM1LiveGateTests(unittest.TestCase):
 
     def api(self, gate: dict[str, object]):
         def response(endpoint: str):
-            if endpoint.endswith("/pulls/374"):
+            if endpoint.endswith("/pulls/376"):
                 return {
                     "merged": True,
                     "merge_commit_sha": gate["docs_merge_sha"],
@@ -152,14 +152,14 @@ class ModbusM1LiveGateTests(unittest.TestCase):
 
             def mismatch(endpoint: str):
                 value = api(endpoint)
-                if endpoint.endswith("/pulls/374"):
+                if endpoint.endswith("/pulls/376"):
                     value["merge_commit_sha"] = "f" * 40
                 return value
 
             with mock.patch.object(VALIDATOR, "github_api", mismatch):
                 with self.assertRaisesRegex(
                     VALIDATOR.ValidationError,
-                    "docs PR #374 merge evidence mismatch",
+                    "docs PR #376 merge evidence mismatch",
                 ):
                     VALIDATOR.require_m1_admission_open(repo, head)
 
@@ -178,6 +178,24 @@ class ModbusM1LiveGateTests(unittest.TestCase):
             with self.assertRaisesRegex(
                 VALIDATOR.ValidationError,
                 "not the independently frozen M1 anchor",
+            ):
+                VALIDATOR.require_m1_admission_open(repo, head)
+
+    def test_open_gate_rejects_docs_pr_as_verification_pr(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            repo, gate, _ = self.repository(temp)
+            gate["verification_pr"] = gate["docs_pr"]
+            gate_path = repo / GATE_REL
+            gate_path.write_text(
+                json.dumps(gate, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            self.git(repo, "add", ".")
+            self.git(repo, "commit", "-m", "attempt self-verification")
+            head = self.git(repo, "rev-parse", "HEAD")
+            with self.assertRaisesRegex(
+                VALIDATOR.ValidationError,
+                "verification PR is invalid",
             ):
                 VALIDATOR.require_m1_admission_open(repo, head)
 
