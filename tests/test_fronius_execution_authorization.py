@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import shutil
 import subprocess
 import sys
@@ -103,6 +104,29 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             check=False,
         )
 
+    def block_m1_admission(self, plan_root: Path) -> None:
+        repo = plan_root.parent
+        gate_path = repo / "runtime-gates/fronius-modbus-m1-admission.json"
+        gate = json.loads(gate_path.read_text(encoding="utf-8"))
+        gate["state"] = "BLOCKED_PENDING_DOCS_TRUST"
+        for key in (
+            "branch_protection_evidence_url",
+            "docs_merge_sha",
+            "required_check_run_url",
+            "required_check_verified_at",
+            "trust_anchor_commit",
+            "verification_head_sha",
+            "verification_pr",
+        ):
+            gate[key] = None
+        gate_path.write_text(
+            json.dumps(gate, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        self.git(repo, "add", gate_path.relative_to(repo).as_posix())
+        self.git(repo, "commit", "-m", "keep Modbus M1 admission blocked")
+        self.git(repo, "push", "origin", "main")
+
     def copy_lifecycle(self, temp: str, state: str, milestone: str) -> Path:
         copied = Path(temp) / f"fronius-modbus-multivendor-v3-w29-26.{state}"
         shutil.copytree(PLAN, copied)
@@ -142,6 +166,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def test_last_pre_gateway_issue_is_blocked_until_docs_trust_opens(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             plan_root, anchor = self.published_plan(temp)
+            self.block_m1_admission(plan_root)
             result = self.authorize(plan_root, anchor, "FMV3-M3-03")
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("Modbus M1 admission gate is not OPEN", result.stderr)
@@ -149,6 +174,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def test_m1_implementation_is_blocked_until_docs_trust_opens(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             plan_root, anchor = self.published_plan(temp)
+            self.block_m1_admission(plan_root)
             result = self.authorize(plan_root, anchor, "FMV3-M1-01")
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("Modbus M1 admission gate is not OPEN", result.stderr)
