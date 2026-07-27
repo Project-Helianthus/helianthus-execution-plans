@@ -42,7 +42,7 @@ CHUNKS = [f"{number}-{name}.md" for number, name in ((10, "architecture-and-repo
 M1_ADMISSION_GATE = Path("runtime-gates/fronius-modbus-m1-admission.json")
 M1_DOCS_PR = 376
 M1_TRUST_ANCHOR_VALIDATOR_SHA256 = (
-    "3e3bdb689971688702014839cf96f907f1b8fbf591bda1a36fcfe0d2265e9cbb"
+    "4cb5f3f878912d5e4e0e8f9c565a2f071cd1aaa9aadcb321cb83b1869c7a3ca6"
 )
 M1_ADMISSION_KEYS = {
     "branch_protection_evidence_url",
