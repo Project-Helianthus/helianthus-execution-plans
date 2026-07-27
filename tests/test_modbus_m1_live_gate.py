@@ -181,6 +181,24 @@ class ModbusM1LiveGateTests(unittest.TestCase):
             ):
                 VALIDATOR.require_m1_admission_open(repo, head)
 
+    def test_open_gate_rejects_docs_pr_as_verification_pr(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            repo, gate, _ = self.repository(temp)
+            gate["verification_pr"] = gate["docs_pr"]
+            gate_path = repo / GATE_REL
+            gate_path.write_text(
+                json.dumps(gate, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            self.git(repo, "add", ".")
+            self.git(repo, "commit", "-m", "attempt self-verification")
+            head = self.git(repo, "rev-parse", "HEAD")
+            with self.assertRaisesRegex(
+                VALIDATOR.ValidationError,
+                "verification PR is invalid",
+            ):
+                VALIDATOR.require_m1_admission_open(repo, head)
+
 
 if __name__ == "__main__":
     unittest.main()
