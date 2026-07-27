@@ -12,6 +12,9 @@ from scripts import validate_modbus_docs_trust as trust_validator
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 VALIDATOR = ROOT / "scripts/validate_modbus_docs_trust.py"
+FROZEN_SEMANTIC_VALIDATOR = (
+    ROOT / "tests/fixtures/modbus_companion_v1.py"
+)
 ANCHOR_SHA = "c" * 40
 MANIFEST = pathlib.Path(
     "docs/platform/manifests/modbus-foundation-profile-contract-v1.json"
@@ -38,6 +41,12 @@ ARTIFACTS = {
 
 
 class ModbusDocsTrustTests(unittest.TestCase):
+    def test_frozen_semantic_validator_digest_is_real(self) -> None:
+        self.assertEqual(
+            hashlib.sha256(FROZEN_SEMANTIC_VALIDATOR.read_bytes()).hexdigest(),
+            trust_validator.V1_SEMANTIC_VALIDATOR_SHA256,
+        )
+
     def materialize(self, root: pathlib.Path) -> pathlib.Path:
         hashes: dict[str, str] = {}
         for key, raw_path in ARTIFACTS.items():
