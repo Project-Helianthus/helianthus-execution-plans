@@ -48,6 +48,7 @@ else
   "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py"
 fi
 "$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
+
 fronius_plan_dir=""
 fronius_plan_count=0
 for state in locked implementing maintenance; do
