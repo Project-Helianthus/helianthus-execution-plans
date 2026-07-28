@@ -62,7 +62,7 @@
     },
     "policy/m1-02-acceptance.json": {
       "mode": "100644",
-      "sha256": "ed5dd287c2fcc070c701e1db632eeb3bcf591cd92943ad127d401cadf80531bc"
+      "sha256": "127a6f57a4e4ad1773ebc60014b40857bc91ed1a5605b877f832a9553a28dddf"
     },
     "policy/m1-02-transport-matrix.json": {
       "mode": "100644",
@@ -74,7 +74,7 @@
     },
     "policy/phase1-readonly.json": {
       "mode": "100644",
-      "sha256": "bd4e61ebd592845092a4047c0777ac199ac9c4d0df7adf4e1a93d7ba5d768e7c"
+      "sha256": "158a80865f315e2a810065bb72e1a31d5edac305765993f599e5e1076f43e00f"
     },
     "scripts/acceptance_evidence/main.go": {
       "mode": "100644",
@@ -102,7 +102,7 @@
     },
     "scripts/validate_scope_policy.py": {
       "mode": "100644",
-      "sha256": "28a8a70177e38e2d73af01cb2117a87260a1f78b26111c56ea0e25ec1a11bbbc"
+      "sha256": "3c9c14de298fbd9e2b53d3447f454b887553aa9af091aee45847d325f258c613"
     },
     "tcp_adu.go": {
       "mode": "100644",
@@ -122,11 +122,11 @@
     },
     "tcp_endpoint.go": {
       "mode": "100644",
-      "sha256": "28ee5217b93240ee1b8a0056da9411d823c79adcf7116579cbf08595855fcffb"
+      "sha256": "f0d46215dd3e5639695551178da0ae9fdfee6a5f3467922796316a1148918b15"
     },
     "tcp_endpoint_test.go": {
       "mode": "100644",
-      "sha256": "b39451e8bcabe894c290cc445b6b3bcfcb0c24670047a30b6ac618a749da4c9b"
+      "sha256": "3e373653cf4a1fb17a5a0abc19cc58bf959f4bc1e0dcb3f29fbdca72ca78d839"
     },
     "tcp_owner.go": {
       "mode": "100644",
@@ -154,7 +154,7 @@
     },
     "tcp_transport.go": {
       "mode": "100644",
-      "sha256": "baf5df1922b15d26b0bc56812402d04c369e988e0c08ee3496fc541ae4a304a5"
+      "sha256": "0b95a1311ad5df7c55aff0d9db9543eb46a9ccde205b2461f5b4f618d21ef2ab"
     },
     "tcp_transport_test.go": {
       "mode": "100644",
@@ -180,7 +180,7 @@
     "tree_must_equal_attested_pr_head": true
   },
   "repository": "Project-Helianthus/helianthus-modbus",
-  "reviewed_sha": "a47418bc7c86332c940be2b2f2b04c3dba672131",
+  "reviewed_sha": "2d95615829c339ebc1615000cfcc1dfed4688e50",
   "schema": "helianthus.modbus.m1-02-release",
   "version": 1
 }
