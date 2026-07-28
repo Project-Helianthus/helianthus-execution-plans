@@ -235,6 +235,7 @@ class ModbusM102ReleaseTests(unittest.TestCase):
         self.assertEqual(
             release.validate_live_attestation(
                 self.manifest,
+                ANCHOR_HEAD,
                 ANCHOR_TREE,
                 "",
             ),
@@ -367,6 +368,35 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 self.manifest,
                 self.reviewed,
             ),
+        )
+
+    def test_post_merge_requires_merged_anchor_checkout(self) -> None:
+        open_pull_request = {
+            "merge_commit_sha": None,
+            "merged": False,
+            "state": "open",
+        }
+        self.assertEqual(
+            release.validate_anchor_merge_payload(
+                open_pull_request,
+                ANCHOR_HEAD,
+            ),
+            [
+                "anchor pull request is not merged and closed",
+                "anchor checkout is not the GitHub PR merge commit",
+            ],
+        )
+        merged_pull_request = {
+            "merge_commit_sha": ANCHOR_HEAD,
+            "merged": True,
+            "state": "closed",
+        }
+        self.assertEqual(
+            release.validate_anchor_merge_payload(
+                merged_pull_request,
+                ANCHOR_HEAD,
+            ),
+            [],
         )
 
     def test_post_merge_requires_exact_attested_tree(self) -> None:

@@ -488,6 +488,23 @@ def validate_anchor_review_payload(
     return errors
 
 
+def validate_anchor_merge_payload(
+    pull_request: object,
+    anchor_sha: str,
+) -> list[str]:
+    if not isinstance(pull_request, dict):
+        return ["anchor pull request payload must be an object"]
+    errors: list[str] = []
+    if (
+        pull_request.get("state") != "closed"
+        or pull_request.get("merged") is not True
+    ):
+        errors.append("anchor pull request is not merged and closed")
+    if pull_request.get("merge_commit_sha") != anchor_sha:
+        errors.append("anchor checkout is not the GitHub PR merge commit")
+    return errors
+
+
 def validate_merge_payload(
     payload: object,
     manifest: dict[str, Any],
@@ -509,6 +526,7 @@ def validate_merge_payload(
 
 def validate_live_attestation(
     manifest: dict[str, Any],
+    anchor_sha: str | None,
     anchor_tree: str | None,
     token: str,
     merged_sha: str | None = None,
@@ -517,6 +535,8 @@ def validate_live_attestation(
         return ["GH_TOKEN is required to verify attestation"]
     if anchor_tree is None:
         return ["verified external anchor tree is required for attestation"]
+    if anchor_sha is None:
+        return ["verified external anchor SHA is required for attestation"]
     errors: list[str] = []
     try:
         pull_request = _fetch_pull_request(manifest, token)
@@ -556,6 +576,12 @@ def validate_live_attestation(
             )
         )
         if merged_sha is not None:
+            errors.extend(
+                validate_anchor_merge_payload(
+                    anchor_pull_request,
+                    anchor_sha,
+                )
+            )
             errors.extend(
                 validate_merge_payload(
                     pull_request,
@@ -673,6 +699,7 @@ def main() -> int:
     errors.extend(
         validate_live_attestation(
             manifest,
+            anchor_sha,
             anchor_tree,
             os.environ.get("GH_TOKEN", ""),
             args.post_merge_sha,
