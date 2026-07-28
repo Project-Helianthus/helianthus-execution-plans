@@ -56,10 +56,14 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 "context": "adversarial-review",
                 "creator_id": 16434603,
                 "creator_login": "d3vi1",
-                "description": (
+                "description_prefix": (
                     "OpenAI-only fresh adversarial consensus: NO_FINDINGS"
                 ),
                 "target": "pull_request_head",
+                "target_url": (
+                    "https://github.com/Project-Helianthus/"
+                    "helianthus-execution-plans/pull/84"
+                ),
             },
             "files": files,
             "post_merge": {
@@ -144,12 +148,13 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             "context": "adversarial-review",
             "creator": {"id": 16434603, "login": "d3vi1"},
             "description": (
-                "OpenAI-only fresh adversarial consensus: NO_FINDINGS"
+                "OpenAI-only fresh adversarial consensus: NO_FINDINGS "
+                f"anchor-tree={ANCHOR_SHA}"
             ),
             "state": "success",
             "target_url": (
                 "https://github.com/Project-Helianthus/"
-                f"helianthus-execution-plans/commit/{ANCHOR_SHA}"
+                "helianthus-execution-plans/pull/84"
             ),
         }
         value.update(overrides)

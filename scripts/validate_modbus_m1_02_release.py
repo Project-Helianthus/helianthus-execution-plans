@@ -117,8 +117,14 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
         "context": "adversarial-review",
         "creator_id": 16434603,
         "creator_login": "d3vi1",
-        "description": "OpenAI-only fresh adversarial consensus: NO_FINDINGS",
+        "description_prefix": (
+            "OpenAI-only fresh adversarial consensus: NO_FINDINGS"
+        ),
         "target": "pull_request_head",
+        "target_url": (
+            "https://github.com/Project-Helianthus/"
+            "helianthus-execution-plans/pull/84"
+        ),
     }:
         errors.append("release attestation contract is not exact")
     if manifest.get("post_merge") != {
@@ -158,15 +164,18 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
 def validate_anchor(
     anchor_root: pathlib.Path,
     manifest_path: pathlib.Path,
-) -> tuple[str | None, list[str]]:
+) -> tuple[str | None, str | None, list[str]]:
     errors: list[str] = []
     if not _strict_regular_root(anchor_root):
-        return None, ["anchor root must be a regular directory"]
+        return None, None, ["anchor root must be a regular directory"]
     try:
         anchor_sha = str(_git(anchor_root, "rev-parse", "HEAD"))
         if SHA_RE.fullmatch(anchor_sha) is None:
             errors.append("anchor HEAD must be lowercase 40-hex SHA")
-            return None, errors
+            return None, None, errors
+        anchor_tree = str(
+            _git(anchor_root, "rev-parse", f"{anchor_sha}^{{tree}}")
+        )
         if _git(anchor_root, "status", "--porcelain", "--untracked-files=all"):
             errors.append("anchor checkout is dirty")
         ignored = _git(
@@ -192,10 +201,10 @@ def validate_anchor(
                 relative.as_posix(),
             ):
                 errors.append(f"anchor protected path differs from HEAD: {relative}")
-        return anchor_sha, errors
+        return anchor_sha, anchor_tree, errors
     except (OSError, ValueError) as exc:
         errors.append(str(exc))
-        return None, errors
+        return None, None, errors
 
 
 def validate_release(
@@ -256,7 +265,7 @@ def validate_release(
 def validate_attestation_payload(
     statuses: object,
     manifest: dict[str, Any],
-    anchor_sha: str,
+    anchor_tree: str,
 ) -> list[str]:
     errors: list[str] = []
     if not isinstance(statuses, list):
@@ -272,16 +281,15 @@ def validate_attestation_payload(
         return ["required adversarial-review status is missing"]
     latest = matching[0]
     creator = latest.get("creator")
-    expected_url = (
-        "https://github.com/Project-Helianthus/"
-        f"helianthus-execution-plans/commit/{anchor_sha}"
+    expected_description = (
+        f"{contract['description_prefix']} anchor-tree={anchor_tree}"
     )
     if latest.get("state") != "success":
         errors.append("latest adversarial-review status is not success")
-    if latest.get("description") != contract["description"]:
+    if latest.get("description") != expected_description:
         errors.append("adversarial-review description is not exact")
-    if latest.get("target_url") != expected_url:
-        errors.append("adversarial-review target URL is not exact anchor commit")
+    if latest.get("target_url") != contract["target_url"]:
+        errors.append("adversarial-review target URL is not exact")
     if not isinstance(creator, dict):
         errors.append("adversarial-review creator is missing")
     elif (
@@ -383,21 +391,21 @@ def validate_merge_payload(
 
 def validate_live_attestation(
     manifest: dict[str, Any],
-    anchor_sha: str | None,
+    anchor_tree: str | None,
     token: str,
     merged_sha: str | None = None,
 ) -> list[str]:
     if not token:
         return ["GH_TOKEN is required to verify attestation"]
-    if anchor_sha is None:
-        return ["verified external anchor SHA is required for attestation"]
+    if anchor_tree is None:
+        return ["verified external anchor tree is required for attestation"]
     errors: list[str] = []
     try:
         errors.extend(
             validate_attestation_payload(
                 _fetch_statuses(manifest, token),
                 manifest,
-                anchor_sha,
+                anchor_tree,
             )
         )
         if merged_sha is not None:
@@ -474,7 +482,7 @@ def main() -> int:
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         print(f"modbus_m1_02_release_invalid: {exc}", file=sys.stderr)
         return 1
-    anchor_sha, errors = validate_anchor(
+    anchor_sha, anchor_tree, errors = validate_anchor(
         args.anchor_root.absolute(),
         manifest_path,
     )
@@ -497,7 +505,7 @@ def main() -> int:
     errors.extend(
         validate_live_attestation(
             manifest,
-            anchor_sha,
+            anchor_tree,
             os.environ.get("GH_TOKEN", ""),
             args.post_merge_sha,
         )
