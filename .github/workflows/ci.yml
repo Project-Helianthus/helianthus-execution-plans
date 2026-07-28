@@ -40,7 +40,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-  modbus-m1-02-release:
+  modbus-m1-02-remote-release-attestation:
     if: >-
       (github.event_name == 'pull_request' &&
        github.event.pull_request.number == 84) ||
@@ -59,7 +59,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Validate Modbus M1-02 release
-        run: ./scripts/validate_modbus_m1_02_live.sh "${{ inputs.post_merge_sha }}"
+      - name: Validate Modbus M1-02 remote release attestation
+        run: >-
+          ./scripts/validate_modbus_m1_02_remote_release.sh
+          "${{ inputs.post_merge_sha }}"
         env:
           GH_TOKEN: ${{ github.token }}

@@ -7,7 +7,7 @@ POST_MERGE_SHA="${1:-}"
 export PYTHONDONTWRITEBYTECODE=1
 
 if ! command -v gh >/dev/null 2>&1; then
-  echo "gh is required for the Modbus M1-02 live release gate." >&2
+  echo "gh is required for the Modbus M1-02 remote release gate." >&2
   exit 1
 fi
 if [ -z "${GH_TOKEN:-}" ]; then
@@ -32,7 +32,15 @@ if [ "$live_pr_head" != "$reviewed_sha" ]; then
   exit 1
 fi
 
-candidate_root="$(mktemp -d)"
+canonical_tmp="$(
+  python3 - <<'PY'
+import tempfile
+from pathlib import Path
+
+print(Path(tempfile.gettempdir()).resolve(strict=True))
+PY
+)"
+candidate_root="$(mktemp -d "$canonical_tmp/modbus-m1-02-release.XXXXXX")"
 cleanup() {
   rm -rf "$candidate_root"
 }
