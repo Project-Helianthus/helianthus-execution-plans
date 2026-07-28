@@ -2,13 +2,14 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `1e1b4c67d294f6b2d9cdd9420632bf8d0fa83cab916c1da57411d593e6c29e87`
+Canonical-SHA256: `bc814e3b940efa116ec6e342d84abb6b90b1d14725909632c25d6ff59400125d`
 
 This directory contains the locked execution plan for turning Helianthus into a
 multi-runtime native protocol gateway. It is currently in
 `M6_25_RAW_SPINE_FEATURE_ACQUISITION`: M5 and M6 are complete, while the
 forward-only amendment adds canonical typed SPINE function-data READ/WRITE
-before the live M6.5-M8.5 chain.
+before the live M6.5-M8.5 chain. Amendment 121 corrects mutation recovery,
+interface compatibility, and authorization without changing that DAG.
 Substantive eeBUS documentation remains external to code repositories.
 
 ## Split Rules
@@ -104,6 +105,10 @@ Current routing, readiness, and completion-token authority is `92-m0-issue-matri
   inventories public-safe hardening implemented beyond the original plan.
 - [120-w30-26-current-state-evidence.json](./120-w30-26-current-state-evidence.json)
   records canonical sorted public-safe repo/tag/CI/binary/count classifications.
+- [121-w31-26-m625-raw-mutation-contract-correction.md](./121-w31-26-m625-raw-mutation-contract-correction.md)
+  freezes no-effect recovery, separate mutation/runtime authorization
+  interfaces, and the docs-eebus #78 gate over eebusreg #85 without changing
+  the M6.25 DAG or exact tool set.
 - [99-status.md](./99-status.md) records the locked current state.
 
 ## Coverage Matrix

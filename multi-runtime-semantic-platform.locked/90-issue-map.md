@@ -5,7 +5,7 @@ Baseline: `Gateway 0.4.0`
 Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
 Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
 Successor unlocks: `only through the M6.25 and live-completion chain`
-Amendment: `M6.25 raw SPINE feature acquisition`
+Amendment: `M6.25 raw mutation contract correction`
 
 This map preserves historical evidence and adds the M6.25/live-completion rows
 without rewriting M0-M6. One active PR per repo remains mandatory.
@@ -60,6 +60,14 @@ complete projection for review.
 | MSP-0625-GW-MCP | `helianthus-ebusgateway` | Register the exact five M6.25 tool suffixes | proposed |
 | MSP-0625-LAB | `helianthus-docs-eebus` | Public-safe live acquisition/mutation/rollback evidence | proposed |
 | MSP-0625-DOCS-P | `helianthus-docs-ebus` | Thin public methodology cross-seed | proposed |
+
+The append-only correction is tracked by
+[`helianthus-execution-plans#82`](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/82).
+[`helianthus-docs-eebus#78`](https://github.com/Project-Helianthus/helianthus-docs-eebus/issues/78)
+must merge before
+[`helianthus-eebusreg#85`](https://github.com/Project-Helianthus/helianthus-eebusreg/issues/85)
+proceeds beyond strict test-only RED. This refines the existing docs gate and
+does not add or reorder a row.
 
 ## Preserved Historical And Live Rows
 

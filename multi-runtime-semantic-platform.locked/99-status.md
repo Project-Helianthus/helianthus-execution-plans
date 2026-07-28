@@ -2,11 +2,11 @@
 
 State: `locked`
 Started: `2026-04-12`
-Last revised: `2026-07-26`
+Last revised: `2026-07-28`
 Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
 Cruise phase: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Amendment count: `6`
-Amendment: `M6.25 raw SPINE feature acquisition`
+Amendment count: `7`
+Amendment: `M6.25 raw mutation contract correction`
 Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the M6.25 and live-completion chain`
@@ -14,7 +14,8 @@ Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
-The forward-only M6.25 amendment is current. M0-M6 history remains valid;
+The forward-only M6.25 amendment and append-only mutation correction are
+current. M0-M6 history remains valid;
 `100-topology-audit.md` remains the immutable AD-DOCS-01 snapshot.
 `106-ad-docs-02-integrity.json` remains the unchanged AD-DOCS-02 integrity
 record, while `107-ad-docs-02-topology-audit.md` is regenerated from the active
@@ -27,6 +28,11 @@ The plan remains locked after five accepted adversarial rounds. M5 and M6 are
 complete. The current live gap is canonical typed SPINE function-data
 acquisition: topology is available, but generic full READ/WRITE, verified
 rollback, and direct-value evidence are not.
+
+Amendment 121 leaves the DAG and exact five M6.25 tool names unchanged. It
+freezes terminal `no_effect` recovery, requested-value uncertainty recovery,
+separate `RawMutationRuntimeV1`/`WriteAuthorizationV1`, fail-closed gateway
+capability assertion, and docs-eebus #78 as the gate for eebusreg #85.
 
 Historical M6.5 is framework-complete/live-partial. Historical M7, M8, and M8.5
 are synthetic-only/partial, with zero promoted leaves. Their administrative
