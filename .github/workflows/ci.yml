@@ -5,6 +5,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      post_merge_sha:
+        description: Exact helianthus-modbus PR #6 squash merge SHA
+        required: false
+        type: string
 
 jobs:
   validate:
@@ -31,5 +37,29 @@ jobs:
 
       - name: Validate plans repo
         run: ./scripts/validate_plans_repo.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  modbus-m1-02-release:
+    if: >-
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.number == 84) ||
+      (github.event_name == 'workflow_dispatch' &&
+       inputs.post_merge_sha != '')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reviewed anchor
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate Modbus M1-02 release
+        run: ./scripts/validate_modbus_m1_02_live.sh "${{ inputs.post_merge_sha }}"
         env:
           GH_TOKEN: ${{ github.token }}

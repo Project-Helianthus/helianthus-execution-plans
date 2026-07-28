@@ -53,6 +53,12 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             }
         return {
             "attestation": {
+                "anchor_base_ref": "main",
+                "anchor_head_ref": "issue/71-m1-02-external-trust",
+                "anchor_pull_request": 84,
+                "anchor_repository": (
+                    "Project-Helianthus/helianthus-execution-plans"
+                ),
                 "context": "adversarial-review",
                 "creator_id": 16434603,
                 "creator_login": "d3vi1",
@@ -67,6 +73,8 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             },
             "files": files,
             "post_merge": {
+                "base_ref": "main",
+                "head_ref": "issue/5-owned-modbus-tcp-runtime",
                 "pull_request": 6,
                 "strategy": "squash",
                 "target_ref": "refs/remotes/origin/main",
@@ -248,6 +256,15 @@ class ModbusM102ReleaseTests(unittest.TestCase):
 
     def test_merge_payload_binds_exact_pr_and_sha(self) -> None:
         valid = {
+            "base": {
+                "ref": "main",
+                "repo": {"full_name": "Project-Helianthus/helianthus-modbus"},
+            },
+            "head": {
+                "ref": "issue/5-owned-modbus-tcp-runtime",
+                "repo": {"full_name": "Project-Helianthus/helianthus-modbus"},
+                "sha": self.reviewed,
+            },
             "merge_commit_sha": self.reviewed,
             "merged": True,
             "number": 6,
@@ -271,6 +288,66 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             ),
         )
 
+    def test_live_modbus_pr_head_must_equal_reviewed_sha(self) -> None:
+        payload = {
+            "base": {
+                "ref": "main",
+                "repo": {"full_name": "Project-Helianthus/helianthus-modbus"},
+            },
+            "head": {
+                "ref": "issue/5-owned-modbus-tcp-runtime",
+                "repo": {"full_name": "Project-Helianthus/helianthus-modbus"},
+                "sha": "0" * 40,
+            },
+            "number": 6,
+        }
+        self.assertIn(
+            "live Modbus PR head is not the reviewed SHA",
+            release.validate_pull_request_head_payload(payload, self.manifest),
+        )
+
+    def test_anchor_must_be_exact_reviewed_pr_tree(self) -> None:
+        pull_request = {
+            "base": {
+                "ref": "main",
+                "repo": {
+                    "full_name": (
+                        "Project-Helianthus/helianthus-execution-plans"
+                    )
+                },
+            },
+            "head": {
+                "ref": "issue/71-m1-02-external-trust",
+                "repo": {
+                    "full_name": (
+                        "Project-Helianthus/helianthus-execution-plans"
+                    )
+                },
+                "sha": ANCHOR_SHA,
+            },
+            "number": 84,
+        }
+        commit = {"sha": ANCHOR_SHA, "tree": {"sha": self.reviewed}}
+        self.assertEqual(
+            release.validate_anchor_review_payload(
+                pull_request,
+                commit,
+                self.manifest,
+                self.reviewed,
+            ),
+            [],
+        )
+        commit["tree"]["sha"] = "0" * 40
+        self.assertIn(
+            "local anchor tree is not the reviewed PR-head tree",
+            release.validate_anchor_review_payload(
+                pull_request,
+                commit,
+                self.manifest,
+                self.reviewed,
+            ),
+        )
+
     def test_post_merge_requires_exact_attested_tree(self) -> None:
         run(self.root, "checkout", "-qb", "matching")
         run(self.root, "commit", "--allow-empty", "-qm", "squash identity")
@@ -280,6 +357,24 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             "update-ref",
             "refs/remotes/origin/main",
             matching,
+        )
+        self.assertEqual(
+            release.validate_post_merge_tree(
+                self.root,
+                matching,
+                self.reviewed,
+                self.reviewed,
+                "refs/remotes/origin/main",
+            ),
+            [],
+        )
+        run(self.root, "commit", "--allow-empty", "-qm", "later main commit")
+        later = run(self.root, "rev-parse", "HEAD")
+        run(
+            self.root,
+            "update-ref",
+            "refs/remotes/origin/main",
+            later,
         )
         self.assertEqual(
             release.validate_post_merge_tree(
@@ -311,6 +406,30 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 self.root,
                 matching,
                 matching,
+                self.reviewed,
+                "refs/remotes/origin/main",
+            ),
+        )
+        reviewed_tree = run(self.root, "rev-parse", f"{matching}^{{tree}}")
+        unrelated = run(
+            self.root,
+            "commit-tree",
+            reviewed_tree,
+            "-m",
+            "unrelated same tree",
+        )
+        run(
+            self.root,
+            "update-ref",
+            "refs/remotes/origin/main",
+            unrelated,
+        )
+        self.assertIn(
+            "post-merge SHA is not contained in target branch",
+            release.validate_post_merge_tree(
+                self.root,
+                matching,
+                self.reviewed,
                 self.reviewed,
                 "refs/remotes/origin/main",
             ),

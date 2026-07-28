@@ -1,5 +1,9 @@
 {
   "attestation": {
+    "anchor_base_ref": "main",
+    "anchor_head_ref": "issue/71-m1-02-external-trust",
+    "anchor_pull_request": 84,
+    "anchor_repository": "Project-Helianthus/helianthus-execution-plans",
     "context": "adversarial-review",
     "creator_id": 16434603,
     "creator_login": "d3vi1",
@@ -174,6 +178,8 @@
     }
   },
   "post_merge": {
+    "base_ref": "main",
+    "head_ref": "issue/5-owned-modbus-tcp-runtime",
     "pull_request": 6,
     "strategy": "squash",
     "target_ref": "refs/remotes/origin/main",

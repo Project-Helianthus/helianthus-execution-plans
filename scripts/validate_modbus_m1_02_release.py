@@ -114,6 +114,12 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
     if not isinstance(reviewed_sha, str) or SHA_RE.fullmatch(reviewed_sha) is None:
         errors.append("reviewed_sha must be lowercase 40-hex")
     if manifest.get("attestation") != {
+        "anchor_base_ref": "main",
+        "anchor_head_ref": "issue/71-m1-02-external-trust",
+        "anchor_pull_request": 84,
+        "anchor_repository": (
+            "Project-Helianthus/helianthus-execution-plans"
+        ),
         "context": "adversarial-review",
         "creator_id": 16434603,
         "creator_login": "d3vi1",
@@ -128,6 +134,8 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
     }:
         errors.append("release attestation contract is not exact")
     if manifest.get("post_merge") != {
+        "base_ref": "main",
+        "head_ref": "issue/5-owned-modbus-tcp-runtime",
         "pull_request": 6,
         "strategy": "squash",
         "target_ref": "refs/remotes/origin/main",
@@ -371,6 +379,114 @@ def _fetch_pull_request(manifest: dict[str, Any], token: str) -> object:
     )
 
 
+def _fetch_anchor_pull_request(
+    manifest: dict[str, Any],
+    token: str,
+) -> object:
+    contract = manifest["attestation"]
+    return _github_json(
+        (
+            f"https://api.github.com/repos/{contract['anchor_repository']}/"
+            f"pulls/{contract['anchor_pull_request']}"
+        ),
+        token,
+    )
+
+
+def _fetch_commit(repository: str, sha: str, token: str) -> object:
+    return _github_json(
+        f"https://api.github.com/repos/{repository}/git/commits/{sha}",
+        token,
+    )
+
+
+def validate_pull_request_head_payload(
+    payload: object,
+    manifest: dict[str, Any],
+) -> list[str]:
+    if not isinstance(payload, dict):
+        return ["Modbus pull request payload must be an object"]
+    errors: list[str] = []
+    contract = manifest["post_merge"]
+    head = payload.get("head")
+    base = payload.get("base")
+    if payload.get("number") != contract["pull_request"]:
+        errors.append("Modbus pull request number is not exact")
+    if not isinstance(head, dict):
+        errors.append("Modbus pull request head is missing")
+    else:
+        if head.get("ref") != contract["head_ref"]:
+            errors.append("Modbus pull request head ref is not exact")
+        if head.get("sha") != manifest["reviewed_sha"]:
+            errors.append("live Modbus PR head is not the reviewed SHA")
+        head_repo = head.get("repo")
+        if (
+            not isinstance(head_repo, dict)
+            or head_repo.get("full_name") != manifest["repository"]
+        ):
+            errors.append("Modbus pull request head repository is not exact")
+    if not isinstance(base, dict):
+        errors.append("Modbus pull request base is missing")
+    else:
+        if base.get("ref") != contract["base_ref"]:
+            errors.append("Modbus pull request base ref is not exact")
+        base_repo = base.get("repo")
+        if (
+            not isinstance(base_repo, dict)
+            or base_repo.get("full_name") != manifest["repository"]
+        ):
+            errors.append("Modbus pull request base repository is not exact")
+    return errors
+
+
+def validate_anchor_review_payload(
+    pull_request: object,
+    commit: object,
+    manifest: dict[str, Any],
+    anchor_tree: str,
+) -> list[str]:
+    if not isinstance(pull_request, dict):
+        return ["anchor pull request payload must be an object"]
+    if not isinstance(commit, dict):
+        return ["anchor commit payload must be an object"]
+    errors: list[str] = []
+    contract = manifest["attestation"]
+    head = pull_request.get("head")
+    base = pull_request.get("base")
+    if pull_request.get("number") != contract["anchor_pull_request"]:
+        errors.append("anchor pull request number is not exact")
+    if not isinstance(head, dict):
+        errors.append("anchor pull request head is missing")
+        head_sha = None
+    else:
+        head_sha = head.get("sha")
+        if head.get("ref") != contract["anchor_head_ref"]:
+            errors.append("anchor pull request head ref is not exact")
+        head_repo = head.get("repo")
+        if (
+            not isinstance(head_repo, dict)
+            or head_repo.get("full_name") != contract["anchor_repository"]
+        ):
+            errors.append("anchor pull request head repository is not exact")
+    if not isinstance(base, dict):
+        errors.append("anchor pull request base is missing")
+    else:
+        if base.get("ref") != contract["anchor_base_ref"]:
+            errors.append("anchor pull request base ref is not exact")
+        base_repo = base.get("repo")
+        if (
+            not isinstance(base_repo, dict)
+            or base_repo.get("full_name") != contract["anchor_repository"]
+        ):
+            errors.append("anchor pull request base repository is not exact")
+    if commit.get("sha") != head_sha:
+        errors.append("anchor commit is not the reviewed PR head")
+    tree = commit.get("tree")
+    if not isinstance(tree, dict) or tree.get("sha") != anchor_tree:
+        errors.append("local anchor tree is not the reviewed PR-head tree")
+    return errors
+
+
 def validate_merge_payload(
     payload: object,
     manifest: dict[str, Any],
@@ -386,6 +502,7 @@ def validate_merge_payload(
         errors.append("post-merge pull request is not merged and closed")
     if payload.get("merge_commit_sha") != merged_sha:
         errors.append("post-merge SHA is not the GitHub PR merge commit")
+    errors.extend(validate_pull_request_head_payload(payload, manifest))
     return errors
 
 
@@ -401,6 +518,34 @@ def validate_live_attestation(
         return ["verified external anchor tree is required for attestation"]
     errors: list[str] = []
     try:
+        pull_request = _fetch_pull_request(manifest, token)
+        errors.extend(
+            validate_pull_request_head_payload(pull_request, manifest)
+        )
+        anchor_pull_request = _fetch_anchor_pull_request(manifest, token)
+        anchor_head = (
+            anchor_pull_request.get("head")
+            if isinstance(anchor_pull_request, dict)
+            else None
+        )
+        anchor_head_sha = (
+            anchor_head.get("sha")
+            if isinstance(anchor_head, dict)
+            else ""
+        )
+        anchor_commit = _fetch_commit(
+            manifest["attestation"]["anchor_repository"],
+            anchor_head_sha,
+            token,
+        )
+        errors.extend(
+            validate_anchor_review_payload(
+                anchor_pull_request,
+                anchor_commit,
+                manifest,
+                anchor_tree,
+            )
+        )
         errors.extend(
             validate_attestation_payload(
                 _fetch_statuses(manifest, token),
@@ -411,7 +556,7 @@ def validate_live_attestation(
         if merged_sha is not None:
             errors.extend(
                 validate_merge_payload(
-                    _fetch_pull_request(manifest, token),
+                    pull_request,
                     manifest,
                     merged_sha,
                 )
@@ -446,8 +591,29 @@ def validate_post_merge_tree(
             errors.append("attested PR head is not a commit")
         if errors:
             return errors
-        if _git(repository_root, "rev-parse", target_ref) != merged_sha:
-            errors.append("post-merge SHA is not the exact target branch tip")
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repository_root),
+                "merge-base",
+                "--is-ancestor",
+                merged_sha,
+                target_ref,
+            ],
+            check=False,
+            capture_output=True,
+        )
+        if result.returncode == 1:
+            errors.append("post-merge SHA is not contained in target branch")
+        elif result.returncode != 0:
+            detail = result.stderr.decode(
+                "utf-8",
+                errors="replace",
+            ).strip()
+            raise ValueError(
+                f"git merge-base --is-ancestor failed: {detail}"
+            )
         merged_tree = _git(
             repository_root,
             "rev-parse",
