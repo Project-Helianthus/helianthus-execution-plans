@@ -12,7 +12,8 @@ from unittest import mock
 from scripts import validate_modbus_m1_02_release as release
 
 
-ANCHOR_SHA = "a" * 40
+ANCHOR_HEAD = "a" * 40
+ANCHOR_TREE = "b" * 40
 
 
 def run(root: pathlib.Path, *args: str) -> str:
@@ -157,7 +158,7 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             "creator": {"id": 16434603, "login": "d3vi1"},
             "description": (
                 "OpenAI-only fresh adversarial consensus: NO_FINDINGS "
-                f"anchor-tree={ANCHOR_SHA}"
+                f"h={ANCHOR_HEAD} t={ANCHOR_TREE}"
             ),
             "state": "success",
             "target_url": (
@@ -173,7 +174,8 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             release.validate_attestation_payload(
                 [self.status()],
                 self.manifest,
-                ANCHOR_SHA,
+                ANCHOR_HEAD,
+                ANCHOR_TREE,
             ),
             [],
         )
@@ -192,7 +194,8 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 errors = release.validate_attestation_payload(
                     [self.status(**override)],
                     self.manifest,
-                    ANCHOR_SHA,
+                    ANCHOR_HEAD,
+                    ANCHOR_TREE,
                 )
                 self.assertTrue(any(expected in error for error in errors))
 
@@ -203,18 +206,36 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 self.status(),
             ],
             self.manifest,
-            ANCHOR_SHA,
+            ANCHOR_HEAD,
+            ANCHOR_TREE,
         )
         self.assertIn(
             "latest adversarial-review status is not success",
             errors,
         )
 
+    def test_attestation_rejects_stale_same_tree_anchor_head(self) -> None:
+        stale = self.status(
+            description=(
+                "OpenAI-only fresh adversarial consensus: NO_FINDINGS "
+                f"h={'c' * 40} t={ANCHOR_TREE}"
+            )
+        )
+        self.assertIn(
+            "adversarial-review description is not exact",
+            release.validate_attestation_payload(
+                [stale],
+                self.manifest,
+                ANCHOR_HEAD,
+                ANCHOR_TREE,
+            ),
+        )
+
     def test_live_attestation_is_mandatory(self) -> None:
         self.assertEqual(
             release.validate_live_attestation(
                 self.manifest,
-                ANCHOR_SHA,
+                ANCHOR_TREE,
                 "",
             ),
             ["GH_TOKEN is required to verify attestation"],
@@ -323,11 +344,11 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                         "Project-Helianthus/helianthus-execution-plans"
                     )
                 },
-                "sha": ANCHOR_SHA,
+                "sha": ANCHOR_HEAD,
             },
             "number": 84,
         }
-        commit = {"sha": ANCHOR_SHA, "tree": {"sha": self.reviewed}}
+        commit = {"sha": ANCHOR_HEAD, "tree": {"sha": self.reviewed}}
         self.assertEqual(
             release.validate_anchor_review_payload(
                 pull_request,

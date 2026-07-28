@@ -66,7 +66,7 @@
     },
     "policy/m1-02-acceptance.json": {
       "mode": "100644",
-      "sha256": "127a6f57a4e4ad1773ebc60014b40857bc91ed1a5605b877f832a9553a28dddf"
+      "sha256": "5baa7746dd5533eae7cc516bc1f7bc672ec34a72df67868c4eb6736efc9e883d"
     },
     "policy/m1-02-transport-matrix.json": {
       "mode": "100644",
@@ -78,7 +78,7 @@
     },
     "policy/phase1-readonly.json": {
       "mode": "100644",
-      "sha256": "158a80865f315e2a810065bb72e1a31d5edac305765993f599e5e1076f43e00f"
+      "sha256": "bdf05a4525fcc66acfd9e87a505024aa8bd7b7196525af9e46bd7106b84fe6e1"
     },
     "scripts/acceptance_evidence/main.go": {
       "mode": "100644",
@@ -106,7 +106,7 @@
     },
     "scripts/validate_scope_policy.py": {
       "mode": "100644",
-      "sha256": "3c9c14de298fbd9e2b53d3447f454b887553aa9af091aee45847d325f258c613"
+      "sha256": "3d91de716197f4b734f0b4f6000feb3299298f52e80beba84af5bd78e117eaaa"
     },
     "tcp_adu.go": {
       "mode": "100644",
@@ -158,11 +158,11 @@
     },
     "tcp_transport.go": {
       "mode": "100644",
-      "sha256": "0b95a1311ad5df7c55aff0d9db9543eb46a9ccde205b2461f5b4f618d21ef2ab"
+      "sha256": "405c933c25dd0b5bc43b9ac470e4fb2296aba6122120f3728d77e06e3a44fd1c"
     },
     "tcp_transport_test.go": {
       "mode": "100644",
-      "sha256": "3d5a89e6a125a8b710153c9a4ae1ebe5187807256cfc7a6aab0af16b18613b9c"
+      "sha256": "20fb80f4729614974ed9056bcd63138bf04e19b41a4f0f21bf9e6f16970633f5"
     },
     "tests/test_acceptance_evidence.py": {
       "mode": "100644",
@@ -186,7 +186,7 @@
     "tree_must_equal_attested_pr_head": true
   },
   "repository": "Project-Helianthus/helianthus-modbus",
-  "reviewed_sha": "2d95615829c339ebc1615000cfcc1dfed4688e50",
+  "reviewed_sha": "04713fb8bcfc7538b7f516bcfd5b4c4833ab79d2",
   "schema": "helianthus.modbus.m1-02-release",
   "version": 1
 }

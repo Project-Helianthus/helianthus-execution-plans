@@ -7,7 +7,7 @@ POST_MERGE_SHA="${1:-}"
 export PYTHONDONTWRITEBYTECODE=1
 
 if ! command -v gh >/dev/null 2>&1; then
-  echo "gh is required for the Modbus M1-02 remote release gate." >&2
+  echo "gh is required for the Modbus M1-02 remote attestation gate." >&2
   exit 1
 fi
 if [ -z "${GH_TOKEN:-}" ]; then

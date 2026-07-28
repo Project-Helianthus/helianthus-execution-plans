@@ -273,6 +273,7 @@ def validate_release(
 def validate_attestation_payload(
     statuses: object,
     manifest: dict[str, Any],
+    anchor_head: str,
     anchor_tree: str,
 ) -> list[str]:
     errors: list[str] = []
@@ -290,7 +291,7 @@ def validate_attestation_payload(
     latest = matching[0]
     creator = latest.get("creator")
     expected_description = (
-        f"{contract['description_prefix']} anchor-tree={anchor_tree}"
+        f"{contract['description_prefix']} h={anchor_head} t={anchor_tree}"
     )
     if latest.get("state") != "success":
         errors.append("latest adversarial-review status is not success")
@@ -550,6 +551,7 @@ def validate_live_attestation(
             validate_attestation_payload(
                 _fetch_statuses(manifest, token),
                 manifest,
+                anchor_head_sha,
                 anchor_tree,
             )
         )
@@ -689,7 +691,7 @@ def main() -> int:
         )
     else:
         print(
-            "modbus_m1_02_release_ok "
+            "modbus_m1_02_candidate_attestation_ok "
             f"reviewed_sha={manifest['reviewed_sha']} "
             f"anchor_sha={anchor_sha}"
         )
