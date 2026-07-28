@@ -23,7 +23,7 @@ def run(root: pathlib.Path, *args: str) -> str:
 
 class ModbusM102ReleaseTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.temp = tempfile.TemporaryDirectory()
+        self.temp = tempfile.TemporaryDirectory(dir="/private/tmp")
         self.root = pathlib.Path(self.temp.name)
         run(self.root, "init", "-q")
         run(self.root, "config", "user.name", "Test")
@@ -79,13 +79,13 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             "version": 1,
         }
 
-    def make_child(self) -> str:
+    def make_child(self, trust_sha: str = TRUST_SHA) -> str:
         reviewed_ci = (self.root / release.CI_PATH).read_bytes()
         (self.root / release.CI_PATH).write_bytes(
             release._expected_ci(reviewed_ci)
         )
         hook = self.root / release.HOOK_PATH
-        hook.write_bytes(release._expected_hook(TRUST_SHA))
+        hook.write_bytes(release._expected_hook(trust_sha))
         hook.chmod(0o755)
         run(self.root, "add", ".")
         run(self.root, "commit", "-qm", "external gate")
@@ -141,6 +141,13 @@ class ModbusM102ReleaseTests(unittest.TestCase):
         hook.write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")
         run(self.root, "add", ".")
         run(self.root, "commit", "--amend", "-qm", "weaken hook")
+        self.assertIn(
+            "external release hook bytes are not exact",
+            self.validate(),
+        )
+
+    def test_candidate_cannot_rebind_external_anchor(self) -> None:
+        self.make_child("b" * 40)
         self.assertIn(
             "external release hook bytes are not exact",
             self.validate(),
@@ -234,6 +241,39 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             )
         finally:
             link.unlink()
+
+    def test_symlinked_candidate_ancestor_is_rejected(self) -> None:
+        ancestor = self.root.parent / f"{self.root.name}-ancestor"
+        ancestor.symlink_to(self.root.parent, target_is_directory=True)
+        candidate = ancestor / self.root.name
+        try:
+            self.assertEqual(
+                release.validate_release(
+                    candidate,
+                    self.manifest,
+                    TRUST_SHA,
+                    allow_reviewed=True,
+                ),
+                ["candidate root must be a regular directory"],
+            )
+            self.assertEqual(
+                release.validate_post_merge_tree(
+                    candidate,
+                    self.reviewed,
+                    self.reviewed,
+                ),
+                ["repository root must be a regular directory"],
+            )
+            self.assertEqual(
+                release._validate_anchor(
+                    candidate,
+                    self.reviewed,
+                    candidate / "product.go",
+                ),
+                ["anchor root must be a regular directory"],
+            )
+        finally:
+            ancestor.unlink()
 
 
 if __name__ == "__main__":

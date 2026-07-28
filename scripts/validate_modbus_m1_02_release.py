@@ -98,8 +98,7 @@ git -C "$ANCHOR_DIR" checkout --quiet --detach FETCH_HEAD
 test "$(git -C "$ANCHOR_DIR" rev-parse HEAD)" = "$TRUST_SHA"
 python3 "$ANCHOR_DIR/scripts/validate_modbus_m1_02_release.py" \
   --candidate-root "$ROOT" \
-  --anchor-root "$ANCHOR_DIR" \
-  --trust-anchor-sha "$TRUST_SHA"
+  --anchor-root "$ANCHOR_DIR"
 """.encode("utf-8")
 
 
@@ -185,7 +184,7 @@ def _validate_anchor(
 ) -> list[str]:
     errors: list[str] = []
     try:
-        if anchor_root.is_symlink() or not anchor_root.is_dir():
+        if not _is_strict_regular_root(anchor_root):
             return ["anchor root must be a regular directory"]
         if _git(anchor_root, "rev-parse", "HEAD") != trust_anchor_sha:
             errors.append("anchor checkout HEAD does not equal trust anchor")
@@ -215,13 +214,25 @@ def _validate_anchor(
     return errors
 
 
+def _is_strict_regular_root(root: pathlib.Path) -> bool:
+    try:
+        lexical = root.absolute()
+        return (
+            lexical.is_dir()
+            and not lexical.is_symlink()
+            and lexical == lexical.resolve(strict=True)
+        )
+    except OSError:
+        return False
+
+
 def validate_post_merge_tree(
     repository_root: pathlib.Path,
     merged_sha: str,
     attested_pr_head: str,
 ) -> list[str]:
     errors: list[str] = []
-    if repository_root.is_symlink() or not repository_root.is_dir():
+    if not _is_strict_regular_root(repository_root):
         return ["repository root must be a regular directory"]
     if SHA_RE.fullmatch(merged_sha) is None:
         errors.append("post-merge SHA must be lowercase 40-hex")
@@ -271,7 +282,7 @@ def validate_release(
     reviewed_sha = manifest["reviewed_sha"]
     files = manifest["files"]
     try:
-        if candidate_root.is_symlink() or not candidate_root.is_dir():
+        if not _is_strict_regular_root(candidate_root):
             return ["candidate root must be a regular directory"]
         head = _git(candidate_root, "rev-parse", "HEAD")
         if _git(
@@ -396,7 +407,6 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate-root", required=True, type=pathlib.Path)
     parser.add_argument("--anchor-root", type=pathlib.Path)
-    parser.add_argument("--trust-anchor-sha")
     parser.add_argument("--manifest", type=pathlib.Path)
     parser.add_argument("--allow-reviewed", action="store_true")
     parser.add_argument("--post-merge-sha")
@@ -438,25 +448,36 @@ def main() -> int:
         return 0
 
     errors: list[str] = []
+    trust_anchor_sha: str | None = None
     if args.anchor_root is not None:
-        if (
-            args.trust_anchor_sha is None
-            or SHA_RE.fullmatch(args.trust_anchor_sha) is None
-        ):
-            errors.append("anchor validation requires lowercase 40-hex SHA")
-        else:
-            errors.extend(
-                _validate_anchor(
+        try:
+            trust_anchor_sha = str(
+                _git(
                     args.anchor_root.absolute(),
-                    args.trust_anchor_sha,
-                    manifest_path,
+                    "rev-parse",
+                    "HEAD",
                 )
             )
+        except ValueError as exc:
+            errors.append(str(exc))
+        if trust_anchor_sha is not None:
+            if SHA_RE.fullmatch(trust_anchor_sha) is None:
+                errors.append("anchor HEAD must be lowercase 40-hex SHA")
+            else:
+                errors.extend(
+                    _validate_anchor(
+                        args.anchor_root.absolute(),
+                        trust_anchor_sha,
+                        manifest_path,
+                    )
+                )
+    elif not args.allow_reviewed:
+        errors.append("child validation requires an external anchor checkout")
     errors.extend(
         validate_release(
             args.candidate_root.absolute(),
             manifest,
-            args.trust_anchor_sha,
+            trust_anchor_sha,
             args.allow_reviewed,
         )
     )
