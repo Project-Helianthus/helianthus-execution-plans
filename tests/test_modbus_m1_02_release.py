@@ -60,6 +60,7 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 "anchor_repository": (
                     "Project-Helianthus/helianthus-execution-plans"
                 ),
+                "anchor_target_ref": "refs/remotes/origin/main",
                 "context": "adversarial-review",
                 "creator_id": 16434603,
                 "creator_login": "d3vi1",
@@ -371,6 +372,12 @@ class ModbusM102ReleaseTests(unittest.TestCase):
         )
 
     def test_post_merge_requires_merged_anchor_checkout(self) -> None:
+        run(
+            self.root,
+            "update-ref",
+            "refs/remotes/origin/main",
+            self.reviewed,
+        )
         open_pull_request = {
             "merge_commit_sha": None,
             "merged": False,
@@ -379,7 +386,9 @@ class ModbusM102ReleaseTests(unittest.TestCase):
         self.assertEqual(
             release.validate_anchor_merge_payload(
                 open_pull_request,
-                ANCHOR_HEAD,
+                self.reviewed,
+                self.root,
+                "refs/remotes/origin/main",
             ),
             [
                 "anchor pull request is not merged and closed",
@@ -387,16 +396,58 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             ],
         )
         merged_pull_request = {
-            "merge_commit_sha": ANCHOR_HEAD,
+            "merge_commit_sha": self.reviewed,
             "merged": True,
             "state": "closed",
         }
         self.assertEqual(
             release.validate_anchor_merge_payload(
                 merged_pull_request,
-                ANCHOR_HEAD,
+                self.reviewed,
+                self.root,
+                "refs/remotes/origin/main",
             ),
             [],
+        )
+        run(self.root, "commit", "--allow-empty", "-qm", "later anchor main")
+        later = run(self.root, "rev-parse", "HEAD")
+        run(
+            self.root,
+            "update-ref",
+            "refs/remotes/origin/main",
+            later,
+        )
+        self.assertEqual(
+            release.validate_anchor_merge_payload(
+                merged_pull_request,
+                self.reviewed,
+                self.root,
+                "refs/remotes/origin/main",
+            ),
+            [],
+        )
+        tree = run(self.root, "rev-parse", f"{self.reviewed}^{{tree}}")
+        unrelated = run(
+            self.root,
+            "commit-tree",
+            tree,
+            "-m",
+            "unrelated anchor main",
+        )
+        run(
+            self.root,
+            "update-ref",
+            "refs/remotes/origin/main",
+            unrelated,
+        )
+        self.assertIn(
+            "anchor merge commit is not contained in main",
+            release.validate_anchor_merge_payload(
+                merged_pull_request,
+                self.reviewed,
+                self.root,
+                "refs/remotes/origin/main",
+            ),
         )
 
     def test_post_merge_requires_exact_attested_tree(self) -> None:

@@ -120,6 +120,7 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
         "anchor_repository": (
             "Project-Helianthus/helianthus-execution-plans"
         ),
+        "anchor_target_ref": "refs/remotes/origin/main",
         "context": "adversarial-review",
         "creator_id": 16434603,
         "creator_login": "d3vi1",
@@ -491,6 +492,8 @@ def validate_anchor_review_payload(
 def validate_anchor_merge_payload(
     pull_request: object,
     anchor_sha: str,
+    anchor_root: pathlib.Path,
+    target_ref: str,
 ) -> list[str]:
     if not isinstance(pull_request, dict):
         return ["anchor pull request payload must be an object"]
@@ -502,6 +505,35 @@ def validate_anchor_merge_payload(
         errors.append("anchor pull request is not merged and closed")
     if pull_request.get("merge_commit_sha") != anchor_sha:
         errors.append("anchor checkout is not the GitHub PR merge commit")
+    if not _strict_regular_root(anchor_root):
+        errors.append("anchor root must be a regular directory")
+        return errors
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(anchor_root),
+                "merge-base",
+                "--is-ancestor",
+                anchor_sha,
+                target_ref,
+            ],
+            check=False,
+            capture_output=True,
+        )
+        if result.returncode == 1:
+            errors.append("anchor merge commit is not contained in main")
+        elif result.returncode != 0:
+            detail = result.stderr.decode(
+                "utf-8",
+                errors="replace",
+            ).strip()
+            raise ValueError(
+                f"git merge-base --is-ancestor failed: {detail}"
+            )
+    except ValueError as exc:
+        errors.append(str(exc))
     return errors
 
 
@@ -580,6 +612,8 @@ def validate_live_attestation(
                 validate_anchor_merge_payload(
                     anchor_pull_request,
                     anchor_sha,
+                    pathlib.Path(__file__).resolve().parents[1],
+                    manifest["attestation"]["anchor_target_ref"],
                 )
             )
             errors.extend(

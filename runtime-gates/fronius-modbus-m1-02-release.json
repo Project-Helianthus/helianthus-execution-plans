@@ -4,6 +4,7 @@
     "anchor_head_ref": "issue/71-m1-02-external-trust",
     "anchor_pull_request": 84,
     "anchor_repository": "Project-Helianthus/helianthus-execution-plans",
+    "anchor_target_ref": "refs/remotes/origin/main",
     "context": "adversarial-review",
     "creator_id": 16434603,
     "creator_login": "d3vi1",
@@ -66,7 +67,7 @@
     },
     "policy/m1-02-acceptance.json": {
       "mode": "100644",
-      "sha256": "fb163959e24803f1cf0ca22ec67e737840b123fc4fe4203221ebe327581e6bdd"
+      "sha256": "48dec7fb7e37df3a1347aefb5903de7fe7ea59f4608b01b7b980b66be1f00243"
     },
     "policy/m1-02-transport-matrix.json": {
       "mode": "100644",
@@ -78,7 +79,7 @@
     },
     "policy/phase1-readonly.json": {
       "mode": "100644",
-      "sha256": "67c76fec791915f819233cbd3d1fbc33be2597aa9cc33d9226a421602890c6dc"
+      "sha256": "02d8653bb0bc98856d2d07e1cde95d51f671be95cc70921fd5357062f7c1527f"
     },
     "scripts/acceptance_evidence/main.go": {
       "mode": "100644",
@@ -106,7 +107,7 @@
     },
     "scripts/validate_scope_policy.py": {
       "mode": "100644",
-      "sha256": "6b1ea1c239a968e37521812c6daa133e5bb7d860ecc45c2a2a9c4baa6efadefc"
+      "sha256": "11f3447993e0e3509d8441fb961cd9bd5e4f42644e0ea5ea6adffce1d1dfe12f"
     },
     "tcp_adu.go": {
       "mode": "100644",
@@ -134,7 +135,7 @@
     },
     "tcp_owner.go": {
       "mode": "100644",
-      "sha256": "69485bc103ba4f3dcd439540132e65e1a895ea7c3076d3b9c50638125e3f48f4"
+      "sha256": "8ae7286c2795c8b68ab595b174c7d2f56f24686dea98414927d5b3cb9eb2e0aa"
     },
     "tcp_owner_test.go": {
       "mode": "100644",
@@ -158,11 +159,11 @@
     },
     "tcp_transport.go": {
       "mode": "100644",
-      "sha256": "4bd89839adab975ddae75711154f14d3cc5244046858a9c9492c987ad0ecb2e8"
+      "sha256": "935104fd4086a016241fa8358be885aa99c55f80d220a03255e42b31e1c4fca4"
     },
     "tcp_transport_test.go": {
       "mode": "100644",
-      "sha256": "7afe22403b0a9caeb70f81f135641aa99fe2bfc151f99229eb60af1d9bbb493e"
+      "sha256": "0f30dea46dc3101f8af47bbb83c704c7a2799fd124c2c0be34045aae29111f33"
     },
     "tests/test_acceptance_evidence.py": {
       "mode": "100644",
@@ -186,7 +187,7 @@
     "tree_must_equal_attested_pr_head": true
   },
   "repository": "Project-Helianthus/helianthus-modbus",
-  "reviewed_sha": "3b9454e90b5eab12a75a9dcb9dd68853f37d394b",
+  "reviewed_sha": "0aac61ddad62f664b47900334c48803587183fa3",
   "schema": "helianthus.modbus.m1-02-release",
   "version": 1
 }
