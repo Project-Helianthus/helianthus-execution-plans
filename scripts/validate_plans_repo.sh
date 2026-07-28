@@ -79,6 +79,26 @@ fi
 "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_modbus_m1_02_release.py" \
   --candidate-root "$modbus_gate_root" \
   --anchor-root "$ROOT"
+if ! command -v gh >/dev/null 2>&1; then
+  echo "gh is required for Modbus post-merge gate discovery." >&2
+  exit 1
+fi
+modbus_pr_merged="$(
+  gh api repos/Project-Helianthus/helianthus-modbus/pulls/6 --jq .merged
+)"
+if [ "$modbus_pr_merged" = "true" ]; then
+  modbus_merge_sha="$(
+    gh api repos/Project-Helianthus/helianthus-modbus/pulls/6 \
+      --jq .merge_commit_sha
+  )"
+  git -C "$modbus_gate_root" fetch --quiet \
+    "https://github.com/Project-Helianthus/helianthus-modbus.git" \
+    "+refs/heads/main:refs/remotes/origin/main"
+  "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_modbus_m1_02_release.py" \
+    --candidate-root "$modbus_gate_root" \
+    --anchor-root "$ROOT" \
+    --post-merge-sha "$modbus_merge_sha"
+fi
 
 fronius_plan_dir=""
 fronius_plan_count=0
