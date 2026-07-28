@@ -23,7 +23,8 @@ def run(root: pathlib.Path, *args: str) -> str:
 
 class ModbusM102ReleaseTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.temp = tempfile.TemporaryDirectory(dir="/private/tmp")
+        strict_temp_root = pathlib.Path(tempfile.gettempdir()).resolve(strict=True)
+        self.temp = tempfile.TemporaryDirectory(dir=strict_temp_root)
         self.root = pathlib.Path(self.temp.name)
         run(self.root, "init", "-q")
         run(self.root, "config", "user.name", "Test")
