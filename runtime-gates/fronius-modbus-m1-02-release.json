@@ -173,7 +173,9 @@
     }
   },
   "post_merge": {
+    "pull_request": 6,
     "strategy": "squash",
+    "target_ref": "refs/remotes/origin/main",
     "tree_must_equal_attested_pr_head": true
   },
   "repository": "Project-Helianthus/helianthus-modbus",

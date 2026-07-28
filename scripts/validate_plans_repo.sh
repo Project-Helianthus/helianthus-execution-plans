@@ -48,6 +48,38 @@ else
   "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py"
 fi
 "$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
+
+modbus_gate_root="$(mktemp -d)"
+cleanup_modbus_gate() {
+  rm -rf "$modbus_gate_root"
+}
+trap cleanup_modbus_gate EXIT
+modbus_reviewed_sha="$(
+  "$TOKEN_VENV/bin/python" - "$ROOT/runtime-gates/fronius-modbus-m1-02-release.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+print(json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))["reviewed_sha"])
+PY
+)"
+git init -q "$modbus_gate_root"
+git -C "$modbus_gate_root" fetch --quiet --depth=1 \
+  "https://github.com/Project-Helianthus/helianthus-modbus.git" \
+  "$modbus_reviewed_sha"
+git -C "$modbus_gate_root" checkout --quiet --detach FETCH_HEAD
+if [ -z "${GH_TOKEN:-}" ]; then
+  if ! command -v gh >/dev/null 2>&1; then
+    echo "GH_TOKEN or authenticated gh is required for the Modbus release gate." >&2
+    exit 1
+  fi
+  GH_TOKEN="$(gh auth token)"
+  export GH_TOKEN
+fi
+"$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_modbus_m1_02_release.py" \
+  --candidate-root "$modbus_gate_root" \
+  --anchor-root "$ROOT"
+
 fronius_plan_dir=""
 fronius_plan_count=0
 for state in locked implementing maintenance; do

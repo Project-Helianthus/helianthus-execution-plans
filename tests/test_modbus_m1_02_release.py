@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import hashlib
+import io
+import json
 import pathlib
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 from scripts import validate_modbus_m1_02_release as release
 
@@ -60,7 +63,9 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             },
             "files": files,
             "post_merge": {
+                "pull_request": 6,
                 "strategy": "squash",
+                "target_ref": "refs/remotes/origin/main",
                 "tree_must_equal_attested_pr_head": True,
             },
             "repository": "Project-Helianthus/helianthus-modbus",
@@ -125,6 +130,8 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                         candidate,
                         self.reviewed,
                         self.reviewed,
+                        self.reviewed,
+                        "refs/remotes/origin/main",
                     ),
                     ["repository root must be a regular directory"],
                 )
@@ -190,15 +197,92 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             errors,
         )
 
+    def test_live_attestation_is_mandatory(self) -> None:
+        self.assertEqual(
+            release.validate_live_attestation(
+                self.manifest,
+                ANCHOR_SHA,
+                "",
+            ),
+            ["GH_TOKEN is required to verify attestation"],
+        )
+
+    def test_status_fetch_follows_next_page(self) -> None:
+        class Response(io.BytesIO):
+            def __init__(self, payload: object, link: str = "") -> None:
+                super().__init__(json.dumps(payload).encode("utf-8"))
+                self.headers = {"Link": link}
+
+            def __enter__(self) -> "Response":
+                return self
+
+            def __exit__(self, *args: object) -> None:
+                self.close()
+
+        first_url = (
+            "https://api.github.com/repos/Project-Helianthus/"
+            "helianthus-modbus/commits/abc/statuses?per_page=100"
+        )
+        next_url = first_url + "&page=2"
+        responses = [
+            Response(
+                [{"context": "other"}],
+                f'<{next_url}>; rel="next", <{next_url}>; rel="last"',
+            ),
+            Response([self.status()]),
+        ]
+        with mock.patch.object(
+            release.urllib.request,
+            "urlopen",
+            side_effect=responses,
+        ):
+            self.assertEqual(
+                release._github_json_pages(first_url, "token"),
+                [{"context": "other"}, self.status()],
+            )
+
+    def test_merge_payload_binds_exact_pr_and_sha(self) -> None:
+        valid = {
+            "merge_commit_sha": self.reviewed,
+            "merged": True,
+            "number": 6,
+            "state": "closed",
+        }
+        self.assertEqual(
+            release.validate_merge_payload(
+                valid,
+                self.manifest,
+                self.reviewed,
+            ),
+            [],
+        )
+        invalid = dict(valid, merge_commit_sha="0" * 40)
+        self.assertIn(
+            "post-merge SHA is not the GitHub PR merge commit",
+            release.validate_merge_payload(
+                invalid,
+                self.manifest,
+                self.reviewed,
+            ),
+        )
+
     def test_post_merge_requires_exact_attested_tree(self) -> None:
         run(self.root, "checkout", "-qb", "matching")
         run(self.root, "commit", "--allow-empty", "-qm", "squash identity")
         matching = run(self.root, "rev-parse", "HEAD")
+        run(
+            self.root,
+            "update-ref",
+            "refs/remotes/origin/main",
+            matching,
+        )
         self.assertEqual(
             release.validate_post_merge_tree(
                 self.root,
                 matching,
                 self.reviewed,
+                self.reviewed,
+                "refs/remotes/origin/main",
             ),
             [],
         )
@@ -212,6 +296,18 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 self.root,
                 different,
                 self.reviewed,
+                self.reviewed,
+                "refs/remotes/origin/main",
+            ),
+        )
+        self.assertIn(
+            "attested PR head is not the manifest reviewed SHA",
+            release.validate_post_merge_tree(
+                self.root,
+                matching,
+                matching,
+                self.reviewed,
+                "refs/remotes/origin/main",
             ),
         )
 

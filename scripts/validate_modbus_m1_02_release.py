@@ -9,6 +9,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -121,7 +122,9 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
     }:
         errors.append("release attestation contract is not exact")
     if manifest.get("post_merge") != {
+        "pull_request": 6,
         "strategy": "squash",
+        "target_ref": "refs/remotes/origin/main",
         "tree_must_equal_attested_pr_head": True,
     }:
         errors.append("post-merge tree attestation contract is not exact")
@@ -289,13 +292,56 @@ def validate_attestation_payload(
     return errors
 
 
-def _fetch_statuses(manifest: dict[str, Any], token: str) -> object:
+def _github_json_pages(url: str, token: str) -> list[object]:
+    values: list[object] = []
+    expected = urllib.parse.urlparse(url)
+    while url:
+        parsed = urllib.parse.urlparse(url)
+        if (
+            parsed.scheme != "https"
+            or parsed.netloc != "api.github.com"
+            or parsed.path != expected.path
+        ):
+            raise ValueError("GitHub pagination URL escaped the expected endpoint")
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/vnd.github+json",
+                "Authorization": f"Bearer {token}",
+                "X-GitHub-Api-Version": "2022-11-28",
+            },
+        )
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = json.load(response)
+            if not isinstance(payload, list):
+                raise ValueError("paginated GitHub response must be a list")
+            values.extend(payload)
+            link = response.headers.get("Link", "")
+        url = ""
+        for part in link.split(","):
+            match = re.fullmatch(
+                r'\s*<([^>]+)>;\s*rel="([^"]+)"\s*',
+                part,
+            )
+            if match is not None and match.group(2) == "next":
+                url = match.group(1)
+                break
+    return values
+
+
+def _fetch_statuses(manifest: dict[str, Any], token: str) -> list[object]:
     repository = manifest["repository"]
     reviewed_sha = manifest["reviewed_sha"]
-    url = (
-        f"https://api.github.com/repos/{repository}/commits/"
-        f"{reviewed_sha}/statuses?per_page=100"
+    return _github_json_pages(
+        (
+            f"https://api.github.com/repos/{repository}/commits/"
+            f"{reviewed_sha}/statuses?per_page=100"
+        ),
+        token,
     )
+
+
+def _github_json(url: str, token: str) -> object:
     request = urllib.request.Request(
         url,
         headers={
@@ -308,10 +354,71 @@ def _fetch_statuses(manifest: dict[str, Any], token: str) -> object:
         return json.load(response)
 
 
+def _fetch_pull_request(manifest: dict[str, Any], token: str) -> object:
+    repository = manifest["repository"]
+    number = manifest["post_merge"]["pull_request"]
+    return _github_json(
+        f"https://api.github.com/repos/{repository}/pulls/{number}",
+        token,
+    )
+
+
+def validate_merge_payload(
+    payload: object,
+    manifest: dict[str, Any],
+    merged_sha: str,
+) -> list[str]:
+    if not isinstance(payload, dict):
+        return ["pull request payload must be an object"]
+    errors: list[str] = []
+    contract = manifest["post_merge"]
+    if payload.get("number") != contract["pull_request"]:
+        errors.append("post-merge pull request number is not exact")
+    if payload.get("state") != "closed" or payload.get("merged") is not True:
+        errors.append("post-merge pull request is not merged and closed")
+    if payload.get("merge_commit_sha") != merged_sha:
+        errors.append("post-merge SHA is not the GitHub PR merge commit")
+    return errors
+
+
+def validate_live_attestation(
+    manifest: dict[str, Any],
+    anchor_sha: str | None,
+    token: str,
+    merged_sha: str | None = None,
+) -> list[str]:
+    if not token:
+        return ["GH_TOKEN is required to verify attestation"]
+    if anchor_sha is None:
+        return ["verified external anchor SHA is required for attestation"]
+    errors: list[str] = []
+    try:
+        errors.extend(
+            validate_attestation_payload(
+                _fetch_statuses(manifest, token),
+                manifest,
+                anchor_sha,
+            )
+        )
+        if merged_sha is not None:
+            errors.extend(
+                validate_merge_payload(
+                    _fetch_pull_request(manifest, token),
+                    manifest,
+                    merged_sha,
+                )
+            )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        errors.append(f"cannot fetch GitHub attestation: {exc}")
+    return errors
+
+
 def validate_post_merge_tree(
     repository_root: pathlib.Path,
     merged_sha: str,
     attested_pr_head: str,
+    expected_attested_pr_head: str,
+    target_ref: str,
 ) -> list[str]:
     errors: list[str] = []
     if not _strict_regular_root(repository_root):
@@ -320,6 +427,8 @@ def validate_post_merge_tree(
         errors.append("post-merge SHA must be lowercase 40-hex")
     if SHA_RE.fullmatch(attested_pr_head) is None:
         errors.append("attested PR head must be lowercase 40-hex")
+    elif attested_pr_head != expected_attested_pr_head:
+        errors.append("attested PR head is not the manifest reviewed SHA")
     if errors:
         return errors
     try:
@@ -329,6 +438,8 @@ def validate_post_merge_tree(
             errors.append("attested PR head is not a commit")
         if errors:
             return errors
+        if _git(repository_root, "rev-parse", target_ref) != merged_sha:
+            errors.append("post-merge SHA is not the exact target branch tip")
         merged_tree = _git(
             repository_root,
             "rev-parse",
@@ -353,9 +464,7 @@ def main() -> int:
     parser.add_argument("--candidate-root", required=True, type=pathlib.Path)
     parser.add_argument("--anchor-root", required=True, type=pathlib.Path)
     parser.add_argument("--manifest", type=pathlib.Path)
-    parser.add_argument("--verify-attestation", action="store_true")
     parser.add_argument("--post-merge-sha")
-    parser.add_argument("--attested-pr-head")
     args = parser.parse_args()
 
     script_root = pathlib.Path(__file__).resolve().parents[1]
@@ -370,18 +479,14 @@ def main() -> int:
         manifest_path,
     )
 
-    post_merge_pair = (
-        args.post_merge_sha is not None,
-        args.attested_pr_head is not None,
-    )
-    if post_merge_pair[0] != post_merge_pair[1]:
-        errors.append("post-merge arguments must be paired")
-    elif post_merge_pair[0]:
+    if args.post_merge_sha is not None:
         errors.extend(
             validate_post_merge_tree(
                 args.candidate_root.absolute(),
                 args.post_merge_sha,
-                args.attested_pr_head,
+                manifest["reviewed_sha"],
+                manifest["reviewed_sha"],
+                manifest["post_merge"]["target_ref"],
             )
         )
     else:
@@ -389,32 +494,24 @@ def main() -> int:
             validate_release(args.candidate_root.absolute(), manifest)
         )
 
-    if args.verify_attestation:
-        token = os.environ.get("GH_TOKEN", "")
-        if not token:
-            errors.append("GH_TOKEN is required to verify attestation")
-        elif anchor_sha is not None:
-            try:
-                statuses = _fetch_statuses(manifest, token)
-                errors.extend(
-                    validate_attestation_payload(
-                        statuses,
-                        manifest,
-                        anchor_sha,
-                    )
-                )
-            except (OSError, ValueError, json.JSONDecodeError) as exc:
-                errors.append(f"cannot fetch commit statuses: {exc}")
+    errors.extend(
+        validate_live_attestation(
+            manifest,
+            anchor_sha,
+            os.environ.get("GH_TOKEN", ""),
+            args.post_merge_sha,
+        )
+    )
 
     if errors:
         for error in errors:
             print(f"modbus_m1_02_release_invalid: {error}", file=sys.stderr)
         return 1
-    if post_merge_pair[0]:
+    if args.post_merge_sha is not None:
         print(
             "modbus_m1_02_post_merge_ok "
             f"merged_sha={args.post_merge_sha} "
-            f"attested_pr_head={args.attested_pr_head}"
+            f"attested_pr_head={manifest['reviewed_sha']}"
         )
     else:
         print(
