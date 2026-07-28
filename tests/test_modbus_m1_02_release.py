@@ -201,6 +201,40 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             self.validate(),
         )
 
+    def test_post_merge_requires_exact_attested_tree(self) -> None:
+        child = self.make_child()
+        run(self.root, "checkout", "-qb", "post-merge", self.reviewed)
+        run(self.root, "commit", "--allow-empty", "-qm", "squash identity")
+        merged = run(self.root, "rev-parse", "HEAD")
+        self.assertIn(
+            "post-squash main tree does not equal attested PR-head tree",
+            release.validate_post_merge_tree(self.root, merged, child),
+        )
+        run(self.root, "read-tree", f"{child}^{{tree}}")
+        run(self.root, "checkout-index", "-a", "-f")
+        run(self.root, "commit", "-qm", "squash tree")
+        matching = run(self.root, "rev-parse", "HEAD")
+        self.assertEqual(
+            release.validate_post_merge_tree(self.root, matching, child),
+            [],
+        )
+
+    def test_symlink_candidate_root_is_rejected(self) -> None:
+        link = self.root.parent / f"{self.root.name}-link"
+        link.symlink_to(self.root, target_is_directory=True)
+        try:
+            self.assertEqual(
+                release.validate_release(
+                    link,
+                    self.manifest,
+                    TRUST_SHA,
+                    allow_reviewed=True,
+                ),
+                ["candidate root must be a regular directory"],
+            )
+        finally:
+            link.unlink()
+
 
 if __name__ == "__main__":
     unittest.main()

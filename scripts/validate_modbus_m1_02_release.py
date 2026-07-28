@@ -185,6 +185,8 @@ def _validate_anchor(
 ) -> list[str]:
     errors: list[str] = []
     try:
+        if anchor_root.is_symlink() or not anchor_root.is_dir():
+            return ["anchor root must be a regular directory"]
         if _git(anchor_root, "rev-parse", "HEAD") != trust_anchor_sha:
             errors.append("anchor checkout HEAD does not equal trust anchor")
         if _git(anchor_root, "status", "--porcelain", "--untracked-files=all"):
@@ -209,6 +211,50 @@ def _validate_anchor(
             if path.read_bytes() != committed:
                 errors.append(f"anchor protected path differs from commit: {relative}")
     except (OSError, ValueError) as exc:
+        errors.append(str(exc))
+    return errors
+
+
+def validate_post_merge_tree(
+    repository_root: pathlib.Path,
+    merged_sha: str,
+    attested_pr_head: str,
+) -> list[str]:
+    errors: list[str] = []
+    if repository_root.is_symlink() or not repository_root.is_dir():
+        return ["repository root must be a regular directory"]
+    if SHA_RE.fullmatch(merged_sha) is None:
+        errors.append("post-merge SHA must be lowercase 40-hex")
+    if SHA_RE.fullmatch(attested_pr_head) is None:
+        errors.append("attested PR head must be lowercase 40-hex")
+    if errors:
+        return errors
+    try:
+        merged_type = _git(repository_root, "cat-file", "-t", merged_sha)
+        attested_type = _git(
+            repository_root,
+            "cat-file",
+            "-t",
+            attested_pr_head,
+        )
+        if merged_type != "commit" or attested_type != "commit":
+            errors.append("post-merge comparison requires two commit objects")
+            return errors
+        merged_tree = _git(
+            repository_root,
+            "rev-parse",
+            f"{merged_sha}^{{tree}}",
+        )
+        attested_tree = _git(
+            repository_root,
+            "rev-parse",
+            f"{attested_pr_head}^{{tree}}",
+        )
+        if merged_tree != attested_tree:
+            errors.append(
+                "post-squash main tree does not equal attested PR-head tree"
+            )
+    except ValueError as exc:
         errors.append(str(exc))
     return errors
 
@@ -353,6 +399,8 @@ def main() -> int:
     parser.add_argument("--trust-anchor-sha")
     parser.add_argument("--manifest", type=pathlib.Path)
     parser.add_argument("--allow-reviewed", action="store_true")
+    parser.add_argument("--post-merge-sha")
+    parser.add_argument("--attested-pr-head")
     args = parser.parse_args()
 
     script_root = pathlib.Path(__file__).resolve().parents[1]
@@ -362,6 +410,32 @@ def main() -> int:
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         print(f"modbus_m1_02_release_invalid: {exc}", file=sys.stderr)
         return 1
+
+    if (args.post_merge_sha is None) != (args.attested_pr_head is None):
+        print(
+            "modbus_m1_02_release_invalid: post-merge arguments must be paired",
+            file=sys.stderr,
+        )
+        return 1
+    if args.post_merge_sha is not None:
+        errors = validate_post_merge_tree(
+            args.candidate_root.absolute(),
+            args.post_merge_sha,
+            args.attested_pr_head,
+        )
+        if errors:
+            for error in errors:
+                print(
+                    f"modbus_m1_02_release_invalid: {error}",
+                    file=sys.stderr,
+                )
+            return 1
+        print(
+            "modbus_m1_02_post_merge_ok "
+            f"merged_sha={args.post_merge_sha} "
+            f"attested_pr_head={args.attested_pr_head}"
+        )
+        return 0
 
     errors: list[str] = []
     if args.anchor_root is not None:
@@ -373,14 +447,14 @@ def main() -> int:
         else:
             errors.extend(
                 _validate_anchor(
-                    args.anchor_root.resolve(),
+                    args.anchor_root.absolute(),
                     args.trust_anchor_sha,
                     manifest_path,
                 )
             )
     errors.extend(
         validate_release(
-            args.candidate_root.resolve(),
+            args.candidate_root.absolute(),
             manifest,
             args.trust_anchor_sha,
             args.allow_reviewed,
