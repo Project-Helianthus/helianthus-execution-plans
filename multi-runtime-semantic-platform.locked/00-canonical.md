@@ -1,12 +1,12 @@
 # Helianthus Multi-Runtime Semantic Platform
 
-Revision: `v1.4-locked-amended`
-Date: `2026-07-26`
+Revision: `v1.5-locked-amended`
+Date: `2026-07-28`
 Status: `Locked`
 Cruise phase: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
 Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Amendment count: `6`
-Amendment: `M6.25 raw SPINE feature acquisition`
+Amendment count: `7`
+Amendment: `M6.25 raw mutation contract correction`
 Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the M6.25 and live-completion chain`
@@ -41,10 +41,12 @@ external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
 
-This locked plan records five accepted adversarial rounds plus six control
+This locked plan records five accepted adversarial rounds plus seven control
 plane amendments. M0-M6 history remains valid and M5/M6 are complete. The
 forward-only M6.25 amendment closes the gap between live topology and canonical
-typed SPINE function-data acquisition. Historical M6.5-M8.5 framework or
+typed SPINE function-data acquisition. Its append-only mutation correction
+freezes no-effect recovery, interface compatibility, and write authorization
+before REG-MUT implementation. Historical M6.5-M8.5 framework or
 synthetic closures remain recorded but cannot unlock the new live chain or M9.
 
 The first extension target is raw eeBUS visibility for the
@@ -473,6 +475,29 @@ Gate: the acceptance/falsification contract in
 reply race, callback cleanup, zero-frame CAS/session mismatch, idempotency,
 concurrent writers, constraints/changeability, crash recovery, probe rollback,
 conflict quarantine, JCS, and anti-leak.
+
+#### M6.25 Append-Only Mutation Correction
+
+`121-w31-26-m625-raw-mutation-contract-correction.md` is authoritative for
+recovery outcome semantics, mutation interface compatibility, and write
+authorization wherever it corrects amendment 118. Verified before-image
+recovery after possible send terminates as `no_effect` with
+`protocol_accepted: null`, explicit trustworthy verification, retained
+possible-side-effect/blind-retry evidence, and no claim that transient
+execution was disproved. Its public DTO carries `no_effect_verification` with
+`observed_after_equals_before`, the equal value hash and verification time,
+plus terminal non-retriable `ErrorV1` code `no_effect`. Requested-value recovery requires uncertainty
+evidence plus verified equality; correlated rejection remains rejected, a
+third value conflicts, and unreadable or untrustworthy evidence remains
+`outcome_unknown`.
+
+The existing read-only `RawFeatureRuntimeV1` and `Runtime` method sets remain
+unchanged. Mutation uses separate `RawMutationRuntimeV1`, an internal
+coordinator, fail-closed gateway capability assertion, and distinct
+`WriteAuthorizationV1` with raw-write scope. `mutations.get` remains read
+authorized. The M6.25 DAG and exact five tool names remain unchanged; no v2,
+legacy, `candidate_ref`, or consumer promotion is added. docs-eebus issue #78
+gates eebusreg issue #85.
 
 ### M6.5 - Synchronized Evidence Recorder
 

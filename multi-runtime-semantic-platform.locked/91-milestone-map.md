@@ -3,7 +3,7 @@
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
 Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Amendment: `M6.25 raw SPINE feature acquisition`
+Amendment: `M6.25 raw mutation contract correction`
 
 | Milestone | Primary repo(s) | Depends on | Gate |
 | --- | --- | --- | --- |
@@ -14,7 +14,7 @@ Amendment: `M6.25 raw SPINE feature acquisition`
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
 | M5 - Production Prerequisites And Gateway Sidecar Integration | helianthus-docs-eebus, helianthus-ship-go, helianthus-eebus-go, helianthus-eebusreg, helianthus-ebusgateway | M4.5 and M5A | Freeze activation contract, implement exact-address SHIP plus independent mDNS policy, thread it through eebus-go, install protected identity and real runtime construction, map gateway config losslessly, harden process-exit and remote canonicalization, then add the disabled-by-default sidecar. |
 | M6 - Read-Only eeBUS MCP v1 | helianthus-ebusgateway | M5 | Read-only `eebus.v1.*` tools pass deterministic snapshot/hash/auth/error/anti-leak tests. |
-| M6.25 - Raw SPINE Feature Acquisition | execution-plans, docs-eebus, spine-go, eebus-go, eebusreg, gateway, docs-ebus | M6 | Full typed READ/WRITE only through router/coordinator/executor/round-trip path; no arbitrary frames, partial/selective operations, invoke, semantics, or consumers. |
+| M6.25 - Raw SPINE Feature Acquisition | execution-plans, docs-eebus, spine-go, eebus-go, eebusreg, gateway, docs-ebus | M6 | Full typed READ/WRITE only through router/coordinator/executor/round-trip path; no arbitrary frames, partial/selective operations, invoke, semantics, or consumers. The append-only correction keeps this DAG unchanged and requires docs-eebus #78 before eebusreg #85. |
 | M6.5-LIVE-R1 - Synchronized Evidence Recorder | helianthus-ebusgateway | MSP-0625-LAB and MSP-0625-DOCS-P | Recorder captures synchronized live eeBUS/eBUS/cloud evidence. Historical framework closure is insufficient. |
 | M7-LIVE-R1 - Draft Candidate Fact Graph | helianthus-ebusgateway | M6.5-LIVE-R1 | Candidate facts exist from direct observations with no promotion or consumer exposure. |
 | M8-LIVE-R1 - Multi-Runtime Coexistence | helianthus-ebusgateway | M7-LIVE-R1 | Live coexistence proves no existing consumer drift. |

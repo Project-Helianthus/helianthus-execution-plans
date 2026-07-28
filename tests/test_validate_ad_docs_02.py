@@ -299,6 +299,105 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 with self.assertRaises(validator.ValidationError):
                     validator.validate_markdown_claims(target, self.matrix)
 
+    def test_m625_no_effect_public_dto_is_exact_and_fail_closed(self) -> None:
+        path = PLAN / validator.M625_MUTATION_CORRECTION
+        text = path.read_text(encoding="utf-8")
+        block = re.search(
+            r"```yaml\r?\n(state: no_effect\r?\n.*?)\r?\n```",
+            text,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(block)
+        assert block is not None
+        self.assertEqual(yaml.safe_load(block.group(1)), validator.M625_NO_EFFECT_DTO)
+
+        for old, new in (
+            ("relation: observed_after_equals_before", "relation: generic_equality"),
+            ("retriable: false", "retriable: true"),
+            ("observed_after: before_image", "observed_after: unknown"),
+            ("last_durable_state: dispatch_intent", "last_durable_state: prepared"),
+            ("recorded_at: <time>", "recorded_at: null"),
+            ("equal_value_hash: <HashV1>", "equal_value_hash: null"),
+        ):
+            with self.subTest(old=old), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                target = root / validator.PLAN
+                shutil.copytree(PLAN, target)
+                correction = target / validator.M625_MUTATION_CORRECTION
+                correction.write_text(
+                    correction.read_text(encoding="utf-8").replace(old, new, 1),
+                    encoding="utf-8",
+                )
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_markdown_claims(target, self.matrix)
+
+    def test_m625_recovery_matrix_and_docs_gate_are_exact(self) -> None:
+        path = PLAN / validator.M625_MUTATION_CORRECTION
+        text = path.read_text(encoding="utf-8")
+        rows = (
+            "| Trustworthy full READ equals before-image | `no_effect` | `null` |",
+            "| Uncertainty evidence plus trustworthy full READ equals requested value | `applied` or `probe_active` | `null` |",
+            "| Trustworthy correlated rejection | `rejected` | `false` |",
+            "| Trustworthy full READ equals a third value | `conflict` | `null` |",
+            "| Readback unreadable or untrustworthy | `outcome_unknown` | `null` |",
+        )
+        for row in rows:
+            cells = [cell.strip() for cell in row.strip("|").split("|")]
+            for index in range(3):
+                with self.subTest(row=row, cell=index), tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    target = root / validator.PLAN
+                    shutil.copytree(PLAN, target)
+                    mutated = cells.copy()
+                    mutated[index] += "-drift"
+                    replacement = "| " + " | ".join(mutated) + " |"
+                    correction = target / validator.M625_MUTATION_CORRECTION
+                    correction.write_text(
+                        correction.read_text(encoding="utf-8").replace(
+                            row, replacement, 1
+                        ),
+                        encoding="utf-8",
+                    )
+                    with self.assertRaises(validator.ValidationError):
+                        validator.validate_markdown_claims(target, self.matrix)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            correction = target / validator.M625_MUTATION_CORRECTION
+            extra_row = "| Any other evidence | `applied` | `true` |"
+            correction.write_text(
+                correction.read_text(encoding="utf-8").replace(
+                    rows[-1], rows[-1] + "\n" + extra_row, 1
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_markdown_claims(target, self.matrix)
+
+        for old, new in (
+            (
+                "prerequisite: Project-Helianthus/helianthus-docs-eebus#78",
+                "prerequisite: Project-Helianthus/helianthus-eebusreg#85",
+            ),
+            (
+                "gated: Project-Helianthus/helianthus-eebusreg#85",
+                "gated: Project-Helianthus/helianthus-docs-eebus#78",
+            ),
+        ):
+            with self.subTest(gate=old), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                target = root / validator.PLAN
+                shutil.copytree(PLAN, target)
+                correction = target / validator.M625_MUTATION_CORRECTION
+                correction.write_text(
+                    correction.read_text(encoding="utf-8").replace(old, new, 1),
+                    encoding="utf-8",
+                )
+                with self.assertRaises(validator.ValidationError):
+                    validator.validate_markdown_claims(target, self.matrix)
+
     def test_pre_m625_history_is_protected_except_forward_acceptance_state(self) -> None:
         for row_id, field, value in (
             ("MSP-04A", "title", "rewritten historical contract"),
@@ -679,6 +778,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "118-w30-26-m625-raw-spine-feature-acquisition.md",
                 "119-w30-26-post-m6-hardening-inventory.md",
                 "120-w30-26-current-state-evidence.json",
+                "121-w31-26-m625-raw-mutation-contract-correction.md",
             ),
         )
         self.assertEqual(

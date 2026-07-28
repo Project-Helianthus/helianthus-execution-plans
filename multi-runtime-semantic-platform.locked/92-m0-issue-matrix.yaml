@@ -5,9 +5,9 @@ plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
 cruise_phase: M6_25_RAW_SPINE_FEATURE_ACQUISITION
 current_milestone: M6_25_RAW_SPINE_FEATURE_ACQUISITION
-amendment_count: 6
-amended_on: '2026-07-26'
-amendment: M6.25 raw SPINE feature acquisition
+amendment_count: 7
+amended_on: '2026-07-28'
+amendment: M6.25 raw mutation contract correction
 accepted_through: M6 raw topology and privacy boundary with zero promoted leaves
 dirty_rescue_candidate: false
 successor_unlocks: true
@@ -17,7 +17,8 @@ msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
 purpose: 'Machine-readable locked control-plane matrix for the eeBUS raw-first
   plan after five accepted adversarial rounds and the forward-only M6.25
-  typed SPINE function-data amendment.
+  typed SPINE function-data amendment plus append-only mutation contract
+  correction.
 
 '
 serialization:

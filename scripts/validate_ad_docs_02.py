@@ -120,8 +120,8 @@ ACCEPTANCE_STATES.update({
     "MSP-08": "synthetic_only",
     "MSP-085": "synthetic_only",
 })
-CURRENT_AMENDMENT_COUNT = 6
-CURRENT_AMENDMENT = "M6.25 raw SPINE feature acquisition"
+CURRENT_AMENDMENT_COUNT = 7
+CURRENT_AMENDMENT = "M6.25 raw mutation contract correction"
 CURRENT_ACCEPTED_THROUGH = "M6 raw topology and privacy boundary with zero promoted leaves"
 CURRENT_SUCCESSOR_UNLOCK_CONDITION = (
     "M6.25 live DAG completes through MSP-085-LIVE-R1 and "
@@ -213,6 +213,82 @@ M625_TOOL_SUFFIXES = [
     "mutations.get",
     "mutations.rollback",
 ]
+M625_MUTATION_CORRECTION = (
+    "121-w31-26-m625-raw-mutation-contract-correction.md"
+)
+M625_NO_EFFECT_DTO = {
+    "state": "no_effect",
+    "protocol_accepted": None,
+    "observed_after": "before_image",
+    "error": {"code": "no_effect", "retriable": False},
+    "outcome_evidence": {
+        "possible_side_effect": True,
+        "blind_retry_forbidden": True,
+        "last_durable_state": "dispatch_intent",
+        "recorded_at": "<time>",
+    },
+    "no_effect_verification": {
+        "relation": "observed_after_equals_before",
+        "verified": True,
+        "equal_value_hash": "<HashV1>",
+        "verified_at": "<time>",
+    },
+}
+M625_MUTATION_CORRECTION_FRAGMENTS = (
+    "ErrorV1 {code: no_effect, retriable: false}",
+    "OutcomeEvidenceV1",
+    "does not prove that the remote endpoint never transiently executed",
+    "uncertainty evidence proves that dispatch may have occurred",
+    "correlated protocol rejection remains `rejected`",
+    "trustworthy third value is `conflict`",
+    "untrustworthy readback remains `outcome_unknown`",
+    "read-only `RawFeatureRuntimeV1` interface and existing `Runtime`",
+    "separate `RawMutationRuntimeV1`",
+    "explicitly assert `RawMutationRuntimeV1` capability",
+    "`WriteAuthorizationV1` is distinct",
+    "`mutations.get` remains read authorization",
+    "does not change the M6.25 DAG",
+    "does not rename or add any MCP tool",
+    "No v2 or legacy interface",
+    "`candidate_ref`",
+    "consumer promotion",
+    "helianthus-docs-eebus#78",
+    "helianthus-eebusreg#85",
+)
+M625_RECOVERY_MATRIX = (
+    (
+        "Trustworthy full READ equals before-image",
+        "`no_effect`",
+        "`null`",
+    ),
+    (
+        "Uncertainty evidence plus trustworthy full READ equals requested value",
+        "`applied` or `probe_active`",
+        "`null`",
+    ),
+    (
+        "Trustworthy correlated rejection",
+        "`rejected`",
+        "`false`",
+    ),
+    (
+        "Trustworthy full READ equals a third value",
+        "`conflict`",
+        "`null`",
+    ),
+    (
+        "Readback unreadable or untrustworthy",
+        "`outcome_unknown`",
+        "`null`",
+    ),
+)
+M625_MUTATION_DOC_GATE = {
+    "contract_gate": {
+        "prerequisite": "Project-Helianthus/helianthus-docs-eebus#78",
+        "gated": "Project-Helianthus/helianthus-eebusreg#85",
+        "transition": "before_strict_red_publication",
+    }
+}
 LIVE_COMPLETION_TOKEN_CONTRACT = {
     "schema": "helianthus.m625-live-promotion",
     "version": 1,
@@ -328,6 +404,7 @@ EXPECTED_ACTIVE_SURFACES = (
     "118-w30-26-m625-raw-spine-feature-acquisition.md",
     "119-w30-26-post-m6-hardening-inventory.md",
     "120-w30-26-current-state-evidence.json",
+    "121-w31-26-m625-raw-mutation-contract-correction.md",
 )
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
@@ -352,6 +429,7 @@ MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/118-w30-26-m625-raw-spine-feature-acquisition.md",
     "multi-runtime-semantic-platform.locked/119-w30-26-post-m6-hardening-inventory.md",
     "multi-runtime-semantic-platform.locked/120-w30-26-current-state-evidence.json",
+    "multi-runtime-semantic-platform.locked/121-w31-26-m625-raw-mutation-contract-correction.md",
     "scripts/validate_ad_docs_02.py",
     "scripts/validate_msp_r00_l_ledger.py",
     "scripts/validate_plans_repo.sh",
@@ -1179,7 +1257,12 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
     )
     for surface in surfaces:
         text = (plan_dir / surface).read_text(encoding="utf-8")
-        normalized = normalize_markdown(text)
+        normalization_input = text
+        if surface == M625_MUTATION_CORRECTION:
+            normalization_input = normalization_input.replace(
+                "<HashV1>", "HashV1"
+            ).replace("<time>", "time")
+        normalized = normalize_markdown(normalization_input)
         compact = " ".join(text.split())
         if surface != "107-ad-docs-02-topology-audit.md":
             expected_reference = (
@@ -1225,6 +1308,59 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         ) from exc
     if documented_tool_suffixes != M625_TOOL_SUFFIXES:
         fail("surfaces.118: exact M6.25 tool suffix contract drift")
+    correction_text = (plan_dir / M625_MUTATION_CORRECTION).read_text(
+        encoding="utf-8"
+    )
+    no_effect_blocks = re.findall(
+        r"```yaml\r?\n(state: no_effect\r?\n.*?)\r?\n```",
+        correction_text,
+        re.DOTALL,
+    )
+    if len(no_effect_blocks) != 1:
+        fail("surfaces.121: exact no_effect DTO block missing or duplicated")
+    try:
+        no_effect_dto = yaml.safe_load(no_effect_blocks[0])
+    except yaml.YAMLError as exc:
+        raise ValidationError(
+            "surfaces.121: malformed no_effect DTO"
+        ) from exc
+    if no_effect_dto != M625_NO_EFFECT_DTO:
+        fail("surfaces.121: exact no_effect DTO contract drift")
+    compact_correction = " ".join(correction_text.split())
+    for fragment in M625_MUTATION_CORRECTION_FRAGMENTS:
+        if fragment not in compact_correction:
+            fail(f"surfaces.121: missing correction invariant: {fragment}")
+    matrix_match = re.search(
+        r"^The terminal recovery matrix is therefore:\r?\n\r?\n"
+        r"((?:^\|.*\|\r?\n)+)",
+        correction_text,
+        re.MULTILINE,
+    )
+    if matrix_match is None:
+        fail("surfaces.121: structured recovery matrix missing")
+    matrix_rows = []
+    for line in matrix_match.group(1).splitlines()[2:]:
+        cells = tuple(cell.strip() for cell in line.strip().strip("|").split("|"))
+        if len(cells) != 3:
+            fail("surfaces.121: malformed recovery matrix row")
+        matrix_rows.append(cells)
+    if tuple(matrix_rows) != M625_RECOVERY_MATRIX:
+        fail("surfaces.121: exact recovery matrix drift")
+    gate_blocks = re.findall(
+        r"```yaml\r?\n(contract_gate:\r?\n.*?)\r?\n```",
+        correction_text,
+        re.DOTALL,
+    )
+    if len(gate_blocks) != 1:
+        fail("surfaces.121: exact mutation docs gate missing or duplicated")
+    try:
+        mutation_doc_gate = yaml.safe_load(gate_blocks[0])
+    except yaml.YAMLError as exc:
+        raise ValidationError(
+            "surfaces.121: malformed mutation docs gate"
+        ) from exc
+    if mutation_doc_gate != M625_MUTATION_DOC_GATE:
+        fail("surfaces.121: mutation docs gate direction drift")
     roadmap = (plan_dir / "14-execution-roadmap-issues-and-gates.md").read_text(encoding="utf-8")
     for row_id, tokens in REQUIRES_COMPLETION_TOKENS.items():
         if row_id in {"MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"}:
