@@ -4,18 +4,19 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import re
 import subprocess
 import sys
+import urllib.request
 from typing import Any
 
 
 DEFAULT_MANIFEST = pathlib.Path(
     "runtime-gates/fronius-modbus-m1-02-release.json"
 )
-HOOK_PATH = "scripts/validate_external_m1_02.sh"
-CI_PATH = "scripts/ci_local.sh"
+VALIDATOR_PATH = pathlib.Path("scripts/validate_modbus_m1_02_release.py")
 SHA_RE = re.compile(r"[0-9a-f]{40}")
 HASH_RE = re.compile(r"[0-9a-f]{64}")
 ALLOWED_MODES = {"100644", "100755"}
@@ -25,14 +26,13 @@ def _git(
     root: pathlib.Path,
     *args: str,
     binary: bool = False,
-    check: bool = True,
 ) -> bytes | str:
     result = subprocess.run(
         ["git", "-C", str(root), *args],
         check=False,
         capture_output=True,
     )
-    if check and result.returncode != 0:
+    if result.returncode != 0:
         detail = result.stderr.decode("utf-8", errors="replace").strip()
         raise ValueError(f"git {' '.join(args)} failed: {detail}")
     if binary:
@@ -42,6 +42,18 @@ def _git(
 
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _strict_regular_root(root: pathlib.Path) -> bool:
+    try:
+        lexical = root.absolute()
+        return (
+            lexical.is_dir()
+            and not lexical.is_symlink()
+            and lexical == lexical.resolve(strict=True)
+        )
+    except OSError:
+        return False
 
 
 def _load_manifest(path: pathlib.Path) -> dict[str, Any]:
@@ -65,55 +77,23 @@ def _tree(root: pathlib.Path, revision: str) -> dict[str, tuple[str, str]]:
         metadata, raw_path = record.split(b"\t", 1)
         mode, kind, object_id = metadata.decode("ascii").split(" ")
         path = raw_path.decode("utf-8", errors="strict")
-        if kind != "blob":
-            raise ValueError(f"{revision}: non-blob tree entry: {path}")
+        if kind != "blob" or mode not in ALLOWED_MODES:
+            raise ValueError(
+                f"{revision}: unsupported tree entry {mode} {kind} {path}"
+            )
         entries[path] = (mode, object_id)
     return entries
 
 
 def _blob(root: pathlib.Path, revision: str, path: str) -> bytes:
-    value = _git(
-        root,
-        "show",
-        f"{revision}:{path}",
-        binary=True,
-    )
+    value = _git(root, "show", f"{revision}:{path}", binary=True)
     assert isinstance(value, bytes)
     return value
 
 
-def _expected_hook(trust_anchor_sha: str) -> bytes:
-    return f"""#!/usr/bin/env bash
-set -euo pipefail
-
-ROOT="$(cd "$(dirname "${{BASH_SOURCE[0]}}")/.." && pwd)"
-TRUST_REPOSITORY="https://github.com/Project-Helianthus/helianthus-execution-plans.git"
-TRUST_SHA="{trust_anchor_sha}"
-ANCHOR_DIR="$(mktemp -d)"
-trap 'rm -rf "$ANCHOR_DIR"' EXIT
-
-git init -q "$ANCHOR_DIR"
-git -C "$ANCHOR_DIR" fetch --quiet --depth=1 "$TRUST_REPOSITORY" "$TRUST_SHA"
-git -C "$ANCHOR_DIR" checkout --quiet --detach FETCH_HEAD
-test "$(git -C "$ANCHOR_DIR" rev-parse HEAD)" = "$TRUST_SHA"
-python3 "$ANCHOR_DIR/scripts/validate_modbus_m1_02_release.py" \
-  --candidate-root "$ROOT" \
-  --anchor-root "$ANCHOR_DIR"
-""".encode("utf-8")
-
-
-def _expected_ci(reviewed_ci: bytes) -> bytes:
-    marker = b"export PYTHONDONTWRITEBYTECODE=1\n"
-    if reviewed_ci.count(marker) != 1:
-        raise ValueError("reviewed ci_local.sh has no unique insertion marker")
-    addition = marker + b'"$ROOT/scripts/validate_external_m1_02.sh"\n'
-    return reviewed_ci.replace(marker, addition, 1)
-
-
 def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
     errors: list[str] = []
-    required_keys = {
-        "allowed_child_changes",
+    if set(manifest) != {
         "attestation",
         "files",
         "post_merge",
@@ -121,8 +101,7 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
         "reviewed_sha",
         "schema",
         "version",
-    }
-    if set(manifest) != required_keys:
+    }:
         errors.append("release manifest keys are not closed")
     if manifest.get("schema") != "helianthus.modbus.m1-02-release":
         errors.append("release manifest schema is invalid")
@@ -133,15 +112,12 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
     reviewed_sha = manifest.get("reviewed_sha")
     if not isinstance(reviewed_sha, str) or SHA_RE.fullmatch(reviewed_sha) is None:
         errors.append("reviewed_sha must be lowercase 40-hex")
-    if manifest.get("allowed_child_changes") != {
-        CI_PATH: "modified",
-        HOOK_PATH: "added",
-    }:
-        errors.append("allowed child changes are not exact")
     if manifest.get("attestation") != {
-        "required_context": "adversarial-review",
+        "context": "adversarial-review",
+        "creator_id": 16434603,
+        "creator_login": "d3vi1",
+        "description": "OpenAI-only fresh adversarial consensus: NO_FINDINGS",
         "target": "pull_request_head",
-        "workflow_permissions": "contents:read",
     }:
         errors.append("release attestation contract is not exact")
     if manifest.get("post_merge") != {
@@ -159,9 +135,8 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
             not isinstance(path, str)
             or pure.is_absolute()
             or ".." in pure.parts
-            or path == HOOK_PATH
         ):
-            errors.append(f"unsafe or reserved manifest path: {path}")
+            errors.append(f"unsafe manifest path: {path}")
             continue
         if not isinstance(descriptor, dict) or set(descriptor) != {
             "mode",
@@ -177,53 +152,160 @@ def _validate_manifest(manifest: dict[str, Any]) -> list[str]:
     return errors
 
 
-def _validate_anchor(
+def validate_anchor(
     anchor_root: pathlib.Path,
-    trust_anchor_sha: str,
     manifest_path: pathlib.Path,
-) -> list[str]:
+) -> tuple[str | None, list[str]]:
     errors: list[str] = []
+    if not _strict_regular_root(anchor_root):
+        return None, ["anchor root must be a regular directory"]
     try:
-        if not _is_strict_regular_root(anchor_root):
-            return ["anchor root must be a regular directory"]
-        if _git(anchor_root, "rev-parse", "HEAD") != trust_anchor_sha:
-            errors.append("anchor checkout HEAD does not equal trust anchor")
+        anchor_sha = str(_git(anchor_root, "rev-parse", "HEAD"))
+        if SHA_RE.fullmatch(anchor_sha) is None:
+            errors.append("anchor HEAD must be lowercase 40-hex SHA")
+            return None, errors
         if _git(anchor_root, "status", "--porcelain", "--untracked-files=all"):
             errors.append("anchor checkout is dirty")
-        relative_manifest = manifest_path.resolve().relative_to(
-            anchor_root.resolve()
+        ignored = _git(
+            anchor_root,
+            "ls-files",
+            "--others",
+            "--ignored",
+            "--exclude-standard",
         )
-        protected = (
-            pathlib.Path("scripts/validate_modbus_m1_02_release.py"),
-            relative_manifest,
+        if ignored:
+            errors.append("anchor checkout contains ignored files")
+        relative_manifest = manifest_path.resolve(strict=True).relative_to(
+            anchor_root.resolve(strict=True)
         )
-        for relative in protected:
-            path = anchor_root / relative
-            if not path.is_file() or path.is_symlink():
+        for relative in (VALIDATOR_PATH, relative_manifest):
+            current = anchor_root / relative
+            if not current.is_file() or current.is_symlink():
                 errors.append(f"anchor protected path is not regular: {relative}")
                 continue
-            committed = _blob(
+            if current.read_bytes() != _blob(
                 anchor_root,
-                trust_anchor_sha,
+                anchor_sha,
                 relative.as_posix(),
+            ):
+                errors.append(f"anchor protected path differs from HEAD: {relative}")
+        return anchor_sha, errors
+    except (OSError, ValueError) as exc:
+        errors.append(str(exc))
+        return None, errors
+
+
+def validate_release(
+    candidate_root: pathlib.Path,
+    manifest: dict[str, Any],
+) -> list[str]:
+    errors = _validate_manifest(manifest)
+    if errors:
+        return errors
+    if not _strict_regular_root(candidate_root):
+        return ["candidate root must be a regular directory"]
+    reviewed_sha = manifest["reviewed_sha"]
+    files = manifest["files"]
+    try:
+        head = str(_git(candidate_root, "rev-parse", "HEAD"))
+        if head != reviewed_sha:
+            errors.append(
+                f"candidate HEAD is not exact reviewed SHA: {head}"
             )
-            if path.read_bytes() != committed:
-                errors.append(f"anchor protected path differs from commit: {relative}")
+        if _git(
+            candidate_root,
+            "status",
+            "--porcelain",
+            "--untracked-files=all",
+        ):
+            errors.append("candidate worktree is dirty")
+        ignored = _git(
+            candidate_root,
+            "ls-files",
+            "--others",
+            "--ignored",
+            "--exclude-standard",
+        )
+        if ignored:
+            errors.append("candidate worktree contains ignored files")
+        tree = _tree(candidate_root, reviewed_sha)
+        if set(tree) != set(files):
+            missing = sorted(set(files) - set(tree))
+            extra = sorted(set(tree) - set(files))
+            errors.append(
+                f"reviewed tree inventory mismatch: missing={missing} extra={extra}"
+            )
+        for path, descriptor in files.items():
+            entry = tree.get(path)
+            if entry is None:
+                continue
+            if entry[0] != descriptor["mode"]:
+                errors.append(f"reviewed mode mismatch: {path}")
+            if _sha256(_blob(candidate_root, reviewed_sha, path)) != descriptor[
+                "sha256"
+            ]:
+                errors.append(f"reviewed content mismatch: {path}")
     except (OSError, ValueError) as exc:
         errors.append(str(exc))
     return errors
 
 
-def _is_strict_regular_root(root: pathlib.Path) -> bool:
-    try:
-        lexical = root.absolute()
-        return (
-            lexical.is_dir()
-            and not lexical.is_symlink()
-            and lexical == lexical.resolve(strict=True)
-        )
-    except OSError:
-        return False
+def validate_attestation_payload(
+    statuses: object,
+    manifest: dict[str, Any],
+    anchor_sha: str,
+) -> list[str]:
+    errors: list[str] = []
+    if not isinstance(statuses, list):
+        return ["commit statuses payload must be a list"]
+    contract = manifest["attestation"]
+    matching = [
+        status
+        for status in statuses
+        if isinstance(status, dict)
+        and status.get("context") == contract["context"]
+    ]
+    if not matching:
+        return ["required adversarial-review status is missing"]
+    latest = matching[0]
+    creator = latest.get("creator")
+    expected_url = (
+        "https://github.com/Project-Helianthus/"
+        f"helianthus-execution-plans/commit/{anchor_sha}"
+    )
+    if latest.get("state") != "success":
+        errors.append("latest adversarial-review status is not success")
+    if latest.get("description") != contract["description"]:
+        errors.append("adversarial-review description is not exact")
+    if latest.get("target_url") != expected_url:
+        errors.append("adversarial-review target URL is not exact anchor commit")
+    if not isinstance(creator, dict):
+        errors.append("adversarial-review creator is missing")
+    elif (
+        creator.get("login") != contract["creator_login"]
+        or creator.get("id") != contract["creator_id"]
+    ):
+        errors.append("adversarial-review creator identity is not exact")
+    return errors
+
+
+def _fetch_statuses(manifest: dict[str, Any], token: str) -> object:
+    repository = manifest["repository"]
+    reviewed_sha = manifest["reviewed_sha"]
+    url = (
+        f"https://api.github.com/repos/{repository}/commits/"
+        f"{reviewed_sha}/statuses?per_page=100"
+    )
+    request = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {token}",
+            "X-GitHub-Api-Version": "2022-11-28",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        return json.load(response)
 
 
 def validate_post_merge_tree(
@@ -232,7 +314,7 @@ def validate_post_merge_tree(
     attested_pr_head: str,
 ) -> list[str]:
     errors: list[str] = []
-    if not _is_strict_regular_root(repository_root):
+    if not _strict_regular_root(repository_root):
         return ["repository root must be a regular directory"]
     if SHA_RE.fullmatch(merged_sha) is None:
         errors.append("post-merge SHA must be lowercase 40-hex")
@@ -241,15 +323,11 @@ def validate_post_merge_tree(
     if errors:
         return errors
     try:
-        merged_type = _git(repository_root, "cat-file", "-t", merged_sha)
-        attested_type = _git(
-            repository_root,
-            "cat-file",
-            "-t",
-            attested_pr_head,
-        )
-        if merged_type != "commit" or attested_type != "commit":
-            errors.append("post-merge comparison requires two commit objects")
+        if _git(repository_root, "cat-file", "-t", merged_sha) != "commit":
+            errors.append("post-merge SHA is not a commit")
+        if _git(repository_root, "cat-file", "-t", attested_pr_head) != "commit":
+            errors.append("attested PR head is not a commit")
+        if errors:
             return errors
         merged_tree = _git(
             repository_root,
@@ -270,225 +348,80 @@ def validate_post_merge_tree(
     return errors
 
 
-def validate_release(
-    candidate_root: pathlib.Path,
-    manifest: dict[str, Any],
-    trust_anchor_sha: str | None,
-    allow_reviewed: bool,
-) -> list[str]:
-    errors = _validate_manifest(manifest)
-    if errors:
-        return errors
-    reviewed_sha = manifest["reviewed_sha"]
-    files = manifest["files"]
-    try:
-        if not _is_strict_regular_root(candidate_root):
-            return ["candidate root must be a regular directory"]
-        head = _git(candidate_root, "rev-parse", "HEAD")
-        if _git(
-            candidate_root,
-            "status",
-            "--porcelain",
-            "--untracked-files=all",
-        ):
-            errors.append("candidate worktree is dirty")
-        ignored = _git(
-            candidate_root,
-            "ls-files",
-            "--others",
-            "--ignored",
-            "--exclude-standard",
-        )
-        if ignored:
-            errors.append("candidate worktree contains ignored files")
-        ancestor = subprocess.run(
-            [
-                "git",
-                "-C",
-                str(candidate_root),
-                "merge-base",
-                "--is-ancestor",
-                reviewed_sha,
-                head,
-            ],
-            check=False,
-        )
-        if ancestor.returncode != 0:
-            errors.append("reviewed SHA is not an ancestor of candidate HEAD")
-
-        reviewed_tree = _tree(candidate_root, reviewed_sha)
-        if set(reviewed_tree) != set(files):
-            missing = sorted(set(files) - set(reviewed_tree))
-            extra = sorted(set(reviewed_tree) - set(files))
-            errors.append(
-                f"reviewed tree inventory mismatch: missing={missing} extra={extra}"
-            )
-        for path, descriptor in files.items():
-            entry = reviewed_tree.get(path)
-            if entry is None:
-                continue
-            mode, _ = entry
-            if mode != descriptor["mode"]:
-                errors.append(f"reviewed mode mismatch: {path}")
-            if _sha256(_blob(candidate_root, reviewed_sha, path)) != descriptor[
-                "sha256"
-            ]:
-                errors.append(f"reviewed content mismatch: {path}")
-
-        current_tree = _tree(candidate_root, head)
-        if head == reviewed_sha:
-            if not allow_reviewed:
-                errors.append("release candidate must be the exact permitted child")
-            expected_paths = set(files)
-        else:
-            parents = str(_git(candidate_root, "rev-list", "--parents", "-n", "1", head)).split()
-            if parents != [head, reviewed_sha]:
-                errors.append("release candidate must be a direct single-parent child")
-            diff_raw = _git(
-                candidate_root,
-                "diff",
-                "--name-status",
-                "--no-renames",
-                reviewed_sha,
-                head,
-            )
-            actual_changes: dict[str, str] = {}
-            status_names = {"A": "added", "M": "modified"}
-            for line in str(diff_raw).splitlines():
-                status, path = line.split("\t", 1)
-                actual_changes[path] = status_names.get(status, status)
-            if actual_changes != manifest["allowed_child_changes"]:
-                errors.append(
-                    f"candidate changes are not exact: {actual_changes}"
-                )
-            expected_paths = set(files) | {HOOK_PATH}
-
-        if set(current_tree) != expected_paths:
-            missing = sorted(expected_paths - set(current_tree))
-            extra = sorted(set(current_tree) - expected_paths)
-            errors.append(
-                f"candidate tree inventory mismatch: missing={missing} extra={extra}"
-            )
-        for path, descriptor in files.items():
-            if path in {CI_PATH, HOOK_PATH}:
-                continue
-            entry = current_tree.get(path)
-            if entry is None:
-                continue
-            if entry[0] != descriptor["mode"]:
-                errors.append(f"candidate mode mismatch: {path}")
-            if _sha256(_blob(candidate_root, head, path)) != descriptor["sha256"]:
-                errors.append(f"candidate content mismatch: {path}")
-
-        if head != reviewed_sha:
-            if trust_anchor_sha is None or SHA_RE.fullmatch(trust_anchor_sha) is None:
-                errors.append("exact trust anchor SHA is required for child validation")
-            else:
-                hook = current_tree.get(HOOK_PATH)
-                ci_entry = current_tree.get(CI_PATH)
-                if hook is None or hook[0] != "100755":
-                    errors.append("external release hook must be executable")
-                elif _blob(candidate_root, head, HOOK_PATH) != _expected_hook(
-                    trust_anchor_sha
-                ):
-                    errors.append("external release hook bytes are not exact")
-                if ci_entry is None or ci_entry[0] != files[CI_PATH]["mode"]:
-                    errors.append("ci_local.sh mode is not preserved")
-                elif _blob(candidate_root, head, CI_PATH) != _expected_ci(
-                    _blob(candidate_root, reviewed_sha, CI_PATH)
-                ):
-                    errors.append("ci_local.sh external hook insertion is not exact")
-    except (OSError, ValueError) as exc:
-        errors.append(str(exc))
-    return errors
-
-
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--candidate-root", required=True, type=pathlib.Path)
-    parser.add_argument("--anchor-root", type=pathlib.Path)
+    parser.add_argument("--anchor-root", required=True, type=pathlib.Path)
     parser.add_argument("--manifest", type=pathlib.Path)
-    parser.add_argument("--allow-reviewed", action="store_true")
+    parser.add_argument("--verify-attestation", action="store_true")
     parser.add_argument("--post-merge-sha")
     parser.add_argument("--attested-pr-head")
     args = parser.parse_args()
 
     script_root = pathlib.Path(__file__).resolve().parents[1]
-    manifest_path = (args.manifest or script_root / DEFAULT_MANIFEST).resolve()
+    manifest_path = (args.manifest or script_root / DEFAULT_MANIFEST).absolute()
     try:
         manifest = _load_manifest(manifest_path)
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         print(f"modbus_m1_02_release_invalid: {exc}", file=sys.stderr)
         return 1
+    anchor_sha, errors = validate_anchor(
+        args.anchor_root.absolute(),
+        manifest_path,
+    )
 
-    if (args.post_merge_sha is None) != (args.attested_pr_head is None):
-        print(
-            "modbus_m1_02_release_invalid: post-merge arguments must be paired",
-            file=sys.stderr,
+    post_merge_pair = (
+        args.post_merge_sha is not None,
+        args.attested_pr_head is not None,
+    )
+    if post_merge_pair[0] != post_merge_pair[1]:
+        errors.append("post-merge arguments must be paired")
+    elif post_merge_pair[0]:
+        errors.extend(
+            validate_post_merge_tree(
+                args.candidate_root.absolute(),
+                args.post_merge_sha,
+                args.attested_pr_head,
+            )
         )
-        return 1
-    if args.post_merge_sha is not None:
-        errors = validate_post_merge_tree(
-            args.candidate_root.absolute(),
-            args.post_merge_sha,
-            args.attested_pr_head,
+    else:
+        errors.extend(
+            validate_release(args.candidate_root.absolute(), manifest)
         )
-        if errors:
-            for error in errors:
-                print(
-                    f"modbus_m1_02_release_invalid: {error}",
-                    file=sys.stderr,
+
+    if args.verify_attestation:
+        token = os.environ.get("GH_TOKEN", "")
+        if not token:
+            errors.append("GH_TOKEN is required to verify attestation")
+        elif anchor_sha is not None:
+            try:
+                statuses = _fetch_statuses(manifest, token)
+                errors.extend(
+                    validate_attestation_payload(
+                        statuses,
+                        manifest,
+                        anchor_sha,
+                    )
                 )
-            return 1
+            except (OSError, ValueError, json.JSONDecodeError) as exc:
+                errors.append(f"cannot fetch commit statuses: {exc}")
+
+    if errors:
+        for error in errors:
+            print(f"modbus_m1_02_release_invalid: {error}", file=sys.stderr)
+        return 1
+    if post_merge_pair[0]:
         print(
             "modbus_m1_02_post_merge_ok "
             f"merged_sha={args.post_merge_sha} "
             f"attested_pr_head={args.attested_pr_head}"
         )
-        return 0
-
-    errors: list[str] = []
-    trust_anchor_sha: str | None = None
-    if args.anchor_root is not None:
-        try:
-            trust_anchor_sha = str(
-                _git(
-                    args.anchor_root.absolute(),
-                    "rev-parse",
-                    "HEAD",
-                )
-            )
-        except ValueError as exc:
-            errors.append(str(exc))
-        if trust_anchor_sha is not None:
-            if SHA_RE.fullmatch(trust_anchor_sha) is None:
-                errors.append("anchor HEAD must be lowercase 40-hex SHA")
-            else:
-                errors.extend(
-                    _validate_anchor(
-                        args.anchor_root.absolute(),
-                        trust_anchor_sha,
-                        manifest_path,
-                    )
-                )
-    elif not args.allow_reviewed:
-        errors.append("child validation requires an external anchor checkout")
-    errors.extend(
-        validate_release(
-            args.candidate_root.absolute(),
-            manifest,
-            trust_anchor_sha,
-            args.allow_reviewed,
+    else:
+        print(
+            "modbus_m1_02_release_ok "
+            f"reviewed_sha={manifest['reviewed_sha']} "
+            f"anchor_sha={anchor_sha}"
         )
-    )
-    if errors:
-        for error in errors:
-            print(f"modbus_m1_02_release_invalid: {error}", file=sys.stderr)
-        return 1
-    print(
-        "modbus_m1_02_release_ok "
-        f"reviewed_sha={manifest['reviewed_sha']}"
-    )
     return 0
 
 

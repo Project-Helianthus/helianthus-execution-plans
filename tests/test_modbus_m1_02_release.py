@@ -9,7 +9,7 @@ import unittest
 from scripts import validate_modbus_m1_02_release as release
 
 
-TRUST_SHA = "a" * 40
+ANCHOR_SHA = "a" * 40
 
 
 def run(root: pathlib.Path, *args: str) -> str:
@@ -29,18 +29,7 @@ class ModbusM102ReleaseTests(unittest.TestCase):
         run(self.root, "init", "-q")
         run(self.root, "config", "user.name", "Test")
         run(self.root, "config", "user.email", "test@example.invalid")
-        self.primary_branch = run(self.root, "branch", "--show-current")
-        (self.root / "scripts").mkdir()
         (self.root / "product.go").write_text("package product\n", encoding="utf-8")
-        ci = (
-            "#!/usr/bin/env bash\n"
-            "set -euo pipefail\n"
-            'ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"\n'
-            "export PYTHONDONTWRITEBYTECODE=1\n"
-            'echo "$ROOT"\n'
-        )
-        (self.root / release.CI_PATH).write_text(ci, encoding="utf-8")
-        (self.root / release.CI_PATH).chmod(0o755)
         run(self.root, "add", ".")
         run(self.root, "commit", "-qm", "reviewed")
         self.reviewed = run(self.root, "rev-parse", "HEAD")
@@ -60,14 +49,14 @@ class ModbusM102ReleaseTests(unittest.TestCase):
                 "sha256": hashlib.sha256(data).hexdigest(),
             }
         return {
-            "allowed_child_changes": {
-                release.CI_PATH: "modified",
-                release.HOOK_PATH: "added",
-            },
             "attestation": {
-                "required_context": "adversarial-review",
+                "context": "adversarial-review",
+                "creator_id": 16434603,
+                "creator_login": "d3vi1",
+                "description": (
+                    "OpenAI-only fresh adversarial consensus: NO_FINDINGS"
+                ),
                 "target": "pull_request_head",
-                "workflow_permissions": "contents:read",
             },
             "files": files,
             "post_merge": {
@@ -80,201 +69,151 @@ class ModbusM102ReleaseTests(unittest.TestCase):
             "version": 1,
         }
 
-    def make_child(self, trust_sha: str = TRUST_SHA) -> str:
-        reviewed_ci = (self.root / release.CI_PATH).read_bytes()
-        (self.root / release.CI_PATH).write_bytes(
-            release._expected_ci(reviewed_ci)
-        )
-        hook = self.root / release.HOOK_PATH
-        hook.write_bytes(release._expected_hook(trust_sha))
-        hook.chmod(0o755)
-        run(self.root, "add", ".")
-        run(self.root, "commit", "-qm", "external gate")
-        return run(self.root, "rev-parse", "HEAD")
-
-    def validate(self, allow_reviewed: bool = False) -> list[str]:
-        return release.validate_release(
-            self.root,
-            self.manifest,
-            TRUST_SHA,
-            allow_reviewed,
-        )
-
-    def test_reviewed_commit_passes_only_for_anchor_creation(self) -> None:
-        self.assertEqual(self.validate(allow_reviewed=True), [])
-        self.assertIn(
-            "release candidate must be the exact permitted child",
-            self.validate(),
-        )
-
-    def test_exact_single_child_passes(self) -> None:
-        self.make_child()
-        self.assertEqual(self.validate(), [])
-
-    def test_product_mutation_is_rejected(self) -> None:
-        self.make_child()
-        (self.root / "product.go").write_text("package changed\n", encoding="utf-8")
-        run(self.root, "add", ".")
-        run(self.root, "commit", "-qm", "mutate product")
-        errors = self.validate()
-        self.assertIn(
-            "release candidate must be a direct single-parent child",
-            errors,
-        )
-        self.assertTrue(
-            any("candidate content mismatch: product.go" in item for item in errors)
-        )
-
-    def test_extra_file_is_rejected(self) -> None:
-        self.make_child()
-        (self.root / "backdoor.go").write_text("package product\n", encoding="utf-8")
-        run(self.root, "add", ".")
-        run(self.root, "commit", "--amend", "-qm", "external gate plus file")
-        errors = self.validate()
-        self.assertTrue(
-            any("candidate tree inventory mismatch" in item for item in errors)
-        )
-        self.assertTrue(any("candidate changes are not exact" in item for item in errors))
-
-    def test_hook_byte_change_is_rejected(self) -> None:
-        self.make_child()
-        hook = self.root / release.HOOK_PATH
-        hook.write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")
-        run(self.root, "add", ".")
-        run(self.root, "commit", "--amend", "-qm", "weaken hook")
-        self.assertIn(
-            "external release hook bytes are not exact",
-            self.validate(),
-        )
-
-    def test_candidate_cannot_rebind_external_anchor(self) -> None:
-        self.make_child("b" * 40)
-        self.assertIn(
-            "external release hook bytes are not exact",
-            self.validate(),
-        )
-
-    def test_ci_hook_omission_is_rejected(self) -> None:
-        self.make_child()
-        original = release._blob(self.root, self.reviewed, release.CI_PATH)
-        (self.root / release.CI_PATH).write_bytes(original + b"# changed\n")
-        run(self.root, "add", ".")
-        run(self.root, "commit", "--amend", "-qm", "weaken ci")
-        self.assertIn(
-            "ci_local.sh external hook insertion is not exact",
-            self.validate(),
-        )
-
-    def test_dirty_worktree_is_rejected(self) -> None:
-        self.make_child()
-        (self.root / "product.go").write_text("package dirty\n", encoding="utf-8")
-        self.assertIn("candidate worktree is dirty", self.validate())
-
-    def test_ignored_worktree_file_is_rejected(self) -> None:
-        run(self.root, "checkout", "-q", self.reviewed)
-        (self.root / ".gitignore").write_text("ignored.go\n", encoding="utf-8")
-        run(self.root, "add", ".gitignore")
-        run(self.root, "commit", "--amend", "--no-edit", "-q")
-        self.reviewed = run(self.root, "rev-parse", "HEAD")
-        self.manifest = self.make_manifest()
-        self.make_child()
-        (self.root / "ignored.go").write_text("package hidden\n", encoding="utf-8")
-        self.assertIn(
-            "candidate worktree contains ignored files",
-            self.validate(),
-        )
-
-    def test_symlink_replacement_is_rejected(self) -> None:
-        self.make_child()
-        (self.root / "product.go").unlink()
-        (self.root / "product.go").symlink_to("scripts/ci_local.sh")
-        run(self.root, "add", ".")
-        run(self.root, "commit", "--amend", "-qm", "symlink replacement")
-        errors = self.validate()
-        self.assertTrue(any("candidate mode mismatch: product.go" in e for e in errors))
-        self.assertTrue(any("candidate changes are not exact" in e for e in errors))
-
-    def test_merge_child_is_rejected(self) -> None:
-        self.make_child()
-        child = run(self.root, "rev-parse", "HEAD")
-        run(self.root, "checkout", "-qb", "side", self.reviewed)
-        (self.root / "side.txt").write_text("side\n", encoding="utf-8")
-        run(self.root, "add", ".")
-        run(self.root, "commit", "-qm", "side")
-        run(self.root, "checkout", "-q", self.primary_branch)
-        run(self.root, "merge", "--no-ff", "-qm", "merge", "side")
-        self.assertNotEqual(run(self.root, "rev-parse", "HEAD"), child)
-        self.assertIn(
-            "release candidate must be a direct single-parent child",
-            self.validate(),
-        )
-
-    def test_post_merge_requires_exact_attested_tree(self) -> None:
-        child = self.make_child()
-        run(self.root, "checkout", "-qb", "post-merge", self.reviewed)
-        run(self.root, "commit", "--allow-empty", "-qm", "squash identity")
-        merged = run(self.root, "rev-parse", "HEAD")
-        self.assertIn(
-            "post-squash main tree does not equal attested PR-head tree",
-            release.validate_post_merge_tree(self.root, merged, child),
-        )
-        run(self.root, "read-tree", f"{child}^{{tree}}")
-        run(self.root, "checkout-index", "-a", "-f")
-        run(self.root, "commit", "-qm", "squash tree")
-        matching = run(self.root, "rev-parse", "HEAD")
+    def test_exact_reviewed_commit_passes(self) -> None:
         self.assertEqual(
-            release.validate_post_merge_tree(self.root, matching, child),
+            release.validate_release(self.root, self.manifest),
             [],
         )
 
-    def test_symlink_candidate_root_is_rejected(self) -> None:
-        link = self.root.parent / f"{self.root.name}-link"
-        link.symlink_to(self.root, target_is_directory=True)
-        try:
-            self.assertEqual(
-                release.validate_release(
-                    link,
-                    self.manifest,
-                    TRUST_SHA,
-                    allow_reviewed=True,
-                ),
-                ["candidate root must be a regular directory"],
+    def test_other_head_is_rejected(self) -> None:
+        run(self.root, "commit", "--allow-empty", "-qm", "other head")
+        self.assertTrue(
+            any(
+                "candidate HEAD is not exact reviewed SHA" in error
+                for error in release.validate_release(self.root, self.manifest)
             )
-        finally:
-            link.unlink()
+        )
 
-    def test_symlinked_candidate_ancestor_is_rejected(self) -> None:
+    def test_dirty_and_ignored_files_are_rejected(self) -> None:
+        (self.root / "product.go").write_text("package dirty\n", encoding="utf-8")
+        self.assertIn(
+            "candidate worktree is dirty",
+            release.validate_release(self.root, self.manifest),
+        )
+        run(self.root, "checkout", "--", "product.go")
+        (self.root / ".gitignore").write_text("ignored.go\n", encoding="utf-8")
+        run(self.root, "add", ".gitignore")
+        run(self.root, "commit", "-qm", "ignore fixture")
+        self.reviewed = run(self.root, "rev-parse", "HEAD")
+        self.manifest = self.make_manifest()
+        (self.root / "ignored.go").write_text("package hidden\n", encoding="utf-8")
+        self.assertIn(
+            "candidate worktree contains ignored files",
+            release.validate_release(self.root, self.manifest),
+        )
+
+    def test_manifest_hash_mutation_is_rejected(self) -> None:
+        self.manifest["files"]["product.go"]["sha256"] = "0" * 64
+        self.assertIn(
+            "reviewed content mismatch: product.go",
+            release.validate_release(self.root, self.manifest),
+        )
+
+    def test_symlink_root_and_ancestor_are_rejected(self) -> None:
+        direct = self.root.parent / f"{self.root.name}-link"
         ancestor = self.root.parent / f"{self.root.name}-ancestor"
+        direct.symlink_to(self.root, target_is_directory=True)
         ancestor.symlink_to(self.root.parent, target_is_directory=True)
-        candidate = ancestor / self.root.name
         try:
-            self.assertEqual(
-                release.validate_release(
-                    candidate,
-                    self.manifest,
-                    TRUST_SHA,
-                    allow_reviewed=True,
-                ),
-                ["candidate root must be a regular directory"],
-            )
-            self.assertEqual(
-                release.validate_post_merge_tree(
-                    candidate,
-                    self.reviewed,
-                    self.reviewed,
-                ),
-                ["repository root must be a regular directory"],
-            )
-            self.assertEqual(
-                release._validate_anchor(
-                    candidate,
-                    self.reviewed,
-                    candidate / "product.go",
-                ),
-                ["anchor root must be a regular directory"],
-            )
+            for candidate in (direct, ancestor / self.root.name):
+                self.assertEqual(
+                    release.validate_release(candidate, self.manifest),
+                    ["candidate root must be a regular directory"],
+                )
+                self.assertEqual(
+                    release.validate_post_merge_tree(
+                        candidate,
+                        self.reviewed,
+                        self.reviewed,
+                    ),
+                    ["repository root must be a regular directory"],
+                )
         finally:
+            direct.unlink()
             ancestor.unlink()
+
+    def status(self, **overrides: object) -> dict:
+        value = {
+            "context": "adversarial-review",
+            "creator": {"id": 16434603, "login": "d3vi1"},
+            "description": (
+                "OpenAI-only fresh adversarial consensus: NO_FINDINGS"
+            ),
+            "state": "success",
+            "target_url": (
+                "https://github.com/Project-Helianthus/"
+                f"helianthus-execution-plans/commit/{ANCHOR_SHA}"
+            ),
+        }
+        value.update(overrides)
+        return value
+
+    def test_exact_attestation_passes(self) -> None:
+        self.assertEqual(
+            release.validate_attestation_payload(
+                [self.status()],
+                self.manifest,
+                ANCHOR_SHA,
+            ),
+            [],
+        )
+
+    def test_attestation_rejects_wrong_state_creator_description_and_url(
+        self,
+    ) -> None:
+        mutations = (
+            ({"state": "pending"}, "status is not success"),
+            ({"creator": {"id": 1, "login": "other"}}, "creator identity"),
+            ({"description": "NO_FINDINGS"}, "description is not exact"),
+            ({"target_url": "https://example.invalid"}, "target URL"),
+        )
+        for override, expected in mutations:
+            with self.subTest(override=override):
+                errors = release.validate_attestation_payload(
+                    [self.status(**override)],
+                    self.manifest,
+                    ANCHOR_SHA,
+                )
+                self.assertTrue(any(expected in error for error in errors))
+
+    def test_latest_matching_attestation_wins(self) -> None:
+        errors = release.validate_attestation_payload(
+            [
+                self.status(state="failure"),
+                self.status(),
+            ],
+            self.manifest,
+            ANCHOR_SHA,
+        )
+        self.assertIn(
+            "latest adversarial-review status is not success",
+            errors,
+        )
+
+    def test_post_merge_requires_exact_attested_tree(self) -> None:
+        run(self.root, "checkout", "-qb", "matching")
+        run(self.root, "commit", "--allow-empty", "-qm", "squash identity")
+        matching = run(self.root, "rev-parse", "HEAD")
+        self.assertEqual(
+            release.validate_post_merge_tree(
+                self.root,
+                matching,
+                self.reviewed,
+            ),
+            [],
+        )
+        (self.root / "product.go").write_text("package changed\n", encoding="utf-8")
+        run(self.root, "add", ".")
+        run(self.root, "commit", "-qm", "different tree")
+        different = run(self.root, "rev-parse", "HEAD")
+        self.assertIn(
+            "post-squash main tree does not equal attested PR-head tree",
+            release.validate_post_merge_tree(
+                self.root,
+                different,
+                self.reviewed,
+            ),
+        )
 
 
 if __name__ == "__main__":

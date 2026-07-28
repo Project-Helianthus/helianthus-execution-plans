@@ -1,12 +1,10 @@
 {
-  "allowed_child_changes": {
-    "scripts/ci_local.sh": "modified",
-    "scripts/validate_external_m1_02.sh": "added"
-  },
   "attestation": {
-    "required_context": "adversarial-review",
-    "target": "pull_request_head",
-    "workflow_permissions": "contents:read"
+    "context": "adversarial-review",
+    "creator_id": 16434603,
+    "creator_login": "d3vi1",
+    "description": "OpenAI-only fresh adversarial consensus: NO_FINDINGS",
+    "target": "pull_request_head"
   },
   "files": {
     ".github/CODEOWNERS": {
