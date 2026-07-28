@@ -1,0 +1,185 @@
+{
+  "allowed_child_changes": {
+    "scripts/ci_local.sh": "modified",
+    "scripts/validate_external_m1_02.sh": "added"
+  },
+  "attestation": {
+    "required_context": "adversarial-review",
+    "target": "pull_request_head",
+    "workflow_permissions": "contents:read"
+  },
+  "files": {
+    ".github/CODEOWNERS": {
+      "mode": "100644",
+      "sha256": "0d6fc330bce1c282813bc9741998e51cf4d49d2b2d4189c5ccea0d54668024d4"
+    },
+    ".github/workflows/ci.yml": {
+      "mode": "100644",
+      "sha256": "439689a02c8a190b55b3aafafbbfdab61ad9bafea436976e07c44c14276b949f"
+    },
+    ".gitignore": {
+      "mode": "100644",
+      "sha256": "e034ca3651cd27873d70c126d41467eba5f01e89e8634783544d5b2ebe62b0f1"
+    },
+    "AGENTS.md": {
+      "mode": "100644",
+      "sha256": "1654f8d1f2c2fc70de3e8c6718adfc25559609c43c84956454e580dfaa77cab0"
+    },
+    "CONTRIBUTING.md": {
+      "mode": "100644",
+      "sha256": "29950f6df92c15f05ee501dc6710276f6bb801c0b8f992323604e0668a51cec7"
+    },
+    "LICENSE": {
+      "mode": "100644",
+      "sha256": "8486a10c4393cee1c25392769ddd3b2d6c242d6ec7928e1414efff7dfb2f07ef"
+    },
+    "README.md": {
+      "mode": "100644",
+      "sha256": "73380f9fd0f4771d6a915d9440927f459fa6a7a69c27403bcf985f57452f1b82"
+    },
+    "device_id.go": {
+      "mode": "100644",
+      "sha256": "5bcad6b6af8ba827ee16ea832c7d688e0d851b9dabb42376fefb2a4837bd0d9f"
+    },
+    "device_id_test.go": {
+      "mode": "100644",
+      "sha256": "efa5707a2a2357bdda1aa0dd1a642f2ed77fbf97603243474bfc693e4be679e0"
+    },
+    "doc.go": {
+      "mode": "100644",
+      "sha256": "9f16ddba12a48cb50566ec16472d9fb170a6894059ffec2ad59b3855836133bc"
+    },
+    "go.mod": {
+      "mode": "100644",
+      "sha256": "c64fd63d81e8a9c6b013d06f8db676621b3945be57e203bd004910270383617f"
+    },
+    "pdu.go": {
+      "mode": "100644",
+      "sha256": "6e10a628f3f79d5c19c7c51307308179644364a5ba2c698e39e4ec49ef4e1d8b"
+    },
+    "pdu_test.go": {
+      "mode": "100644",
+      "sha256": "56a970af945842aaa570232d7bfa196ac90619a5cf6589263a5c7481040b1f23"
+    },
+    "policy/m1-02-acceptance.json": {
+      "mode": "100644",
+      "sha256": "3174879846ea950c2a37d691dae056f0f8dd5e3b5e601376874f53f99ffb1e97"
+    },
+    "policy/m1-02-transport-matrix.json": {
+      "mode": "100644",
+      "sha256": "e4e408d844aa4709127598b3ae7897d865cd4d7252d335d94daebb5427b07b1c"
+    },
+    "policy/modbus-companion-consumer-lock-v1.json": {
+      "mode": "100644",
+      "sha256": "808e8d4cfaffd5ee7592ceaf0afd6e8ebeca3e4dd35529b74b26042016657f37"
+    },
+    "policy/phase1-readonly.json": {
+      "mode": "100644",
+      "sha256": "4a6d97b141e0a658afddbf5a49489b014338304f4206f749bb42e431e29730e3"
+    },
+    "scripts/acceptance_evidence/main.go": {
+      "mode": "100644",
+      "sha256": "903cfc5df5569c316186032ab2da644dcb664a51548b064e3d3e67c945b96880"
+    },
+    "scripts/ci_local.sh": {
+      "mode": "100755",
+      "sha256": "7f2912cc40634e2a329dc891b5cbcbd0c62c457cb3fa5e42e28ba3ed3243dd16"
+    },
+    "scripts/read_only_surface/main.go": {
+      "mode": "100644",
+      "sha256": "e8a3d211d7ad9f70edab01bb552087e12c7e1ea97bafbeab48700241737f86c8"
+    },
+    "scripts/scope_gate.sh": {
+      "mode": "100755",
+      "sha256": "95ccd351a184e3feb8dd94b745387514ca4c9c41383c434efac684eb2e34b7c3"
+    },
+    "scripts/validate_companion_lock.sh": {
+      "mode": "100755",
+      "sha256": "c9a2a4e12681f0454626c928e98db619950b0b3b49453c153c8153dc24e82112"
+    },
+    "scripts/validate_m1_02_acceptance.py": {
+      "mode": "100644",
+      "sha256": "78a422c705d18167fa8dc515097d12bc5a96d54fd17cedc911ec6dcb579683c5"
+    },
+    "scripts/validate_scope_policy.py": {
+      "mode": "100644",
+      "sha256": "71e0d86b41ef169b859b592668109fb4fbde0e3be5ccaddb6071fd7d561ae8e2"
+    },
+    "tcp_adu.go": {
+      "mode": "100644",
+      "sha256": "29468e151d3b241ac49cda6e97be2c1e78561bb41703be347ff0dbf17650c42b"
+    },
+    "tcp_adu_test.go": {
+      "mode": "100644",
+      "sha256": "f412ee8bfa2d2b352485d55291991e2dcbf100dcaf6292f5b61a4f0c1a8de701"
+    },
+    "tcp_coalescing.go": {
+      "mode": "100644",
+      "sha256": "d57ec064b99bdfe49d12e608fafc5883e84eec8037aa6ee485602424e2c9be7d"
+    },
+    "tcp_coalescing_test.go": {
+      "mode": "100644",
+      "sha256": "e00274ac79a7a6c354b6d2c2aacc4fa0435507561063c34155b4bfbfd0f26415"
+    },
+    "tcp_endpoint.go": {
+      "mode": "100644",
+      "sha256": "28ee5217b93240ee1b8a0056da9411d823c79adcf7116579cbf08595855fcffb"
+    },
+    "tcp_endpoint_test.go": {
+      "mode": "100644",
+      "sha256": "4a742b798a91a81eb597deb160ec441e3ca471eea43a62eac152bef36870c453"
+    },
+    "tcp_owner.go": {
+      "mode": "100644",
+      "sha256": "b062e796fb3c60c9dd3b6716af6271543fc394b4646af52990cfc1b3d8032b00"
+    },
+    "tcp_owner_test.go": {
+      "mode": "100644",
+      "sha256": "cd3d6e2c5a3742844f449df1615ef88611353249def1d99fd550567d834e943a"
+    },
+    "tcp_pool.go": {
+      "mode": "100644",
+      "sha256": "bdbc8f871915f1173d67a211dcff8572516e071cdb3d1793a463f5598c8e7114"
+    },
+    "tcp_pool_test.go": {
+      "mode": "100644",
+      "sha256": "c855455fdb7a3dc9c186d7e14592385d598f40cf8f699ecb8af518ed07824879"
+    },
+    "tcp_scheduler.go": {
+      "mode": "100644",
+      "sha256": "d30b7154b9762380dc69bb334436abf62cde45273310a829c08ed2fac9b27252"
+    },
+    "tcp_scheduler_test.go": {
+      "mode": "100644",
+      "sha256": "52a3715e2a9e0f47ea583a123d6e1bb7659ccf239e3b3197a160743a5a7bea2d"
+    },
+    "tcp_transport.go": {
+      "mode": "100644",
+      "sha256": "e74e803d5cb2a654a1e44d5e2d8eb018d3641b40fe942e9e319cceeceeb80d84"
+    },
+    "tcp_transport_test.go": {
+      "mode": "100644",
+      "sha256": "3d5a89e6a125a8b710153c9a4ae1ebe5187807256cfc7a6aab0af16b18613b9c"
+    },
+    "tests/test_acceptance_evidence.py": {
+      "mode": "100644",
+      "sha256": "6b26f6b092859d2ae976bf6cd2827a822efd691e9ce1190ca0fde480ef49a866"
+    },
+    "tests/test_m1_02_acceptance.py": {
+      "mode": "100644",
+      "sha256": "38f55dc86caab968641d6d259ea01acdeb33e5b66687b837cd49041f06258c7e"
+    },
+    "tests/test_scope_policy.py": {
+      "mode": "100644",
+      "sha256": "7715baac025c244c3b2fbc10b44a1dfd44dac83f6b3c8db5e83147a788bdc95c"
+    }
+  },
+  "post_merge": {
+    "strategy": "squash",
+    "tree_must_equal_attested_pr_head": true
+  },
+  "repository": "Project-Helianthus/helianthus-modbus",
+  "reviewed_sha": "1cb0c2ae7171bb7045806dfa6816b1b8b58298cd",
+  "schema": "helianthus.modbus.m1-02-release",
+  "version": 1
+}
