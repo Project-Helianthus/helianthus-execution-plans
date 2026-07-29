@@ -60,12 +60,16 @@ and MSP-03D-R.
 
 ## Current Ready Row
 
-M0-M6 history is accepted. The current selected batch is exactly:
+M0-M6 history is accepted. Current release-proof and dispatch state is:
 
-- `MSP-0625-PLAN` in `helianthus-execution-plans`.
-
-The M6.25 plan row preserves all prior milestone records and publishes the
-additive contract before code or documentation successors start.
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `release_proof_pending`
+Cruise phase: `M6_25_RELEASE_PROOF_PENDING`
+Current milestone: `M6_25_RELEASE_PROOF_PENDING`
+LAB acceptance state: `release_proof_pending`
+Selected batch: `MSP-0625-LAB`
+Accepted through: `M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
 
 ## Historical Initial Ready Rows
 
@@ -328,6 +332,13 @@ The live completion chain is `MSP-0625-LAB` plus `MSP-0625-DOCS-P` ->
 `MSP-065-LIVE-R1` -> `MSP-07-LIVE-R1` -> `MSP-08-LIVE-R1` ->
 `MSP-085-LIVE-R1`.
 
+Record 122 marks PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER,
+GW-MCP, and DOCS-P completed and published. LAB operational acceptance used
+terminal quarantine, does not claim auto-rollback, and promotes no mutable
+leaf. The generated control projection above is authoritative for LAB state
+and dispatch. SHIP PR23 and docs-eebus PR95 are non-DAG hardening, never
+predecessors.
+
 Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` remain present as
 `framework_complete` or `synthetic_only`. Those states are not accepted
 completion-token states and cannot unlock the live chain.
@@ -358,7 +369,7 @@ This plan is locked when:
   `M6_25_RAW_SPINE_FEATURE_ACQUISITION`;
 - accepted-through text records M6 raw topology/privacy completion and zero
   promoted leaves;
-- `MSP-0625-PLAN` is the only current ready row;
+- the generated release-proof projection is the only current ready-row authority;
 - the M6.25 code path, tool set, authorization, durable mutation FSM, recovery,
   and anti-leak contract are frozen;
 - historical framework/synthetic rows cannot unlock live rows;

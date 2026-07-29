@@ -220,7 +220,85 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                     self.row(self.matrix, row_id)["requires_completion_tokens"],
                     dependencies,
                 )
-        self.assertEqual(validator.READINESS["selected_batch"], ["MSP-0625-PLAN"])
+        self.assertEqual(validator.readiness(self.matrix)["selected_batch"], ["MSP-0625-LAB"])
+
+    def test_m625_release_proof_single_control_flip_selects_live_r1(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            shutil.copytree(PLAN, root / validator.PLAN)
+            validator.apply_release_proof_state(root, "released_chain_redeployed")
+            validator.validate_surfaces(root)
+            plan = yaml.safe_load((root / validator.PLAN / "plan.yaml").read_text())
+            matrix = yaml.safe_load((root / validator.PLAN / validator.MATRIX).read_text())
+            validator.validate_control_projection(plan, matrix, root / validator.PLAN)
+            self.assertEqual(plan["lab_release_proof"], "released_chain_redeployed")
+            self.assertEqual(plan["current_milestone"], "MSP-065-LIVE-R1")
+            self.assertEqual(plan["cruise_phase"], "MSP-065-LIVE-R1")
+            self.assertEqual(plan["initial_ready_set"], ["MSP-065-LIVE-R1"])
+            self.assertEqual(matrix["current_milestone"], "MSP-065-LIVE-R1")
+            self.assertEqual(matrix["cruise_phase"], "MSP-065-LIVE-R1")
+            self.assertEqual(
+                self.row(matrix, "MSP-0625-LAB")["acceptance_state"],
+                "accepted",
+            )
+            self.assertEqual(
+                validator.readiness(matrix)["selected_batch"],
+                ["MSP-065-LIVE-R1"],
+            )
+
+    def test_rejects_pending_split_brain_when_matrix_control_only_is_released(self) -> None:
+        plan = yaml.safe_load((PLAN / "plan.yaml").read_text(encoding="utf-8"))
+        matrix = copy.deepcopy(self.matrix)
+        matrix["lab_release_proof"] = "released_chain_redeployed"
+        with self.assertRaises(validator.ValidationError):
+            validator.validate_control_projection(plan, matrix, PLAN)
+
+    def test_rejects_released_split_brain_when_plan_control_only_is_pending(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            validator.apply_release_proof_state(root, "released_chain_redeployed")
+            plan = yaml.safe_load((target / "plan.yaml").read_text(encoding="utf-8"))
+            matrix = yaml.safe_load((target / validator.MATRIX).read_text(encoding="utf-8"))
+            plan["lab_release_proof"] = "release_proof_pending"
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_control_projection(plan, matrix, target)
+
+    def test_rejects_released_projection_when_one_generated_map_is_pending(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            validator.apply_release_proof_state(root, "released_chain_redeployed")
+            issue_map = target / "90-issue-map.md"
+            issue_map.write_text(
+                issue_map.read_text(encoding="utf-8").replace(
+                    "LAB acceptance state: `accepted`",
+                    "LAB acceptance state: `release_proof_pending`",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            plan = yaml.safe_load((target / "plan.yaml").read_text(encoding="utf-8"))
+            matrix = yaml.safe_load((target / validator.MATRIX).read_text(encoding="utf-8"))
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_control_projection(plan, matrix, target)
+
+    def test_m625_reconciliation_preserves_receipts_and_lab_limits(self) -> None:
+        text = (PLAN / validator.M625_IMPLEMENTATION_RECONCILIATION).read_text(
+            encoding="utf-8"
+        )
+        for receipt in validator.M625_IMPLEMENTATION_RECEIPTS:
+            self.assertIn(receipt, text)
+        for fragment in (
+            "terminal quarantine",
+            "no auto-rollback claim",
+            "promotes no mutable leaf",
+            "SHIP -> eebusreg -> gateway",
+            "non-DAG hardening only",
+        ):
+            self.assertIn(fragment, text)
 
     def test_historical_synthetic_rows_cannot_unlock_live_chain(self) -> None:
         expected_states = {
@@ -456,7 +534,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
     def test_live_audit_is_current_integrity_projection(self) -> None:
         audit = validator.render_live_audit(self.matrix)
         self.assertIn('"current_control"', audit)
-        self.assertIn('"selected_batch":["MSP-0625-PLAN"]', audit)
+        self.assertIn('"selected_batch":["MSP-0625-LAB"]', audit)
         self.assertIn(validator.PRE_M625_HISTORY_SHA256, audit)
         self.assertIn(
             "106-ad-docs-02-integrity.json is the immutable historical M5 record",
@@ -779,6 +857,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "119-w30-26-post-m6-hardening-inventory.md",
                 "120-w30-26-current-state-evidence.json",
                 "121-w31-26-m625-raw-mutation-contract-correction.md",
+                "122-w31-26-m625-implementation-state-reconciliation.md",
             ),
         )
         self.assertEqual(

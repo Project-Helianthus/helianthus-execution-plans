@@ -2,8 +2,15 @@
 
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
-Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Amendment: `M6.25 raw mutation contract correction`
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `release_proof_pending`
+Cruise phase: `M6_25_RELEASE_PROOF_PENDING`
+Current milestone: `M6_25_RELEASE_PROOF_PENDING`
+LAB acceptance state: `release_proof_pending`
+Selected batch: `MSP-0625-LAB`
+Accepted through: `M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
+Amendment: `M6.25 implementation state reconciliation`
 
 | Milestone | Primary repo(s) | Depends on | Gate |
 | --- | --- | --- | --- |
@@ -51,7 +58,9 @@ MSP-DOCS-API-CANDIDATE merges the exact-head candidate first. MSP-055 then
 passes exact-match, candidate-state, expiry, and no-active-cleanup gates, and
 MSP-DOCS-API-FREEZE runs before MSP-04B. M4.5 and M5A are now complete.
 
-The sole current ready row is `MSP-0625-PLAN`. M5 and M6 are complete.
+PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER, GW-MCP, and DOCS-P
+are completed and published. The generated release-proof projection above is
+authoritative for LAB acceptance and current dispatch.
 M6.25 serializes spine-go, eebus-go, eebusreg, and gateway code by repository.
 `MSP-0625-DOCS-P` may proceed after `MSP-0625-DOCS-E` without blocking
 `MSP-0625-SPINE`, but both `MSP-0625-LAB` and `MSP-0625-DOCS-P` must complete

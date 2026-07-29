@@ -2,10 +2,16 @@
 
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
-Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `release_proof_pending`
+Cruise phase: `M6_25_RELEASE_PROOF_PENDING`
+Current milestone: `M6_25_RELEASE_PROOF_PENDING`
+LAB acceptance state: `release_proof_pending`
+Selected batch: `MSP-0625-LAB`
+Accepted through: `M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
 Successor unlocks: `only through the M6.25 and live-completion chain`
-Amendment: `M6.25 raw mutation contract correction`
+Amendment: `M6.25 implementation state reconciliation`
 
 This map preserves historical evidence and adds the M6.25/live-completion rows
 without rewriting M0-M6. One active PR per repo remains mandatory.
@@ -37,7 +43,7 @@ complete projection for review.
 
 ## Hard Blockers
 
-- The sole current ready row is `MSP-0625-PLAN`.
+- The generated release-proof projection is the sole current dispatch authority.
 - M6 topology and live counts do not prove canonical typed feature-data
   acquisition.
 - Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` closure cannot
@@ -50,16 +56,16 @@ complete projection for review.
 
 | ID | Repo | Purpose | State |
 | --- | --- | --- | --- |
-| MSP-0625-PLAN | `helianthus-execution-plans` | Publish additive contract and DAG | ready |
-| MSP-0625-DOCS-E | `helianthus-docs-eebus` | Freeze SPINE data/operation, runtime, and API contract | proposed |
-| MSP-0625-SPINE | `helianthus-spine-go` | Atomic correlated callback-before-send round-trip | proposed |
-| MSP-0625-EEBUS | `helianthus-eebus-go` | Exact full READ/WRITE feature executor | proposed |
-| MSP-0625-REG-EXEC | `helianthus-eebusreg` | `RawFeatureRuntimeV1`, epochs, generations, DTOs, reads | proposed |
-| MSP-0625-REG-MUT | `helianthus-eebusreg` | WAL/FSM, lease, CAS, idempotency, rollback, audit | proposed |
-| MSP-0625-GW-ROUTER | `helianthus-ebusgateway` | Add `EEBusCommandRouter` policy boundary | proposed |
-| MSP-0625-GW-MCP | `helianthus-ebusgateway` | Register the exact five M6.25 tool suffixes | proposed |
-| MSP-0625-LAB | `helianthus-docs-eebus` | Public-safe live acquisition/mutation/rollback evidence | proposed |
-| MSP-0625-DOCS-P | `helianthus-docs-ebus` | Thin public methodology cross-seed | proposed |
+| MSP-0625-PLAN | `helianthus-execution-plans` | Publish additive contract and DAG | completed_published |
+| MSP-0625-DOCS-E | `helianthus-docs-eebus` | Freeze SPINE data/operation, runtime, and API contract | completed_published |
+| MSP-0625-SPINE | `helianthus-spine-go` | Atomic correlated callback-before-send round-trip | completed_published |
+| MSP-0625-EEBUS | `helianthus-eebus-go` | Exact full READ/WRITE feature executor | completed_published |
+| MSP-0625-REG-EXEC | `helianthus-eebusreg` | `RawFeatureRuntimeV1`, epochs, generations, DTOs, reads | completed_published |
+| MSP-0625-REG-MUT | `helianthus-eebusreg` | WAL/FSM, lease, CAS, idempotency, rollback, audit | completed_published |
+| MSP-0625-GW-ROUTER | `helianthus-ebusgateway` | Add `EEBusCommandRouter` policy boundary | completed_published |
+| MSP-0625-GW-MCP | `helianthus-ebusgateway` | Register the exact five M6.25 tool suffixes | completed_published |
+| MSP-0625-LAB | `helianthus-docs-eebus` | Public-safe live acquisition/mutation/rollback evidence | see release-proof projection |
+| MSP-0625-DOCS-P | `helianthus-docs-ebus` | Thin public methodology cross-seed | completed_published |
 
 The append-only correction is tracked by
 [`helianthus-execution-plans#82`](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/82).

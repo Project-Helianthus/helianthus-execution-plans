@@ -1,10 +1,10 @@
 slug: multi-runtime-semantic-platform
 title: Helianthus Multi-Runtime Semantic Platform
 state: locked
-cruise_phase: M6_25_RAW_SPINE_FEATURE_ACQUISITION
-amendment_count: 7
-amended_on: 2026-07-28
-amendment: M6.25 raw mutation contract correction
+cruise_phase: M6_25_RELEASE_PROOF_PENDING
+amendment_count: 8
+amended_on: 2026-07-29
+amendment: M6.25 implementation state reconciliation
 source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
 target_repos:
   - helianthus-execution-plans
@@ -27,9 +27,10 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-12
 locked_on: 2026-07-10
-current_milestone: M6_25_RAW_SPINE_FEATURE_ACQUISITION
+current_milestone: M6_25_RELEASE_PROOF_PENDING
+lab_release_proof: release_proof_pending
 accepted_adversarial_rounds: 5
-accepted_through: M6 raw topology and privacy boundary with zero promoted leaves
+accepted_through: M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves
 m3_status: closed
 msp_03d_status: closed
 dirty_rescue_candidate: false
@@ -39,7 +40,7 @@ msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
 initial_ready_set:
-  - MSP-0625-PLAN
+  - MSP-0625-LAB
 routing_policy:
   resolver: canonical
   policy_digest: required_at_dispatch

@@ -3,15 +3,16 @@ schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
-cruise_phase: M6_25_RAW_SPINE_FEATURE_ACQUISITION
-current_milestone: M6_25_RAW_SPINE_FEATURE_ACQUISITION
-amendment_count: 7
-amended_on: '2026-07-28'
-amendment: M6.25 raw mutation contract correction
-accepted_through: M6 raw topology and privacy boundary with zero promoted leaves
+cruise_phase: M6_25_RELEASE_PROOF_PENDING
+current_milestone: M6_25_RELEASE_PROOF_PENDING
+amendment_count: 8
+amended_on: '2026-07-29'
+amendment: M6.25 implementation state reconciliation
+accepted_through: M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves
 dirty_rescue_candidate: false
 successor_unlocks: true
 successor_unlock_condition: M6.25 live DAG completes through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
+lab_release_proof: release_proof_pending
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
@@ -1453,7 +1454,7 @@ issues:
   review_ledger: one focused architecture and DAG review
   tdd_mode: plan_preflight
   smoke_scope: plan validator, DAG, protected-history, canonical JSON, and anti-leak
-  acceptance_state: ready
+  acceptance_state: completed_published
   acceptance:
   - 100-topology-audit.md is byte-identical to the protected anchor
   - M0-M6 history remains valid and M6.25 is additive
@@ -1478,7 +1479,7 @@ issues:
   review_ledger: protocol/runtime/API contract review
   tdd_mode: docs_schema_red_green
   smoke_scope: full READ/WRITE schema, exclusions, auth, FSM, recovery, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - raw means canonical typed SPINE function-data and never arbitrary frames or headers
   - full READ and full WRITE only; partial, selectors, filterDelete, and invoke are rejected
@@ -1502,7 +1503,7 @@ issues:
   review_ledger: correlation, cancellation, disconnect, and race review
   tdd_mode: strict_red_green
   smoke_scope: callback-before-send synchronous reply plus terminal cleanup and race tests
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - callback registration completes before send
   - synchronous reply during send is correlated exactly once
@@ -1528,7 +1529,7 @@ issues:
   review_ledger: SPINE function and possible-operations review
   tdd_mode: strict_red_green
   smoke_scope: typed full READ/WRITE, remote errors, and unsupported-operation zero-send
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - exact feature and function selection is deterministic
   - only full READ and full WRITE requests are emitted
@@ -1552,7 +1553,7 @@ issues:
   review_ledger: DTO, epoch/generation, read-token, and bounded-concurrency review
   tdd_mode: strict_red_green
   smoke_scope: typed read DTOs, durable epoch, generation mismatch zero-frame, and JCS
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - durable runtime_epoch and monotonic connection_generation bind every operation
   - features.data.get returns canonical typed data plus a bound read_token
@@ -1577,7 +1578,7 @@ issues:
   review_ledger: WAL/FSM, lease, CAS, idempotency, constraints, recovery, and audit review
   tdd_mode: strict_red_green
   smoke_scope: crash every transition, probe restart rollback, conflict, outcome-unknown, and concurrent writers
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - one global runtime writer lease serializes writes and rollbacks
   - idempotency is scoped by runtime epoch, principal, tool, and key
@@ -1608,7 +1609,7 @@ issues:
   review_ledger: gateway routing, auth order, and eBUS no-drift review
   tdd_mode: strict_red_green
   smoke_scope: public zero-contact denial, owner-local routing, and eBUS regression
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - all M6.25 writes pass through EEBusCommandRouter
   - no entity adapter or MCP handler writes directly
@@ -1639,7 +1640,7 @@ issues:
   review_ledger: MCP schema, scope, error precedence, and anti-leak review
   tdd_mode: strict_red_green
   smoke_scope: exact tool inventory, read/write scopes, AF_UNIX write gate, JCS, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - the M6.25 suffix set is exactly features.get, features.data.get, features.data.set, mutations.get, mutations.rollback
   - only the single unreleased eebus.v1 namespace is used
@@ -1666,7 +1667,7 @@ issues:
   review_ledger: live safety, recovery, privacy, and evidence review
   tdd_mode: strict_red_green
   smoke_scope: live READ, reversible WRITE, readback, restart probe rollback, conflict, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: release_proof_pending
   acceptance:
   - public-safe evidence proves full typed READ without exposing restricted material
   - bounded lab WRITE is verified by READ and then restored by verified rollback
@@ -1692,7 +1693,7 @@ issues:
   review_ledger: ownership, methodology-only, and privacy review
   tdd_mode: docs_manifest_contract
   smoke_scope: thin methodology cross-seed, ownership manifest, links, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - only language-neutral acquisition and evidence methodology is cross-seeded
   - no protocol-native duplication or restricted material is published

@@ -1,13 +1,18 @@
 # Helianthus Multi-Runtime Semantic Platform
 
 Revision: `v1.5-locked-amended`
-Date: `2026-07-28`
+Date: `2026-07-29`
 Status: `Locked`
-Cruise phase: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Amendment count: `7`
-Amendment: `M6.25 raw mutation contract correction`
-Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `release_proof_pending`
+Cruise phase: `M6_25_RELEASE_PROOF_PENDING`
+Current milestone: `M6_25_RELEASE_PROOF_PENDING`
+LAB acceptance state: `release_proof_pending`
+Selected batch: `MSP-0625-LAB`
+Accepted through: `M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
+Amendment count: `8`
+Amendment: `M6.25 implementation state reconciliation`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the M6.25 and live-completion chain`
 Baseline: `Gateway 0.4.0`
@@ -48,6 +53,12 @@ typed SPINE function-data acquisition. Its append-only mutation correction
 freezes no-effect recovery, interface compatibility, and write authorization
 before REG-MUT implementation. Historical M6.5-M8.5 framework or
 synthetic closures remain recorded but cannot unlock the new live chain or M9.
+
+Successor record 122 reconciles the published PLAN, DOCS-E, SPINE, EEBUS,
+REG-EXEC, REG-MUT, GW-ROUTER, GW-MCP, and DOCS-P rows without changing any
+completion-token edge. LAB used terminal quarantine and claims neither
+automatic rollback nor mutable-leaf promotion. The generated release-proof
+projection above is authoritative for current LAB state and selected batch.
 
 The first extension target is raw eeBUS visibility for the
 VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo

@@ -114,15 +114,60 @@ ACCEPTANCE_STATES.update({
     "MSP-03D-G01": "accepted_partial_no_successor_unlock",
     "MSP-R00": "completed_local_no_code_acceptance",
     "MSP-DOCS-CANDIDATE-CLEANUP": "dormant_conditional",
-    "MSP-0625-PLAN": "ready",
+    "MSP-0625-PLAN": "completed_published",
+    "MSP-0625-DOCS-E": "completed_published",
+    "MSP-0625-SPINE": "completed_published",
+    "MSP-0625-EEBUS": "completed_published",
+    "MSP-0625-REG-EXEC": "completed_published",
+    "MSP-0625-REG-MUT": "completed_published",
+    "MSP-0625-GW-ROUTER": "completed_published",
+    "MSP-0625-GW-MCP": "completed_published",
+    "MSP-0625-LAB": "release_proof_pending",
+    "MSP-0625-DOCS-P": "completed_published",
     "MSP-065": "framework_complete",
     "MSP-07": "synthetic_only",
     "MSP-08": "synthetic_only",
     "MSP-085": "synthetic_only",
 })
-CURRENT_AMENDMENT_COUNT = 7
-CURRENT_AMENDMENT = "M6.25 raw mutation contract correction"
-CURRENT_ACCEPTED_THROUGH = "M6 raw topology and privacy boundary with zero promoted leaves"
+CURRENT_AMENDMENT_COUNT = 8
+CURRENT_AMENDMENT = "M6.25 implementation state reconciliation"
+CURRENT_ACCEPTED_THROUGH = (
+    "M6.25 implementation published; LAB operational acceptance release proof "
+    "pending; zero promoted leaves"
+)
+RELEASE_PROOF_STATES = {
+    "release_proof_pending": {
+        "cruise_phase": "M6_25_RELEASE_PROOF_PENDING",
+        "current_milestone": "M6_25_RELEASE_PROOF_PENDING",
+        "lab_acceptance_state": "release_proof_pending",
+        "selected_batch": ["MSP-0625-LAB"],
+        "accepted_through": CURRENT_ACCEPTED_THROUGH,
+    },
+    "released_chain_redeployed": {
+        "cruise_phase": "MSP-065-LIVE-R1",
+        "current_milestone": "MSP-065-LIVE-R1",
+        "lab_acceptance_state": "accepted",
+        "selected_batch": ["MSP-065-LIVE-R1"],
+        "accepted_through": (
+            "M6.25 LAB accepted/completed after released-chain redeploy; "
+            "zero promoted leaves"
+        ),
+    },
+}
+RELEASE_PROJECTION_SURFACES = (
+    "00-canonical.md",
+    "01-index.md",
+    "14-execution-roadmap-issues-and-gates.md",
+    "90-issue-map.md",
+    "91-milestone-map.md",
+    "99-status.md",
+    "122-w31-26-m625-implementation-state-reconciliation.md",
+)
+RELEASE_PROJECTION_RE = re.compile(
+    r"<!-- M625_RELEASE_PROJECTION_BEGIN -->\n.*?"
+    r"<!-- M625_RELEASE_PROJECTION_END -->",
+    re.DOTALL,
+)
 CURRENT_SUCCESSOR_UNLOCK_CONDITION = (
     "M6.25 live DAG completes through MSP-085-LIVE-R1 and "
     "promoted_leaf_count is greater than zero before M9"
@@ -215,6 +260,20 @@ M625_TOOL_SUFFIXES = [
 ]
 M625_MUTATION_CORRECTION = (
     "121-w31-26-m625-raw-mutation-contract-correction.md"
+)
+M625_IMPLEMENTATION_RECONCILIATION = (
+    "122-w31-26-m625-implementation-state-reconciliation.md"
+)
+M625_IMPLEMENTATION_RECEIPTS = (
+    "MSP-0625-PLAN: helianthus-execution-plans PR77 fb384ab57d79f0020c54d2c66416e8a7666f0ceb; PR83 0aa8c131cbe7ea5096557f1a46ea6fa3164d143f",
+    "MSP-0625-DOCS-E: helianthus-docs-eebus PR77 cedf238e34f879815ba773e9cd76b2b31c2822a3; PR85 401b46d6fd6834eeaaf861345d0392d26bfb9605; PR89 03e2b126ccfed7f3782ca5078c86a53c9ecc8fae; PR91 7e29d1253b7a6f271258e3fa319dfb26915439e; PR93 1ea36df153f9fac7cd4e17d44fd947525711ddc0",
+    "MSP-0625-SPINE: helianthus-spine-go PR10 a35ec1c48a6cdd2cdcb9b6e56086360824fb21f2",
+    "MSP-0625-EEBUS: helianthus-eebus-go PR20 41c2d2ed73baf887ee69a364797c1d6ff74ab426",
+    "MSP-0625-REG-EXEC: helianthus-eebusreg PR84 4a0af028276db7d32a9454386b643138e84c555e; PR86 b4903d4b0020cf4651d78021e0996b3fad01932c",
+    "MSP-0625-REG-MUT: helianthus-eebusreg PR88 19874f0ebd57be7d1cf3ab9b7ee7aaac175a2dd9; PR90 63e43d94024d101cea882697acb5436a3b51fc77; PR92 0f2c0d343ffd615efaa7c789b720c52bae20c337; PR94 4afad3e9083b7a6f271258e3fa319dfb26915439; PR96 5528b436f814f1867138a1d7da9354c665916f28; PR98 709a5473de26bbaaa625cdfead555872edea5cab",
+    "MSP-0625-GW-ROUTER: helianthus-ebusgateway PR748 54efe461f27a0115c2a038d4c56ace1ea2c6f39e; PR750 fcad9c8c80101cb31a7707e21846bca24bbbf40a; PR752 4ffb02891ddb1b1d406c9e72a7a5ab804f11c586; PR754 dc27adf161562108c4c611bd9d2706721339281e; PR756 defe6b5d0ba0cfce4174e21429dbf23e3eae1a6a; PR757 0788ee2929d71cb4a099157f2422d26fedf6768f",
+    "MSP-0625-GW-MCP: helianthus-ebusgateway PR758 335ee0a6598de44fb7ca426995afb0b24e9b7331; PR760 cbf7c8e082fc19e2f0bc652270c977e0b16ed159",
+    "MSP-0625-DOCS-P: helianthus-docs-ebus PR381 fdacb676ef3ff6e25a2fa53149a18de996635d1e",
 )
 M625_NO_EFFECT_DTO = {
     "state": "no_effect",
@@ -332,16 +391,22 @@ ROW_EXTRAS = {
     "MSP-09D": frozenset({"unlock_predicate"}),
 }
 HISTORICAL_IDS = frozenset(EXACT_IDS[:17])
-READINESS = {
-    "historical_snapshot": list(PRESERVED_ACCEPTED_IDS),
-    "logical_ready": ["MSP-0625-PLAN"],
-    "dispatchable": ["MSP-0625-PLAN"],
-    "selected_batch": ["MSP-0625-PLAN"],
-}
+def readiness(matrix: dict[str, Any]) -> dict[str, list[str]]:
+    """Derive dispatch from the projected LAB release-proof control."""
+    state = matrix.get("lab_release_proof")
+    if state not in RELEASE_PROOF_STATES:
+        fail("matrix: LAB release-proof control drift")
+    next_batch = RELEASE_PROOF_STATES[state]["selected_batch"]
+    return {
+        "historical_snapshot": list(PRESERVED_ACCEPTED_IDS),
+        "logical_ready": next_batch,
+        "dispatchable": next_batch,
+        "selected_batch": next_batch,
+    }
 MATRIX_ROOT_KEYS = frozenset({
     "schema_version", "status", "plan", "baseline", "cruise_phase", "current_milestone",
     "amendment_count", "amended_on", "amendment", "accepted_through", "dirty_rescue_candidate",
-    "successor_unlocks", "successor_unlock_condition", "msp_r00_status", "msp_r00_issue",
+    "successor_unlocks", "successor_unlock_condition", "lab_release_proof", "msp_r00_status", "msp_r00_issue",
     "msp_r00_architecture_review", "purpose", "serialization", "gate_catalog", "ownership_contract",
     "public_evidence_privacy", "issues", "routing_policy",
 })
@@ -350,7 +415,7 @@ PLAN_ROOT_KEYS = frozenset({
     "amendment", "source_discussion", "target_repos", "knowledge_repo",
     "platform_docs_owner", "protocol_knowledge_repo", "protocol_native_docs_repo",
     "cross_seed_target_repo", "canonical_file", "split_index", "started_on", "locked_on",
-    "current_milestone", "accepted_adversarial_rounds", "accepted_through", "m3_status",
+    "current_milestone", "lab_release_proof", "accepted_adversarial_rounds", "accepted_through", "m3_status",
     "msp_03d_status", "dirty_rescue_candidate", "successor_unlocks",
     "successor_unlock_condition", "msp_r00_status", "msp_r00_issue",
     "msp_r00_architecture_review", "initial_ready_set", "routing_policy",
@@ -405,6 +470,7 @@ EXPECTED_ACTIVE_SURFACES = (
     "119-w30-26-post-m6-hardening-inventory.md",
     "120-w30-26-current-state-evidence.json",
     "121-w31-26-m625-raw-mutation-contract-correction.md",
+    "122-w31-26-m625-implementation-state-reconciliation.md",
 )
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
@@ -430,6 +496,7 @@ MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/119-w30-26-post-m6-hardening-inventory.md",
     "multi-runtime-semantic-platform.locked/120-w30-26-current-state-evidence.json",
     "multi-runtime-semantic-platform.locked/121-w31-26-m625-raw-mutation-contract-correction.md",
+    "multi-runtime-semantic-platform.locked/122-w31-26-m625-implementation-state-reconciliation.md",
     "scripts/validate_ad_docs_02.py",
     "scripts/validate_msp_r00_l_ledger.py",
     "scripts/validate_plans_repo.sh",
@@ -894,6 +961,60 @@ def promotion_claim_sha256(claim: dict[str, Any]) -> str:
     )
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
+
+def release_proof_projection(state: Any) -> dict[str, Any]:
+    if state not in RELEASE_PROOF_STATES:
+        fail("release proof: unknown canonical control state")
+    return RELEASE_PROOF_STATES[state]
+
+
+def render_release_projection_block(state: str) -> str:
+    projection = release_proof_projection(state)
+    return "\n".join((
+        "<!-- M625_RELEASE_PROJECTION_BEGIN -->",
+        f"Release-proof control: `{state}`",
+        f"Cruise phase: `{projection['cruise_phase']}`",
+        f"Current milestone: `{projection['current_milestone']}`",
+        f"LAB acceptance state: `{projection['lab_acceptance_state']}`",
+        f"Selected batch: `{projection['selected_batch'][0]}`",
+        f"Accepted through: `{projection['accepted_through']}`",
+        "<!-- M625_RELEASE_PROJECTION_END -->",
+    ))
+
+
+def validate_control_projection(
+    plan: dict[str, Any], matrix: dict[str, Any], plan_dir: Path,
+) -> None:
+    state = plan.get("lab_release_proof")
+    projection = release_proof_projection(state)
+    if matrix.get("lab_release_proof") != state:
+        fail("release proof: plan/matrix control split-brain")
+    expected_common = {
+        "cruise_phase": projection["cruise_phase"],
+        "current_milestone": projection["current_milestone"],
+        "accepted_through": projection["accepted_through"],
+    }
+    for surface_name, surface in (("plan", plan), ("matrix", matrix)):
+        for key, expected in expected_common.items():
+            if surface.get(key) != expected:
+                fail(f"release proof: {surface_name}.{key} projection drift")
+    if plan.get("initial_ready_set") != projection["selected_batch"]:
+        fail("release proof: plan selected-batch projection drift")
+    rows = matrix.get("issues", [])
+    lab_rows = [row for row in rows if row.get("id") == "MSP-0625-LAB"]
+    if len(lab_rows) != 1:
+        fail("release proof: LAB row cardinality drift")
+    if lab_rows[0].get("acceptance_state") != projection["lab_acceptance_state"]:
+        fail("release proof: LAB acceptance-state projection drift")
+    if readiness(matrix)["selected_batch"] != projection["selected_batch"]:
+        fail("release proof: readiness projection drift")
+    expected_block = render_release_projection_block(state)
+    for surface in RELEASE_PROJECTION_SURFACES:
+        text = (plan_dir / surface).read_text(encoding="utf-8")
+        blocks = RELEASE_PROJECTION_RE.findall(text)
+        if blocks != [expected_block]:
+            fail(f"release proof: {surface} control projection drift")
+
 def validate_promotion_completion_token(token: dict[str, Any]) -> None:
     exact_keys(token, {"claim", "claim_sha256"}, "promotion_token")
     claim = token["claim"]
@@ -924,13 +1045,16 @@ def validate_matrix(data: dict[str, Any]) -> None:
     exact_keys(data, set(MATRIX_ROOT_KEYS), "matrix")
     if data["schema_version"] != 2:
         fail("matrix: schema version drift")
+    projection = release_proof_projection(data.get("lab_release_proof"))
     if (
         data["amendment_count"] != CURRENT_AMENDMENT_COUNT
         or data["amendment"] != CURRENT_AMENDMENT
-        or data["accepted_through"] != CURRENT_ACCEPTED_THROUGH
         or data["successor_unlock_condition"] != CURRENT_SUCCESSOR_UNLOCK_CONDITION
     ):
         fail("matrix: current amendment projection drift")
+    for key in ("cruise_phase", "current_milestone", "accepted_through"):
+        if data[key] != projection[key]:
+            fail(f"matrix: release-proof {key} projection drift")
     if data["serialization"] != SERIALIZATION:
         fail("matrix: serialization authority drift")
     exact_keys(data["routing_policy"], {"resolver", "policy_digest", "forbidden_tier"}, "matrix.routing_policy")
@@ -975,7 +1099,12 @@ def validate_matrix(data: dict[str, Any]) -> None:
             fail("matrix: completion-token authority drift")
         if row.get("evidence_inputs", []) != EVIDENCE_INPUTS[row_id]:
             fail("matrix: evidence-input authority drift")
-        if row["acceptance_state"] != ACCEPTANCE_STATES[row_id]:
+        expected_acceptance_state = (
+            projection["lab_acceptance_state"]
+            if row_id == "MSP-0625-LAB"
+            else ACCEPTANCE_STATES[row_id]
+        )
+        if row["acceptance_state"] != expected_acceptance_state:
             fail("matrix: acceptance-state authority drift")
         if row_id in LOCKED_ACCEPTANCE and row.get("acceptance") != LOCKED_ACCEPTANCE[row_id]:
             fail("matrix: locked M5 acceptance contract drift")
@@ -1026,13 +1155,19 @@ def validate_matrix(data: dict[str, Any]) -> None:
 
 def render_live_audit(matrix: dict[str, Any]) -> str:
     rows = matrix["issues"]
+    current_readiness = readiness(matrix)
     snapshot = {
         "current_control": {
+            "cruise_phase": matrix["cruise_phase"],
             "current_milestone": matrix["current_milestone"],
+            "lab_acceptance_state": release_proof_projection(
+                matrix["lab_release_proof"]
+            )["lab_acceptance_state"],
+            "lab_release_proof": matrix["lab_release_proof"],
             "historical_integrity_record": INTEGRITY,
             "historical_integrity_selected_batch": ["MSP-05A-R2"],
             "pre_m625_history_projection_sha256": pre_m625_history_sha256(rows),
-            "selected_batch": READINESS["selected_batch"],
+            "selected_batch": current_readiness["selected_batch"],
         },
         "ids": [row["id"] for row in rows],
         "completion_tokens": {row["id"]: row.get("requires_completion_tokens", []) for row in rows},
@@ -1064,13 +1199,118 @@ def render_live_audit(matrix: dict[str, Any]) -> str:
         "",
         "107 current integrity projection: 92-m0-issue-matrix.yaml is authoritative; 106-ad-docs-02-integrity.json is the immutable historical M5 record.",
         "requires_completion_tokens are authoritative; evidence_inputs are non-authoritative.",
-        "Readiness snapshot / logical-ready / dispatchable / selected-batch categories: " + json.dumps(READINESS, sort_keys=True, separators=(",", ":")),
+        "Readiness snapshot / logical-ready / dispatchable / selected-batch categories: " + json.dumps(current_readiness, sort_keys=True, separators=(",", ":")),
         "",
     ))
 
 def validate_live_audit(matrix: dict[str, Any], text: str) -> None:
     if text != render_live_audit(matrix):
         fail("live audit: deterministic matrix projection drift")
+
+
+def render_index(canonical_text: str, existing_index: str) -> str:
+    """Regenerate the index's canonical digest without rewriting its prose."""
+    digest = hashlib.sha256(canonical_text.encode("utf-8")).hexdigest()
+    return re.sub(
+        r"Canonical-SHA256: `[0-9a-f]{64}`",
+        f"Canonical-SHA256: `{digest}`",
+        existing_index,
+        count=1,
+    )
+
+
+def replace_root_yaml_scalar(text: str, key: str, value: str) -> str:
+    updated, count = re.subn(
+        rf"(?m)^{re.escape(key)}:[^\n]*$",
+        f"{key}: {value}",
+        text,
+        count=1,
+    )
+    if count != 1:
+        fail(f"release proof: missing root YAML field {key}")
+    return updated
+
+
+def project_release_proof_files(root: Path, state: str) -> None:
+    """Project one canonical plan control into every dependent source."""
+    projection = release_proof_projection(state)
+    plan_dir = root / PLAN
+    plan_path = plan_dir / "plan.yaml"
+    plan_text = plan_path.read_text(encoding="utf-8")
+    for key, value in (
+        ("lab_release_proof", state),
+        ("cruise_phase", projection["cruise_phase"]),
+        ("current_milestone", projection["current_milestone"]),
+        ("accepted_through", projection["accepted_through"]),
+    ):
+        plan_text = replace_root_yaml_scalar(plan_text, key, value)
+    plan_text, ready_count = re.subn(
+        r"(?m)^initial_ready_set:\n(?:  - [^\n]+\n)+",
+        "initial_ready_set:\n"
+        + "".join(f"  - {row_id}\n" for row_id in projection["selected_batch"]),
+        plan_text,
+        count=1,
+    )
+    if ready_count != 1:
+        fail("release proof: missing plan initial_ready_set")
+    plan_path.write_text(plan_text, encoding="utf-8")
+
+    matrix_path = plan_dir / MATRIX
+    matrix_text = matrix_path.read_text(encoding="utf-8")
+    for key, value in (
+        ("lab_release_proof", state),
+        ("cruise_phase", projection["cruise_phase"]),
+        ("current_milestone", projection["current_milestone"]),
+        ("accepted_through", projection["accepted_through"]),
+    ):
+        matrix_text = replace_root_yaml_scalar(matrix_text, key, value)
+    matrix_text, lab_count = re.subn(
+        r"(?ms)(^- id: MSP-0625-LAB\n(?:(?!^- id:).)*?^  acceptance_state: )[^\n]+$",
+        rf"\g<1>{projection['lab_acceptance_state']}",
+        matrix_text,
+        count=1,
+    )
+    if lab_count != 1:
+        fail("release proof: missing LAB acceptance_state")
+    matrix_path.write_text(matrix_text, encoding="utf-8")
+
+    expected_block = render_release_projection_block(state)
+    for surface in RELEASE_PROJECTION_SURFACES:
+        path = plan_dir / surface
+        text = path.read_text(encoding="utf-8")
+        updated, count = RELEASE_PROJECTION_RE.subn(expected_block, text)
+        if count != 1:
+            fail(f"release proof: {surface} projection marker drift")
+        path.write_text(updated, encoding="utf-8")
+
+
+def apply_release_proof_state(root: Path, state: str) -> None:
+    """Set the canonical plan control and regenerate every dependent projection."""
+    project_release_proof_files(root, state)
+    plan_dir = root / PLAN
+    matrix = load_yaml(plan_dir / MATRIX)
+    plan = load_yaml(plan_dir / "plan.yaml")
+    validate_matrix(matrix)
+    validate_plan_projection(plan)
+    validate_control_projection(plan, matrix, plan_dir)
+    index_path = plan_dir / "01-index.md"
+    index_path.write_text(
+        render_index(
+            (plan_dir / "00-canonical.md").read_text(encoding="utf-8"),
+            index_path.read_text(encoding="utf-8"),
+        ),
+        encoding="utf-8",
+    )
+    (plan_dir / "107-ad-docs-02-topology-audit.md").write_text(
+        render_live_audit(matrix), encoding="utf-8"
+    )
+
+
+def write_generated(root: Path) -> None:
+    """Regenerate all projections from the canonical plan control."""
+    plan_dir = root / PLAN
+    state = load_yaml(plan_dir / "plan.yaml").get("lab_release_proof")
+    apply_release_proof_state(root, state)
 
 def reject_active_routing_pin(value: Any, where: str) -> None:
     """Reject provider/model routing facts in active (not historical) contracts."""
@@ -1099,6 +1339,7 @@ def reject_active_row_string_pins(value: Any, where: str) -> None:
 
 def validate_plan_projection(plan: dict[str, Any]) -> None:
     exact_keys(plan, set(PLAN_ROOT_KEYS), "plan")
+    projection = release_proof_projection(plan.get("lab_release_proof"))
     reject_active_routing_pin(plan, "plan")
     policy = plan.get("routing_policy")
     exact_keys(policy, {"resolver", "policy_digest", "forbidden_tier"}, "plan.routing_policy")
@@ -1108,11 +1349,13 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
     if (
         plan.get("amendment_count") != CURRENT_AMENDMENT_COUNT
         or plan.get("amendment") != CURRENT_AMENDMENT
-        or plan.get("accepted_through") != CURRENT_ACCEPTED_THROUGH
         or plan.get("successor_unlock_condition") != CURRENT_SUCCESSOR_UNLOCK_CONDITION
     ):
         fail("plan: current amendment projection drift")
-    if plan.get("initial_ready_set") != READINESS["selected_batch"]:
+    for key in ("cruise_phase", "current_milestone", "accepted_through"):
+        if plan.get(key) != projection[key]:
+            fail(f"plan: release-proof {key} projection drift")
+    if plan.get("initial_ready_set") != projection["selected_batch"]:
         fail("plan: selected batch drift")
 
 def canonicalize_security_symbols(text: str) -> str:
@@ -1361,6 +1604,26 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         ) from exc
     if mutation_doc_gate != M625_MUTATION_DOC_GATE:
         fail("surfaces.121: mutation docs gate direction drift")
+    reconciliation_text = (plan_dir / M625_IMPLEMENTATION_RECONCILIATION).read_text(
+        encoding="utf-8"
+    )
+    for receipt in M625_IMPLEMENTATION_RECEIPTS:
+        if receipt not in reconciliation_text:
+            fail("surfaces.122: published completion receipt drift")
+    for fragment in (
+        "terminal quarantine",
+        "no auto-rollback claim",
+        "promotes no mutable leaf",
+        "At draft creation, release proof remained pending",
+        "SHIP -> eebusreg -> gateway",
+        "--set-lab-release-proof released_chain_redeployed",
+        "MSP-065-LIVE-R1",
+        "non-DAG hardening only",
+        "No v2, legacy interface, alias, `candidate_ref`",
+        "no-write stop remain fail-closed",
+    ):
+        if fragment not in reconciliation_text:
+            fail(f"surfaces.122: missing reconciliation invariant: {fragment}")
     roadmap = (plan_dir / "14-execution-roadmap-issues-and-gates.md").read_text(encoding="utf-8")
     for row_id, tokens in REQUIRES_COMPLETION_TOKENS.items():
         if row_id in {"MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"}:
@@ -1392,7 +1655,9 @@ def validate_surfaces(root: Path) -> None:
     validate_integrity(integrity)
     evidence_path = plan_dir / "120-w30-26-current-state-evidence.json"
     validate_current_state_evidence(evidence_path, load_json(evidence_path))
-    validate_plan_projection(load_yaml(plan_dir / "plan.yaml"))
+    plan = load_yaml(plan_dir / "plan.yaml")
+    validate_plan_projection(plan)
+    validate_control_projection(plan, matrix, plan_dir)
     validate_live_audit(matrix, (plan_dir / "107-ad-docs-02-topology-audit.md").read_text(encoding="utf-8"))
     validate_markdown_claims(plan_dir, matrix)
 
@@ -1554,10 +1819,22 @@ def validate_changed_paths(root: Path = ROOT) -> None:
 def main(argv: list[str]) -> int:
     try:
         issue_head: str | None = None
+        if len(argv) == 2 and argv[1] == "--write-generated":
+            write_generated(ROOT)
+            print("generated AD-DOCS-02 projections")
+            return 0
+        if len(argv) == 3 and argv[1] == "--set-lab-release-proof":
+            apply_release_proof_state(ROOT, argv[2])
+            validate_surfaces(ROOT)
+            print(f"set LAB release proof to {argv[2]} and regenerated projections")
+            return 0
         if len(argv) == 3 and argv[1] == "--issue-63-head":
             issue_head = argv[2]
         elif len(argv) != 1:
-            fail("usage: validate_ad_docs_02.py")
+            fail(
+                "usage: validate_ad_docs_02.py [--write-generated | "
+                "--set-lab-release-proof STATE | --issue-63-head SHA]"
+            )
         validate_surfaces(ROOT)
         if issue_head is None:
             validate_changed_paths(ROOT)

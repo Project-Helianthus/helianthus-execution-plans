@@ -2,14 +2,22 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `bc814e3b940efa116ec6e342d84abb6b90b1d14725909632c25d6ff59400125d`
+Canonical-SHA256: `12f230661df951cc56c68fb3479551b2b0c76e9a43d1c390b09a8299c2701033`
+
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `release_proof_pending`
+Cruise phase: `M6_25_RELEASE_PROOF_PENDING`
+Current milestone: `M6_25_RELEASE_PROOF_PENDING`
+LAB acceptance state: `release_proof_pending`
+Selected batch: `MSP-0625-LAB`
+Accepted through: `M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
 
 This directory contains the locked execution plan for turning Helianthus into a
-multi-runtime native protocol gateway. It is currently in
-`M6_25_RAW_SPINE_FEATURE_ACQUISITION`: M5 and M6 are complete, while the
+multi-runtime native protocol gateway. M5 and M6 are complete, and the
 forward-only amendment adds canonical typed SPINE function-data READ/WRITE
-before the live M6.5-M8.5 chain. Amendment 121 corrects mutation recovery,
-interface compatibility, and authorization without changing that DAG.
+before the live M6.5-M8.5 chain. Amendment 122 records the published M6.25
+implementation; the generated projection above records current dispatch.
 Substantive eeBUS documentation remains external to code repositories.
 
 ## Split Rules
@@ -109,6 +117,9 @@ Current routing, readiness, and completion-token authority is `92-m0-issue-matri
   freezes no-effect recovery, separate mutation/runtime authorization
   interfaces, and the docs-eebus #78 gate over eebusreg #85 without changing
   the M6.25 DAG or exact tool set.
+- [122-w31-26-m625-implementation-state-reconciliation.md](./122-w31-26-m625-implementation-state-reconciliation.md)
+  records published M6.25 implementation receipts, terminal-quarantine LAB
+  acceptance, and the one-control release-proof final flip.
 - [99-status.md](./99-status.md) records the locked current state.
 
 ## Coverage Matrix
@@ -125,7 +136,7 @@ Current routing, readiness, and completion-token authority is `92-m0-issue-matri
 
 The locked plan is ready for preflight when reviewers can falsify:
 
-- whether `MSP-0625-PLAN` is the only current ready row;
+- whether `MSP-0625-LAB` is the sole selected batch until released-chain proof;
 - whether the M6.25 typed function-data path rejects arbitrary frame access,
   partial/selective operations, invoke, and all unauthorized public contact;
 - whether the correlated round-trip registers callbacks before send and cleans
