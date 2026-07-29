@@ -2,8 +2,15 @@
 
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
-Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Amendment: `M6.25 raw mutation contract correction`
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `released_chain_redeployed`
+Cruise phase: `MSP-0625-S13-DOCS`
+Current milestone: `MSP-0625-S13-DOCS`
+LAB acceptance state: `accepted`
+Selected batch: `MSP-0625-S13-DOCS`
+Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
+Amendment: `M6.25 bounded SPINE 1.3 erratum`
 
 | Milestone | Primary repo(s) | Depends on | Gate |
 | --- | --- | --- | --- |
@@ -14,8 +21,8 @@ Amendment: `M6.25 raw mutation contract correction`
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
 | M5 - Production Prerequisites And Gateway Sidecar Integration | helianthus-docs-eebus, helianthus-ship-go, helianthus-eebus-go, helianthus-eebusreg, helianthus-ebusgateway | M4.5 and M5A | Freeze activation contract, implement exact-address SHIP plus independent mDNS policy, thread it through eebus-go, install protected identity and real runtime construction, map gateway config losslessly, harden process-exit and remote canonicalization, then add the disabled-by-default sidecar. |
 | M6 - Read-Only eeBUS MCP v1 | helianthus-ebusgateway | M5 | Read-only `eebus.v1.*` tools pass deterministic snapshot/hash/auth/error/anti-leak tests. |
-| M6.25 - Raw SPINE Feature Acquisition | execution-plans, docs-eebus, spine-go, eebus-go, eebusreg, gateway, docs-ebus | M6 | Full typed READ/WRITE only through router/coordinator/executor/round-trip path; no arbitrary frames, partial/selective operations, invoke, semantics, or consumers. The append-only correction keeps this DAG unchanged and requires docs-eebus #78 before eebusreg #85. |
-| M6.5-LIVE-R1 - Synchronized Evidence Recorder | helianthus-ebusgateway | MSP-0625-LAB and MSP-0625-DOCS-P | Recorder captures synchronized live eeBUS/eBUS/cloud evidence. Historical framework closure is insufficient. |
+| M6.25 - Raw SPINE Feature Acquisition | execution-plans, docs-eebus, spine-go, eebus-go, eebusreg, gateway, docs-ebus | M6 | Base typed READ/WRITE and LAB remain accepted. Stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 DOCS -> SPINE -> EEBUS -> REG -> GW-LAB erratum, which is READ-only and preserves the exact tools, no-write stop, raw/public boundary, and candidate_ref prohibition. |
+| M6.5-LIVE-R1 - Synchronized Evidence Recorder | helianthus-ebusgateway | MSP-0625-LAB, MSP-0625-DOCS-P, and MSP-0625-S13-GW-LAB | Recorder captures synchronized live eeBUS/eBUS/cloud evidence. Historical framework closure and accepted base LAB are insufficient without the final erratum token. |
 | M7-LIVE-R1 - Draft Candidate Fact Graph | helianthus-ebusgateway | M6.5-LIVE-R1 | Candidate facts exist from direct observations with no promotion or consumer exposure. |
 | M8-LIVE-R1 - Multi-Runtime Coexistence | helianthus-ebusgateway | M7-LIVE-R1 | Live coexistence proves no existing consumer drift. |
 | M8.5-LIVE-R1 - Leaf Promotion Lock | helianthus-ebusgateway | M8-LIVE-R1 | Per-leaf dossiers are locked after live coexistence evidence. |
@@ -51,11 +58,15 @@ MSP-DOCS-API-CANDIDATE merges the exact-head candidate first. MSP-055 then
 passes exact-match, candidate-state, expiry, and no-active-cleanup gates, and
 MSP-DOCS-API-FREEZE runs before MSP-04B. M4.5 and M5A are now complete.
 
-The sole current ready row is `MSP-0625-PLAN`. M5 and M6 are complete.
+PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER, GW-MCP, and DOCS-P
+are completed and published. The generated release-proof projection above is
+authoritative for LAB acceptance and current dispatch. Record 123 preserves the
+released LAB proof but selects only `MSP-0625-S13-DOCS`.
 M6.25 serializes spine-go, eebus-go, eebusreg, and gateway code by repository.
 `MSP-0625-DOCS-P` may proceed after `MSP-0625-DOCS-E` without blocking
-`MSP-0625-SPINE`, but both `MSP-0625-LAB` and `MSP-0625-DOCS-P` must complete
-before `MSP-065-LIVE-R1`.
+`MSP-0625-SPINE`. The strict erratum chain begins only after both
+`MSP-0625-LAB` and `MSP-0625-DOCS-P`; its final GW-LAB token joins those two
+preserved predecessors before `MSP-065-LIVE-R1`.
 
 Historical M6.5-M8.5 rows remain preserved as framework/synthetic evidence with
 zero promoted leaves. They do not satisfy the live chain.

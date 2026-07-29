@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `bc814e3b940efa116ec6e342d84abb6b90b1d14725909632c25d6ff59400125d`
+Canonical-SHA256: `97ccf972861039b06fd99c75be6c7ad355adb38a694049102075146aa4fa5aef`
 
 Depends on:
 All previous chunks.
@@ -60,12 +60,16 @@ and MSP-03D-R.
 
 ## Current Ready Row
 
-M0-M6 history is accepted. The current selected batch is exactly:
+M0-M6 history is accepted. Current release-proof and dispatch state is:
 
-- `MSP-0625-PLAN` in `helianthus-execution-plans`.
-
-The M6.25 plan row preserves all prior milestone records and publishes the
-additive contract before code or documentation successors start.
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `released_chain_redeployed`
+Cruise phase: `MSP-0625-S13-DOCS`
+Current milestone: `MSP-0625-S13-DOCS`
+LAB acceptance state: `accepted`
+Selected batch: `MSP-0625-S13-DOCS`
+Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
 
 ## Historical Initial Ready Rows
 
@@ -324,9 +328,33 @@ promotion:
 10. `MSP-0625-DOCS-P` requires `MSP-0625-DOCS-E`, does not block
     `MSP-0625-SPINE`, and must complete before `MSP-065-LIVE-R1`.
 
-The live completion chain is `MSP-0625-LAB` plus `MSP-0625-DOCS-P` ->
-`MSP-065-LIVE-R1` -> `MSP-07-LIVE-R1` -> `MSP-08-LIVE-R1` ->
-`MSP-085-LIVE-R1`.
+The bounded SPINE 1.3 erratum follows the exact issue and token chain:
+
+1. `MSP-0625-S13-DOCS` / `helianthus-docs-eebus#96` requires accepted
+   `MSP-0625-LAB` plus completed `MSP-0625-DOCS-P`;
+2. `MSP-0625-S13-SPINE` / `helianthus-spine-go#15` requires the DOCS token;
+3. `MSP-0625-S13-EEBUS` / `helianthus-eebus-go#23` requires the SPINE token;
+4. `MSP-0625-S13-REG` / `helianthus-eebusreg#103` requires the EEBUS token;
+5. `MSP-0625-S13-GW-LAB` / `helianthus-ebusgateway#762` requires the REG token.
+
+The live completion chain now requires the two preserved
+`MSP-065-LIVE-R1` predecessors plus the additional final
+`MSP-0625-S13-GW-LAB` token, then continues through `MSP-07-LIVE-R1` ->
+`MSP-08-LIVE-R1` -> `MSP-085-LIVE-R1`.
+
+Record 122 marks PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER,
+GW-MCP, and DOCS-P completed and published. LAB operational acceptance used
+terminal quarantine, does not claim auto-rollback, and promotes no mutable
+leaf. The generated control projection above is authoritative for LAB state
+and dispatch. SHIP PR23 and docs-eebus PR95 are non-DAG hardening, never
+predecessors.
+
+Record 123 keeps `lab_release_proof=released_chain_redeployed` and the base
+M6.25 LAB accepted, but holds stable-MCP/M6.25 final closure at
+`MSP-0625-S13-DOCS`. The erratum is READ-only, preserves the exact five tool
+suffixes and every no-write stop, publishes no raw identity, and excludes
+`candidate_ref`, SPINE 1.4, duplicate cherry-picks, and a wholesale upstream
+`dev` merge.
 
 Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` remain present as
 `framework_complete` or `synthetic_only`. Those states are not accepted
@@ -355,10 +383,14 @@ No PR may merge unless it links:
 This plan is locked when:
 
 - plan state is `locked` and current milestone is
-  `M6_25_RAW_SPINE_FEATURE_ACQUISITION`;
-- accepted-through text records M6 raw topology/privacy completion and zero
-  promoted leaves;
-- `MSP-0625-PLAN` is the only current ready row;
+  `MSP-0625-S13-DOCS`;
+- accepted-through text records the base M6.25 LAB as accepted after
+  released-chain redeploy, the bounded SPINE 1.3 hold on final closure, and
+  zero promoted leaves;
+- the generated release-proof projection selects only
+  `MSP-0625-S13-DOCS` while preserving released base LAB proof;
+- every old edge remains exact and only the final erratum token is appended to
+  the existing `MSP-065-LIVE-R1` predecessors;
 - the M6.25 code path, tool set, authorization, durable mutation FSM, recovery,
   and anti-leak contract are frozen;
 - historical framework/synthetic rows cannot unlock live rows;

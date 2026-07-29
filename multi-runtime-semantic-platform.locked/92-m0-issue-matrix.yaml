@@ -3,22 +3,23 @@ schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
-cruise_phase: M6_25_RAW_SPINE_FEATURE_ACQUISITION
-current_milestone: M6_25_RAW_SPINE_FEATURE_ACQUISITION
-amendment_count: 7
-amended_on: '2026-07-28'
-amendment: M6.25 raw mutation contract correction
-accepted_through: M6 raw topology and privacy boundary with zero promoted leaves
+cruise_phase: MSP-0625-S13-DOCS
+current_milestone: MSP-0625-S13-DOCS
+amendment_count: 9
+amended_on: '2026-07-30'
+amendment: M6.25 bounded SPINE 1.3 erratum
+accepted_through: Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves
 dirty_rescue_candidate: false
 successor_unlocks: true
-successor_unlock_condition: M6.25 live DAG completes through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
+successor_unlock_condition: M6.25 SPINE 1.3 erratum and live DAG complete through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
+lab_release_proof: released_chain_redeployed
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
 purpose: 'Machine-readable locked control-plane matrix for the eeBUS raw-first
-  plan after five accepted adversarial rounds and the forward-only M6.25
-  typed SPINE function-data amendment plus append-only mutation contract
-  correction.
+  plan after five accepted adversarial rounds, the forward-only M6.25 typed
+  SPINE function-data amendment, the append-only mutation correction, and the
+  bounded SPINE 1.3 erratum.
 
 '
 serialization:
@@ -52,6 +53,7 @@ serialization:
   - MSP-05P-REG-API-V1-CLEANUP
   - MSP-0625-REG-EXEC
   - MSP-0625-REG-MUT
+  - MSP-0625-S13-REG
   docs_eebus_sequence:
   - DOCS-VERIFY
   - MSP-DOCS-API-SCHEMA
@@ -61,6 +63,7 @@ serialization:
   - MSP-DOCS-05P
   - MSP-0625-DOCS-E
   - MSP-0625-LAB
+  - MSP-0625-S13-DOCS
   docs_ebus_sequence:
   - MSP-DOCS-PLATFORM
   - MSP-0625-DOCS-P
@@ -69,8 +72,10 @@ serialization:
   eebus_go_sequence:
   - MSP-05P-EEBUS
   - MSP-0625-EEBUS
+  - MSP-0625-S13-EEBUS
   spine_go_sequence:
   - MSP-0625-SPINE
+  - MSP-0625-S13-SPINE
   gateway_sequence:
   - MSP-05A
   - MSP-05A-R1
@@ -84,6 +89,7 @@ serialization:
   - MSP-07
   - MSP-08
   - MSP-085
+  - MSP-0625-S13-GW-LAB
   - MSP-065-LIVE-R1
   - MSP-07-LIVE-R1
   - MSP-08-LIVE-R1
@@ -91,7 +97,7 @@ serialization:
   - MSP-09A
   - MSP-09B
   initial_ready_set:
-  - MSP-0625-PLAN
+  - MSP-0625-S13-DOCS
   dirty_code_unlocks_successors: false
   conditional_rows:
   - MSP-DOCS-CANDIDATE-CLEANUP
@@ -1453,7 +1459,7 @@ issues:
   review_ledger: one focused architecture and DAG review
   tdd_mode: plan_preflight
   smoke_scope: plan validator, DAG, protected-history, canonical JSON, and anti-leak
-  acceptance_state: ready
+  acceptance_state: completed_published
   acceptance:
   - 100-topology-audit.md is byte-identical to the protected anchor
   - M0-M6 history remains valid and M6.25 is additive
@@ -1478,7 +1484,7 @@ issues:
   review_ledger: protocol/runtime/API contract review
   tdd_mode: docs_schema_red_green
   smoke_scope: full READ/WRITE schema, exclusions, auth, FSM, recovery, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - raw means canonical typed SPINE function-data and never arbitrary frames or headers
   - full READ and full WRITE only; partial, selectors, filterDelete, and invoke are rejected
@@ -1502,7 +1508,7 @@ issues:
   review_ledger: correlation, cancellation, disconnect, and race review
   tdd_mode: strict_red_green
   smoke_scope: callback-before-send synchronous reply plus terminal cleanup and race tests
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - callback registration completes before send
   - synchronous reply during send is correlated exactly once
@@ -1528,7 +1534,7 @@ issues:
   review_ledger: SPINE function and possible-operations review
   tdd_mode: strict_red_green
   smoke_scope: typed full READ/WRITE, remote errors, and unsupported-operation zero-send
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - exact feature and function selection is deterministic
   - only full READ and full WRITE requests are emitted
@@ -1552,7 +1558,7 @@ issues:
   review_ledger: DTO, epoch/generation, read-token, and bounded-concurrency review
   tdd_mode: strict_red_green
   smoke_scope: typed read DTOs, durable epoch, generation mismatch zero-frame, and JCS
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - durable runtime_epoch and monotonic connection_generation bind every operation
   - features.data.get returns canonical typed data plus a bound read_token
@@ -1577,7 +1583,7 @@ issues:
   review_ledger: WAL/FSM, lease, CAS, idempotency, constraints, recovery, and audit review
   tdd_mode: strict_red_green
   smoke_scope: crash every transition, probe restart rollback, conflict, outcome-unknown, and concurrent writers
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - one global runtime writer lease serializes writes and rollbacks
   - idempotency is scoped by runtime epoch, principal, tool, and key
@@ -1608,7 +1614,7 @@ issues:
   review_ledger: gateway routing, auth order, and eBUS no-drift review
   tdd_mode: strict_red_green
   smoke_scope: public zero-contact denial, owner-local routing, and eBUS regression
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - all M6.25 writes pass through EEBusCommandRouter
   - no entity adapter or MCP handler writes directly
@@ -1639,7 +1645,7 @@ issues:
   review_ledger: MCP schema, scope, error precedence, and anti-leak review
   tdd_mode: strict_red_green
   smoke_scope: exact tool inventory, read/write scopes, AF_UNIX write gate, JCS, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - the M6.25 suffix set is exactly features.get, features.data.get, features.data.set, mutations.get, mutations.rollback
   - only the single unreleased eebus.v1 namespace is used
@@ -1666,7 +1672,7 @@ issues:
   review_ledger: live safety, recovery, privacy, and evidence review
   tdd_mode: strict_red_green
   smoke_scope: live READ, reversible WRITE, readback, restart probe rollback, conflict, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: accepted
   acceptance:
   - public-safe evidence proves full typed READ without exposing restricted material
   - bounded lab WRITE is verified by READ and then restored by verified rollback
@@ -1692,13 +1698,177 @@ issues:
   review_ledger: ownership, methodology-only, and privacy review
   tdd_mode: docs_manifest_contract
   smoke_scope: thin methodology cross-seed, ownership manifest, links, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: completed_published
   acceptance:
   - only language-neutral acquisition and evidence methodology is cross-seeded
   - no protocol-native duplication or restricted material is published
   - this row does not block MSP-0625-SPINE
   requires_completion_tokens:
   - MSP-0625-DOCS-E
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-S13-DOCS
+  title: Freeze bounded SPINE 1.3 READ erratum and public baseline
+  repo: helianthus-docs-eebus
+  milestone: M6.25-SPINE-1.3-ERRATUM
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/protocols
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: withdraw only the erratum candidate while preserving accepted base M6.25 LAB evidence
+  review_ledger: SPINE 1.3 scope, public baseline, privacy, and no-write review
+  tdd_mode: docs_schema_red_green
+  smoke_scope: exact issue chain, READ baseline commitments, bounded provenance, exclusions, and anti-leak
+  acceptance_state: proposed
+  issue_ref: Project-Helianthus/helianthus-docs-eebus#96
+  public_baseline:
+    operation: READ
+    declared: 49
+    success: 26
+    failure: 23
+    evidence_sha256:
+      declarations: 6ff2d9061dab29b32ed2914377aabea0b2a1dcb8c7345023f7e5870442a553b8
+      targets: 00cd8388b5f384c0d77a56c2de59045f0514759f115c05a44544f7abbee3aa43
+      result_table: f106bb5ba09ff7bb14230fac48113dedce152e5887d6b2a27beaf3b0998d7cf9
+    raw_identity: excluded
+  acceptance:
+  - only bounded SPINE 1.3 value-type and function-data factory corrections are in scope; SPINE 1.4 is excluded
+  - the public baseline is exactly 49 READ declarations, 26 successes, and 23 failures with the three pinned evidence hashes
+  - public evidence contains no raw identity, endpoint, target address, payload, transcript, trust material, or restricted preimage
+  - the exact five M6.25 tool suffixes and candidate_ref prohibition remain unchanged
+  - erratum execution is READ-only and every existing no-write stop remains fail-closed
+  - base M6.25 LAB remains accepted while stable-MCP/M6.25 final closure is held by this erratum
+  requires_completion_tokens:
+  - MSP-0625-LAB
+  - MSP-0625-DOCS-P
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-S13-SPINE
+  title: Apply bounded SPINE 1.3 model and function-data corrections
+  repo: helianthus-spine-go
+  milestone: M6.25-SPINE-1.3-ERRATUM
+  complexity: 8
+  docs_owner: helianthus-docs-eebus/protocols
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert only the bounded SPINE 1.3 erratum implementation
+  review_ledger: generated types, selector cardinality, factory coverage, and excluded-diff review
+  tdd_mode: strict_red_green
+  smoke_scope: focused value-type, selector, function-data factory, marshal, and READ construction tests
+  acceptance_state: proposed
+  issue_ref: Project-Helianthus/helianthus-spine-go#15
+  scope_provenance:
+    specification: SPINE 1.3
+    included:
+    - commit: d5f89c767706ef411fc622cd6771c479b7fd1b26
+      scope: relevant setpoint-description, selector, HVAC relation value-type, and function-data factory corrections
+    - commit: a6cb0727a1509dd04454c8e8edce899f4111fb3a
+      scope: relevant HVAC system-function selector and operation-mode relation value-type corrections
+    - commit: 4f986b14324a0d9ed719121b82c2621d50f58303
+      scope: relevant HVAC system-function operation-mode selector correction only
+    - commit: 9970150f6d81ffa06605fecddedcdf0e38174543
+      scope: identifier value-type portion only for setpoint description MeasurementId and TimeTableId
+    excluded:
+    - '9970150 eebus:key/update-engine changes, including eebus:"key" tags'
+    - 9f07e2a and 06d9bf0 duplicate cherry-picks
+    - upstream dev wholesale merge
+    - SPINE 1.4
+  acceptance:
+  - implementation is derived only from the pinned minimal provenance scopes and not from wholesale cherry-picks
+  - d5f89c, a6cb072, the relevant 4f986b selector, and only the identifier value-type portion of 9970150 are covered by focused tests
+  - '9970150 eebus:key/update-engine changes, duplicate 9f07e2a/06d9bf0 cherry-picks, upstream dev wholesale merge, and SPINE 1.4 remain excluded'
+  - no update-engine behavior, write path, transport, SHIP, or public/raw boundary changes
+  requires_completion_tokens:
+  - MSP-0625-S13-DOCS
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-S13-EEBUS
+  title: Adopt bounded SPINE 1.3 erratum in exact feature READ execution
+  repo: helianthus-eebus-go
+  milestone: M6.25-SPINE-1.3-ERRATUM
+  complexity: 7
+  docs_owner: helianthus-docs-eebus/protocols
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert only the SPINE 1.3 compatibility adaptation
+  review_ledger: feature/function selection, typed decode, zero-write, and version-boundary review
+  tdd_mode: strict_red_green
+  smoke_scope: exact target READ construction and typed result handling for the bounded corrected functions
+  acceptance_state: proposed
+  issue_ref: Project-Helianthus/helianthus-eebus-go#23
+  acceptance:
+  - existing exact feature and function selection consumes the corrected SPINE 1.3 types without a new executor or namespace
+  - erratum tests perform READ only and authorize no WRITE, partial operation, selector, filterDelete, or invoke
+  - no SPINE 1.4, upstream dev wholesale merge, semantic mapping, or consumer behavior enters scope
+  requires_completion_tokens:
+  - MSP-0625-S13-SPINE
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-S13-REG
+  title: Reconcile raw typed READ results with the SPINE 1.3 erratum
+  repo: helianthus-eebusreg
+  milestone: M6.25-SPINE-1.3-ERRATUM
+  complexity: 7
+  docs_owner: helianthus-docs-eebus/api
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: revert only the bounded READ-result compatibility adaptation
+  review_ledger: DTO stability, JCS, epoch/generation binding, no-write, and anti-leak review
+  tdd_mode: strict_red_green
+  smoke_scope: corrected typed READ DTOs, deterministic commitments, stale binding, and public redaction
+  acceptance_state: proposed
+  issue_ref: Project-Helianthus/helianthus-eebusreg#103
+  acceptance:
+  - RawFeatureRuntimeV1 represents corrected SPINE 1.3 READ results without changing its public method set
+  - existing runtime_epoch, connection_generation, read-token, JCS, and public-redaction invariants remain exact
+  - RawMutationRuntimeV1, mutation FSM, write authorization, and every no-write stop remain unchanged and fail-closed
+  - no raw identity or restricted preimage enters public evidence
+  requires_completion_tokens:
+  - MSP-0625-S13-EEBUS
+  routing_contract:
+    resolver: canonical_resolver
+    policy_digest: canonical_policy_digest
+    forbidden_tier: Ultra
+- id: MSP-0625-S13-GW-LAB
+  title: Integrate and prove the bounded SPINE 1.3 READ erratum
+  repo: helianthus-ebusgateway
+  milestone: M6.25-SPINE-1.3-ERRATUM
+  complexity: 9
+  docs_owner: helianthus-docs-eebus/evidence
+  doc_gate: required
+  transport_gate: eebus_v0
+  security_gate: required
+  rollback_ledger: disable the erratum integration while retaining accepted base M6.25 LAB and public baseline evidence
+  review_ledger: exact tool inventory, READ-only dispatch, evidence commitments, privacy, and anti-leak review
+  tdd_mode: strict_red_green
+  smoke_scope: all 49 declared READ targets, deterministic public result table, zero-write instrumentation, and no raw identity
+  acceptance_state: proposed
+  issue_ref: Project-Helianthus/helianthus-ebusgateway#762
+  acceptance:
+  - the gateway uses the existing EEBusCommandRouter and exact five M6.25 tool suffixes with no added alias or namespace
+  - all 49 declared READ targets are each attempted and receive one terminal classification against the immutable 26-success and 23-failure public baseline
+  - all 26 baseline-success targets remain successful
+  - no HVAC description READ ends internal because of a factory type mismatch
+  - no setpoint-description or HVAC-relation READ fails because of the superseded scalar-versus-list or enum-versus-scaled-number model
+  - every residual result is function/correlation-bound and classified as typed-empty reply, remote rejection, unknown field, or another identified model mismatch; typed-empty is not silently promoted to successful non-empty data
+  - operationModeId=2 remains unlabeled unless its nominal description is actually read
+  - public evidence is aggregate and commitment-only; raw identity remains owner-local and absent from public output
+  - every WRITE, SET, rollback dispatch, and mutation probe remains stopped with zero remote mutation
+  - candidate_ref, semantics, GraphQL, Portal, Home Assistant, and consumer promotion remain prohibited
+  requires_completion_tokens:
+  - MSP-0625-S13-REG
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
@@ -1816,6 +1986,7 @@ issues:
   requires_completion_tokens:
   - MSP-0625-LAB
   - MSP-0625-DOCS-P
+  - MSP-0625-S13-GW-LAB
   routing_contract:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest

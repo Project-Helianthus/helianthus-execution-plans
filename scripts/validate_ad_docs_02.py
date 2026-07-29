@@ -36,7 +36,9 @@ EXACT_IDS = (
     "MSP-0625-PLAN", "MSP-0625-DOCS-E", "MSP-0625-SPINE",
     "MSP-0625-EEBUS", "MSP-0625-REG-EXEC", "MSP-0625-REG-MUT",
     "MSP-0625-GW-ROUTER", "MSP-0625-GW-MCP", "MSP-0625-LAB",
-    "MSP-0625-DOCS-P", "MSP-065", "MSP-07", "MSP-08", "MSP-085",
+    "MSP-0625-DOCS-P", "MSP-0625-S13-DOCS", "MSP-0625-S13-SPINE",
+    "MSP-0625-S13-EEBUS", "MSP-0625-S13-REG",
+    "MSP-0625-S13-GW-LAB", "MSP-065", "MSP-07", "MSP-08", "MSP-085",
     "MSP-065-LIVE-R1", "MSP-07-LIVE-R1", "MSP-08-LIVE-R1",
     "MSP-085-LIVE-R1", "MSP-09A", "MSP-09B", "MSP-09C", "MSP-09D",
 )
@@ -89,9 +91,16 @@ REQUIRES_COMPLETION_TOKENS = {
     "MSP-0625-GW-MCP": ["MSP-0625-GW-ROUTER"],
     "MSP-0625-LAB": ["MSP-0625-GW-MCP"],
     "MSP-0625-DOCS-P": ["MSP-0625-DOCS-E"],
+    "MSP-0625-S13-DOCS": ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
+    "MSP-0625-S13-SPINE": ["MSP-0625-S13-DOCS"],
+    "MSP-0625-S13-EEBUS": ["MSP-0625-S13-SPINE"],
+    "MSP-0625-S13-REG": ["MSP-0625-S13-EEBUS"],
+    "MSP-0625-S13-GW-LAB": ["MSP-0625-S13-REG"],
     "MSP-065": ["MSP-06"], "MSP-07": ["MSP-065"], "MSP-08": ["MSP-07"],
     "MSP-085": ["MSP-08"],
-    "MSP-065-LIVE-R1": ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
+    "MSP-065-LIVE-R1": [
+        "MSP-0625-LAB", "MSP-0625-DOCS-P", "MSP-0625-S13-GW-LAB",
+    ],
     "MSP-07-LIVE-R1": ["MSP-065-LIVE-R1"],
     "MSP-08-LIVE-R1": ["MSP-07-LIVE-R1"],
     "MSP-085-LIVE-R1": ["MSP-08-LIVE-R1"],
@@ -114,17 +123,54 @@ ACCEPTANCE_STATES.update({
     "MSP-03D-G01": "accepted_partial_no_successor_unlock",
     "MSP-R00": "completed_local_no_code_acceptance",
     "MSP-DOCS-CANDIDATE-CLEANUP": "dormant_conditional",
-    "MSP-0625-PLAN": "ready",
+    "MSP-0625-PLAN": "completed_published",
+    "MSP-0625-DOCS-E": "completed_published",
+    "MSP-0625-SPINE": "completed_published",
+    "MSP-0625-EEBUS": "completed_published",
+    "MSP-0625-REG-EXEC": "completed_published",
+    "MSP-0625-REG-MUT": "completed_published",
+    "MSP-0625-GW-ROUTER": "completed_published",
+    "MSP-0625-GW-MCP": "completed_published",
+    "MSP-0625-LAB": "release_proof_pending",
+    "MSP-0625-DOCS-P": "completed_published",
     "MSP-065": "framework_complete",
     "MSP-07": "synthetic_only",
     "MSP-08": "synthetic_only",
     "MSP-085": "synthetic_only",
 })
-CURRENT_AMENDMENT_COUNT = 7
-CURRENT_AMENDMENT = "M6.25 raw mutation contract correction"
-CURRENT_ACCEPTED_THROUGH = "M6 raw topology and privacy boundary with zero promoted leaves"
+CURRENT_AMENDMENT_COUNT = 9
+CURRENT_AMENDMENT = "M6.25 bounded SPINE 1.3 erratum"
+CURRENT_ACCEPTED_THROUGH = (
+    "Base M6.25 LAB remains accepted after released-chain redeploy, but "
+    "stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; "
+    "zero promoted leaves"
+)
+RELEASE_PROOF_STATES = {
+    "released_chain_redeployed": {
+        "cruise_phase": "MSP-0625-S13-DOCS",
+        "current_milestone": "MSP-0625-S13-DOCS",
+        "lab_acceptance_state": "accepted",
+        "selected_batch": ["MSP-0625-S13-DOCS"],
+        "accepted_through": CURRENT_ACCEPTED_THROUGH,
+    },
+}
+RELEASE_PROJECTION_SURFACES = (
+    "00-canonical.md",
+    "01-index.md",
+    "14-execution-roadmap-issues-and-gates.md",
+    "90-issue-map.md",
+    "91-milestone-map.md",
+    "99-status.md",
+    "123-w31-26-m625-spine-13-erratum.md",
+)
+RELEASE_PROJECTION_RE = re.compile(
+    r"<!-- M625_RELEASE_PROJECTION_BEGIN -->\n.*?"
+    r"<!-- M625_RELEASE_PROJECTION_END -->",
+    re.DOTALL,
+)
 CURRENT_SUCCESSOR_UNLOCK_CONDITION = (
-    "M6.25 live DAG completes through MSP-085-LIVE-R1 and "
+    "M6.25 SPINE 1.3 erratum and live DAG complete through "
+    "MSP-085-LIVE-R1 and "
     "promoted_leaf_count is greater than zero before M9"
 )
 PRE_M625_HISTORY_SHA256 = "d9b5db0aca18e0732fc352b388fb06b76b5cdb44830970f448f337ffbec9ba4f"
@@ -202,6 +248,43 @@ M625_ACCEPTANCE_FRAGMENTS = {
         "public denial at the registered tool boundary proves zero provider, router, runtime, connection, and remote contact",
         "anti-leak checks pass",
     ),
+    "MSP-0625-S13-DOCS": (
+        "only bounded SPINE 1.3",
+        "49 READ declarations, 26 successes, and 23 failures",
+        "no raw identity",
+        "exact five M6.25 tool suffixes and candidate_ref prohibition",
+        "READ-only",
+        "base M6.25 LAB remains accepted",
+    ),
+    "MSP-0625-S13-SPINE": (
+        "pinned minimal provenance scopes",
+        "relevant 4f986b selector",
+        "identifier value-type portion of 9970150",
+        "SPINE 1.4 remain excluded",
+        "no update-engine behavior",
+    ),
+    "MSP-0625-S13-EEBUS": (
+        "without a new executor or namespace",
+        "authorize no WRITE",
+        "no SPINE 1.4",
+    ),
+    "MSP-0625-S13-REG": (
+        "without changing its public method set",
+        "every no-write stop remain unchanged and fail-closed",
+        "no raw identity",
+    ),
+    "MSP-0625-S13-GW-LAB": (
+        "exact five M6.25 tool suffixes",
+        "all 49 declared READ targets",
+        "all 26 baseline-success targets remain successful",
+        "no HVAC description READ ends internal because of a factory type mismatch",
+        "superseded scalar-versus-list or enum-versus-scaled-number model",
+        "typed-empty is not silently promoted to successful non-empty data",
+        "operationModeId=2 remains unlabeled",
+        "raw identity remains owner-local",
+        "zero remote mutation",
+        "candidate_ref",
+    ),
     "MSP-085-LIVE-R1": (
         "JCS digest-bound machine-checkable promoted_leaf_count greater than zero",
     ),
@@ -213,8 +296,135 @@ M625_TOOL_SUFFIXES = [
     "mutations.get",
     "mutations.rollback",
 ]
+M625_S13_ISSUE_CHAIN = [
+    "Project-Helianthus/helianthus-docs-eebus#96",
+    "Project-Helianthus/helianthus-spine-go#15",
+    "Project-Helianthus/helianthus-eebus-go#23",
+    "Project-Helianthus/helianthus-eebusreg#103",
+    "Project-Helianthus/helianthus-ebusgateway#762",
+]
+M625_S13_IDS = (
+    "MSP-0625-S13-DOCS",
+    "MSP-0625-S13-SPINE",
+    "MSP-0625-S13-EEBUS",
+    "MSP-0625-S13-REG",
+    "MSP-0625-S13-GW-LAB",
+)
+M625_S13_PUBLIC_BASELINE = {
+    "operation": "READ",
+    "declared": 49,
+    "success": 26,
+    "failure": 23,
+    "evidence_sha256": {
+        "declarations": "6ff2d9061dab29b32ed2914377aabea0b2a1dcb8c7345023f7e5870442a553b8",
+        "targets": "00cd8388b5f384c0d77a56c2de59045f0514759f115c05a44544f7abbee3aa43",
+        "result_table": "f106bb5ba09ff7bb14230fac48113dedce152e5887d6b2a27beaf3b0998d7cf9",
+    },
+    "raw_identity": "excluded",
+}
+M625_S13_SCOPE_PROVENANCE = {
+    "specification": "SPINE 1.3",
+    "included": [
+        {
+            "commit": "d5f89c767706ef411fc622cd6771c479b7fd1b26",
+            "scope": (
+                "relevant setpoint-description, selector, HVAC relation "
+                "value-type, and function-data factory corrections"
+            ),
+        },
+        {
+            "commit": "a6cb0727a1509dd04454c8e8edce899f4111fb3a",
+            "scope": (
+                "relevant HVAC system-function selector and operation-mode "
+                "relation value-type corrections"
+            ),
+        },
+        {
+            "commit": "4f986b14324a0d9ed719121b82c2621d50f58303",
+            "scope": (
+                "relevant HVAC system-function operation-mode selector "
+                "correction only"
+            ),
+        },
+        {
+            "commit": "9970150f6d81ffa06605fecddedcdf0e38174543",
+            "scope": (
+                "identifier value-type portion only for setpoint description "
+                "MeasurementId and TimeTableId"
+            ),
+        },
+    ],
+    "excluded": [
+        '9970150 eebus:key/update-engine changes, including eebus:"key" tags',
+        "9f07e2a and 06d9bf0 duplicate cherry-picks",
+        "upstream dev wholesale merge",
+        "SPINE 1.4",
+    ],
+}
+M625_S13_ACCEPTANCE = {
+    "MSP-0625-S13-DOCS": (
+        "only bounded SPINE 1.3 value-type and function-data factory corrections are in scope; SPINE 1.4 is excluded",
+        "the public baseline is exactly 49 READ declarations, 26 successes, and 23 failures with the three pinned evidence hashes",
+        "public evidence contains no raw identity, endpoint, target address, payload, transcript, trust material, or restricted preimage",
+        "the exact five M6.25 tool suffixes and candidate_ref prohibition remain unchanged",
+        "erratum execution is READ-only and every existing no-write stop remains fail-closed",
+        "base M6.25 LAB remains accepted while stable-MCP/M6.25 final closure is held by this erratum",
+    ),
+    "MSP-0625-S13-SPINE": (
+        "implementation is derived only from the pinned minimal provenance scopes and not from wholesale cherry-picks",
+        "d5f89c, a6cb072, the relevant 4f986b selector, and only the identifier value-type portion of 9970150 are covered by focused tests",
+        "9970150 eebus:key/update-engine changes, duplicate 9f07e2a/06d9bf0 cherry-picks, upstream dev wholesale merge, and SPINE 1.4 remain excluded",
+        "no update-engine behavior, write path, transport, SHIP, or public/raw boundary changes",
+    ),
+    "MSP-0625-S13-EEBUS": (
+        "existing exact feature and function selection consumes the corrected SPINE 1.3 types without a new executor or namespace",
+        "erratum tests perform READ only and authorize no WRITE, partial operation, selector, filterDelete, or invoke",
+        "no SPINE 1.4, upstream dev wholesale merge, semantic mapping, or consumer behavior enters scope",
+    ),
+    "MSP-0625-S13-REG": (
+        "RawFeatureRuntimeV1 represents corrected SPINE 1.3 READ results without changing its public method set",
+        "existing runtime_epoch, connection_generation, read-token, JCS, and public-redaction invariants remain exact",
+        "RawMutationRuntimeV1, mutation FSM, write authorization, and every no-write stop remain unchanged and fail-closed",
+        "no raw identity or restricted preimage enters public evidence",
+    ),
+    "MSP-0625-S13-GW-LAB": (
+        "the gateway uses the existing EEBusCommandRouter and exact five M6.25 tool suffixes with no added alias or namespace",
+        "all 49 declared READ targets are each attempted and receive one terminal classification against the immutable 26-success and 23-failure public baseline",
+        "all 26 baseline-success targets remain successful",
+        "no HVAC description READ ends internal because of a factory type mismatch",
+        "no setpoint-description or HVAC-relation READ fails because of the superseded scalar-versus-list or enum-versus-scaled-number model",
+        "every residual result is function/correlation-bound and classified as typed-empty reply, remote rejection, unknown field, or another identified model mismatch; typed-empty is not silently promoted to successful non-empty data",
+        "operationModeId=2 remains unlabeled unless its nominal description is actually read",
+        "public evidence is aggregate and commitment-only; raw identity remains owner-local and absent from public output",
+        "every WRITE, SET, rollback dispatch, and mutation probe remains stopped with zero remote mutation",
+        "candidate_ref, semantics, GraphQL, Portal, Home Assistant, and consumer promotion remain prohibited",
+    ),
+}
+M625_S13_SUCCESSOR = "123-w31-26-m625-spine-13-erratum.md"
+IMMUTABLE_ACTIVE_SHA256 = {
+    "100-topology-audit.md": (
+        "b84c74551e839a3869a775c2f94c1f0121f2cfe477fe58a076e53bd57568f4d2"
+    ),
+    "106-ad-docs-02-integrity.json": (
+        "1f9d40d669d3e3ede32b521d9338832062bb80fecd789d388f27d890ac69c25b"
+    ),
+}
 M625_MUTATION_CORRECTION = (
     "121-w31-26-m625-raw-mutation-contract-correction.md"
+)
+M625_IMPLEMENTATION_RECONCILIATION = (
+    "122-w31-26-m625-implementation-state-reconciliation.md"
+)
+M625_IMPLEMENTATION_RECEIPTS = (
+    "MSP-0625-PLAN: helianthus-execution-plans PR77 fb384ab57d79f0020c54d2c66416e8a7666f0ceb; PR83 0aa8c131cbe7ea5096557f1a46ea6fa3164d143f",
+    "MSP-0625-DOCS-E: helianthus-docs-eebus PR77 cedf238e34f879815ba773e9cd76b2b31c2822a3; PR85 401b46d6fd6834eeaaf861345d0392d26bfb9605; PR89 03e2b126ccfed7f3782ca5078c86a53c9ecc8fae; PR91 7e29d1253b7a6f271258e3fa319dfb26915439e; PR93 1ea36df153f9fac7cd4e17d44fd947525711ddc0",
+    "MSP-0625-SPINE: helianthus-spine-go PR10 a35ec1c48a6cdd2cdcb9b6e56086360824fb21f2",
+    "MSP-0625-EEBUS: helianthus-eebus-go PR20 41c2d2ed73baf887ee69a364797c1d6ff74ab426",
+    "MSP-0625-REG-EXEC: helianthus-eebusreg PR84 4a0af028276db7d32a9454386b643138e84c555e; PR86 b4903d4b0020cf4651d78021e0996b3fad01932c",
+    "MSP-0625-REG-MUT: helianthus-eebusreg PR88 19874f0ebd57be7d1cf3ab9b7ee7aaac175a2dd9; PR90 63e43d94024d101cea882697acb5436a3b51fc77; PR92 0f2c0d343ffd615efaa7c789b720c52bae20c337; PR94 4afad3e9083b7a6f271258e3fa319dfb26915439; PR96 5528b436f814f1867138a1d7da9354c665916f28; PR98 709a5473de26bbaaa625cdfead555872edea5cab",
+    "MSP-0625-GW-ROUTER: helianthus-ebusgateway PR748 54efe461f27a0115c2a038d4c56ace1ea2c6f39e; PR750 fcad9c8c80101cb31a7707e21846bca24bbbf40a; PR752 4ffb02891ddb1b1d406c9e72a7a5ab804f11c586; PR754 dc27adf161562108c4c611bd9d2706721339281e; PR756 defe6b5d0ba0cfce4174e21429dbf23e3eae1a6a; PR757 0788ee2929d71cb4a099157f2422d26fedf6768f",
+    "MSP-0625-GW-MCP: helianthus-ebusgateway PR758 335ee0a6598de44fb7ca426995afb0b24e9b7331; PR760 cbf7c8e082fc19e2f0bc652270c977e0b16ed159",
+    "MSP-0625-DOCS-P: helianthus-docs-ebus PR381 fdacb676ef3ff6e25a2fa53149a18de996635d1e",
 )
 M625_NO_EFFECT_DTO = {
     "state": "no_effect",
@@ -325,6 +535,11 @@ ROW_EXTRAS = {
     "MSP-DOCS-CANDIDATE-CLEANUP": frozenset({"acceptance", "conditional"}),
     "MSP-03D-R": frozenset({"acceptance", "evidence_inputs"}),
     "MSP-0625-GW-MCP": frozenset({"tool_suffixes"}),
+    "MSP-0625-S13-DOCS": frozenset({"acceptance", "issue_ref", "public_baseline"}),
+    "MSP-0625-S13-SPINE": frozenset({"acceptance", "issue_ref", "scope_provenance"}),
+    "MSP-0625-S13-EEBUS": frozenset({"acceptance", "issue_ref"}),
+    "MSP-0625-S13-REG": frozenset({"acceptance", "issue_ref"}),
+    "MSP-0625-S13-GW-LAB": frozenset({"acceptance", "issue_ref"}),
     "MSP-085-LIVE-R1": frozenset({"completion_token_contract"}),
     "MSP-09A": frozenset({"unlock_predicate"}),
     "MSP-09B": frozenset({"unlock_predicate"}),
@@ -332,16 +547,22 @@ ROW_EXTRAS = {
     "MSP-09D": frozenset({"unlock_predicate"}),
 }
 HISTORICAL_IDS = frozenset(EXACT_IDS[:17])
-READINESS = {
-    "historical_snapshot": list(PRESERVED_ACCEPTED_IDS),
-    "logical_ready": ["MSP-0625-PLAN"],
-    "dispatchable": ["MSP-0625-PLAN"],
-    "selected_batch": ["MSP-0625-PLAN"],
-}
+def readiness(matrix: dict[str, Any]) -> dict[str, list[str]]:
+    """Derive dispatch from released LAB proof plus the active erratum hold."""
+    state = matrix.get("lab_release_proof")
+    if state not in RELEASE_PROOF_STATES:
+        fail("matrix: LAB release-proof control drift")
+    next_batch = RELEASE_PROOF_STATES[state]["selected_batch"]
+    return {
+        "historical_snapshot": list(PRESERVED_ACCEPTED_IDS),
+        "logical_ready": next_batch,
+        "dispatchable": next_batch,
+        "selected_batch": next_batch,
+    }
 MATRIX_ROOT_KEYS = frozenset({
     "schema_version", "status", "plan", "baseline", "cruise_phase", "current_milestone",
     "amendment_count", "amended_on", "amendment", "accepted_through", "dirty_rescue_candidate",
-    "successor_unlocks", "successor_unlock_condition", "msp_r00_status", "msp_r00_issue",
+    "successor_unlocks", "successor_unlock_condition", "lab_release_proof", "msp_r00_status", "msp_r00_issue",
     "msp_r00_architecture_review", "purpose", "serialization", "gate_catalog", "ownership_contract",
     "public_evidence_privacy", "issues", "routing_policy",
 })
@@ -350,7 +571,7 @@ PLAN_ROOT_KEYS = frozenset({
     "amendment", "source_discussion", "target_repos", "knowledge_repo",
     "platform_docs_owner", "protocol_knowledge_repo", "protocol_native_docs_repo",
     "cross_seed_target_repo", "canonical_file", "split_index", "started_on", "locked_on",
-    "current_milestone", "accepted_adversarial_rounds", "accepted_through", "m3_status",
+    "current_milestone", "lab_release_proof", "accepted_adversarial_rounds", "accepted_through", "m3_status",
     "msp_03d_status", "dirty_rescue_candidate", "successor_unlocks",
     "successor_unlock_condition", "msp_r00_status", "msp_r00_issue",
     "msp_r00_architecture_review", "initial_ready_set", "routing_policy",
@@ -359,14 +580,14 @@ SERIALIZATION = {
     "rule": "one_active_pr_per_repo",
     "memory_guard": "serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise",
     "recovery_sequence": ["MSP-R00", "MSP-R00-L", "DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-PLATFORM", "MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"],
-    "eebusreg_sequence": ["MSP-DOCS-CLEAN", "MSP-03D-R", "MSP-035", "MSP-04A", "MSP-036", "MSP-055", "MSP-04B", "MSP-04C", "MSP-045", "MSP-05P-REG-API-V2", "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME", "MSP-05P-REG-API-V1-CLEANUP", "MSP-0625-REG-EXEC", "MSP-0625-REG-MUT"],
-    "docs_eebus_sequence": ["DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-E2", "MSP-DOCS-API-CANDIDATE", "MSP-DOCS-API-FREEZE", "MSP-DOCS-05P", "MSP-0625-DOCS-E", "MSP-0625-LAB"],
+    "eebusreg_sequence": ["MSP-DOCS-CLEAN", "MSP-03D-R", "MSP-035", "MSP-04A", "MSP-036", "MSP-055", "MSP-04B", "MSP-04C", "MSP-045", "MSP-05P-REG-API-V2", "MSP-05P-REG-ID", "MSP-05P-REG-RUNTIME", "MSP-05P-REG-API-V1-CLEANUP", "MSP-0625-REG-EXEC", "MSP-0625-REG-MUT", "MSP-0625-S13-REG"],
+    "docs_eebus_sequence": ["DOCS-VERIFY", "MSP-DOCS-API-SCHEMA", "MSP-DOCS-E2", "MSP-DOCS-API-CANDIDATE", "MSP-DOCS-API-FREEZE", "MSP-DOCS-05P", "MSP-0625-DOCS-E", "MSP-0625-LAB", "MSP-0625-S13-DOCS"],
     "docs_ebus_sequence": ["MSP-DOCS-PLATFORM", "MSP-0625-DOCS-P"],
     "ship_go_sequence": ["MSP-05P-SHIP"],
-    "eebus_go_sequence": ["MSP-05P-EEBUS", "MSP-0625-EEBUS"],
-    "spine_go_sequence": ["MSP-0625-SPINE"],
-    "gateway_sequence": ["MSP-05A", "MSP-05A-R1", "MSP-05B-PLAN-R1", "MSP-05A-R2", "MSP-05B", "MSP-06", "MSP-0625-GW-ROUTER", "MSP-0625-GW-MCP", "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-065-LIVE-R1", "MSP-07-LIVE-R1", "MSP-08-LIVE-R1", "MSP-085-LIVE-R1", "MSP-09A", "MSP-09B"],
-    "initial_ready_set": ["MSP-0625-PLAN"],
+    "eebus_go_sequence": ["MSP-05P-EEBUS", "MSP-0625-EEBUS", "MSP-0625-S13-EEBUS"],
+    "spine_go_sequence": ["MSP-0625-SPINE", "MSP-0625-S13-SPINE"],
+    "gateway_sequence": ["MSP-05A", "MSP-05A-R1", "MSP-05B-PLAN-R1", "MSP-05A-R2", "MSP-05B", "MSP-06", "MSP-0625-GW-ROUTER", "MSP-0625-GW-MCP", "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-0625-S13-GW-LAB", "MSP-065-LIVE-R1", "MSP-07-LIVE-R1", "MSP-08-LIVE-R1", "MSP-085-LIVE-R1", "MSP-09A", "MSP-09B"],
+    "initial_ready_set": ["MSP-0625-S13-DOCS"],
     "dirty_code_unlocks_successors": False,
     "conditional_rows": ["MSP-DOCS-CANDIDATE-CLEANUP"],
     "pr_required_evidence": ["doc_gate_result", "rollback_ledger_entry", "relevant_transport_or_security_gate_artifact", "review_disposition_for_every_comment", "complete_milestone_architecture_review"],
@@ -405,6 +626,8 @@ EXPECTED_ACTIVE_SURFACES = (
     "119-w30-26-post-m6-hardening-inventory.md",
     "120-w30-26-current-state-evidence.json",
     "121-w31-26-m625-raw-mutation-contract-correction.md",
+    "122-w31-26-m625-implementation-state-reconciliation.md",
+    "123-w31-26-m625-spine-13-erratum.md",
 )
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
@@ -430,6 +653,8 @@ MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/119-w30-26-post-m6-hardening-inventory.md",
     "multi-runtime-semantic-platform.locked/120-w30-26-current-state-evidence.json",
     "multi-runtime-semantic-platform.locked/121-w31-26-m625-raw-mutation-contract-correction.md",
+    "multi-runtime-semantic-platform.locked/122-w31-26-m625-implementation-state-reconciliation.md",
+    "multi-runtime-semantic-platform.locked/123-w31-26-m625-spine-13-erratum.md",
     "scripts/validate_ad_docs_02.py",
     "scripts/validate_msp_r00_l_ledger.py",
     "scripts/validate_plans_repo.sh",
@@ -894,6 +1119,60 @@ def promotion_claim_sha256(claim: dict[str, Any]) -> str:
     )
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
+
+def release_proof_projection(state: Any) -> dict[str, Any]:
+    if state not in RELEASE_PROOF_STATES:
+        fail("release proof: unknown canonical control state")
+    return RELEASE_PROOF_STATES[state]
+
+
+def render_release_projection_block(state: str) -> str:
+    projection = release_proof_projection(state)
+    return "\n".join((
+        "<!-- M625_RELEASE_PROJECTION_BEGIN -->",
+        f"Release-proof control: `{state}`",
+        f"Cruise phase: `{projection['cruise_phase']}`",
+        f"Current milestone: `{projection['current_milestone']}`",
+        f"LAB acceptance state: `{projection['lab_acceptance_state']}`",
+        f"Selected batch: `{projection['selected_batch'][0]}`",
+        f"Accepted through: `{projection['accepted_through']}`",
+        "<!-- M625_RELEASE_PROJECTION_END -->",
+    ))
+
+
+def validate_control_projection(
+    plan: dict[str, Any], matrix: dict[str, Any], plan_dir: Path,
+) -> None:
+    state = plan.get("lab_release_proof")
+    projection = release_proof_projection(state)
+    if matrix.get("lab_release_proof") != state:
+        fail("release proof: plan/matrix control split-brain")
+    expected_common = {
+        "cruise_phase": projection["cruise_phase"],
+        "current_milestone": projection["current_milestone"],
+        "accepted_through": projection["accepted_through"],
+    }
+    for surface_name, surface in (("plan", plan), ("matrix", matrix)):
+        for key, expected in expected_common.items():
+            if surface.get(key) != expected:
+                fail(f"release proof: {surface_name}.{key} projection drift")
+    if plan.get("initial_ready_set") != projection["selected_batch"]:
+        fail("release proof: plan selected-batch projection drift")
+    rows = matrix.get("issues", [])
+    lab_rows = [row for row in rows if row.get("id") == "MSP-0625-LAB"]
+    if len(lab_rows) != 1:
+        fail("release proof: LAB row cardinality drift")
+    if lab_rows[0].get("acceptance_state") != projection["lab_acceptance_state"]:
+        fail("release proof: LAB acceptance-state projection drift")
+    if readiness(matrix)["selected_batch"] != projection["selected_batch"]:
+        fail("release proof: readiness projection drift")
+    expected_block = render_release_projection_block(state)
+    for surface in RELEASE_PROJECTION_SURFACES:
+        text = (plan_dir / surface).read_text(encoding="utf-8")
+        blocks = RELEASE_PROJECTION_RE.findall(text)
+        if blocks != [expected_block]:
+            fail(f"release proof: {surface} control projection drift")
+
 def validate_promotion_completion_token(token: dict[str, Any]) -> None:
     exact_keys(token, {"claim", "claim_sha256"}, "promotion_token")
     claim = token["claim"]
@@ -924,13 +1203,16 @@ def validate_matrix(data: dict[str, Any]) -> None:
     exact_keys(data, set(MATRIX_ROOT_KEYS), "matrix")
     if data["schema_version"] != 2:
         fail("matrix: schema version drift")
+    projection = release_proof_projection(data.get("lab_release_proof"))
     if (
         data["amendment_count"] != CURRENT_AMENDMENT_COUNT
         or data["amendment"] != CURRENT_AMENDMENT
-        or data["accepted_through"] != CURRENT_ACCEPTED_THROUGH
         or data["successor_unlock_condition"] != CURRENT_SUCCESSOR_UNLOCK_CONDITION
     ):
         fail("matrix: current amendment projection drift")
+    for key in ("cruise_phase", "current_milestone", "accepted_through"):
+        if data[key] != projection[key]:
+            fail(f"matrix: release-proof {key} projection drift")
     if data["serialization"] != SERIALIZATION:
         fail("matrix: serialization authority drift")
     exact_keys(data["routing_policy"], {"resolver", "policy_digest", "forbidden_tier"}, "matrix.routing_policy")
@@ -975,7 +1257,12 @@ def validate_matrix(data: dict[str, Any]) -> None:
             fail("matrix: completion-token authority drift")
         if row.get("evidence_inputs", []) != EVIDENCE_INPUTS[row_id]:
             fail("matrix: evidence-input authority drift")
-        if row["acceptance_state"] != ACCEPTANCE_STATES[row_id]:
+        expected_acceptance_state = (
+            projection["lab_acceptance_state"]
+            if row_id == "MSP-0625-LAB"
+            else ACCEPTANCE_STATES[row_id]
+        )
+        if row["acceptance_state"] != expected_acceptance_state:
             fail("matrix: acceptance-state authority drift")
         if row_id in LOCKED_ACCEPTANCE and row.get("acceptance") != LOCKED_ACCEPTANCE[row_id]:
             fail("matrix: locked M5 acceptance contract drift")
@@ -987,6 +1274,22 @@ def validate_matrix(data: dict[str, Any]) -> None:
             and row.get("tool_suffixes") != M625_TOOL_SUFFIXES
         ):
             fail("matrix: exact M6.25 tool suffix contract drift")
+        if row_id in M625_S13_IDS:
+            issue_index = M625_S13_IDS.index(row_id)
+            if row.get("issue_ref") != M625_S13_ISSUE_CHAIN[issue_index]:
+                fail("matrix: SPINE 1.3 erratum issue-chain drift")
+            if tuple(row.get("acceptance", [])) != M625_S13_ACCEPTANCE[row_id]:
+                fail("matrix: SPINE 1.3 exact acceptance contract drift")
+        if (
+            row_id == "MSP-0625-S13-DOCS"
+            and row.get("public_baseline") != M625_S13_PUBLIC_BASELINE
+        ):
+            fail("matrix: SPINE 1.3 public baseline drift")
+        if (
+            row_id == "MSP-0625-S13-SPINE"
+            and row.get("scope_provenance") != M625_S13_SCOPE_PROVENANCE
+        ):
+            fail("matrix: SPINE 1.3 bounded provenance drift")
         if (
             row_id == "MSP-085-LIVE-R1"
             and row.get("completion_token_contract") != LIVE_COMPLETION_TOKEN_CONTRACT
@@ -1018,6 +1321,14 @@ def validate_matrix(data: dict[str, Any]) -> None:
             fail("matrix: historical synthetic row unlocks live chain")
     if "MSP-0625-DOCS-P" in by_id["MSP-0625-SPINE"]["requires_completion_tokens"]:
         fail("matrix: public methodology cross-seed blocks SPINE")
+    old_live_predecessors = ["MSP-0625-LAB", "MSP-0625-DOCS-P"]
+    if (
+        by_id["MSP-065-LIVE-R1"]["requires_completion_tokens"][:2]
+        != old_live_predecessors
+        or by_id["MSP-065-LIVE-R1"]["requires_completion_tokens"][2:]
+        != ["MSP-0625-S13-GW-LAB"]
+    ):
+        fail("matrix: erratum may only append the final LIVE-R1 predecessor")
     if any(
         row["repo"] == "helianthus-ship-go" and row["id"].startswith("MSP-0625")
         for row in rows
@@ -1026,13 +1337,19 @@ def validate_matrix(data: dict[str, Any]) -> None:
 
 def render_live_audit(matrix: dict[str, Any]) -> str:
     rows = matrix["issues"]
+    current_readiness = readiness(matrix)
     snapshot = {
         "current_control": {
+            "cruise_phase": matrix["cruise_phase"],
             "current_milestone": matrix["current_milestone"],
+            "lab_acceptance_state": release_proof_projection(
+                matrix["lab_release_proof"]
+            )["lab_acceptance_state"],
+            "lab_release_proof": matrix["lab_release_proof"],
             "historical_integrity_record": INTEGRITY,
             "historical_integrity_selected_batch": ["MSP-05A-R2"],
             "pre_m625_history_projection_sha256": pre_m625_history_sha256(rows),
-            "selected_batch": READINESS["selected_batch"],
+            "selected_batch": current_readiness["selected_batch"],
         },
         "ids": [row["id"] for row in rows],
         "completion_tokens": {row["id"]: row.get("requires_completion_tokens", []) for row in rows},
@@ -1064,13 +1381,127 @@ def render_live_audit(matrix: dict[str, Any]) -> str:
         "",
         "107 current integrity projection: 92-m0-issue-matrix.yaml is authoritative; 106-ad-docs-02-integrity.json is the immutable historical M5 record.",
         "requires_completion_tokens are authoritative; evidence_inputs are non-authoritative.",
-        "Readiness snapshot / logical-ready / dispatchable / selected-batch categories: " + json.dumps(READINESS, sort_keys=True, separators=(",", ":")),
+        "Readiness snapshot / logical-ready / dispatchable / selected-batch categories: " + json.dumps(current_readiness, sort_keys=True, separators=(",", ":")),
         "",
     ))
 
 def validate_live_audit(matrix: dict[str, Any], text: str) -> None:
     if text != render_live_audit(matrix):
         fail("live audit: deterministic matrix projection drift")
+
+
+def render_canonical_digest(canonical_text: str, existing_surface: str) -> str:
+    """Regenerate one split surface's canonical digest without rewriting prose."""
+    digest = hashlib.sha256(canonical_text.encode("utf-8")).hexdigest()
+    marker_pattern = r"Canonical-SHA256: `[0-9a-f]{64}`"
+    if len(re.findall(marker_pattern, existing_surface)) != 1:
+        fail("release proof: canonical digest marker missing or duplicated")
+    updated = re.sub(
+        marker_pattern,
+        f"Canonical-SHA256: `{digest}`",
+        existing_surface,
+        count=1,
+    )
+    return updated
+
+
+def replace_root_yaml_scalar(text: str, key: str, value: str) -> str:
+    updated, count = re.subn(
+        rf"(?m)^{re.escape(key)}:[^\n]*$",
+        f"{key}: {value}",
+        text,
+        count=1,
+    )
+    if count != 1:
+        fail(f"release proof: missing root YAML field {key}")
+    return updated
+
+
+def project_release_proof_files(root: Path, state: str) -> None:
+    """Project one canonical plan control into every dependent source."""
+    projection = release_proof_projection(state)
+    plan_dir = root / PLAN
+    plan_path = plan_dir / "plan.yaml"
+    plan_text = plan_path.read_text(encoding="utf-8")
+    for key, value in (
+        ("lab_release_proof", state),
+        ("cruise_phase", projection["cruise_phase"]),
+        ("current_milestone", projection["current_milestone"]),
+        ("accepted_through", projection["accepted_through"]),
+    ):
+        plan_text = replace_root_yaml_scalar(plan_text, key, value)
+    plan_text, ready_count = re.subn(
+        r"(?m)^initial_ready_set:\n(?:  - [^\n]+\n)+",
+        "initial_ready_set:\n"
+        + "".join(f"  - {row_id}\n" for row_id in projection["selected_batch"]),
+        plan_text,
+        count=1,
+    )
+    if ready_count != 1:
+        fail("release proof: missing plan initial_ready_set")
+    plan_path.write_text(plan_text, encoding="utf-8")
+
+    matrix_path = plan_dir / MATRIX
+    matrix_text = matrix_path.read_text(encoding="utf-8")
+    for key, value in (
+        ("lab_release_proof", state),
+        ("cruise_phase", projection["cruise_phase"]),
+        ("current_milestone", projection["current_milestone"]),
+        ("accepted_through", projection["accepted_through"]),
+    ):
+        matrix_text = replace_root_yaml_scalar(matrix_text, key, value)
+    matrix_text, lab_count = re.subn(
+        r"(?ms)(^- id: MSP-0625-LAB\n(?:(?!^- id:).)*?^  acceptance_state: )[^\n]+$",
+        rf"\g<1>{projection['lab_acceptance_state']}",
+        matrix_text,
+        count=1,
+    )
+    if lab_count != 1:
+        fail("release proof: missing LAB acceptance_state")
+    matrix_path.write_text(matrix_text, encoding="utf-8")
+
+    expected_block = render_release_projection_block(state)
+    for surface in RELEASE_PROJECTION_SURFACES:
+        path = plan_dir / surface
+        text = path.read_text(encoding="utf-8")
+        updated, count = RELEASE_PROJECTION_RE.subn(expected_block, text)
+        if count != 1:
+            fail(f"release proof: {surface} projection marker drift")
+        path.write_text(updated, encoding="utf-8")
+
+
+def apply_release_proof_state(root: Path, state: str) -> None:
+    """Set the canonical plan control and regenerate every dependent projection."""
+    project_release_proof_files(root, state)
+    plan_dir = root / PLAN
+    matrix = load_yaml(plan_dir / MATRIX)
+    plan = load_yaml(plan_dir / "plan.yaml")
+    validate_matrix(matrix)
+    validate_plan_projection(plan)
+    validate_control_projection(plan, matrix, plan_dir)
+    canonical_text = (plan_dir / "00-canonical.md").read_text(encoding="utf-8")
+    digest_surfaces = [
+        plan_dir / "01-index.md",
+        *sorted(plan_dir.glob("1[0-9]-*.md")),
+    ]
+    for path in digest_surfaces:
+        path.write_text(
+            render_canonical_digest(
+                canonical_text,
+                path.read_text(encoding="utf-8"),
+            ),
+            encoding="utf-8",
+        )
+    (plan_dir / "107-ad-docs-02-topology-audit.md").write_text(
+        render_live_audit(matrix), encoding="utf-8"
+    )
+
+
+def write_generated(root: Path) -> None:
+    """Regenerate all projections from the canonical plan control."""
+    plan_dir = root / PLAN
+    state = load_yaml(plan_dir / "plan.yaml").get("lab_release_proof")
+    apply_release_proof_state(root, state)
 
 def reject_active_routing_pin(value: Any, where: str) -> None:
     """Reject provider/model routing facts in active (not historical) contracts."""
@@ -1099,6 +1530,7 @@ def reject_active_row_string_pins(value: Any, where: str) -> None:
 
 def validate_plan_projection(plan: dict[str, Any]) -> None:
     exact_keys(plan, set(PLAN_ROOT_KEYS), "plan")
+    projection = release_proof_projection(plan.get("lab_release_proof"))
     reject_active_routing_pin(plan, "plan")
     policy = plan.get("routing_policy")
     exact_keys(policy, {"resolver", "policy_digest", "forbidden_tier"}, "plan.routing_policy")
@@ -1108,11 +1540,13 @@ def validate_plan_projection(plan: dict[str, Any]) -> None:
     if (
         plan.get("amendment_count") != CURRENT_AMENDMENT_COUNT
         or plan.get("amendment") != CURRENT_AMENDMENT
-        or plan.get("accepted_through") != CURRENT_ACCEPTED_THROUGH
         or plan.get("successor_unlock_condition") != CURRENT_SUCCESSOR_UNLOCK_CONDITION
     ):
         fail("plan: current amendment projection drift")
-    if plan.get("initial_ready_set") != READINESS["selected_batch"]:
+    for key in ("cruise_phase", "current_milestone", "accepted_through"):
+        if plan.get(key) != projection[key]:
+            fail(f"plan: release-proof {key} projection drift")
+    if plan.get("initial_ready_set") != projection["selected_batch"]:
         fail("plan: selected batch drift")
 
 def canonicalize_security_symbols(text: str) -> str:
@@ -1361,6 +1795,85 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         ) from exc
     if mutation_doc_gate != M625_MUTATION_DOC_GATE:
         fail("surfaces.121: mutation docs gate direction drift")
+    reconciliation_text = (plan_dir / M625_IMPLEMENTATION_RECONCILIATION).read_text(
+        encoding="utf-8"
+    )
+    for receipt in M625_IMPLEMENTATION_RECEIPTS:
+        if receipt not in reconciliation_text:
+            fail("surfaces.122: published completion receipt drift")
+    for fragment in (
+        "terminal quarantine",
+        "no auto-rollback claim",
+        "promotes no mutable leaf",
+        "At draft creation, release proof remained pending",
+        "SHIP -> eebusreg -> gateway",
+        "--set-lab-release-proof released_chain_redeployed",
+        "MSP-065-LIVE-R1",
+        "non-DAG hardening only",
+        "No v2, legacy interface, alias, `candidate_ref`",
+        "no-write stop remain fail-closed",
+    ):
+        if fragment not in reconciliation_text:
+            fail(f"surfaces.122: missing reconciliation invariant: {fragment}")
+    successor_text = (plan_dir / M625_S13_SUCCESSOR).read_text(
+        encoding="utf-8"
+    )
+    compact_successor = " ".join(successor_text.split())
+    for issue_ref in M625_S13_ISSUE_CHAIN:
+        if issue_ref not in compact_successor:
+            fail("surfaces.123: exact erratum issue chain drift")
+    for value in M625_S13_PUBLIC_BASELINE["evidence_sha256"].values():
+        if value not in compact_successor:
+            fail("surfaces.123: public evidence hash drift")
+    for provenance in M625_S13_SCOPE_PROVENANCE["included"]:
+        if provenance["commit"] not in compact_successor:
+            fail("surfaces.123: bounded provenance commit drift")
+    for exclusion in (
+        "9970150",
+        "eebus:\"key\"",
+        "update-engine",
+        "9f07e2a30a0c138bbc7e13b19f61ac4981f0a68f",
+        "06d9bf07e351c268656532a0b8046c79f3797d23",
+        "upstream `dev`",
+        "SPINE 1.4",
+    ):
+        if exclusion not in compact_successor:
+            fail(f"surfaces.123: bounded exclusion drift: {exclusion}")
+    for fragment in (
+        "`lab_release_proof=released_chain_redeployed`",
+        "base M6.25 LAB remains accepted",
+        "Stable-MCP/M6.25 final closure is held by this bounded erratum",
+        "Every pre-existing completion-token edge remains unchanged",
+        "appending `MSP-0625-S13-GW-LAB` as an additional predecessor",
+        "aggregate READ evidence only",
+        "49 | 26 | 23",
+        "No raw identity",
+        "`candidate_ref` remains prohibited",
+        "Erratum execution is READ-only",
+        "Every existing no-write stop remains fail-closed",
+        "Owner-local raw access and public redacted output remain separate",
+        "all 49 target identities",
+        "all 26 baseline-success targets remain successful",
+        "factory type mismatch",
+        "scalar-versus-list or enum-versus-scaled-number",
+        "typed-empty reply is not silently promoted",
+        "`operationModeId=2` remains unlabeled",
+        "Any WRITE, SET, rollback dispatch, or mutation probe fails the gate",
+    ):
+        if fragment not in compact_successor:
+            fail(f"surfaces.123: missing erratum invariant: {fragment}")
+    tool_blocks = re.findall(
+        r"```json\r?\n(\[[^\r\n]+\])\r?\n```",
+        successor_text,
+    )
+    if len(tool_blocks) != 1:
+        fail("surfaces.123: exact tool suffix block missing or duplicated")
+    try:
+        successor_tools = json.loads(tool_blocks[0])
+    except json.JSONDecodeError as exc:
+        raise ValidationError("surfaces.123: malformed tool suffix block") from exc
+    if successor_tools != M625_TOOL_SUFFIXES:
+        fail("surfaces.123: exact M6.25 tool suffix contract drift")
     roadmap = (plan_dir / "14-execution-roadmap-issues-and-gates.md").read_text(encoding="utf-8")
     for row_id, tokens in REQUIRES_COMPLETION_TOKENS.items():
         if row_id in {"MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"}:
@@ -1373,6 +1886,17 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         text = " ".join((plan_dir / surface).read_text(encoding="utf-8").split())
         if E2R_PREREQUISITES not in text:
             fail(f"surfaces.{surface}: M3.5 E2R prerequisite drift")
+
+
+def validate_immutable_active_files(plan_dir: Path) -> None:
+    for name, expected in IMMUTABLE_ACTIVE_SHA256.items():
+        try:
+            actual = hashlib.sha256((plan_dir / name).read_bytes()).hexdigest()
+        except OSError as exc:
+            raise ValidationError(f"immutable active file unavailable: {name}") from exc
+        if actual != expected:
+            fail(f"immutable active file changed: {name}")
+
 
 def validate_surfaces(root: Path) -> None:
     plan_dir = root / PLAN
@@ -1388,11 +1912,14 @@ def validate_surfaces(root: Path) -> None:
         fail("surfaces: mutable allowlist/projection drift")
     matrix = load_yaml(plan_dir / MATRIX)
     integrity = load_json(plan_dir / INTEGRITY)
+    validate_immutable_active_files(plan_dir)
     validate_matrix(matrix)
     validate_integrity(integrity)
     evidence_path = plan_dir / "120-w30-26-current-state-evidence.json"
     validate_current_state_evidence(evidence_path, load_json(evidence_path))
-    validate_plan_projection(load_yaml(plan_dir / "plan.yaml"))
+    plan = load_yaml(plan_dir / "plan.yaml")
+    validate_plan_projection(plan)
+    validate_control_projection(plan, matrix, plan_dir)
     validate_live_audit(matrix, (plan_dir / "107-ad-docs-02-topology-audit.md").read_text(encoding="utf-8"))
     validate_markdown_claims(plan_dir, matrix)
 
@@ -1554,10 +2081,22 @@ def validate_changed_paths(root: Path = ROOT) -> None:
 def main(argv: list[str]) -> int:
     try:
         issue_head: str | None = None
+        if len(argv) == 2 and argv[1] == "--write-generated":
+            write_generated(ROOT)
+            print("generated AD-DOCS-02 projections")
+            return 0
+        if len(argv) == 3 and argv[1] == "--set-lab-release-proof":
+            apply_release_proof_state(ROOT, argv[2])
+            validate_surfaces(ROOT)
+            print(f"set LAB release proof to {argv[2]} and regenerated projections")
+            return 0
         if len(argv) == 3 and argv[1] == "--issue-63-head":
             issue_head = argv[2]
         elif len(argv) != 1:
-            fail("usage: validate_ad_docs_02.py")
+            fail(
+                "usage: validate_ad_docs_02.py [--write-generated | "
+                "--set-lab-release-proof STATE | --issue-63-head SHA]"
+            )
         validate_surfaces(ROOT)
         if issue_head is None:
             validate_changed_paths(ROOT)

@@ -2,20 +2,25 @@
 
 State: `locked`
 Started: `2026-04-12`
-Last revised: `2026-07-28`
-Current milestone: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Cruise phase: `M6_25_RAW_SPINE_FEATURE_ACQUISITION`
-Amendment count: `7`
-Amendment: `M6.25 raw mutation contract correction`
-Accepted through: `M6 raw topology and privacy boundary with zero promoted leaves`
+Last revised: `2026-07-30`
+<!-- M625_RELEASE_PROJECTION_BEGIN -->
+Release-proof control: `released_chain_redeployed`
+Cruise phase: `MSP-0625-S13-DOCS`
+Current milestone: `MSP-0625-S13-DOCS`
+LAB acceptance state: `accepted`
+Selected batch: `MSP-0625-S13-DOCS`
+Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+<!-- M625_RELEASE_PROJECTION_END -->
+Amendment count: `9`
+Amendment: `M6.25 bounded SPINE 1.3 erratum`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the M6.25 and live-completion chain`
 Baseline: `Gateway 0.4.0`
 
 ## Current Position
 
-The forward-only M6.25 amendment and append-only mutation correction are
-current. M0-M6 history remains valid;
+Successor record 123 adds a bounded SPINE 1.3 erratum after record 122's
+published M6.25 implementation reconciliation. M0-M6 history remains valid;
 `100-topology-audit.md` remains the immutable AD-DOCS-01 snapshot.
 `106-ad-docs-02-integrity.json` remains the unchanged AD-DOCS-02 integrity
 record, while `107-ad-docs-02-topology-audit.md` is regenerated from the active
@@ -25,14 +30,29 @@ only by a forward fix.
 Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 
 The plan remains locked after five accepted adversarial rounds. M5 and M6 are
-complete. The current live gap is canonical typed SPINE function-data
-acquisition: topology is available, but generic full READ/WRITE, verified
-rollback, and direct-value evidence are not.
+complete. Base M6.25 LAB remains accepted after released-chain redeploy. The
+current gap is the bounded SPINE 1.3 erratum needed before stable-MCP/M6.25
+final closure; the selected row is `MSP-0625-S13-DOCS`.
 
-Amendment 121 leaves the DAG and exact five M6.25 tool names unchanged. It
-freezes terminal `no_effect` recovery, requested-value uncertainty recovery,
-separate `RawMutationRuntimeV1`/`WriteAuthorizationV1`, fail-closed gateway
-capability assertion, and docs-eebus #78 as the gate for eebusreg #85.
+Record 121 remains authoritative for recovery and authorization. Record 122
+leaves the DAG and exact five M6.25 tool names unchanged while recording
+completed/published PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER,
+GW-MCP, and DOCS-P. LAB operational acceptance used terminal quarantine, has
+no auto-rollback claim, and promotes no mutable leaf. The generated
+release-proof projection above is authoritative for current LAB state.
+
+Record 123 adds the exact docs-eebus#96 -> spine-go#15 -> eebus-go#23 ->
+eebusreg#103 -> ebusgateway#762 chain. Its DOCS row requires accepted
+`MSP-0625-LAB` and completed `MSP-0625-DOCS-P`. All old edges remain exact,
+and only `MSP-0625-S13-GW-LAB` is appended to the two existing
+`MSP-065-LIVE-R1` predecessors.
+
+The public baseline is exactly 49 READ declarations, 26 successes, and 23
+failures with three public-safe evidence hashes. No raw identity is recorded.
+Scope is limited to the pinned SPINE 1.3 value-type and function-data
+corrections; `9970150` key/update-engine changes, duplicate
+`9f07e2a`/`06d9bf0` cherry-picks, a wholesale upstream `dev` merge, and SPINE
+1.4 are excluded.
 
 Historical M6.5 is framework-complete/live-partial. Historical M7, M8, and M8.5
 are synthetic-only/partial, with zero promoted leaves. Their administrative
@@ -49,8 +69,7 @@ The final plan-lock architecture review is recorded in
 
 ## Ready Rows
 
-- `MSP-0625-PLAN`: sole ready row. It publishes the additive M6.25 contract and
-  DAG without reopening or resetting M0-M6.
+The generated release-proof projection is the sole selected-batch authority.
 
 ## Completed Recovery Publication
 
@@ -91,10 +110,10 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Publish `MSP-0625-PLAN`, then complete the serialized M6.25 docs and code
-  rows through `MSP-0625-LAB`.
-- Complete `MSP-0625-DOCS-P` before `MSP-065-LIVE-R1`; it does not block the
-  earlier spine-go path.
+- Publish the bounded SPINE 1.3 erratum docs gate, then release and explicitly
+  repin the spine-go -> eebus-go -> eebusreg -> gateway dependency chain.
+- Redeploy that erratum chain and repeat the owner-only, read-only 49-READ
+  sweep while preserving the already accepted base M6.25 lab proof.
 - Execute the live M6.5-R1 through M8.5-R1 chain.
 - Keep M9 blocked until `MSP-085-LIVE-R1` and
   machine-checkable `promoted_leaf_count > 0`.
@@ -118,6 +137,9 @@ GraphQL, Portal, Home Assistant, candidate references, aliases, v2 surfaces,
 and promoted semantics remain out of scope until their later milestones and
 live per-leaf locks. M6.25 raw WRITE exists only as owner-local bounded
 acquisition through the gateway router and durable mutation coordinator.
+The SPINE 1.3 erratum itself is READ-only. The exact five M6.25 tool suffixes,
+all no-write stops, the `candidate_ref` prohibition, and the owner-local
+raw/public-redacted boundary remain fail-closed and unchanged.
 
 No public artifact may contain packet captures, raw transcripts, keys, PEM
 blocks, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw

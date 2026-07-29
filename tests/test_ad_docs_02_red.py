@@ -52,10 +52,10 @@ class AdDocs02RedTests(unittest.TestCase):
         self.assertIn("AD-DOCS-02", amendment)
         self.assertIn("AD-DOCS-02", audit)
 
-    def test_requires_exact_70_row_acyclic_serial_dag(self) -> None:
+    def test_requires_exact_75_row_acyclic_serial_dag(self) -> None:
         self._surfaces()
         rows = self._rows()
-        self.assertEqual(len(rows), 70)
+        self.assertEqual(len(rows), 75)
         required = {
             "MSP-DOCS-E2R-PLATFORM",
             "MSP-DOCS-E2R-PUBLISH",
@@ -65,6 +65,11 @@ class AdDocs02RedTests(unittest.TestCase):
             "MSP-0625-SPINE",
             "MSP-0625-REG-MUT",
             "MSP-0625-GW-MCP",
+            "MSP-0625-S13-DOCS",
+            "MSP-0625-S13-SPINE",
+            "MSP-0625-S13-EEBUS",
+            "MSP-0625-S13-REG",
+            "MSP-0625-S13-GW-LAB",
             "MSP-065-LIVE-R1",
             "MSP-085-LIVE-R1",
         }
