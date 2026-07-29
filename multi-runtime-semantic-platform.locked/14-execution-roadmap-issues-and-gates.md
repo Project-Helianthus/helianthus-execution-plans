@@ -384,8 +384,9 @@ This plan is locked when:
 
 - plan state is `locked` and current milestone is
   `MSP-0625-S13-DOCS`;
-- accepted-through text records M6 raw topology/privacy completion and zero
-  promoted leaves;
+- accepted-through text records the base M6.25 LAB as accepted after
+  released-chain redeploy, the bounded SPINE 1.3 hold on final closure, and
+  zero promoted leaves;
 - the generated release-proof projection selects only
   `MSP-0625-S13-DOCS` while preserving released base LAB proof;
 - every old edge remains exact and only the final erratum token is appended to

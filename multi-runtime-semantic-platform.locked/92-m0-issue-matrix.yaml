@@ -1858,9 +1858,14 @@ issues:
   issue_ref: Project-Helianthus/helianthus-ebusgateway#762
   acceptance:
   - the gateway uses the existing EEBusCommandRouter and exact five M6.25 tool suffixes with no added alias or namespace
-  - all 49 declared READ targets are rerun and separately classified against the immutable 26-success and 23-failure public baseline
+  - all 49 declared READ targets are each attempted and receive one terminal classification against the immutable 26-success and 23-failure public baseline
+  - all 26 baseline-success targets remain successful
+  - no HVAC description READ ends internal because of a factory type mismatch
+  - no setpoint-description or HVAC-relation READ fails because of the superseded scalar-versus-list or enum-versus-scaled-number model
+  - every residual result is function/correlation-bound and classified as typed-empty reply, remote rejection, unknown field, or another identified model mismatch; typed-empty is not silently promoted to successful non-empty data
+  - operationModeId=2 remains unlabeled unless its nominal description is actually read
   - public evidence is aggregate and commitment-only; raw identity remains owner-local and absent from public output
-  - every WRITE and rollback dispatch probe remains stopped with zero remote mutation
+  - every WRITE, SET, rollback dispatch, and mutation probe remains stopped with zero remote mutation
   - candidate_ref, semantics, GraphQL, Portal, Home Assistant, and consumer promotion remain prohibited
   requires_completion_tokens:
   - MSP-0625-S13-REG

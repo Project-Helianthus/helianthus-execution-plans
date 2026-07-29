@@ -132,6 +132,19 @@ new final predecessor is appended; if dispatch starts anywhere other than
 authorized; if `candidate_ref` appears as an allowed surface; or if the scope
 imports excluded upstream work or SPINE 1.4.
 
+The post-redeploy live gate also fails unless all 49 target identities bound by
+the baseline target commitment are attempted as READ and receive one terminal
+classification; all 26 baseline-success targets remain successful; no HVAC
+description READ ends `internal` because of a factory type mismatch; and no
+setpoint-description or HVAC-relation READ fails because of the superseded
+scalar-versus-list or enum-versus-scaled-number model. Every remaining result
+must be bound to its function and correlation and classified as a typed-empty
+reply, remote rejection, unknown field, or another identified model mismatch.
+A typed-empty reply is not silently promoted to successful non-empty data.
+`operationModeId=2` remains unlabeled unless its nominal description is
+actually read. Any WRITE, SET, rollback dispatch, or mutation probe fails the
+gate.
+
 ## Coverage
 
 Plan validation must prove the 75-row exact-ID DAG, every old edge, the exact
@@ -139,4 +152,7 @@ five-row erratum chain, the additional final predecessor, the DOCS initial and
 current ready set, the exact issue references, public baseline and hashes,
 bounded provenance and exclusions, unchanged tool suffixes, fail-closed
 no-write behavior, public/raw separation, and byte-identical immutable
-`100-topology-audit.md` and `106-ad-docs-02-integrity.json`.
+`100-topology-audit.md` and `106-ad-docs-02-integrity.json`. It must also prove
+the exact 49-target terminal-result coverage, non-regression of all 26 prior
+successes, removal of the identified factory/cardinality mismatch classes,
+exact classification of residual errors, and the no-fabricated-label rule.

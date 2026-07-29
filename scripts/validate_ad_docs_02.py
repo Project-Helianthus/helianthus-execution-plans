@@ -276,6 +276,11 @@ M625_ACCEPTANCE_FRAGMENTS = {
     "MSP-0625-S13-GW-LAB": (
         "exact five M6.25 tool suffixes",
         "all 49 declared READ targets",
+        "all 26 baseline-success targets remain successful",
+        "no HVAC description READ ends internal because of a factory type mismatch",
+        "superseded scalar-versus-list or enum-versus-scaled-number model",
+        "typed-empty is not silently promoted to successful non-empty data",
+        "operationModeId=2 remains unlabeled",
         "raw identity remains owner-local",
         "zero remote mutation",
         "candidate_ref",
@@ -355,6 +360,45 @@ M625_S13_SCOPE_PROVENANCE = {
         "upstream dev wholesale merge",
         "SPINE 1.4",
     ],
+}
+M625_S13_ACCEPTANCE = {
+    "MSP-0625-S13-DOCS": (
+        "only bounded SPINE 1.3 value-type and function-data factory corrections are in scope; SPINE 1.4 is excluded",
+        "the public baseline is exactly 49 READ declarations, 26 successes, and 23 failures with the three pinned evidence hashes",
+        "public evidence contains no raw identity, endpoint, target address, payload, transcript, trust material, or restricted preimage",
+        "the exact five M6.25 tool suffixes and candidate_ref prohibition remain unchanged",
+        "erratum execution is READ-only and every existing no-write stop remains fail-closed",
+        "base M6.25 LAB remains accepted while stable-MCP/M6.25 final closure is held by this erratum",
+    ),
+    "MSP-0625-S13-SPINE": (
+        "implementation is derived only from the pinned minimal provenance scopes and not from wholesale cherry-picks",
+        "d5f89c, a6cb072, the relevant 4f986b selector, and only the identifier value-type portion of 9970150 are covered by focused tests",
+        "9970150 eebus:key/update-engine changes, duplicate 9f07e2a/06d9bf0 cherry-picks, upstream dev wholesale merge, and SPINE 1.4 remain excluded",
+        "no update-engine behavior, write path, transport, SHIP, or public/raw boundary changes",
+    ),
+    "MSP-0625-S13-EEBUS": (
+        "existing exact feature and function selection consumes the corrected SPINE 1.3 types without a new executor or namespace",
+        "erratum tests perform READ only and authorize no WRITE, partial operation, selector, filterDelete, or invoke",
+        "no SPINE 1.4, upstream dev wholesale merge, semantic mapping, or consumer behavior enters scope",
+    ),
+    "MSP-0625-S13-REG": (
+        "RawFeatureRuntimeV1 represents corrected SPINE 1.3 READ results without changing its public method set",
+        "existing runtime_epoch, connection_generation, read-token, JCS, and public-redaction invariants remain exact",
+        "RawMutationRuntimeV1, mutation FSM, write authorization, and every no-write stop remain unchanged and fail-closed",
+        "no raw identity or restricted preimage enters public evidence",
+    ),
+    "MSP-0625-S13-GW-LAB": (
+        "the gateway uses the existing EEBusCommandRouter and exact five M6.25 tool suffixes with no added alias or namespace",
+        "all 49 declared READ targets are each attempted and receive one terminal classification against the immutable 26-success and 23-failure public baseline",
+        "all 26 baseline-success targets remain successful",
+        "no HVAC description READ ends internal because of a factory type mismatch",
+        "no setpoint-description or HVAC-relation READ fails because of the superseded scalar-versus-list or enum-versus-scaled-number model",
+        "every residual result is function/correlation-bound and classified as typed-empty reply, remote rejection, unknown field, or another identified model mismatch; typed-empty is not silently promoted to successful non-empty data",
+        "operationModeId=2 remains unlabeled unless its nominal description is actually read",
+        "public evidence is aggregate and commitment-only; raw identity remains owner-local and absent from public output",
+        "every WRITE, SET, rollback dispatch, and mutation probe remains stopped with zero remote mutation",
+        "candidate_ref, semantics, GraphQL, Portal, Home Assistant, and consumer promotion remain prohibited",
+    ),
 }
 M625_S13_SUCCESSOR = "123-w31-26-m625-spine-13-erratum.md"
 IMMUTABLE_ACTIVE_SHA256 = {
@@ -1234,6 +1278,8 @@ def validate_matrix(data: dict[str, Any]) -> None:
             issue_index = M625_S13_IDS.index(row_id)
             if row.get("issue_ref") != M625_S13_ISSUE_CHAIN[issue_index]:
                 fail("matrix: SPINE 1.3 erratum issue-chain drift")
+            if tuple(row.get("acceptance", [])) != M625_S13_ACCEPTANCE[row_id]:
+                fail("matrix: SPINE 1.3 exact acceptance contract drift")
         if (
             row_id == "MSP-0625-S13-DOCS"
             and row.get("public_baseline") != M625_S13_PUBLIC_BASELINE
@@ -1344,15 +1390,18 @@ def validate_live_audit(matrix: dict[str, Any], text: str) -> None:
         fail("live audit: deterministic matrix projection drift")
 
 
-def render_index(canonical_text: str, existing_index: str) -> str:
-    """Regenerate the index's canonical digest without rewriting its prose."""
+def render_canonical_digest(canonical_text: str, existing_surface: str) -> str:
+    """Regenerate one split surface's canonical digest without rewriting prose."""
     digest = hashlib.sha256(canonical_text.encode("utf-8")).hexdigest()
-    return re.sub(
+    updated, count = re.subn(
         r"Canonical-SHA256: `[0-9a-f]{64}`",
         f"Canonical-SHA256: `{digest}`",
-        existing_index,
+        existing_surface,
         count=1,
     )
+    if count != 1:
+        fail("release proof: canonical digest marker missing or duplicated")
+    return updated
 
 
 def replace_root_yaml_scalar(text: str, key: str, value: str) -> str:
@@ -1429,14 +1478,19 @@ def apply_release_proof_state(root: Path, state: str) -> None:
     validate_matrix(matrix)
     validate_plan_projection(plan)
     validate_control_projection(plan, matrix, plan_dir)
-    index_path = plan_dir / "01-index.md"
-    index_path.write_text(
-        render_index(
-            (plan_dir / "00-canonical.md").read_text(encoding="utf-8"),
-            index_path.read_text(encoding="utf-8"),
-        ),
-        encoding="utf-8",
-    )
+    canonical_text = (plan_dir / "00-canonical.md").read_text(encoding="utf-8")
+    digest_surfaces = [
+        plan_dir / "01-index.md",
+        *sorted(plan_dir.glob("1[0-9]-*.md")),
+    ]
+    for path in digest_surfaces:
+        path.write_text(
+            render_canonical_digest(
+                canonical_text,
+                path.read_text(encoding="utf-8"),
+            ),
+            encoding="utf-8",
+        )
     (plan_dir / "107-ad-docs-02-topology-audit.md").write_text(
         render_live_audit(matrix), encoding="utf-8"
     )
@@ -1797,6 +1851,13 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         "Erratum execution is READ-only",
         "Every existing no-write stop remains fail-closed",
         "Owner-local raw access and public redacted output remain separate",
+        "all 49 target identities",
+        "all 26 baseline-success targets remain successful",
+        "factory type mismatch",
+        "scalar-versus-list or enum-versus-scaled-number",
+        "typed-empty reply is not silently promoted",
+        "`operationModeId=2` remains unlabeled",
+        "Any WRITE, SET, rollback dispatch, or mutation probe fails the gate",
     ):
         if fragment not in compact_successor:
             fail(f"surfaces.123: missing erratum invariant: {fragment}")

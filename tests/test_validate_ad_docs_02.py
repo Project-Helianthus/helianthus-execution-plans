@@ -276,6 +276,19 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 validator.readiness(matrix)["selected_batch"],
                 ["MSP-0625-S13-DOCS"],
             )
+            target = root / validator.PLAN
+            canonical = (target / "00-canonical.md").read_text(encoding="utf-8")
+            digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+            marker = f"Canonical-SHA256: `{digest}`"
+            for path in [
+                target / "01-index.md",
+                *sorted(target.glob("1[0-9]-*.md")),
+            ]:
+                with self.subTest(path=path.name):
+                    self.assertEqual(
+                        path.read_text(encoding="utf-8").count(marker),
+                        1,
+                    )
 
     def test_rejects_attempt_to_reset_released_lab_proof(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -355,6 +368,12 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             self.row(self.matrix, "MSP-0625-S13-SPINE")["scope_provenance"],
             validator.M625_S13_SCOPE_PROVENANCE,
         )
+        for row_id in validator.M625_S13_IDS:
+            with self.subTest(row_id=row_id):
+                self.assertEqual(
+                    tuple(self.row(self.matrix, row_id)["acceptance"]),
+                    validator.M625_S13_ACCEPTANCE[row_id],
+                )
         mutations = (
             lambda document: self.row(
                 document, "MSP-0625-S13-DOCS"
@@ -367,6 +386,11 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             ).__setitem__(
                 "issue_ref",
                 "Project-Helianthus/helianthus-eebusreg#104",
+            ),
+            lambda document: self.row(
+                document, "MSP-0625-S13-GW-LAB"
+            )["acceptance"].append(
+                "Erratum WRITE dispatch is allowed for compatibility"
             ),
         )
         for mutate in mutations:
@@ -388,6 +412,13 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "Owner-local raw access and public redacted output remain separate",
             "No raw identity",
             "SPINE 1.4",
+            "all 49 target identities",
+            "all 26 baseline-success targets remain successful",
+            "factory type mismatch",
+            "scalar-versus-list or enum-versus-scaled-number",
+            "typed-empty reply is not silently promoted",
+            "`operationModeId=2` remains unlabeled",
+            "Any WRITE, SET, rollback dispatch, or mutation probe fails the gate",
         ):
             self.assertIn(fragment, text)
 
