@@ -3,16 +3,16 @@ schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
-cruise_phase: M6_25_RELEASE_PROOF_PENDING
-current_milestone: M6_25_RELEASE_PROOF_PENDING
+cruise_phase: MSP-065-LIVE-R1
+current_milestone: MSP-065-LIVE-R1
 amendment_count: 8
 amended_on: '2026-07-29'
 amendment: M6.25 implementation state reconciliation
-accepted_through: M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves
+accepted_through: M6.25 LAB accepted/completed after released-chain redeploy; zero promoted leaves
 dirty_rescue_candidate: false
 successor_unlocks: true
 successor_unlock_condition: M6.25 live DAG completes through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
-lab_release_proof: release_proof_pending
+lab_release_proof: released_chain_redeployed
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
@@ -1667,7 +1667,7 @@ issues:
   review_ledger: live safety, recovery, privacy, and evidence review
   tdd_mode: strict_red_green
   smoke_scope: live READ, reversible WRITE, readback, restart probe rollback, conflict, and anti-leak
-  acceptance_state: release_proof_pending
+  acceptance_state: accepted
   acceptance:
   - public-safe evidence proves full typed READ without exposing restricted material
   - bounded lab WRITE is verified by READ and then restored by verified rollback

@@ -3,12 +3,12 @@
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
-Release-proof control: `release_proof_pending`
-Cruise phase: `M6_25_RELEASE_PROOF_PENDING`
-Current milestone: `M6_25_RELEASE_PROOF_PENDING`
-LAB acceptance state: `release_proof_pending`
-Selected batch: `MSP-0625-LAB`
-Accepted through: `M6.25 implementation published; LAB operational acceptance release proof pending; zero promoted leaves`
+Release-proof control: `released_chain_redeployed`
+Cruise phase: `MSP-065-LIVE-R1`
+Current milestone: `MSP-065-LIVE-R1`
+LAB acceptance state: `accepted`
+Selected batch: `MSP-065-LIVE-R1`
+Accepted through: `M6.25 LAB accepted/completed after released-chain redeploy; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 Successor unlocks: `only through the M6.25 and live-completion chain`
 Amendment: `M6.25 implementation state reconciliation`

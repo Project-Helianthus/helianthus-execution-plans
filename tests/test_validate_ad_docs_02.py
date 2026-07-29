@@ -24,6 +24,7 @@ spec.loader.exec_module(validator)
 
 class AdDocs02ValidatorTests(unittest.TestCase):
     def setUp(self) -> None:
+        self.plan = yaml.safe_load((PLAN / "plan.yaml").read_text(encoding="utf-8"))
         self.matrix = yaml.safe_load((PLAN / validator.MATRIX).read_text(encoding="utf-8"))
         self.integrity = json.loads((PLAN / validator.INTEGRITY).read_text(encoding="utf-8"))
 
@@ -220,7 +221,11 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                     self.row(self.matrix, row_id)["requires_completion_tokens"],
                     dependencies,
                 )
-        self.assertEqual(validator.readiness(self.matrix)["selected_batch"], ["MSP-0625-LAB"])
+        expected_batch = validator.release_proof_projection(
+            self.plan["lab_release_proof"]
+        )["selected_batch"]
+        self.assertEqual(validator.readiness(self.matrix)["selected_batch"], expected_batch)
+        self.assertEqual(self.plan["initial_ready_set"], expected_batch)
 
     def test_m625_release_proof_single_control_flip_selects_live_r1(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -247,11 +252,16 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             )
 
     def test_rejects_pending_split_brain_when_matrix_control_only_is_released(self) -> None:
-        plan = yaml.safe_load((PLAN / "plan.yaml").read_text(encoding="utf-8"))
-        matrix = copy.deepcopy(self.matrix)
-        matrix["lab_release_proof"] = "released_chain_redeployed"
-        with self.assertRaises(validator.ValidationError):
-            validator.validate_control_projection(plan, matrix, PLAN)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            validator.apply_release_proof_state(root, "release_proof_pending")
+            plan = yaml.safe_load((target / "plan.yaml").read_text(encoding="utf-8"))
+            matrix = yaml.safe_load((target / validator.MATRIX).read_text(encoding="utf-8"))
+            matrix["lab_release_proof"] = "released_chain_redeployed"
+            with self.assertRaises(validator.ValidationError):
+                validator.validate_control_projection(plan, matrix, target)
 
     def test_rejects_released_split_brain_when_plan_control_only_is_pending(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -533,8 +543,14 @@ class AdDocs02ValidatorTests(unittest.TestCase):
 
     def test_live_audit_is_current_integrity_projection(self) -> None:
         audit = validator.render_live_audit(self.matrix)
+        expected_batch = validator.release_proof_projection(
+            self.plan["lab_release_proof"]
+        )["selected_batch"]
         self.assertIn('"current_control"', audit)
-        self.assertIn('"selected_batch":["MSP-0625-LAB"]', audit)
+        self.assertIn(
+            '"selected_batch":' + json.dumps(expected_batch, separators=(",", ":")),
+            audit,
+        )
         self.assertIn(validator.PRE_M625_HISTORY_SHA256, audit)
         self.assertIn(
             "106-ad-docs-02-integrity.json is the immutable historical M5 record",
