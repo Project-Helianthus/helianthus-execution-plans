@@ -1393,14 +1393,15 @@ def validate_live_audit(matrix: dict[str, Any], text: str) -> None:
 def render_canonical_digest(canonical_text: str, existing_surface: str) -> str:
     """Regenerate one split surface's canonical digest without rewriting prose."""
     digest = hashlib.sha256(canonical_text.encode("utf-8")).hexdigest()
-    updated, count = re.subn(
-        r"Canonical-SHA256: `[0-9a-f]{64}`",
+    marker_pattern = r"Canonical-SHA256: `[0-9a-f]{64}`"
+    if len(re.findall(marker_pattern, existing_surface)) != 1:
+        fail("release proof: canonical digest marker missing or duplicated")
+    updated = re.sub(
+        marker_pattern,
         f"Canonical-SHA256: `{digest}`",
         existing_surface,
         count=1,
     )
-    if count != 1:
-        fail("release proof: canonical digest marker missing or duplicated")
     return updated
 
 

@@ -306,6 +306,31 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 plan["lab_release_proof"], "released_chain_redeployed"
             )
 
+    def test_release_projection_rejects_duplicate_canonical_digest_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            target = root / validator.PLAN
+            shutil.copytree(PLAN, target)
+            index = target / "01-index.md"
+            marker = re.search(
+                r"Canonical-SHA256: `[0-9a-f]{64}`",
+                index.read_text(encoding="utf-8"),
+            )
+            self.assertIsNotNone(marker)
+            index.write_text(
+                index.read_text(encoding="utf-8")
+                + f"\n{marker.group(0)}\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(
+                validator.ValidationError,
+                "canonical digest marker missing or duplicated",
+            ):
+                validator.apply_release_proof_state(
+                    root,
+                    "released_chain_redeployed",
+                )
+
     def test_rejects_released_split_brain_when_plan_control_only_is_pending(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
