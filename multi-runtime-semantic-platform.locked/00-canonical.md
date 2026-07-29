@@ -1,18 +1,18 @@
 # Helianthus Multi-Runtime Semantic Platform
 
-Revision: `v1.5-locked-amended`
-Date: `2026-07-29`
+Revision: `v1.6-locked-amended`
+Date: `2026-07-30`
 Status: `Locked`
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-065-LIVE-R1`
-Current milestone: `MSP-065-LIVE-R1`
+Cruise phase: `MSP-0625-S13-DOCS`
+Current milestone: `MSP-0625-S13-DOCS`
 LAB acceptance state: `accepted`
-Selected batch: `MSP-065-LIVE-R1`
-Accepted through: `M6.25 LAB accepted/completed after released-chain redeploy; zero promoted leaves`
+Selected batch: `MSP-0625-S13-DOCS`
+Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
-Amendment count: `8`
-Amendment: `M6.25 implementation state reconciliation`
+Amendment count: `9`
+Amendment: `M6.25 bounded SPINE 1.3 erratum`
 Dirty rescue candidate: `false`
 Successor unlocks: `only through the M6.25 and live-completion chain`
 Baseline: `Gateway 0.4.0`
@@ -46,7 +46,7 @@ external eBUS proxy. This plan starts from that baseline and generalizes the
 architecture so that eBUS, eeBUS, Modbus, CAN, UART, and KM-Bus families can
 coexist without forcing one protocol's assumptions into another.
 
-This locked plan records five accepted adversarial rounds plus seven control
+This locked plan records five accepted adversarial rounds plus nine control
 plane amendments. M0-M6 history remains valid and M5/M6 are complete. The
 forward-only M6.25 amendment closes the gap between live topology and canonical
 typed SPINE function-data acquisition. Its append-only mutation correction
@@ -58,7 +58,14 @@ Successor record 122 reconciles the published PLAN, DOCS-E, SPINE, EEBUS,
 REG-EXEC, REG-MUT, GW-ROUTER, GW-MCP, and DOCS-P rows without changing any
 completion-token edge. LAB used terminal quarantine and claims neither
 automatic rollback nor mutable-leaf promotion. The generated release-proof
-projection above is authoritative for current LAB state and selected batch.
+projection above is authoritative for current LAB state.
+
+Successor record 123 preserves that accepted base LAB and its
+`released_chain_redeployed` proof while holding stable-MCP/M6.25 final closure
+for a bounded SPINE 1.3 erratum. Its strict issue/token chain is DOCS -> SPINE
+-> EEBUS -> REG -> GW-LAB. The new DOCS row is current and initially ready;
+only the final GW-LAB token is appended to the existing `MSP-065-LIVE-R1`
+predecessors.
 
 The first extension target is raw eeBUS visibility for the
 VR940f/myVaillant gateway through a new `helianthus-eebusreg` repo. The repo
@@ -509,6 +516,26 @@ coordinator, fail-closed gateway capability assertion, and distinct
 authorized. The M6.25 DAG and exact five tool names remain unchanged; no v2,
 legacy, `candidate_ref`, or consumer promotion is added. docs-eebus issue #78
 gates eebusreg issue #85.
+
+#### M6.25 Bounded SPINE 1.3 Erratum
+
+Record 123 adds only
+`MSP-0625-S13-DOCS -> MSP-0625-S13-SPINE ->
+MSP-0625-S13-EEBUS -> MSP-0625-S13-REG ->
+MSP-0625-S13-GW-LAB`. The DOCS row requires accepted `MSP-0625-LAB` plus
+completed `MSP-0625-DOCS-P`; the final GW-LAB token is an additional
+predecessor of `MSP-065-LIVE-R1`.
+
+The public baseline is 49 declared READs, 26 successes, and 23 failures, bound
+only by the declarations, targets, and result-table hashes in record 123. No
+raw identity is published. Scope is limited to SPINE 1.3 value-type and
+function-data corrections pinned there; `9970150` key/update-engine changes,
+duplicate cherry-picks, a wholesale upstream `dev` merge, and SPINE 1.4 are
+excluded.
+
+The exact five M6.25 tool suffixes, no-write stop, owner-local raw/public
+redaction boundary, and `candidate_ref` prohibition remain unchanged. Erratum
+execution is READ-only and authorizes no new mutation or consumer surface.
 
 ### M6.5 - Synchronized Evidence Recorder
 

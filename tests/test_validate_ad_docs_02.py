@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import importlib.util
 import json
 import re
@@ -198,8 +199,8 @@ class AdDocs02ValidatorTests(unittest.TestCase):
         self.row(document, "MSP-05B")["requires_completion_tokens"] = ["MSP-05A"]
         self.rejects_matrix(document)
 
-    def test_m625_dag_and_live_chain_are_exact(self) -> None:
-        expected = {
+    def test_m625_old_edges_remain_exact_and_erratum_chain_is_additive(self) -> None:
+        old_edges = {
             "MSP-0625-PLAN": ["MSP-06"],
             "MSP-0625-DOCS-E": ["MSP-0625-PLAN"],
             "MSP-0625-SPINE": ["MSP-0625-DOCS-E"],
@@ -210,24 +211,49 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "MSP-0625-GW-MCP": ["MSP-0625-GW-ROUTER"],
             "MSP-0625-LAB": ["MSP-0625-GW-MCP"],
             "MSP-0625-DOCS-P": ["MSP-0625-DOCS-E"],
-            "MSP-065-LIVE-R1": ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
             "MSP-07-LIVE-R1": ["MSP-065-LIVE-R1"],
             "MSP-08-LIVE-R1": ["MSP-07-LIVE-R1"],
             "MSP-085-LIVE-R1": ["MSP-08-LIVE-R1"],
         }
-        for row_id, dependencies in expected.items():
+        for row_id, dependencies in old_edges.items():
             with self.subTest(row_id=row_id):
                 self.assertEqual(
                     self.row(self.matrix, row_id)["requires_completion_tokens"],
                     dependencies,
                 )
+        new_chain = {
+            "MSP-0625-S13-DOCS": ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
+            "MSP-0625-S13-SPINE": ["MSP-0625-S13-DOCS"],
+            "MSP-0625-S13-EEBUS": ["MSP-0625-S13-SPINE"],
+            "MSP-0625-S13-REG": ["MSP-0625-S13-EEBUS"],
+            "MSP-0625-S13-GW-LAB": ["MSP-0625-S13-REG"],
+        }
+        for row_id, dependencies in new_chain.items():
+            with self.subTest(row_id=row_id):
+                self.assertEqual(
+                    self.row(self.matrix, row_id)["requires_completion_tokens"],
+                    dependencies,
+                )
+        live_predecessors = self.row(
+            self.matrix, "MSP-065-LIVE-R1"
+        )["requires_completion_tokens"]
+        self.assertEqual(
+            live_predecessors[:2],
+            ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
+        )
+        self.assertEqual(live_predecessors[2:], ["MSP-0625-S13-GW-LAB"])
         expected_batch = validator.release_proof_projection(
             self.plan["lab_release_proof"]
         )["selected_batch"]
+        self.assertEqual(expected_batch, ["MSP-0625-S13-DOCS"])
         self.assertEqual(validator.readiness(self.matrix)["selected_batch"], expected_batch)
         self.assertEqual(self.plan["initial_ready_set"], expected_batch)
+        self.assertEqual(
+            self.matrix["serialization"]["initial_ready_set"],
+            expected_batch,
+        )
 
-    def test_m625_release_proof_single_control_flip_selects_live_r1(self) -> None:
+    def test_m625_released_lab_proof_is_preserved_while_erratum_docs_is_selected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             shutil.copytree(PLAN, root / validator.PLAN)
@@ -237,31 +263,35 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             matrix = yaml.safe_load((root / validator.PLAN / validator.MATRIX).read_text())
             validator.validate_control_projection(plan, matrix, root / validator.PLAN)
             self.assertEqual(plan["lab_release_proof"], "released_chain_redeployed")
-            self.assertEqual(plan["current_milestone"], "MSP-065-LIVE-R1")
-            self.assertEqual(plan["cruise_phase"], "MSP-065-LIVE-R1")
-            self.assertEqual(plan["initial_ready_set"], ["MSP-065-LIVE-R1"])
-            self.assertEqual(matrix["current_milestone"], "MSP-065-LIVE-R1")
-            self.assertEqual(matrix["cruise_phase"], "MSP-065-LIVE-R1")
+            self.assertEqual(plan["current_milestone"], "MSP-0625-S13-DOCS")
+            self.assertEqual(plan["cruise_phase"], "MSP-0625-S13-DOCS")
+            self.assertEqual(plan["initial_ready_set"], ["MSP-0625-S13-DOCS"])
+            self.assertEqual(matrix["current_milestone"], "MSP-0625-S13-DOCS")
+            self.assertEqual(matrix["cruise_phase"], "MSP-0625-S13-DOCS")
             self.assertEqual(
                 self.row(matrix, "MSP-0625-LAB")["acceptance_state"],
                 "accepted",
             )
             self.assertEqual(
                 validator.readiness(matrix)["selected_batch"],
-                ["MSP-065-LIVE-R1"],
+                ["MSP-0625-S13-DOCS"],
             )
 
-    def test_rejects_pending_split_brain_when_matrix_control_only_is_released(self) -> None:
+    def test_rejects_attempt_to_reset_released_lab_proof(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             target = root / validator.PLAN
             shutil.copytree(PLAN, target)
-            validator.apply_release_proof_state(root, "release_proof_pending")
-            plan = yaml.safe_load((target / "plan.yaml").read_text(encoding="utf-8"))
-            matrix = yaml.safe_load((target / validator.MATRIX).read_text(encoding="utf-8"))
-            matrix["lab_release_proof"] = "released_chain_redeployed"
             with self.assertRaises(validator.ValidationError):
-                validator.validate_control_projection(plan, matrix, target)
+                validator.apply_release_proof_state(
+                    root, "release_proof_pending"
+                )
+            plan = yaml.safe_load(
+                (target / "plan.yaml").read_text(encoding="utf-8")
+            )
+            self.assertEqual(
+                plan["lab_release_proof"], "released_chain_redeployed"
+            )
 
     def test_rejects_released_split_brain_when_plan_control_only_is_pending(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -307,6 +337,57 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "promotes no mutable leaf",
             "SHIP -> eebusreg -> gateway",
             "non-DAG hardening only",
+        ):
+            self.assertIn(fragment, text)
+
+    def test_m625_s13_issue_baseline_and_provenance_contracts_are_exact(self) -> None:
+        for row_id, issue_ref in zip(
+            validator.M625_S13_IDS,
+            validator.M625_S13_ISSUE_CHAIN,
+            strict=True,
+        ):
+            self.assertEqual(self.row(self.matrix, row_id)["issue_ref"], issue_ref)
+        self.assertEqual(
+            self.row(self.matrix, "MSP-0625-S13-DOCS")["public_baseline"],
+            validator.M625_S13_PUBLIC_BASELINE,
+        )
+        self.assertEqual(
+            self.row(self.matrix, "MSP-0625-S13-SPINE")["scope_provenance"],
+            validator.M625_S13_SCOPE_PROVENANCE,
+        )
+        mutations = (
+            lambda document: self.row(
+                document, "MSP-0625-S13-DOCS"
+            )["public_baseline"].__setitem__("success", 27),
+            lambda document: self.row(
+                document, "MSP-0625-S13-SPINE"
+            )["scope_provenance"]["excluded"].remove("SPINE 1.4"),
+            lambda document: self.row(
+                document, "MSP-0625-S13-REG"
+            ).__setitem__(
+                "issue_ref",
+                "Project-Helianthus/helianthus-eebusreg#104",
+            ),
+        )
+        for mutate in mutations:
+            with self.subTest(mutate=mutate):
+                document = copy.deepcopy(self.matrix)
+                mutate(document)
+                self.rejects_matrix(document)
+
+    def test_m625_s13_successor_preserves_safety_and_surface_boundaries(self) -> None:
+        text = " ".join(
+            (PLAN / validator.M625_S13_SUCCESSOR)
+            .read_text(encoding="utf-8")
+            .split()
+        )
+        for fragment in (
+            "Erratum execution is READ-only",
+            "no-write stop remains",
+            "`candidate_ref` remains prohibited",
+            "Owner-local raw access and public redacted output remain separate",
+            "No raw identity",
+            "SPINE 1.4",
         ):
             self.assertIn(fragment, text)
 
@@ -556,6 +637,15 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "106-ad-docs-02-integrity.json is the immutable historical M5 record",
             audit,
         )
+
+    def test_immutable_100_and_106_artifacts_are_byte_unchanged(self) -> None:
+        validator.validate_immutable_active_files(PLAN)
+        for name, expected in validator.IMMUTABLE_ACTIVE_SHA256.items():
+            with self.subTest(name=name):
+                self.assertEqual(
+                    hashlib.sha256((PLAN / name).read_bytes()).hexdigest(),
+                    expected,
+                )
 
     def test_current_state_evidence_is_canonical_and_restricted_field_free(self) -> None:
         path = PLAN / "120-w30-26-current-state-evidence.json"
@@ -874,6 +964,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "120-w30-26-current-state-evidence.json",
                 "121-w31-26-m625-raw-mutation-contract-correction.md",
                 "122-w31-26-m625-implementation-state-reconciliation.md",
+                "123-w31-26-m625-spine-13-erratum.md",
             ),
         )
         self.assertEqual(

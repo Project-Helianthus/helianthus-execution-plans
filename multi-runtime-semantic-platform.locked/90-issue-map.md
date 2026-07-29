@@ -4,14 +4,14 @@ Status: `Locked`
 Baseline: `Gateway 0.4.0`
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-065-LIVE-R1`
-Current milestone: `MSP-065-LIVE-R1`
+Cruise phase: `MSP-0625-S13-DOCS`
+Current milestone: `MSP-0625-S13-DOCS`
 LAB acceptance state: `accepted`
-Selected batch: `MSP-065-LIVE-R1`
-Accepted through: `M6.25 LAB accepted/completed after released-chain redeploy; zero promoted leaves`
+Selected batch: `MSP-0625-S13-DOCS`
+Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 Successor unlocks: `only through the M6.25 and live-completion chain`
-Amendment: `M6.25 implementation state reconciliation`
+Amendment: `M6.25 bounded SPINE 1.3 erratum`
 
 This map preserves historical evidence and adds the M6.25/live-completion rows
 without rewriting M0-M6. One active PR per repo remains mandatory.
@@ -44,6 +44,9 @@ complete projection for review.
 ## Hard Blockers
 
 - The generated release-proof projection is the sole current dispatch authority.
+- Base M6.25 LAB remains accepted and
+  `lab_release_proof=released_chain_redeployed` remains unchanged.
+- Stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum.
 - M6 topology and live counts do not prove canonical typed feature-data
   acquisition.
 - Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` closure cannot
@@ -66,6 +69,28 @@ complete projection for review.
 | MSP-0625-GW-MCP | `helianthus-ebusgateway` | Register the exact five M6.25 tool suffixes | completed_published |
 | MSP-0625-LAB | `helianthus-docs-eebus` | Public-safe live acquisition/mutation/rollback evidence | see release-proof projection |
 | MSP-0625-DOCS-P | `helianthus-docs-ebus` | Thin public methodology cross-seed | completed_published |
+
+## M6.25 SPINE 1.3 Erratum Rows
+
+| ID | Issue | Purpose | State |
+| --- | --- | --- | --- |
+| MSP-0625-S13-DOCS | `helianthus-docs-eebus#96` | Freeze bounded SPINE 1.3 scope and 49/26/23 public READ baseline | current and initial ready |
+| MSP-0625-S13-SPINE | `helianthus-spine-go#15` | Apply only pinned value-type and function-data corrections | proposed |
+| MSP-0625-S13-EEBUS | `helianthus-eebus-go#23` | Adopt corrected SPINE 1.3 types in existing exact READ execution | proposed |
+| MSP-0625-S13-REG | `helianthus-eebusreg#103` | Preserve DTO/JCS/binding contracts for corrected READ results | proposed |
+| MSP-0625-S13-GW-LAB | `helianthus-ebusgateway#762` | Integrate and prove aggregate READ outcomes with zero mutation | proposed |
+
+The issue chain is strict in table order. The DOCS row requires accepted
+`MSP-0625-LAB` plus completed `MSP-0625-DOCS-P`. The final GW-LAB token is the
+only predecessor appended to existing row `MSP-065-LIVE-R1`; all old edges and
+both old LIVE-R1 predecessors remain exact.
+
+The exact five M6.25 tool suffixes, fail-closed no-write stop,
+`candidate_ref` prohibition, and owner-local raw/public-redacted boundary
+remain unchanged. Public evidence contains only aggregate counts and the three
+commitments in record 123, never raw identity. SPINE 1.4, upstream `dev`
+wholesale merge, `9970150` key/update-engine changes, and duplicate
+`9f07e2a`/`06d9bf0` cherry-picks are excluded.
 
 The append-only correction is tracked by
 [`helianthus-execution-plans#82`](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/82).
