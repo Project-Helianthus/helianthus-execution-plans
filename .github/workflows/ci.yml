@@ -22,6 +22,14 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      - name: Checkout exact FMV3 docs candidate
+        uses: actions/checkout@v4
+        with:
+          repository: Project-Helianthus/helianthus-docs-ebus
+          ref: 0dd470495ac69a3a7f30ec235dd0bb83977a99ad
+          path: .ci/fmv3-docs-candidate
+          fetch-depth: 1
+
       - name: Fetch aggregate review evidence history
         run: git fetch --no-tags origin +refs/pull/66/head:refs/remotes/origin/evidence/aggregate
 
@@ -39,6 +47,7 @@ jobs:
         run: ./scripts/validate_plans_repo.sh
         env:
           GH_TOKEN: ${{ github.token }}
+          FMV3_DOCS_CANDIDATE_ROOT: ${{ github.workspace }}/.ci/fmv3-docs-candidate
 
   modbus-m1-02-remote-attestation:
     if: >-

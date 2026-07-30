@@ -7,8 +7,8 @@ have different readiness.
 | Milestone | Depends on | Entry | Exit | Parallelism |
 |---|---|---|---|---|
 | M0 | - | Draft reviewed enough to identify owners | `.github` creates four repos, then four destination bootstraps and boundary docs complete | Docs can run separately; destination bootstraps wait for governance creation |
-| M1 | M0 | Modbus bootstrap and M0 boundary docs complete | FMV3-M1-00 fixes existing operations/recovery/coalescing; after M1-04, M1-05 docs then M1-06 hosted RED/GREEN implement OPAQUE_RUNTIME_ACQUISITION_V1 with fresh review | Original history stays intact; the corrective docs issue precedes code, and absent RTU hardware blocks no TCP work |
-| M2 | M0 | Modbusreg bootstrap, merged FMV3-M1-00, merged M1-06, and exact full-SHA consumer pin | Shared bounded attempt ledger, duplicate-key rejection, sealed immutable Publish(), runtime/fixture trust split, exact normalization round-trip, logical-view provenance, detector/qualification/coherence conformance | M2-01 retains M1-00 and adds M1-05 corrective companion metadata; hosted RED/GREEN and fresh review are mandatory |
+| M1 | M0 | Modbus bootstrap and M0 boundary docs complete | FMV3-M1-00 fixes existing operations/recovery/coalescing; after M1-04, M1-05 docs PR #386 exact bound R2 head/tree merge precedes M1-06 hosted RED/GREEN with fresh review | Original history stays intact; the corrective docs issue precedes code, and absent RTU hardware blocks no TCP work |
+| M2 | M0 | Modbusreg bootstrap, merged FMV3-M1-00, merged M1-06, external full-SHA canonical-main/PR/issue evidence, and exact docs R2 binding | Independent ledger adds claim_in_progress/cancelling, all runtime claims succeeded before seal, CancelOpen linearization, byte/field bounds, reserved non-wrapping terminal sequences, finite-positive limits and checked product; one-shot immutable Publish(); non-reconstructing reclamation; runtime/fixture trust; exact normalization/provenance/conformance | M2-01 retains M1-00 and adds M1-05 corrective companion metadata; hosted RED/GREEN and fresh review are mandatory |
 | M3 | M2 | M2 contracts plus M1 TCP runtime available | M3-01 companion evidence and minimal SunSpec precede public STANDARD_ONLY or qualified OVERLAY_REQUIRED; either releases M4 | STANDARD_ONLY has green conformance CI and no implementation commit/empty overlay; overlay-only TDD is conditional |
 | M4 | M3 | Fronius profile and TCP runtime pass | Gateway boundary/raw MCP/recovery pass; M4-04 records GO and M4-05 packages it before M5 | NO_GO/STOP is evidence, not progress; add-on recovery can develop alongside raw MCP |
 | M5 | M4 | M4-04 GO plus completed M4-05 evidence exists | M5-02 docs -> M5-01 semantic contract -> M5-04 candidate semantic MCP golden/live proof -> M5-03 exact-version lock GO -> M5-09 PUBLIC_GRAPHQL_M2M_V1 docs -> GraphQL, Portal, HA, and packaged proof | M5-04 is outside CG-M5-SEMANTIC-GO; M5-03 GO gates M5-09/later only, and the two docs issues remain serialized |
@@ -22,7 +22,7 @@ have different readiness.
 M0 .github creation -> modbus/modbusreg destination bootstrap
   -> M1/M2 original public companion docs -> protocol + TCP full-transmit response-wait/tombstone correlation
   -> M1-04 -> M1-05 OPAQUE_RUNTIME_ACQUISITION_V1 docs -> M1-06 hosted RED/GREEN + fresh review
-  -> M2-01 full producer-SHA pin -> bounded sealed attempt ledger + runtime/fixture trust -> remaining M2 contracts
+  -> M2-01 full producer-SHA pin -> all-retained-state finite-positive bounds + checked product + exact terminal lifecycles + sealed cancellation + one-shot Publish + terminal-sequence non-reconstructing reclamation + runtime/fixture trust -> remaining M2 contracts
   -> M3 minimal SunSpec -> Fronius STANDARD_ONLY or qualified OVERLAY_REQUIRED
   -> M4 gateway-local adapter -> raw MCP -> real-device GO + packaged evidence
   -> M5 canonical docs -> semantic code -> candidate semantic MCP golden/live proof -> exact-version lock GO -> PUBLIC_GRAPHQL_M2M_V1 docs -> confidential GraphQL implementation -> Portal -> HA -> packaged external rejection/proof
@@ -53,5 +53,5 @@ Corrective gate mirror:
 
 | Gate | Required predecessor | Blocked issue |
 |---|---|---|
-| PG-OPAQUE-ACQUISITION-DOC-GATE | FMV3-M1-05 merged after M1-04, exact docs head fresh-reviewed | FMV3-M1-06 |
-| PG-OPAQUE-ACQUISITION-CONSUMER-PIN | FMV3-M1-06 merged after hosted RED/GREEN and fresh review; consumer pins full merged SHA | FMV3-M2-01 |
+| PG-OPAQUE-ACQUISITION-DOC-GATE | FMV3-M1-05 merged after M1-04; docs PR #386 exact bound R2 head/tree merged | FMV3-M1-06 |
+| PG-OPAQUE-ACQUISITION-CONSUMER-PIN | FMV3-M1-06 merged after hosted RED/GREEN and fresh review; external JSON proves full merge SHA on canonical main plus exact PR/issue relationship | FMV3-M2-01 |

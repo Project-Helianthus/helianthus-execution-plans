@@ -1,6 +1,6 @@
 # Roadmap gates and risks
 
-Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
+Canonical-SHA256: `1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f`
 
 Depends on: Chunks 10-12 and the issue DAG in `plan.yaml`.
 Scope: Milestone grouping, critical path, TDD, documentation and transport gates, hardware classes, rollback/recovery, review, and stop/go decisions.
@@ -190,11 +190,21 @@ overlapping compatible reads must replay each view's exact words and provenance;
 cross-table, cross-authorization, cross-generation, and deadline-incompatible reads must
 not coalesce. FMV3-M1-00/M1-02 and M2-01/M2-03 mirror and mutate this contract.
 M1-05/M1-06 separately require one source-issued non-serializable capability per
-coalesced dependent, shared one-shot state across copies and endpoint recreation, and one
-winner for copied-view races. M2-01 owns the bounded shared attempt ledger, rejects
-duplicate `AttemptKey`, seals before `Publish()`, rejects mutable DTO publication, keeps
-offline fixtures at zero CAS with no production `sample_id`, and round-trips the full
-normalization record exactly.
+successfully correlated coalesced dependent. Private M1 state is shared only by copies of
+that capability, never an M2 ledger pointer; endpoint recreation/new acquisition always
+creates fresh independent state and cannot alias, remint, reset, or merge old state.
+Caller booleans and detached, cancelled, exceptional, malformed, failed, late/abandoned,
+uncorrelated, torn/incoherent, and all non-success acquisitions are excluded. Capability
+state moves `open` to `claimed|cancelled|failed|expired` and is synchronously reclaimed into
+a finite-positive non-reconstructing terminal-sequence tombstone ring. M2-01 owns an
+independent bounded ledger with the exact docs terminal claim outcomes, attempt transitions
+`open -> sealed|cancelled`, `sealed -> publishing|cancelled`, and
+`publishing -> published|publish_failed`, one-shot sealed-to-publishing `Publish()`, and
+deterministic synchronous reclamation. Finite-positive limits count every retained attempt
+and claim state, use a checked retained-attempt-limit times claim-limit product, and bound a
+non-reconstructing audit/tombstone ring with lowest-terminal-sequence-first eviction. It
+keeps offline fixtures at zero CAS with no
+production `sample_id` and round-trips the full normalization record exactly.
 
 RTU records exactly `PHYSICALLY_QUALIFIED` or `FIXTURE_ONLY_NO_HARDWARE` against
 `RTU_PHYSICAL_QUALIFICATION_V1`. Physical qualification requires adapter/transceiver
@@ -293,8 +303,8 @@ the shared runtime gate also fails.
 | Risk | Blocking evidence | Required response |
 |---|---|---|
 | Wrong profile or ambiguity | More than one eligible interpretation or incomplete identity | Fail closed; add evidence/fixture; do not promote |
-| Data corruption | FC03/FC04 alias, documentary off-by-one mapping, lossy normalization round-trip, physical wire/logical slice alias, incompatible coalescing, duplicate AttemptKey, mutable post-seal publication, wrong word/byte order or string packing/padding, mixed generation, torn multi-response sample, or conflated source/canonical state | Reject observation; repair wire-response/logical-view identity, shared bounded ledger/seal semantics, mutation coverage, normalization/coherence, versioned modbusreg codec/provenance, or ebusreg transition |
-| Endpoint starvation/correlation | Queue, fairness, deadline, reused/copy-raced acquisition capability, capability/attempt/claim bound exhaustion, same-socket tombstone reuse, tombstone exhaustion rollover, old-generation TCP frame, RTU late same-shape frame, failed bus-idle resynchronization, or reconnect failure | Disable endpoint; fix source-issued shared one-shot capability state, bounded ledger reclamation, scheduler, per-connection allocator/generation, or RTU quarantine/recovery before profile work |
+| Data corruption | FC03/FC04 alias, documentary off-by-one mapping, lossy normalization round-trip, physical wire/logical slice alias, incompatible coalescing, duplicate AttemptKey, undefined claim/attempt outcome, retryable or mutable post-seal publication, wrong word/byte order or string packing/padding, mixed generation, torn multi-response sample, or conflated source/canonical state | Reject observation; repair wire-response/logical-view identity, independent bounded ledger/lifecycle/seal semantics, mutation coverage, normalization/coherence, versioned modbusreg codec/provenance, or ebusreg transition |
+| Endpoint starvation/correlation | Queue, fairness, deadline, reused/copy-raced acquisition capability, endpoint recreation alias, capability/attempt/claim/audit-ring bound exhaustion, same-socket tombstone reuse, tombstone exhaustion rollover, old-generation TCP frame, RTU late same-shape frame, failed bus-idle resynchronization, or reconnect failure | Disable endpoint; fix source-private same-capability one-shot state, fresh-acquisition isolation, deterministic synchronous ledger reclamation, scheduler, per-connection allocator/generation, or RTU quarantine/recovery before profile work |
 | Huawei branch drift, unowned detector operation, unlicensed admission, or EMMA collision | Candidate needs a PDU outside FC03/FC04/FC2B-MEI0E, lacks public applicability, or EMMA could activate a profile | Enumerate every probe against the runtime allowlist; unsupported operations force non-admission, modbusreg cannot frame PDUs, packets stay public/licensed, and missing discrimination blocks auto-eligibility |
 | IP boundary breach | Public artifact needs restricted/private source | Quarantine artifact; rebuild clean evidence or stop profile |
 | External GraphQL or myVaillant incompatibility | Plaintext credential path, untrusted server identity, or the exact packaged GraphQL/eeBUS path cannot carry the same fresh post-run-start observation from an enabled qualified live Fronius endpoint to the accepted myVaillant observable | Fail closed; replay/cache/fixture/synthetic/simulator input cannot GO; disable private output and preserve the public contract and sanitized honest evidence |
@@ -328,8 +338,9 @@ round metadata records verdict, integration state, and exact ordered unique find
 the validator compares those lists to every accepted review table and requires `[]` for
 `NO_FINDINGS`.
 
-PR #89 is the post-lock corrective authorization anchor after merge; issue #88 is its
-non-authoritative tracking record. The amendment preserves all three epoch histories and
+PR #91 is the sole current post-lock corrective authorization anchor after merge; issue #90
+is its non-authoritative tracking record. PR #89 remains predecessor provenance only and
+has no authority for the corrected M1/M2 fields. The amendment preserves all three epoch histories and
 does not claim that epoch 3 R5 reviewed the new capability. Instead, the exact M1-05 docs
 head, M1-06 RED and GREEN heads, and M2-01 RED and GREEN heads each pass their own fresh
 independent OpenAI gate before merge, with all findings resolved or `NO_FINDINGS`.

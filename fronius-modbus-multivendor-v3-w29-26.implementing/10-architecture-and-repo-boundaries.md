@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
+Canonical-SHA256: `1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -35,7 +35,7 @@ Coverage: Decisions D01-D05, D07-D08, D11-D13; issues M0, M1, M2; risks R01-R03,
 |---|---|---|---|
 | Transport/runtime | `Project-Helianthus/helianthus-modbus` | TCP, RTU, endpoint owner, queues, fairness, coalescing, deadlines, cancellation, backoff, reconnect, limits, metrics, source-issued opaque one-shot acquisition capability | Vendor detection, register meaning, attempt publication, PV semantics, private bindings |
 | Modbus protocol | `Project-Helianthus/helianthus-modbus` | ADU/PDU types, FC03/FC04 register reads, FC2B/MEI0E Device Identification, exceptions, uninterpreted words/bytes, correlation | Signedness, scale, units, source validity, canonical values, writes in this plan |
-| Profile registry | `Project-Helianthus/helianthus-modbusreg` | Catalog, profile API, signedness/scale codecs, source-observation validity/timestamps, bounded shared attempt ledger, detector, fixtures, standard families, vendor overlays | Sockets, serial ownership, capability issuance, retries, canonical quality/freshness/IDs, consumers |
+| Profile registry | `Project-Helianthus/helianthus-modbusreg` | Catalog, profile API, signedness/scale codecs, source-observation validity/timestamps, independently owned bounded attempt ledger, detector, fixtures, standard families, vendor overlays | Sockets, serial ownership, capability issuance, retries, canonical quality/freshness/IDs, consumers |
 | Canonical semantics | `Project-Helianthus/helianthus-ebusreg` | Protocol-independent identity, quantities, quality, freshness, counters, versions, compatibility | Modbus addresses, vendor probes, endpoint lifecycle |
 | Gateway protocol adapter | `Project-Helianthus/helianthus-ebusgateway/internal/modbusadapter` | Implements the existing protocol-agnostic adapter interface, composes Modbus runtime/profile registry, converts to neutral gateway DTOs | Any second gateway Modbus importer, canonical policy, or new repository |
 | Public composition/API | Gateway core outside the local Modbus adapter | Configuration, adapter interface, raw MCP service, projection, semantic MCP, externally routable machine-to-machine GraphQL contract, Portal | Direct `modbus`/`modbusreg` imports, defining profile facts, canonical meaning locally, or raw registers in GraphQL |
@@ -85,14 +85,25 @@ M2 implementation. FMV3-M1-01 through FMV3-M1-04 and FMV3-M2-01 through FMV3-M2-
 carry `doc_gate: required` and `companion_issue: FMV3-M1-00`; each has direct or explicit
 acyclic dependency ancestry to the merged companion.
 
-PR #89 adds a successor lane without rewriting those contracts; issue #88 tracks its scope
-but is not authorization evidence. FMV3-M1-05 follows
-M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` in the public docs repository.
-FMV3-M1-06 depends explicitly on both M1-04 and M1-05. FMV3-M2-01 retains its M1-00
-companion metadata, records M1-05 as its corrective companion, depends on M1-06, and pins
-the full 40-character merged M1-06 SHA before RED. The docs head, test-only RED revisions,
-and implementation heads are each reviewed in fresh independent OpenAI contexts; unresolved
-findings block merge.
+PR #89 remains predecessor provenance for the successor lane. PR #91 becomes the sole
+current authorization anchor only after the fixed GitHub API proves its original base/head
+identity, one-parent squash topology, authorized merger, and tree equality with one unique
+unedited authorized-issuer external attestation. The attestation is created after the exact
+live head and before merge, binds its full SHA/tree, records `NO_FINDINGS`, and contains at
+least two unique fresh OpenAI reviewer run IDs. Issue #90 tracks scope but is not evidence.
+
+FMV3-M1-05 follows M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` in the public docs
+repository; it remains authorizable before docs merge. FMV3-M1-06 depends explicitly on
+both M1-04 and M1-05 and requires docs PR #386 merged with the exact bound head and tree.
+FMV3-M2-01 retains its M1-00 companion metadata, records M1-05 as its corrective companion,
+depends on M1-06, and accepts the producer only through an external fail-closed JSON file
+whose full merge SHA, canonical `helianthus-modbus` main ancestry, merged PR, and closed
+issue relationship all verify live. The exact docs R2 commit/tree, complete predecessor-inclusive
+normative closure, and expanded `bounded_values` projection are bound. They require
+claim-in-progress, cancelling, atomic all-success-before-seal, source-owned CancelOpen,
+byte/field bounds, and pre-reserved non-wrapping, non-reused terminal sequences. M1-06 and
+M2-01 still require docs PR #386 merged at that exact head/tree. Exact docs/code revisions
+require fresh independent OpenAI review with every finding resolved.
 
 ## Profile families
 
@@ -167,18 +178,37 @@ FC04 input sources at the same numeric offset are never equal identities. `sampl
 binds the exact response set admitted for one decode; validation/re-read responses remain
 in its coherence transcript and response/sample IDs are not reused across attempts.
 
-Runtime acquisition origin is carried by behavior, not by a forgeable serialized field.
-Only a deliverable runtime source issues an opaque non-serializable capability. Its
-one-shot compare-and-swap state is shared across capability value copies and endpoint
-recreation, so copied views racing the same capability produce exactly one winner.
-Coalescing never shares the capability itself: every dependent logical view receives an
-independent capability. Non-deliverable runtime acquisitions and offline fixtures receive
-none.
+Runtime acquisition origin is carried by behavior, not by a forgeable serialized field or
+caller boolean. Only the runtime source, after request-bound correlation proves successful
+data, an attached dependent, exact logical-slice validation, and coherent production,
+issues an opaque non-serializable capability. Private M1
+state is shared only across copies of that same capability and is never an M2 ledger
+pointer, so copied views racing it produce exactly one winner. Detached, cancelled,
+exceptional, malformed, failed, late/abandoned, uncorrelated, torn/incoherent, and all
+non-success acquisitions receive none. Coalescing never shares the capability itself:
+every dependent logical view receives an independent capability. Endpoint recreation and every new acquisition create fresh
+independent state even when visible identity or data match; no acquisition may alias,
+remint, reset, or merge a prior state. Existing capability state follows only its own
+acquisition/attempt lifecycle. Each capability moves once from `open` to `claimed`,
+`cancelled`, `failed`, or `expired`; source-synchronous reclamation precedes terminal
+return, uses source-assigned terminal sequence, and retains only finite-positive bounded,
+non-reconstructing terminal metadata with lowest-sequence-first eviction. Offline fixtures
+receive none.
 
-The M2 attempt ledger owns pointer state shared by every view of an attempt. Hard limits
-bound open attempts and claims per attempt; duplicate `AttemptKey` is rejected. The only
-publication path seals one immutable attempt set and then invokes `Publish()` from the
-sealed ledger state, with no mutable DTO accepted. Offline fixtures are explicitly
+The private M2 attempt ledger is independent of M1 capability state. Duplicate
+`AttemptKey` is rejected. Claim entries move `unresolved` to exactly one immutable terminal
+outcome: `claim_succeeded`, `capability_cancelled`, `capability_failed`,
+`capability_expired`, `claim_rejected_terminal`, or `attempt_cancelled`. Attempts permit
+`open -> sealed|cancelled`, `sealed -> publishing|cancelled`, and
+`publishing -> published|publish_failed`. `Publish()` is the one-shot
+`sealed -> publishing` transition, reads immutable sealed ledger state, and accepts no
+mutable DTO. Finite-positive limits count all retained attempt and claim states, claims per
+attempt, the checked retained-attempt-limit times claim-limit product, and the
+audit/tombstone ring; zero, negative, overflow, or inconsistency fails before activation.
+Reclamation is deterministic and synchronous on terminal/admission only for terminal state
+with no operation in progress or retained nonterminal reference, ordered by ledger-assigned
+terminal sequence. The ring stores non-reconstructing immutable terminal metadata and
+evicts the lowest sequence first. Offline fixtures are explicitly
 untrusted, execute zero capability CAS operations, and cannot mint a production
 `sample_id`. The versioned normalization record round-trips exactly, including unknown
 extension fields, rather than retaining only the normalized address.

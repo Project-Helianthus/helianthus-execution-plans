@@ -8,7 +8,7 @@ execution_authorization:
   scope: pre_gateway_transport_docs_registry
   scope_authority: authorized_issues_only
   selection_policy: fail_closed
-  preflight_enforcement: validate_plan.py --authorize-issue <ID>
+  preflight_enforcement: materialize authorization_anchor.tooling_binding.validator_path from --plan-head-sha, verify its anchored SHA-256, then execute it with --materialized-anchor-validator --authorize-issue <ID>
   milestone_labels_non_authoritative: [M0, M1, M2, M3]
   authorized_issues:
     - FMV3-M0-01
@@ -28,22 +28,100 @@ execution_authorization:
     - FMV3-M3-01
     - FMV3-M3-02
     - FMV3-M3-03
-  authorized_issue_contract_sha256: 13e3f2c1bf9551992ee56f2b00fa54594d73d41d22b7e189b12ff8cf32c22c60
+  authorized_issue_contract_sha256: 4a8350402fe07e90a75a0b761013fe0ac272cbb8deecfa8afc23d5bac19f1adf
   authorization_anchor:
     required: true
     record_type: github_merged_pr_v1
-    authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89
+    authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/91
+    predecessor_authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89
+    predecessor_role: provenance_only
     plan_repo: Project-Helianthus/helianthus-execution-plans
     plan_path: fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml
     authorized_issuer: d3vi1
     allowed_author_associations: [MEMBER, OWNER]
     merge_requirement: exact_pr_merge_commit_is_anchor_and_ancestor_of_origin_main
-    bind: [plan_head_sha, authorized_issue_contract_sha256, amendment_surfaces_sha256, authorized_issue]
-    added_issues: [FMV3-M1-05, FMV3-M1-06]
-    amended_issues: [FMV3-M2-01]
+    bind: [plan_head_sha, authorized_issue_contract_sha256, amendment_surfaces_sha256, authorized_issue, docs_candidate_binding, tooling_binding, pull_request_identity, external_review_attestation, issue_evidence_policy, accepted_decision_d13, m2_exit_gate]
+    corrected_issues: [FMV3-M1-05, FMV3-M1-06, FMV3-M2-01]
+    docs_candidate_binding:
+      repo: Project-Helianthus/helianthus-docs-ebus
+      pr: 386
+      pr_url: https://github.com/Project-Helianthus/helianthus-docs-ebus/pull/386
+      commit_sha: 0dd470495ac69a3a7f30ec235dd0bb83977a99ad
+      commit_tree_sha: 3ce278dfd1956bfcd62a5adaaced77ee81daef61
+      pull_request_identity:
+        number: 386
+        base_sha: 777954d1dea586409827116f2a0eb887ee5cd4f4
+        base_repo: Project-Helianthus/helianthus-docs-ebus
+        base_ref: main
+        head_repo: Project-Helianthus/helianthus-docs-ebus
+        head_ref: issue/385-opaque-runtime-acquisition
+      manifest_path: docs/platform/manifests/opaque-runtime-acquisition-v1.json
+      manifest_sha256: a221342201bf1fd005ff71694081561fff34b9b6b89346e09ac9097ce31a29c4
+      policy_path: docs/platform/opaque-runtime-acquisition-v1.md
+      policy_sha256: fd7110af13091cd391244dd5f2f8fa918d0f8606d6309a37144306aa87257c2f
+      normative_blobs:
+        .github/workflows/modbus-trusted-revision.yml: 229616e784d7735ff7bf2288a7986f170898b75a9fac5dffbfa1c499f6795b98
+        docs/platform/manifests/modbus-foundation-profile-contract-v1.json: c411e3e8a464e4b9d3a59d3f5a0c82b57e176e24dec9550b9bc0c8b3e4b28c70
+        docs/platform/manifests/opaque-runtime-acquisition-v1.json: a221342201bf1fd005ff71694081561fff34b9b6b89346e09ac9097ce31a29c4
+        docs/platform/modbus-foundation-profile-contract-v1.md: 1a53f203eed42766ac2d91580c41f72674b5eaea374a1cf4fff650396f06b196
+        docs/platform/modbus-multivendor-boundaries.md: b7edf9fc6073a441a638b392d6dfc92ea5851e2cf0b2080e09a46c395788480c
+        docs/platform/opaque-runtime-acquisition-v1.md: fd7110af13091cd391244dd5f2f8fa918d0f8606d6309a37144306aa87257c2f
+        docs/platform/schemas/modbus-companion-consumer-lock-v1.schema.json: 369a724954d21614d71fd970c8b6224d8c892af8870819cbef159619acce4ad0
+        protocols/modbus/modbus-phase-one-wire-v1.md: b941a60b39409c570f904f8e6830787203f8041c2fee462164c4c50c7a8f4444
+        scripts/validate_modbus_companion.py: cad2fe98a6c144d43bb5207c99ea054779d0f843f84eec3c29e19872fd7864ff
+        scripts/validate_modbus_revision_transition.py: 8a024501ecd3c9e89bec049c7bf7d0ffbbc143a8f0128aba56741b361ada6d3b
+        scripts/validate_opaque_runtime_acquisition.py: 58f1a9ba94b23396f648a33458d82b3d3a76a95b5f507aeafcd0422b2fd19bfc
+      machine_projection_fields: [schema, version, contract_id, contract_version, content_revision, source_kind, opaque_capability, m2_ledger, normalization_record, bounded_values, public_authorization, zero_trust_boundary]
+      machine_projection_sha256: 46de71c72811907fd229577d1d56c803afbc9917c2bce4e97d17d29eaffcc157
+      machine_projection_without_bounded_values_sha256: 09c54701252002ba3ba7011640aa7734838f9d7dc732372318a7ab0d4b6c754d
+      r2_rebind:
+        status: BOUND_DOCS_R2
+        blocks_authorization_for: []
+        required_semantics: [claim_in_progress, cancelling, all_runtime_claims_succeeded_before_seal, CancelOpen_linearization, byte_and_field_bounds, reserved_non_wrapping_terminal_sequences]
+    tooling_binding:
+      validator_path: fronius-modbus-multivendor-v3-w29-26.implementing/validate_plan.py
+      validator_sha256: 98e088efeed4e5759e0b003665ec415778228613e3c1b5fe6292397c6c52e8a6
+      workflow_path: .github/workflows/ci.yml
+      workflow_sha256: 15fc3609d88978b5c88ce814b75cfab9dae5fa875738c0c93dbe290e761a1aad
+      authorization_execution: materialized_from_pr91_anchor
+    pull_request_identity:
+      number: 91
+      base_sha: 6fd2b4a8d181f5133250a0f2f1380d057254db60
+      base_repo: Project-Helianthus/helianthus-execution-plans
+      base_ref: main
+      head_repo: Project-Helianthus/helianthus-execution-plans
+      head_ref: issue/90-fmv3-capability-ledger-reconcile
+      merge_method: squash
+      merge_parent: exact_expected_original_base_sha
+      merged_by: authorized_issuer
+      reviewed_content: squash_merge_tree_equals_attested_pr_head_tree
+    external_review_attestation:
+      source: github_pr_issue_comment
+      tag: '<!-- helianthus-fmv3-pr91-external-review-attestation-v1 -->'
+      schema: helianthus.fmv3-pr91-external-review-attestation.v1
+      issuer: authorized_issuer
+      trusted_association: allowed_author_associations
+      edit_policy: created_at_equals_updated_at
+      timing: strictly_after_head_commit_and_before_merged_at
+      verdict: NO_FINDINGS
+      provider: openai
+      fresh_context: true
+      minimum_unique_reviewer_run_ids: 2
+      binds: [repository, pull_request, head_sha, head_tree_sha]
+    issue_evidence_policy:
+      FMV3-M1-05:
+        external_evidence: none_before_docs_merge
+      FMV3-M1-06:
+        requires: docs_pr_386_merged_at_exact_bound_candidate_head_and_tree
+      FMV3-M2-01:
+        cli: --authorization-evidence <external-json-file>
+        schema: helianthus.fmv3-issue-authorization-evidence.v1
+        producer_issue: FMV3-M1-06
+        producer_repository: Project-Helianthus/helianthus-modbus
+        requires: [full_40_character_merge_sha, canonical_main_ancestry, merged_pull_request, closed_issue_relationship]
     stop_before_issue: FMV3-M4-01
     gateway_work_authorized: false
-    amendment_surfaces_sha256: f492b2a3031989cef8e8d5b35437d7c79fcfa9b933f66c26d860f9b98f50a555
+    amendment_surfaces_sha256: ff168d7fd28535a7dedfe63564f615da1d84b8b24186f717880b59f5c5855eda
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]
@@ -69,7 +147,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: 5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba
+canonical_sha256: 1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0
@@ -253,7 +331,7 @@ decisions:
     decision: Every physical read response has a wire_response_id bound to its physical request/range, and every dependent logical observation has a linked logical_view_id plus exact slice identity; raw dependency identity also includes endpoint, unit, function/table, logical zero-based PDU offset/count, sample identity, and recorded documentary address normalization. Versioned modbusreg codec/provenance fields own multi-register word order, applicable intra-word byte order, string packing and padding, while profile-declared coherence rejects unrecoverable torn multi-response reads.
   - id: D13
     status: accepted
-    decision: FMV3-M1-05 documents and FMV3-M1-06 implements OPAQUE_RUNTIME_ACQUISITION_V1 as an additive successor to M1-04 before M2-01. Runtime sources alone issue non-serializable one-shot capabilities backed by shared state across value copies and endpoint recreation; offline fixtures and non-deliverable acquisitions receive no capability. M2-01 pins the merged M1-06 producer SHA, keeps runtime and fixture trust distinct, owns bounded attempt/claim state in a shared ledger pointer, seals an immutable attempt set before Publish(), and preserves the complete normalization record losslessly.
+    decision: FMV3-M1-05 documents and FMV3-M1-06 implements OPAQUE_RUNTIME_ACQUISITION_V1 as an additive successor to M1-04 before M2-01. A runtime source privately owns and issues each non-serializable one-shot capability only after all post-correlation successful-dependent deliverability conditions; only copies of that same capability share its state, and M1 state is never an M2 ledger pointer. Endpoint recreation and every new acquisition create fresh independent state even when visible identity or data match. Capability state moves open to claimed, cancelled, failed, or expired and is synchronously reclaimed by a pre-reserved terminal sequence into a finite-positive, byte-bounded, non-reconstructing tombstone ring. M2-01 pins the merged M1-06 producer SHA, keeps runtime and fixture trust distinct, and owns a separately bounded attempt/claim ledger across every retained state. The exact docs R2 binding requires unresolved claims to enter claim_in_progress before one immutable terminal result, open or sealed attempts to enter cancelling before cancelled, an atomic seal predicate in which every data-bearing runtime claim is claim_succeeded, runtime-source-owned CancelOpen linearized by exact bounded AttemptKey, explicit byte and field bounds validated before allocation, one-shot sealed-to-publishing Publish(), and pre-reserved nonzero uint64 terminal sequences that never wrap or reuse. Deterministic reclamation preserves only bounded non-reconstructing audit metadata and the complete normalization record round-trips losslessly within admitted bounds.
 
 milestones:
   - id: M0
@@ -263,11 +341,11 @@ milestones:
   - id: M1
     title: helianthus-modbus foundation
     depends_on: [M0]
-    exit_gate: The original bounded public Modbus companion remains merged and protocol core plus TCP/RTU conformance are green. After M1-04, FMV3-M1-05 must merge the OPAQUE_RUNTIME_ACQUISITION_V1 docs companion before strict hosted RED/GREEN implementation in M1-06; fresh independent review must accept the exact docs, RED, and GREEN revisions. RTU fixture conformance may close as default-disabled experimental FIXTURE_ONLY_NO_HARDWARE; only RTU_PHYSICAL_QUALIFICATION_V1 permits an enabled/supported RTU claim, and its absence blocks no TCP-sufficient work.
+    exit_gate: 'The original bounded public Modbus companion remains merged and protocol core plus TCP/RTU conformance are green. After M1-04, FMV3-M1-05 may be authorized before docs merge, but M1-06 requires docs PR #386 merged at its exact bound docs R2 head/tree before strict hosted RED/GREEN implementation; fresh independent review must accept the exact docs, RED, and GREEN revisions. RTU fixture conformance may close as default-disabled experimental FIXTURE_ONLY_NO_HARDWARE; only RTU_PHYSICAL_QUALIFICATION_V1 permits an enabled/supported RTU claim, and its absence blocks no TCP-sufficient work.'
   - id: M2
     title: helianthus-modbusreg framework
     depends_on: [M0]
-    exit_gate: The reused FMV3-M1-00 companion remains merged, and M2-01 starts only after M1-06 merges and the consumer pins its full 40-character producer SHA. Profile API, exact wire-response/logical-view/sample identity and provenance, runtime-versus-fixture trust, shared ledger-owned bounded attempt/claim state, duplicate AttemptKey rejection, sealed immutable publication, exact normalization round-trip, detector lifecycle, and conformance harness are stable under strict hosted RED/GREEN and fresh independent review.
+    exit_gate: The reused FMV3-M1-00 companion remains merged, and M2-01 starts only after M1-06 merges and external authorization evidence proves its full 40-character producer merge SHA on canonical helianthus-modbus main with the exact merged PR and closed issue relationship. The exact docs R2 head/tree binding requires claim_in_progress and cancelling states, an atomic all-data-bearing-runtime-claims-succeeded seal predicate, runtime-source-owned CancelOpen linearization by exact bounded AttemptKey, byte and field bounds validated before allocation, and pre-reserved nonzero uint64 terminal sequences that never wrap or reuse. Profile API, exact wire-response/logical-view/sample identity and provenance, runtime-versus-fixture trust, independently ledger-owned bounded attempt/claim state across all retained states, finite-positive limits with a checked retained-attempt-limit times claim-limit product, duplicate AttemptKey rejection, complete immutable-terminal lifecycles, one-shot sealed publication, deterministic synchronous terminal-sequence reclamation into a finite-positive byte-bounded non-reconstructing audit/tombstone ring, exact bounded normalization round-trip, detector lifecycle, and conformance harness are stable under strict hosted RED/GREEN and fresh independent review.
   - id: M3
     title: Minimal SunSpec family, Fronius applicability, and fixtures
     depends_on: [M2]
@@ -313,12 +391,12 @@ phase_gates:
     kind: dependency
     after_issues: [FMV3-M1-05]
     before_issues: [FMV3-M1-06]
-    requirement: The public OPAQUE_RUNTIME_ACQUISITION_V1 companion merges after M1-04 and before M1-06 code, defining source_kind runtime versus offline_fixture, source-issued non-serializable one-shot capability semantics, bounded attempt lifecycle, shared copy/recreation state, per-dependent coalesced capabilities, and lossless normalization. A fresh independent OpenAI review of the exact docs revision is a merge blocker.
+    requirement: 'The public OPAQUE_RUNTIME_ACQUISITION_V1 companion merges after M1-04 through docs PR #386 at the exact bound docs R2 head/tree before M1-06 code. That exact binding includes claim_in_progress and cancelling states, an atomic all-data-bearing-runtime-claims-succeeded seal predicate, runtime-source-owned CancelOpen linearization by exact bounded AttemptKey, byte and field bounds validated before allocation, and pre-reserved nonzero uint64 terminal sequences that never wrap or reuse. The source-kind, source-private capability, deliverability, copy sharing, fresh acquisition, bounded lifecycle, one-shot Publish, reclamation, coalescing, and normalization contract remains exact. Fresh independent OpenAI review blocks merge.'
   - id: PG-OPAQUE-ACQUISITION-CONSUMER-PIN
     kind: dependency
     after_issues: [FMV3-M1-06]
     before_issues: [FMV3-M2-01]
-    requirement: M2-01 cannot begin until M1-06 has merged, its exact full 40-character merge SHA is pinned and verified by the consumer, and the M1 hosted RED/GREEN plus fresh independent review evidence is closed.
+    requirement: M2-01 cannot begin until M1-06 has merged and an external authorization-evidence JSON file supplies its exact full 40-character merge SHA plus canonical helianthus-modbus issue and PR numbers. Fixed GitHub API evidence must prove canonical-main ancestry, the exact merged PR, and its closed issue relationship; M1 hosted RED/GREEN, fresh independent review, and the exact docs R2 binding must also verify.
   - id: PG-MODBUSREG-BOOT
     kind: dependency
     after_issues: [FMV3-M0-03]
@@ -418,13 +496,13 @@ risks:
     mitigation: Fail closed, preserve raw evidence, and require cross-profile ambiguity fixtures.
     stop_trigger: More than one eligible profile remains after bounded read-only probes.
   - id: R02
-    statement: Function/table aliasing, incorrect coalesced slicing, lossy normalization, duplicate AttemptKey, mutable post-seal publication, reuse of an abandoned TCP transaction ID, delivery of a late same-shape RTU response, wrong codec order/packing, mixed generations, torn samples, or conflated source/canonical state can corrupt values.
-    mitigation: Bind wire_response_id to the physical request/range and every logical observation to logical_view_id plus exact slice identity; use a shared bounded ledger that rejects duplicate keys and publishes only a sealed immutable attempt set; require exact normalization round-trip, reject incompatible coalescing, preserve write/response-wait recovery, keep protocol words uninterpreted, version codec interpretation/coherence, and leave canonical transitions to ebusreg.
-    stop_trigger: A replay cannot reproduce exact logical-view words/provenance and the full normalization record, incompatible reads coalesce, duplicate AttemptKey is accepted, Publish() accepts mutable state, a late response crosses identity, or a sample aliases FC03/FC04, mixes generations, or emits after an unvalidated torn read.
+    statement: Function/table aliasing, incorrect coalesced slicing, lossy normalization, duplicate AttemptKey, undefined claim/attempt outcome, retryable or mutable post-seal publication, reuse of an abandoned TCP transaction ID, delivery of a late same-shape RTU response, wrong codec order/packing, mixed generations, torn samples, or conflated source/canonical state can corrupt values.
+    mitigation: Bind wire_response_id to the physical request/range and every logical observation to logical_view_id plus exact slice identity; use an independently owned bounded ledger with complete immutable-terminal claim/attempt lifecycles, one-shot Publish(), and deterministic synchronous fixed-ring reclamation; require exact normalization round-trip, reject incompatible coalescing, preserve write/response-wait recovery, keep protocol words uninterpreted, version codec interpretation/coherence, and leave canonical transitions to ebusreg.
+    stop_trigger: A replay cannot reproduce exact logical-view words/provenance and the full normalization record, incompatible reads coalesce, duplicate AttemptKey is accepted, a lifecycle transition/outcome is undefined, Publish() accepts mutable state or retries, terminal state is unbounded, a late response crosses identity, or a sample aliases FC03/FC04, mixes generations, or emits after an unvalidated torn read.
   - id: R03
-    statement: Endpoint contention, incorrect connection-wide correlation, replayed or copy-raced acquisition capability, unbounded capability/attempt/claim state, tombstone exhaustion, RTU failure to quiesce, or reconnect storms can starve consumers or misdeliver responses.
-    mitigation: One endpoint owner, source-issued opaque one-shot capabilities with shared copy/recreation state and terminal reclamation, one MBAP allocator/map per connection across all units, socket-lifetime tombstones with controlled generation rollover, isolated bounded scheduling, and RTU fixture-only default-disabled experimental status until RTU_PHYSICAL_QUALIFICATION_V1 records adapter/transceiver, baud/topology, physical silent intervals, and timeout/cancellation quarantine.
-    stop_trigger: Tests exceed capability, attempt, claim, queue, or transport limits; more than one copied view wins; a coalesced dependent lacks its own capability; a tombstoned ID is reused; an old-generation frame is accepted; a logical slice is misdelivered; or RTU is claimed enabled/supported without the named physical qualification evidence.
+    statement: Endpoint contention, incorrect connection-wide correlation, replayed or copy-raced acquisition capability, endpoint recreation aliasing, unbounded capability/active-attempt/claim/terminal-audit state, tombstone exhaustion, RTU failure to quiesce, or reconnect storms can starve consumers or misdeliver responses.
+    mitigation: One endpoint owner; source-private source-issued opaque one-shot capabilities shared only across same-capability copies; fresh independent state for every endpoint recreation/new acquisition; independently bounded M2 ledger reclamation; one MBAP allocator/map per connection across all units; socket-lifetime tombstones with controlled generation rollover; isolated bounded scheduling; and RTU fixture-only default-disabled experimental status until RTU_PHYSICAL_QUALIFICATION_V1 records adapter/transceiver, baud/topology, physical silent intervals, and timeout/cancellation quarantine.
+    stop_trigger: Tests exceed capability, any active-attempt state, claim, terminal-audit, queue, or transport limits; more than one copied view wins; a new acquisition aliases/remints/resets/merges prior state; a coalesced dependent lacks its own capability; a tombstoned ID is reused; an old-generation frame is accepted; a logical slice is misdelivered; or RTU is claimed enabled/supported without the named physical qualification evidence.
   - id: R04
     statement: Operator-authored Huawei analysis may contain stale or branch-inapplicable conclusions.
     mitigation: Rebuild provenance, model, gateway, firmware-branch, and probe evidence; enumerate every detector operation against the runtime FC03/FC04/FC2B-MEI0E allowlist; inventory EMMA discriminators or mark unavailable while semantics remain deferred.
@@ -607,7 +685,7 @@ issues:
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M1-04]
     what: Publish the OPAQUE_RUNTIME_ACQUISITION_V1 companion contract before corrective runtime code.
-    acceptance: After M1-04, one public docs issue/PR defines source_kind as runtime or offline_fixture; only a deliverable runtime acquisition may receive a source-issued, opaque, non-serializable capability. It defines one-shot CAS backed by shared state across value copies and endpoint recreation, no capability for non-deliverable acquisitions or offline fixtures, one independent capability for every coalesced dependent, exactly one copied-view race winner, bounded capability/attempt/claim lifecycle, and a lossless versioned normalization record with exact round-trip. A fresh independent OpenAI review of the exact docs revision must close with all findings resolved or NO_FINDINGS before merge.
+    acceptance: Plan authorization for this docs issue does not require its PR to be merged; completion does. The exact bound docs R2 head/tree defines source_kind as runtime or offline_fixture. Only the runtime source, after request-bound correlation proves successful data, the dependent remains attached, its exact logical slice validates, and production is coherent, may issue an opaque non-serializable capability from private source-owned state shared solely by copies of that capability and never by an M2 ledger pointer. Caller booleans and every non-success acquisition receive no capability; offline fixtures remain zero-CAS with no production sample identity. Endpoint recreation and every new acquisition create fresh independent state regardless of visible identity or data and cannot alias, remint, reset, or merge prior state. Capability state moves once from open to claimed, cancelled, failed, or expired; runtime-source-owned CancelOpen uses the exact bounded AttemptKey and returns only after matching live operations and reclamation complete. Claims move unresolved to claim_in_progress before one immutable terminal result; cancellation moves open or sealed attempts through cancelling, drains in-progress claims, and closes only remaining unresolved claims; Seal atomically requires every data-bearing runtime claim to be claim_succeeded. Finite-positive byte and field limits validate before allocation, checked retained-state products cannot overflow, and capability, attempt, and claim terminal sequences are pre-reserved nonzero uint64 values that never wrap or reuse. Synchronous sequence-ordered reclamation retains only byte-bounded non-reconstructing tombstones, and normalization records round-trip exactly within admitted bounds. A fresh independent OpenAI review of the exact docs revision must close with all findings resolved or NO_FINDINGS before merge.
     gates: [doc_gate, licensing, data_integrity, fresh_adversarial_review]
     doc_gate: companion
     companion_for: [FMV3-M1-06, FMV3-M2-01]
@@ -615,26 +693,106 @@ issues:
     contract_sections: [opaque_single_use_runtime_acquisition_capability, source_kind_runtime_vs_offline_fixture, source_issued_deliverability, attempt_lifecycle_and_bounds, copied_view_and_endpoint_recreation_cas, per_coalesced_dependent_capability, lossless_normalization]
     source_kind_contract:
       allowed: [runtime, offline_fixture]
-      runtime_trust: capability_required_for_delivery
-      offline_fixture_trust: untrusted_no_capability
+      runtime:
+        capability: required_for_delivery
+        deliverability:
+          authority: runtime_source_owned
+          caller_control: forbidden
+          excluded_outcomes: [detached_dependent, cancelled_dependent, protocol_exception, malformed_response, transport_or_dependent_failure, late_or_abandoned_response, uncorrelated_frame, torn_or_incoherent_production, any_non_success_outcome]
+          predecessor_contract: docs/platform/modbus-foundation-profile-contract-v1.md#physical-and-logical-identity
+          production_stage: post_correlation_successful_dependent_production
+          reconstruction: forbidden
+          required_conditions: [request_bound_wire_response_id, wire_outcome_successful_data, dependent_still_attached, exact_logical_slice_validated, coherent_production]
+          serialization: forbidden
+        issuer: runtime_source
+        issue_condition: deliverable_runtime_acquisition_only
+      offline_fixture: {capability: forbidden, capability_cas_calls: 0, production_sample_id: forbidden, trust: untrusted}
     opaque_runtime_acquisition_contract:
-      representation: opaque_non_serializable
-      issuer: runtime_source
-      issue_condition: deliverable_runtime_acquisition_only
-      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
-      consumption: one_shot_compare_and_swap
-      state_owner: source_issued_shared_ledger_pointer
-      value_copy_semantics: shared_state
-      endpoint_recreation_semantics: shared_state
+      attempt_binding:
+        cancel_open:
+          capability_effect: still_open_to_cancelled_terminal_unchanged
+          ledger_mutation: forbidden
+          lookup: exact_bounded_AttemptKey_only
+          owner: runtime_source
+          return: after_all_matching_live_operations_and_reclamation_complete
+        claim_path_after_m2_admission: ledger_linearization_required
+        key: immutable_exact_source_owned_AttemptKey
+        source_operation: CancelOpen(AttemptKey)
+      bounded_state:
+        capabilities: endpoint_configured_hard_limit
+        terminal_reclamation: required
+        terminal_sequence:
+          domain: uint64_1_to_2^64_minus_1
+          exhaustion: reject_new_capability_preserve_existing_termination
+          reservation: one_before_capability_admission_or_allocation
+          reuse: forbidden_within_owner_lifetime_including_after_reclamation
+          wrap: forbidden_checked_arithmetic
+        tombstone:
+          additional_fields: forbidden
+          count_bound: capability_tombstone_limit_finite_positive
+          eviction: lowest_reserved_terminal_sequence_first
+          fields: [schema_version, terminal_sequence, terminal_outcome]
+          forbidden_payloads: [raw_attempt_key, source_evidence_id, normalization_record, evidence_payload, capability_representation, free_form_diagnostic]
+          max_encoded_bytes: capability_tombstone_max_encoded_bytes_finite_positive
+          schema_version: 1
+          terminal_outcome: [claimed, cancelled, failed, expired]
+          terminal_sequence: reserved_uint64_nonzero
       coalesced_dependents: independent_capability_per_dependent
       copied_view_race: exactly_one_winner
+      endpoint_recreation:
+        eligible_new_acquisition: fresh_independent_capability_state
+        existing_capability_lifecycle: own_acquisition_or_attempt_only
+        forbidden_prior_capability_actions: [alias, remint, reset, merge]
+        security_identity: source_issued_acquisition_capability_not_endpoint_identity
+        visible_identity_or_data_match: irrelevant
+      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
+      issued_lifecycle:
+        initial: open
+        legal_transitions: [open_to_claimed, open_to_cancelled, open_to_failed, open_to_expired]
+        non_issuance: no_capability_outside_lifecycle
+        reclamation:
+          caller_terminal_wrappers: immutable_non_owning_not_source_tracked
+          mode: source_deterministic_synchronous_before_terminal_return
+          order: admission_reserved_terminal_sequence
+        retry: forbidden
+        terminal: [claimed, cancelled, failed, expired]
+        terminal_immutable: true
+      representation: opaque_non_serializable
+      state_owner: source_owned_shared_capability_state
       terminal_reuse: forbidden
-      bounded_state: {capabilities: endpoint_configured_hard_limit, open_attempts: consumer_configured_hard_limit, claims_per_attempt: dependency_set_hard_limit, terminal_reclamation: required}
+      value_copy_semantics: shared_state
+      consumption: one_shot_compare_and_swap
     normalization_round_trip_contract:
+      bounds:
+        encoded_record_max: normalization_record_max_encoded_bytes
+        field_count_max: checked_10_plus_normalization_extension_count_max
+        required_string_max: normalization_required_string_max_utf8_bytes
+        source_evidence_id:
+          encoding: non_empty_utf8
+          max: source_evidence_id_max_utf8_bytes
+        unknown_extensions:
+          count_max: normalization_extension_count_max
+          key: non_empty_utf8_at_most_normalization_extension_key_max_utf8_bytes
+          value_max: normalization_extension_value_max_encoded_bytes
+        validation_order: encoded_total_then_fields_before_owner_allocation
       schema: versioned
-      record_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
-      unknown_extension_fields: preserved_losslessly
-      round_trip: exact_record_equality
+      required_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
+      round_trip: exact_record_equality_within_admitted_bounds
+      unknown_extension_fields: preserved_losslessly_without_truncation
+    bounded_values_contract:
+      activation: finite_positive_checked_nonoverflowing_bounds_before_activation
+      allocation: validate_before_decode_copy_hash_intern_or_retain
+      attempt_key:
+        encoding: non_empty_utf8
+        equality: exact_encoded_bytes_no_normalization
+        max: attempt_key_max_utf8_bytes
+        source_ledger_agreement: required
+      retained_diagnostics:
+        count_max: retained_diagnostic_count_per_object_max
+        form: ordered_utf8_strings_only
+        item_max: retained_diagnostic_max_utf8_bytes
+        oversize: reject_without_truncation
+        tombstone_retention: forbidden
     fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revision: exact_docs_head_full_sha, findings: resolve_all_or_no_findings, merge_blocker: true}
     rollback: Correct the public contract before M1-06; after implementation, publish a versioned forward correction without weakening one-shot or source-origin guarantees.
   - id: FMV3-M1-06
@@ -642,24 +800,96 @@ issues:
     repo: Project-Helianthus/helianthus-modbus
     depends_on: [FMV3-M1-04, FMV3-M1-05]
     what: Implement the source-issued opaque single-use runtime acquisition capability.
-    acceptance: Against merged M1-05, a test-only RED commit observed failing by hosted CI precedes implementation. Tests prove the token is opaque and non-serializable, issued only by a deliverable runtime source, absent for non-deliverable acquisitions and offline fixtures, and consumed by one-shot CAS against shared state across value copies and endpoint recreation. Every coalesced dependent receives its own capability, copied views racing the same capability produce exactly one winner, all state is bounded and reclaimed, and hosted GREEN plus fresh independent OpenAI review of the exact RED and implementation revisions pass before merge.
+    acceptance: 'Authorization requires docs PR #386 merged with the exact bound docs R2 head/tree. Against that merged M1-05 contract, a test-only RED commit observed failing by hosted CI precedes implementation. Tests prove source-owned post-correlation delivery only after every docs-defined required condition, every excluded non-deliverable outcome, private non-serializable state shared only across copies of the same capability, one-shot CAS, and fresh independent state for endpoint recreation or new acquisition even with matching visible identity or data. New acquisition cannot alias, remint, reset, or merge prior state; every coalesced dependent receives its own capability, copied views racing the same capability produce exactly one winner, and capability state moves once from open to claimed, cancelled, failed, or expired. Runtime-source-owned CancelOpen uses the exact bounded AttemptKey, leaves ledger mutation to M2 linearization, and returns only after matching live operations and reclamation complete. Finite-positive byte and field limits validate before decode, copy, hash, intern, allocation, or retention; terminal sequences are reserved before admission as nonzero uint64 values, never wrap or reuse, and exhaustion rejects new capabilities while preserving existing termination. Terminal state is synchronously removed before return in reserved-sequence order, and only byte-bounded non-reconstructing immutable tombstones remain with lowest-sequence-first eviction. Hosted GREEN plus fresh independent OpenAI review of the exact RED and implementation revisions pass before merge.'
     gates: [TDD_RED, CI, doc_gate, data_integrity, concurrency, fresh_adversarial_review]
     doc_gate: required
     companion_issue: FMV3-M1-05
     implements_contract: OPAQUE_RUNTIME_ACQUISITION_V1
+    source_kind_contract:
+      allowed: [runtime, offline_fixture]
+      runtime:
+        capability: required_for_delivery
+        deliverability:
+          authority: runtime_source_owned
+          caller_control: forbidden
+          excluded_outcomes: [detached_dependent, cancelled_dependent, protocol_exception, malformed_response, transport_or_dependent_failure, late_or_abandoned_response, uncorrelated_frame, torn_or_incoherent_production, any_non_success_outcome]
+          predecessor_contract: docs/platform/modbus-foundation-profile-contract-v1.md#physical-and-logical-identity
+          production_stage: post_correlation_successful_dependent_production
+          reconstruction: forbidden
+          required_conditions: [request_bound_wire_response_id, wire_outcome_successful_data, dependent_still_attached, exact_logical_slice_validated, coherent_production]
+          serialization: forbidden
+        issuer: runtime_source
+        issue_condition: deliverable_runtime_acquisition_only
+      offline_fixture: {capability: forbidden, capability_cas_calls: 0, production_sample_id: forbidden, trust: untrusted}
     opaque_runtime_acquisition_contract:
-      representation: opaque_non_serializable
-      issuer: runtime_source
-      issue_condition: deliverable_runtime_acquisition_only
-      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
-      consumption: one_shot_compare_and_swap
-      state_owner: source_issued_shared_ledger_pointer
-      value_copy_semantics: shared_state
-      endpoint_recreation_semantics: shared_state
+      attempt_binding:
+        cancel_open:
+          capability_effect: still_open_to_cancelled_terminal_unchanged
+          ledger_mutation: forbidden
+          lookup: exact_bounded_AttemptKey_only
+          owner: runtime_source
+          return: after_all_matching_live_operations_and_reclamation_complete
+        claim_path_after_m2_admission: ledger_linearization_required
+        key: immutable_exact_source_owned_AttemptKey
+        source_operation: CancelOpen(AttemptKey)
+      bounded_state:
+        capabilities: endpoint_configured_hard_limit
+        terminal_reclamation: required
+        terminal_sequence:
+          domain: uint64_1_to_2^64_minus_1
+          exhaustion: reject_new_capability_preserve_existing_termination
+          reservation: one_before_capability_admission_or_allocation
+          reuse: forbidden_within_owner_lifetime_including_after_reclamation
+          wrap: forbidden_checked_arithmetic
+        tombstone:
+          additional_fields: forbidden
+          count_bound: capability_tombstone_limit_finite_positive
+          eviction: lowest_reserved_terminal_sequence_first
+          fields: [schema_version, terminal_sequence, terminal_outcome]
+          forbidden_payloads: [raw_attempt_key, source_evidence_id, normalization_record, evidence_payload, capability_representation, free_form_diagnostic]
+          max_encoded_bytes: capability_tombstone_max_encoded_bytes_finite_positive
+          schema_version: 1
+          terminal_outcome: [claimed, cancelled, failed, expired]
+          terminal_sequence: reserved_uint64_nonzero
       coalesced_dependents: independent_capability_per_dependent
       copied_view_race: exactly_one_winner
+      endpoint_recreation:
+        eligible_new_acquisition: fresh_independent_capability_state
+        existing_capability_lifecycle: own_acquisition_or_attempt_only
+        forbidden_prior_capability_actions: [alias, remint, reset, merge]
+        security_identity: source_issued_acquisition_capability_not_endpoint_identity
+        visible_identity_or_data_match: irrelevant
+      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
+      issued_lifecycle:
+        initial: open
+        legal_transitions: [open_to_claimed, open_to_cancelled, open_to_failed, open_to_expired]
+        non_issuance: no_capability_outside_lifecycle
+        reclamation:
+          caller_terminal_wrappers: immutable_non_owning_not_source_tracked
+          mode: source_deterministic_synchronous_before_terminal_return
+          order: admission_reserved_terminal_sequence
+        retry: forbidden
+        terminal: [claimed, cancelled, failed, expired]
+        terminal_immutable: true
+      representation: opaque_non_serializable
+      state_owner: source_owned_shared_capability_state
       terminal_reuse: forbidden
-      bounded_state: {capabilities: endpoint_configured_hard_limit, open_attempts: consumer_configured_hard_limit, claims_per_attempt: dependency_set_hard_limit, terminal_reclamation: required}
+      value_copy_semantics: shared_state
+      consumption: one_shot_compare_and_swap
+    bounded_values_contract:
+      activation: finite_positive_checked_nonoverflowing_bounds_before_activation
+      allocation: validate_before_decode_copy_hash_intern_or_retain
+      attempt_key:
+        encoding: non_empty_utf8
+        equality: exact_encoded_bytes_no_normalization
+        max: attempt_key_max_utf8_bytes
+        source_ledger_agreement: required
+      retained_diagnostics:
+        count_max: retained_diagnostic_count_per_object_max
+        form: ordered_utf8_strings_only
+        item_max: retained_diagnostic_max_utf8_bytes
+        oversize: reject_without_truncation
+        tombstone_retention: forbidden
     strict_tdd_contract: {red_commit: test_only, hosted_red: fails_for_missing_behavior, implementation_before_hosted_red: forbidden, hosted_green: required_on_implementation_head}
     fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revisions: [red_commit_full_sha, implementation_head_full_sha], findings: resolve_all_or_no_findings, merge_blocker: true}
     rollback: Disable capability delivery and pin consumers to the last compatible runtime; never replace the token with a serializable or replayable surrogate.
@@ -668,33 +898,146 @@ issues:
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M0-03, FMV3-M1-00, FMV3-M1-01, FMV3-M1-06]
     what: Define profile, codec, catalog, source-observation identity/coherence, and raw-provenance contracts.
-    acceptance: Against merged FMV3-M1-00 and M1-05, the consumer pins and verifies the full 40-character merged M1-06 SHA before a test-only RED commit is observed failing by hosted CI. Tests prove runtime acquisitions require the opaque capability while offline_fixture remains untrusted with zero capability CAS and no production sample_id; an attempt uses shared ledger-owned pointer state with hard bounds on attempts and claims, rejects duplicate AttemptKey, seals one immutable attempt set, and then Publish() consumes that sealed set without a mutable DTO. Versioned codecs preserve existing wire/logical/sample provenance and exact normalization-record round-trip. Hosted GREEN and a fresh independent OpenAI review of the exact RED and implementation revisions are merge blockers.
+    acceptance: Against merged FMV3-M1-00 and M1-05, an external authorization-evidence JSON file supplies the full 40-character M1-06 producer merge SHA and canonical helianthus-modbus issue/PR numbers; fixed GitHub API evidence must prove canonical-main ancestry, the exact merged PR, and its closed issue relationship before RED. Runtime acquisitions require the M1 capability while offline_fixture remains untrusted with zero capability CAS and no production sample_id. The independent M2 ledger rejects duplicate exact bounded AttemptKey before state change. Each claim moves unresolved to claim_in_progress only while its attempt is open, records one immutable source result before completion, and cannot retry. Seal atomically requires every data-bearing runtime claim to be claim_succeeded. Cancellation linearizes open or sealed to cancelling, blocks later claim admission, seal, and publish, invokes runtime-source-owned CancelOpen by exact AttemptKey, drains every claim_in_progress, closes only remaining unresolved claims, and then reaches cancelled. Publish() is the one-shot sealed-to-publishing transition over immutable sealed ledger state; cancellation after publish admission ends publish_failed, and no outcome retries. Finite-positive byte and field limits validate before allocation and cover every retained state, claims per attempt, the checked nonoverflowing product, diagnostics, normalization, and audit tombstones. Attempt and claim terminal sequences are batch-reserved before admission as nonzero uint64 values, never wrap or reuse, and exhaustion rejects new attempts while preserving existing termination. Eligible terminal state is synchronously reclaimed in reserved-sequence order into byte-bounded non-reconstructing immutable tombstones with lowest-sequence-first eviction. Versioned codecs preserve existing wire, logical, sample provenance, and exact normalization-record round-trip within admitted bounds. Hosted GREEN and a fresh independent OpenAI review of the exact RED and implementation revisions are merge blockers.
     gates: [TDD_RED, CI, doc_gate, data_integrity, concurrency, fresh_adversarial_review]
     doc_gate: required
     companion_issue: FMV3-M1-00
     corrective_companion_issue: FMV3-M1-05
     consumes_contract: OPAQUE_RUNTIME_ACQUISITION_V1
-    producer_pin_contract: {producer_issue: FMV3-M1-06, merge_sha: required_full_40_lowercase_hex, consumer_resolution: exact_sha_verified_before_red}
+    producer_pin_contract:
+      producer_issue: FMV3-M1-06
+      repository: Project-Helianthus/helianthus-modbus
+      evidence_interface: external_json_file
+      evidence_schema: helianthus.fmv3-issue-authorization-evidence.v1
+      merge_sha: required_full_40_lowercase_hex
+      github_issue_number: required_positive_integer
+      github_pull_request_number: required_positive_integer
+      verification: [fixed_github_api_canonical_main_ancestry, exact_merged_pull_request, closed_issue_cross_reference]
+      consumer_resolution: exact_sha_verified_before_red
     source_trust_contract:
-      runtime: {capability: required, delivery_trust: successful_one_shot_cas}
-      offline_fixture: {capability: forbidden, capability_cas_calls: 0, trust: untrusted, production_sample_id: forbidden}
+      allowed: [runtime, offline_fixture]
+      runtime:
+        capability: required_for_delivery
+        deliverability:
+          authority: runtime_source_owned
+          caller_control: forbidden
+          excluded_outcomes: [detached_dependent, cancelled_dependent, protocol_exception, malformed_response, transport_or_dependent_failure, late_or_abandoned_response, uncorrelated_frame, torn_or_incoherent_production, any_non_success_outcome]
+          predecessor_contract: docs/platform/modbus-foundation-profile-contract-v1.md#physical-and-logical-identity
+          production_stage: post_correlation_successful_dependent_production
+          reconstruction: forbidden
+          required_conditions: [request_bound_wire_response_id, wire_outcome_successful_data, dependent_still_attached, exact_logical_slice_validated, coherent_production]
+          serialization: forbidden
+        issuer: runtime_source
+        issue_condition: deliverable_runtime_acquisition_only
+      offline_fixture: {capability: forbidden, capability_cas_calls: 0, production_sample_id: forbidden, trust: untrusted}
     attempt_ledger_contract:
-      state_owner: shared_ledger_owned_pointer
-      attempt_key_uniqueness: duplicate_rejected
-      attempt_bound: configured_hard_limit
-      claims_per_attempt_bound: dependency_set_hard_limit
-      claim_capability: one_shot_runtime_capability
-      seal_transition: open_to_sealed_once
-      sealed_attempt_set: immutable
-      publish_signature: Publish()
-      publish_input: sealed_ledger_state
+      attempt_lifecycle:
+        initial: open
+        legal_transitions: [open_to_sealed, open_to_cancelling, sealed_to_publishing, sealed_to_cancelling, cancelling_to_cancelled, publishing_to_published, publishing_to_publish_failed]
+        publish: one_shot_sealed_to_publishing
+        publish_cancellation_after_admission: publishing_to_publish_failed
+        seal_condition: all_data_bearing_runtime_claims_claim_succeeded
+        seal_linearization: success_predicate_and_open_to_sealed_atomic
+        seal_non_success: cancellation_and_audit_only_publication_forbidden
+        terminal: [published, publish_failed, cancelled]
+        terminal_immutable: true
+      attempt_key:
+        duplicate: reject_before_any_state_change
+        source_binding_match: required_for_every_runtime_capability
+        validation: bounded_before_copy_hash_intern_or_allocation
+      bounds:
+        claim_entries_per_attempt: dependency_set_hard_limit
+        covered_attempt_states: [open, sealed, cancelling, publishing, published, publish_failed, cancelled]
+        covered_claim_states: [unresolved, claim_in_progress, claim_succeeded, capability_cancelled, capability_failed, capability_expired, claim_rejected_terminal, attempt_cancelled]
+        retained_attempts: consumer_configured_hard_limit_all_states
+        retained_claims_total: checked_attempt_limit_times_claim_limit
+        terminal_sequence:
+          domain: uint64_1_to_2^64_minus_1
+          exhaustion: reject_new_attempt_preserve_existing_termination
+          reservation: attempt_plus_all_claim_entries_batch_before_admission
+          reuse: forbidden_within_owner_lifetime_including_after_reclamation
+          wrap: forbidden_checked_arithmetic
+      cancellation_protocol:
+        admitted_claim_wins: true
+        blocks_after_linearization: [claim_admission, seal, publish]
+        completion: cancelling_to_cancelled_after_source_return_and_unresolved_closure
+        drain: wait_for_all_claim_in_progress_finalization
+        linearization: [open_to_cancelling, sealed_to_cancelling]
+        source_operation: runtime_source_owned_CancelOpen_exact_AttemptKey
+        unresolved_close: only_remaining_unresolved_to_attempt_cancelled
+      capability_state_ownership: external_private_runtime_source
+      claim_entry_lifecycle:
+        admission: unresolved_to_claim_in_progress_only_while_attempt_open
+        cancellation: claim_in_progress_drains_unresolved_only_attempt_cancelled
+        finalization: record_immutable_source_result_before_completion
+        initial: unresolved
+        legal_transitions: [unresolved_to_claim_in_progress, claim_in_progress_to_claim_succeeded, claim_in_progress_to_capability_cancelled, claim_in_progress_to_capability_failed, claim_in_progress_to_capability_expired, claim_in_progress_to_claim_rejected_terminal, unresolved_to_attempt_cancelled]
+        nonterminal: [unresolved, claim_in_progress]
+        retry: forbidden
+        source_result_mapping: {already_cancelled: capability_cancelled, already_expired: capability_expired, already_failed: capability_failed, already_claimed: claim_rejected_terminal, open_to_claimed: claim_succeeded}
+        terminal: [claim_succeeded, capability_cancelled, capability_failed, capability_expired, claim_rejected_terminal, attempt_cancelled]
+        terminal_immutable: true
       mutable_dto: forbidden
+      publish: sealed_immutable_ledger_state_only
+      reclamation:
+        audit_tombstone:
+          additional_fields: forbidden
+          count_bound: ledger_audit_tombstone_limit_finite_positive
+          eviction: lowest_reserved_terminal_sequence_first
+          forbidden_payloads: [raw_attempt_key, source_evidence_id, normalization_record, evidence_payload, capability_representation, free_form_diagnostic]
+          max_encoded_bytes: ledger_audit_tombstone_max_encoded_bytes_finite_positive
+          variants:
+            attempt:
+              fields: [schema_version, object_kind, terminal_sequence, terminal_outcome]
+              object_kind: attempt
+              schema_version: 1
+              terminal_outcome: [published, publish_failed, cancelled]
+              terminal_sequence: reserved_uint64_nonzero
+            claim:
+              attempt_terminal_sequence: reserved_uint64_nonzero
+              claim_ordinal: uint64_zero_based
+              fields: [schema_version, object_kind, terminal_sequence, attempt_terminal_sequence, claim_ordinal, terminal_outcome]
+              object_kind: claim
+              schema_version: 1
+              terminal_outcome: [claim_succeeded, capability_cancelled, capability_failed, capability_expired, claim_rejected_terminal, attempt_cancelled]
+              terminal_sequence: reserved_uint64_nonzero
+        caller_terminal_wrappers: immutable_non_owning_not_retained_ledger_state
+        eligibility: terminal_no_in_progress_operation_no_retained_nonterminal_reference
+        mode: deterministic_synchronous_on_terminal_and_admission
+        order: admission_reserved_terminal_sequence
+      state_owner: shared_ledger_owned_pointer
       terminal_reclamation: required
     normalization_round_trip_contract:
+      bounds:
+        encoded_record_max: normalization_record_max_encoded_bytes
+        field_count_max: checked_10_plus_normalization_extension_count_max
+        required_string_max: normalization_required_string_max_utf8_bytes
+        source_evidence_id:
+          encoding: non_empty_utf8
+          max: source_evidence_id_max_utf8_bytes
+        unknown_extensions:
+          count_max: normalization_extension_count_max
+          key: non_empty_utf8_at_most_normalization_extension_key_max_utf8_bytes
+          value_max: normalization_extension_value_max_encoded_bytes
+        validation_order: encoded_total_then_fields_before_owner_allocation
       schema: versioned
-      record_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
-      unknown_extension_fields: preserved_losslessly
-      round_trip: exact_record_equality
+      required_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
+      round_trip: exact_record_equality_within_admitted_bounds
+      unknown_extension_fields: preserved_losslessly_without_truncation
+    bounded_values_contract:
+      activation: finite_positive_checked_nonoverflowing_bounds_before_activation
+      allocation: validate_before_decode_copy_hash_intern_or_retain
+      attempt_key:
+        encoding: non_empty_utf8
+        equality: exact_encoded_bytes_no_normalization
+        max: attempt_key_max_utf8_bytes
+        source_ledger_agreement: required
+      retained_diagnostics:
+        count_max: retained_diagnostic_count_per_object_max
+        form: ordered_utf8_strings_only
+        item_max: retained_diagnostic_max_utf8_bytes
+        oversize: reject_without_truncation
+        tombstone_retention: forbidden
     strict_tdd_contract: {red_commit: test_only, hosted_red: fails_for_missing_behavior, implementation_before_hosted_red: forbidden, hosted_green: required_on_implementation_head}
     fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revisions: [red_commit_full_sha, implementation_head_full_sha], findings: resolve_all_or_no_findings, merge_blocker: true}
     observation_view_fields: [logical_view_id, wire_response_id, logical_zero_based_pdu_offset, logical_word_count, slice_offset_within_wire, slice_word_count]

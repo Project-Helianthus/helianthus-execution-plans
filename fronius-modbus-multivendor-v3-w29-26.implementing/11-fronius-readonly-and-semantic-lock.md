@@ -1,6 +1,6 @@
 # Fronius read-only vertical and semantic lock
 
-Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
+Canonical-SHA256: `1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f`
 
 Depends on: `10-architecture-and-repo-boundaries.md`; M1 TCP and M2 profile contracts.
 Scope: Fronius phase-1 evidence, fixtures, profile detection, gateway raw MCP, live hardware proof, canonical PV lock, and public consumer order.
@@ -59,7 +59,7 @@ Every offline fixture has `source_kind: offline_fixture`, receives no opaque acq
 capability, performs zero capability CAS operations, and cannot mint a production
 `sample_id`. Runtime-derived fixture material remains offline and untrusted after
 sanitization. Only a deliverable live runtime source may issue the non-serializable
-one-shot capability consumed through the shared bounded M2 attempt ledger.
+one-shot capability consumed through the independently owned bounded M2 attempt ledger.
 
 FMV3-M3-01 is the public docs companion for M3-02 and M3-03, with explicit companion
 metadata and ancestry. M3-02 first implements the minimal applicable SunSpec standard-family

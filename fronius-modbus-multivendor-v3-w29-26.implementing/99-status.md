@@ -1,6 +1,6 @@
 # Implementing status
 
-Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
+Canonical-SHA256: `1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f`
 
 State: implementing
 Current milestone: M0
@@ -11,7 +11,10 @@ Review target: TERMINAL_NO_FINDINGS
 Lock authorized: yes, for plan publication only
 Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
 Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative
-Authorization anchor: PR #89 merge commit required; issue #88 is tracking only
+Authorization anchor: PR #91 exact squash merge plus external review attestation required; PR #89 is predecessor provenance only; issue #90 is tracking only
+Canonical main authority: fixed GitHub API for Project-Helianthus/helianthus-execution-plans; origin is identity-only
+External review attestation: one unique unedited authorized-issuer tag binding exact live PR #91 head/tree, NO_FINDINGS, and at least two fresh OpenAI reviewer run IDs
+Docs R2 rebind: complete; exact docs PR #386 head/tree and expanded bounded_values projection bound
 Repository creation authorized: yes, through FMV3-M0-01
 Private repository action: deferred; creation requires future explicit authorization
 Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
@@ -21,15 +24,23 @@ Private creation/bootstrap authorized: no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-0
 This package supersedes `fronius-modbus-eebus-bridge-w28-26.draft` as execution
 intent while preserving that directory unchanged as forensic history.
 
-Completed through terminal epoch 3 R5 plus the PR #89 amendment tracked by issue #88:
+Completed through terminal epoch 3 R5, PR #89 predecessor provenance, and the PR #91
+correction tracked by issue #90:
 
 - canonical and four isolated implementation chunks authored;
 - 46-issue one-repository DAG and nine milestone groupings authored;
 - additive FMV3-M1-05 public companion and FMV3-M1-06 runtime corrective authorized,
   with FMV3-M2-01 depending on the merged corrective producer and retaining the original
   companion history;
-- strict hosted RED/GREEN, full producer-SHA pin, source trust split, bounded
-  seal-before-publish lifecycle, lossless normalization, and fresh revision-bound
+- PR #91 authorization requires one external exact-head/tree `NO_FINDINGS` attestation,
+  canonical-main API resolution, one-parent squash topology, and self-materialized anchored
+  validator execution;
+- the exact docs R2 commit/tree, complete predecessor-inclusive normative closure, and
+  expanded machine projection including `bounded_values` are bound; M1-06 and M2-01
+  still require docs PR #386 merged at that exact head/tree;
+- strict hosted RED/GREEN, full producer-SHA pin, source-private capability trust,
+  complete bounded claim/attempt lifecycles, one-shot seal-before-publish, deterministic
+  synchronous fixed-ring reclamation, lossless normalization, and fresh revision-bound
   adversarial gates are explicit;
 - R1 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and eleven
   preserved CLOSED findings;
@@ -85,9 +96,10 @@ Completed through terminal epoch 3 R5 plus the PR #89 amendment tracked by issue
 - structural validator remains bounded and does not simulate runtime behavior.
 
 Terminal review closure did not itself lock the plan. The operator separately authorized
-lock and publication on 2026-07-14. The merge commit of PR #89 is the sole immutable anchor
-for the amended pre-gateway allowlist; issue #88 tracks M1-05/M1-06 and the M2-01 change but
-is not authorization evidence. The hard stop remains before FMV3-M4-01; gateway and private
+lock and publication on 2026-07-14. After PR #91 merges, its exact merge commit is the sole
+current immutable anchor for the corrected pre-gateway allowlist and M1/M2 machine fields;
+PR #89 remains predecessor provenance only, while issue #90 is tracking metadata and not
+authorization evidence. The hard stop remains before FMV3-M4-01; gateway and private
 binding work remain unauthorized.
 
 Not performed:

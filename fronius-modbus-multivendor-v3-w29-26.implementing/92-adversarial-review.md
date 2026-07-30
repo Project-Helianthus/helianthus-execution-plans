@@ -390,12 +390,17 @@ reached `CLOSED`. Epoch 3 R1-R4 `FINDINGS`, including E3-R1-F01 through E3-R4-F0
 integrated `CLOSED`; R5 returned `NO_FINDINGS` with no integration required. Epoch 3 is the
 sole highest/current terminal `PASSED` epoch at `5/5`, targeting `TERMINAL_NO_FINDINGS`.
 
-## Issue #88 corrective amendment gate
+## Issue #90 capability/ledger reconciliation gate
 
-Issue #88 tracks the corrective scope but is not authorization evidence; the merge commit
-of PR #89 is the immutable anchor. The epoch history above is immutable evidence for the previously locked plan and does not
-retroactively place the amendment inside epoch 3 R5. The corrective successor uses
-revision-bound, fresh independent OpenAI gates instead:
+Issue #90 tracks the corrected scope but is not authorization evidence. After merge, the
+exact PR #91 merge commit is the sole current immutable anchor only when a unique unedited
+authorized-issuer comment attests the live full head SHA/tree, `NO_FINDINGS`, and at least
+two unique fresh OpenAI reviewer run IDs after head creation and before merge. The squash
+merge has exactly the expected original base parent and the attested head tree. PR #89 is
+retained only as predecessor provenance and has no authority for the corrected M1 capability
+or M2 ledger fields. The epoch history above is immutable evidence for the previously locked
+plan and does not retroactively place the amendment inside epoch 3 R5. The corrective
+successor uses revision-bound, fresh independent OpenAI gates instead:
 
 - FMV3-M1-05: fresh review of the exact full-SHA public docs head; every finding is
   resolved or the verdict is `NO_FINDINGS` before merge.
@@ -405,6 +410,15 @@ revision-bound, fresh independent OpenAI gates instead:
 - FMV3-M2-01: after pinning the full 40-character merged M1-06 SHA, hosted CI observes the
   exact test-only RED and implementation GREEN revisions; a fresh context reviews both
   before merge.
+
+The validator reads canonical execution-plans main from the fixed GitHub API, materializes
+the PR #91 validator blob itself, and rejects direct internal-flag use. M1-06 additionally
+requires docs PR #386 merged at its bound head/tree. M2-01 requires external JSON evidence
+whose producer SHA, canonical Modbus main ancestry, merged PR, and closed issue relationship
+all verify. The exact docs R2 head/tree, predecessor-inclusive closure, and expanded machine
+projection are bound, including claim-in-progress, cancelling, atomic all-success-before-seal,
+source-owned CancelOpen, byte/field bounds, and pre-reserved non-wrapping terminal sequences.
+M1-06 and M2-01 remain blocked until docs PR #386 merges at that exact head/tree.
 
 These gates are additive. They do not renumber M1-01 through M1-04, replace the original
 FMV3-M1-00 companion, authorize gateway work, or convert the archived review epochs into

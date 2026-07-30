@@ -7,28 +7,54 @@ Supersedes: `fronius-modbus-eebus-bridge-w28-26.draft`
 
 This implementing plan replaces the W28 package as execution intent. The W28 directory remains
 unchanged as forensic history. The operator action on 2026-07-14 authorized plan lock and
-publication. PR #89 carries the complete amended pre-gateway authorization. Its merge commit
-is the sole immutable execution anchor; issue #88 tracks the change but is not authorization
-evidence.
+publication. PR #91 carries the corrected pre-gateway authorization. Its merge commit is
+the sole current immutable execution anchor; issue #90 tracks the change but is not
+authorization evidence. PR #89 remains predecessor provenance only.
 
 ## Execution authorization
 
-Execution activates only after PR #89 merges. Its exact merge commit is the sole immutable
-authorization anchor. Issue #88 is tracking metadata only and is not cryptographic or
-authorization evidence.
+Execution activates only after PR #91 merges. Its exact merge commit is the sole current
+immutable authorization anchor. Issue #90 is tracking metadata only and is not cryptographic
+or authorization evidence. PR #89 is retained only as predecessor provenance and is not
+authority for the corrected M1 capability or M2 ledger fields.
+
+PR #91 must retain its exact original base/head repository and ref identity. Its squash
+merge must have exactly one parent equal to the expected original base SHA and a tree equal
+to the externally attested PR head tree. The authorized issuer must create exactly one
+unedited trusted-association attestation after the exact head commit and before merge. That
+attestation binds the live full head SHA and tree, records `NO_FINDINGS`, and carries at
+least two unique fresh OpenAI reviewer run IDs; the plan never self-embeds its own head SHA.
 
 The ordered `authorized_issues` list in `plan.yaml` is the sole normative execution scope:
 FMV3-M0-01, FMV3-M0-02, FMV3-M0-03, FMV3-M0-06, FMV3-M1-00, FMV3-M1-01,
 FMV3-M1-02, FMV3-M1-03, FMV3-M1-04, FMV3-M1-05, FMV3-M1-06, FMV3-M2-01,
 FMV3-M2-02, FMV3-M2-03, FMV3-M3-01, FMV3-M3-02, and FMV3-M3-03. Milestone names
-are non-authoritative grouping labels. The amendment adds FMV3-M1-05 and FMV3-M1-06
-and amends FMV3-M2-01.
+are non-authoritative grouping labels. This amendment corrects FMV3-M1-05, FMV3-M1-06,
+and FMV3-M2-01 without changing the allowlist.
+
+Authorization runs only from a fully clean canonical
+`Project-Helianthus/helianthus-execution-plans` main checkout resolved through the fixed
+GitHub API. A configured remote named `origin` is never main authority and must identify
+the canonical repository exactly. Cruise preflight invokes the checked-out validator
+without its internal flag; it materializes the validator blob from the plan anchor,
+verifies the anchored SHA-256, and re-executes that one-use blob internally.
 
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
 `helianthus-modbusreg`. FMV3-M1-05 publishes the public
 `OPAQUE_RUNTIME_ACQUISITION_V1` companion, FMV3-M1-06 implements it after M1-05, and
 FMV3-M2-01 consumes the merged M1-06 producer by exact full-SHA pin. Private governance
 creation FMV3-M0-04 and destination bootstraps FMV3-M0-05/FMV3-M0-07 remain deferred.
+
+FMV3-M1-05 remains authorizable before its docs PR merges. FMV3-M1-06 requires docs PR
+#386 merged with the exact bound candidate head and tree. FMV3-M2-01 additionally requires
+an external authorization-evidence JSON file carrying the full 40-character M1-06 producer
+merge SHA plus canonical `helianthus-modbus` issue and PR numbers; live API evidence must
+prove that merge is on canonical main and that the merged PR closed the supplied issue.
+The exact docs R2 commit/tree, complete predecessor-inclusive normative closure, and expanded
+machine projection including `bounded_values` are bound. They require claim-in-progress,
+cancelling, atomic all-success-before-seal, source-owned CancelOpen, byte/field bounds, and
+pre-reserved non-wrapping, non-reused terminal sequences. M1-06 and M2-01 still fail
+authorization until docs PR #386 is merged at that exact head and tree.
 
 The hard stop is immediately before FMV3-M4-01. Gateway work is not authorized. No gateway
 issue, branch, PR, import, or code change is authorized by this action. Repository creation,
@@ -251,21 +277,45 @@ validation is a torn read, not a partial value. The gateway propagates source
 validity/timestamps and sample/generation/dependency/response identities unchanged.
 Partial, incoherent, or torn reads do not create a new source observation.
 
-Runtime acquisition trust is not inferred from serializable request fields. A deliverable
-`source_kind: runtime` acquisition receives one source-issued opaque capability backed by
-shared one-shot CAS state. Value copies and endpoint recreation refer to the same state;
-racing copied views have exactly one winner. Every coalesced dependent receives its own
-capability even when dependents share a physical wire response. Non-deliverable runtime
-acquisitions and `source_kind: offline_fixture` receive no capability.
+Runtime acquisition trust is not inferred from serializable request fields or caller
+booleans. Only the runtime source, after request-bound correlation proves successful data,
+the dependent is still attached, its exact logical slice validates, and production is
+coherent, may issue an opaque non-serializable capability from private source-owned state.
+That state is shared only by copies of the same capability and is never an M2 ledger
+pointer; racing copies have exactly one CAS winner. Detached, cancelled, exceptional,
+malformed, failed, late/abandoned, uncorrelated, torn/incoherent, and every other
+non-success acquisition receive no capability. Every coalesced dependent receives an
+independent capability. Endpoint
+recreation and every new acquisition create fresh independent state even when visible
+identity or data match; they cannot alias, remint, reset, or merge prior state, and an
+existing capability remains governed only by its own acquisition/attempt lifecycle.
+Capabilities move once from `open` to exactly one immutable terminal state: `claimed`,
+`cancelled`, `failed`, or `expired`. Before terminal return the source removes terminal
+state synchronously in source-assigned terminal-sequence order and retains only bounded,
+non-reconstructing immutable metadata; the finite-positive tombstone ring evicts the lowest
+terminal sequence first. `source_kind: offline_fixture` receives no capability.
 
 `helianthus-modbusreg` pins the full 40-character merged FMV3-M1-06 producer SHA before
-consuming this contract. Its attempt ledger owns shared pointer state with hard bounds on
-open attempts and claims, rejects duplicate `AttemptKey`, transitions an attempt from open
-to one sealed immutable attempt set, and calls `Publish()` from sealed ledger state without
-a mutable DTO. Offline fixtures perform zero capability CAS operations and cannot receive a
-production `sample_id`. The versioned normalization record preserves source kind, evidence
-identity, documentary notation/address/base, function/table, normalized zero-based PDU
-offset, word count, and unknown extension fields with exact record round-trip.
+consuming this contract. Its private M2 ledger is independent of M1 capability state.
+Every claim entry moves from `unresolved` to exactly one immutable terminal outcome:
+`claim_succeeded`, `capability_cancelled`, `capability_failed`, `capability_expired`,
+`claim_rejected_terminal`, or `attempt_cancelled`. Attempts permit
+`open -> sealed|cancelled`, `sealed -> publishing|cancelled`, and
+`publishing -> published|publish_failed`; all terminal outcomes are immutable. `Publish()`
+is exactly the one-shot `sealed -> publishing` transition, uses immutable sealed ledger
+state without a mutable DTO, and cannot retry. Finite-positive hard limits cover every
+retained attempt state (`open`, `sealed`, `publishing`, `published`, `publish_failed`,
+`cancelled`), every retained claim state, claims per attempt, the checked product of
+retained-attempt and claim limits, and the audit/tombstone ring. Zero, negative,
+overflowing, or inconsistent limits fail before activation. Terminal state is reclaimed
+deterministically and synchronously on terminal/admission only when no operation is in
+progress and no nonterminal reference remains, in ledger-assigned terminal-sequence order.
+The finite-positive ring retains only non-reconstructing immutable terminal metadata and
+evicts the lowest terminal sequence first. Offline fixtures perform zero capability CAS
+operations and cannot receive a production `sample_id`. The versioned normalization record
+preserves source kind, evidence identity, documentary notation/address/base, function/table,
+normalized zero-based PDU offset, word count, and unknown extension fields with exact record
+round-trip.
 
 Only `helianthus-ebusreg` maps source validity/timestamps to canonical quality and owns
 freshness deadlines, last-good retention, stale/unavailable transitions, expiry, stable
@@ -361,8 +411,9 @@ and the complete M2 source-observation/provenance, detector activation lifecycle
 qualification, coherence, and fixture/mutation contracts. It is one public docs issue/PR,
 merged before any M1 or M2 implementation; FMV3-M1-01 through FMV3-M1-04 and FMV3-M2-01
 through FMV3-M2-03 all depend on it directly or through explicit ancestry and carry its
-doc-gate/companion metadata. That original history remains unchanged. The additive
-PR #89's corrective lane, tracked by issue #88, starts after FMV3-M1-04: FMV3-M1-05 publishes
+doc-gate/companion metadata. That original history remains unchanged. The additive lane
+introduced by PR #89 starts after FMV3-M1-04 and remains predecessor provenance. PR #91,
+tracked by issue #90, is the sole current authority for its corrected fields: FMV3-M1-05 publishes
 `OPAQUE_RUNTIME_ACQUISITION_V1`, FMV3-M1-06 implements it after both M1-04 and M1-05, and
 FMV3-M2-01 adds M1-06 as a producer dependency while retaining its original M1-00
 companion and recording M1-05 as the corrective companion.
@@ -396,8 +447,9 @@ versioned codec/source-observation/detector contracts and deterministic fixtures
 physical `wire_response_id`, linked logical `logical_view_id`/slice provenance,
 explicit word composition, applicable intra-word byte order, string packing/padding, and
 mixed-generation rejection. M2-01 additionally proves the runtime/offline-fixture trust
-split, shared bounded attempt ledger, duplicate-key rejection, immutable seal-then-publish,
-fixture zero-CAS/no-production-sample behavior, and exact normalization round-trip.
+split, independent bounded attempt ledger, complete claim/attempt terminal outcomes,
+one-shot immutable seal-then-publish, synchronous fixed-ring reclamation, fixture
+zero-CAS/no-production-sample behavior, and exact normalization round-trip.
 M3-01 is the public companion for M3-02/M3-03. M3 builds that provenance-qualified evidence packet, implements the minimal standard SunSpec
 family needed by phase 1, then records the Fronius TCP read-only disposition. M3-03 returns
 `STANDARD_ONLY` when M3-01/M3-02 prove the required slice fully standard, or
