@@ -2,15 +2,16 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `97ccf972861039b06fd99c75be6c7ad355adb38a694049102075146aa4fa5aef`
+Canonical-SHA256: `5c60f6ba2004791a11af9ca5ae7f6ba1a8ebab4d9e99df69bc3c2f60c39be3bd`
 
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-0625-S13-DOCS`
-Current milestone: `MSP-0625-S13-DOCS`
+S13 completion proof: `published_evidence_verified`
+Cruise phase: `MSP-065-LIVE-R1`
+Current milestone: `MSP-065-LIVE-R1`
 LAB acceptance state: `accepted`
-Selected batch: `MSP-0625-S13-DOCS`
-Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+Selected batch: `MSP-065-LIVE-R1`
+Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 
 This directory contains the locked execution plan for turning Helianthus into a
@@ -126,6 +127,10 @@ Current routing, readiness, and completion-token authority is `92-m0-issue-matri
   freezes the exact five-issue SPINE 1.3 erratum chain, 49/26/23 public READ
   baseline, bounded commit provenance and exclusions, no-write stop, and
   additional final predecessor before live M6.5 dispatch.
+- [124-w31-26-m625-spine-13-completion.md](./124-w31-26-m625-spine-13-completion.md)
+  binds the published five-repo release chain, 49-READ non-regression,
+  restart-persistence proof, and independent S13 completion control that
+  selects live M6.5.
 - [99-status.md](./99-status.md) records the locked current state.
 
 ## Coverage Matrix
@@ -142,8 +147,8 @@ Current routing, readiness, and completion-token authority is `92-m0-issue-matri
 
 The locked plan is ready for preflight when reviewers can falsify:
 
-- whether `MSP-0625-S13-DOCS` is the sole current and initial ready row while
-  the accepted LAB release proof remains unchanged;
+- whether `MSP-065-LIVE-R1` is the sole current and initial ready row while the
+  LAB release proof and independent S13 completion proof remain distinct;
 - whether every old edge remains exact and only `MSP-0625-S13-GW-LAB` is
   appended to the `MSP-065-LIVE-R1` predecessors;
 - whether the SPINE 1.3 erratum stays within its pinned value-type/factory

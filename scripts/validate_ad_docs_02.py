@@ -133,6 +133,11 @@ ACCEPTANCE_STATES.update({
     "MSP-0625-GW-MCP": "completed_published",
     "MSP-0625-LAB": "release_proof_pending",
     "MSP-0625-DOCS-P": "completed_published",
+    "MSP-0625-S13-DOCS": "completed_published",
+    "MSP-0625-S13-SPINE": "completed_published",
+    "MSP-0625-S13-EEBUS": "completed_published",
+    "MSP-0625-S13-REG": "completed_published",
+    "MSP-0625-S13-GW-LAB": "completed_published",
     "MSP-065": "framework_complete",
     "MSP-07": "synthetic_only",
     "MSP-08": "synthetic_only",
@@ -141,9 +146,9 @@ ACCEPTANCE_STATES.update({
 CURRENT_AMENDMENT_COUNT = 9
 CURRENT_AMENDMENT = "M6.25 bounded SPINE 1.3 erratum"
 CURRENT_ACCEPTED_THROUGH = (
-    "Base M6.25 LAB remains accepted after released-chain redeploy, but "
-    "stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; "
-    "zero promoted leaves"
+    "M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after "
+    "released-chain redeploy, live 49-READ non-regression, and restart-"
+    "persistence proof; zero promoted leaves"
 )
 RELEASE_PROOF_STATES = {
     "released_chain_redeployed": {
@@ -154,6 +159,14 @@ RELEASE_PROOF_STATES = {
         "accepted_through": CURRENT_ACCEPTED_THROUGH,
     },
 }
+S13_COMPLETION_PROOF_STATES = {
+    "published_evidence_verified": {
+        "cruise_phase": "MSP-065-LIVE-R1",
+        "current_milestone": "MSP-065-LIVE-R1",
+        "selected_batch": ["MSP-065-LIVE-R1"],
+        "accepted_through": CURRENT_ACCEPTED_THROUGH,
+    },
+}
 RELEASE_PROJECTION_SURFACES = (
     "00-canonical.md",
     "01-index.md",
@@ -161,7 +174,7 @@ RELEASE_PROJECTION_SURFACES = (
     "90-issue-map.md",
     "91-milestone-map.md",
     "99-status.md",
-    "123-w31-26-m625-spine-13-erratum.md",
+    "124-w31-26-m625-spine-13-completion.md",
 )
 RELEASE_PROJECTION_RE = re.compile(
     r"<!-- M625_RELEASE_PROJECTION_BEGIN -->\n.*?"
@@ -401,6 +414,33 @@ M625_S13_ACCEPTANCE = {
     ),
 }
 M625_S13_SUCCESSOR = "123-w31-26-m625-spine-13-erratum.md"
+M625_S13_COMPLETION = "124-w31-26-m625-spine-13-completion.md"
+M625_S13_COMPLETION_RECEIPTS = (
+    "Project-Helianthus/helianthus-docs-eebus#96",
+    "Project-Helianthus/helianthus-docs-eebus#97",
+    "b9166d68ac0fd063598e5f0e8d8f8c941e56aa15",
+    "30499461902",
+    "Project-Helianthus/helianthus-spine-go#15",
+    "Project-Helianthus/helianthus-spine-go#16",
+    "5db11e32ca673fad3fc0d8f8a318615e96e0873d",
+    "30499509829",
+    "Project-Helianthus/helianthus-eebus-go#23",
+    "Project-Helianthus/helianthus-eebus-go#24",
+    "3c13e51aa114627ec6e129c73527cc04cbabcf17",
+    "30500565485",
+    "Project-Helianthus/helianthus-eebusreg#103",
+    "Project-Helianthus/helianthus-eebusreg#104",
+    "bff5f9e5cbc875a488028a94a741218cb54c8adf",
+    "30501630742",
+    "Project-Helianthus/helianthus-ebusgateway#762",
+    "Project-Helianthus/helianthus-ebusgateway#763",
+    "1a02388170a1ee6befeed1529956a7104aa94e21",
+    "30502756714",
+    "00cd8388b5f384c0d77a56c2de59045f0514759f115c05a44544f7abbee3aa43",
+    "705cd691da1a54f321f644202b913b930e8c6442fa49986e1afb436cb89c0e4b",
+    "ba089a68ac568054b8db2be9d70c8fcec6531fe2bcb568d32dcb7ed7c991ffe5",
+    "d764666f6be6cda21162a2aaeca9891c1a852d2a8c61c6e6bcb903de4c127415",
+)
 IMMUTABLE_ACTIVE_SHA256 = {
     "100-topology-audit.md": (
         "b84c74551e839a3869a775c2f94c1f0121f2cfe477fe58a076e53bd57568f4d2"
@@ -548,11 +588,8 @@ ROW_EXTRAS = {
 }
 HISTORICAL_IDS = frozenset(EXACT_IDS[:17])
 def readiness(matrix: dict[str, Any]) -> dict[str, list[str]]:
-    """Derive dispatch from released LAB proof plus the active erratum hold."""
-    state = matrix.get("lab_release_proof")
-    if state not in RELEASE_PROOF_STATES:
-        fail("matrix: LAB release-proof control drift")
-    next_batch = RELEASE_PROOF_STATES[state]["selected_batch"]
+    """Derive dispatch from the independent LAB and S13 completion proofs."""
+    next_batch = control_projection(matrix)["selected_batch"]
     return {
         "historical_snapshot": list(PRESERVED_ACCEPTED_IDS),
         "logical_ready": next_batch,
@@ -562,7 +599,8 @@ def readiness(matrix: dict[str, Any]) -> dict[str, list[str]]:
 MATRIX_ROOT_KEYS = frozenset({
     "schema_version", "status", "plan", "baseline", "cruise_phase", "current_milestone",
     "amendment_count", "amended_on", "amendment", "accepted_through", "dirty_rescue_candidate",
-    "successor_unlocks", "successor_unlock_condition", "lab_release_proof", "msp_r00_status", "msp_r00_issue",
+    "successor_unlocks", "successor_unlock_condition", "lab_release_proof",
+    "s13_completion_proof", "msp_r00_status", "msp_r00_issue",
     "msp_r00_architecture_review", "purpose", "serialization", "gate_catalog", "ownership_contract",
     "public_evidence_privacy", "issues", "routing_policy",
 })
@@ -571,7 +609,8 @@ PLAN_ROOT_KEYS = frozenset({
     "amendment", "source_discussion", "target_repos", "knowledge_repo",
     "platform_docs_owner", "protocol_knowledge_repo", "protocol_native_docs_repo",
     "cross_seed_target_repo", "canonical_file", "split_index", "started_on", "locked_on",
-    "current_milestone", "lab_release_proof", "accepted_adversarial_rounds", "accepted_through", "m3_status",
+    "current_milestone", "lab_release_proof", "s13_completion_proof",
+    "accepted_adversarial_rounds", "accepted_through", "m3_status",
     "msp_03d_status", "dirty_rescue_candidate", "successor_unlocks",
     "successor_unlock_condition", "msp_r00_status", "msp_r00_issue",
     "msp_r00_architecture_review", "initial_ready_set", "routing_policy",
@@ -587,7 +626,7 @@ SERIALIZATION = {
     "eebus_go_sequence": ["MSP-05P-EEBUS", "MSP-0625-EEBUS", "MSP-0625-S13-EEBUS"],
     "spine_go_sequence": ["MSP-0625-SPINE", "MSP-0625-S13-SPINE"],
     "gateway_sequence": ["MSP-05A", "MSP-05A-R1", "MSP-05B-PLAN-R1", "MSP-05A-R2", "MSP-05B", "MSP-06", "MSP-0625-GW-ROUTER", "MSP-0625-GW-MCP", "MSP-065", "MSP-07", "MSP-08", "MSP-085", "MSP-0625-S13-GW-LAB", "MSP-065-LIVE-R1", "MSP-07-LIVE-R1", "MSP-08-LIVE-R1", "MSP-085-LIVE-R1", "MSP-09A", "MSP-09B"],
-    "initial_ready_set": ["MSP-0625-S13-DOCS"],
+    "initial_ready_set": ["MSP-065-LIVE-R1"],
     "dirty_code_unlocks_successors": False,
     "conditional_rows": ["MSP-DOCS-CANDIDATE-CLEANUP"],
     "pr_required_evidence": ["doc_gate_result", "rollback_ledger_entry", "relevant_transport_or_security_gate_artifact", "review_disposition_for_every_comment", "complete_milestone_architecture_review"],
@@ -628,6 +667,7 @@ EXPECTED_ACTIVE_SURFACES = (
     "121-w31-26-m625-raw-mutation-contract-correction.md",
     "122-w31-26-m625-implementation-state-reconciliation.md",
     "123-w31-26-m625-spine-13-erratum.md",
+    "124-w31-26-m625-spine-13-completion.md",
 )
 MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/00-canonical.md",
@@ -655,6 +695,7 @@ MUTABLE_PATHS = frozenset({
     "multi-runtime-semantic-platform.locked/121-w31-26-m625-raw-mutation-contract-correction.md",
     "multi-runtime-semantic-platform.locked/122-w31-26-m625-implementation-state-reconciliation.md",
     "multi-runtime-semantic-platform.locked/123-w31-26-m625-spine-13-erratum.md",
+    "multi-runtime-semantic-platform.locked/124-w31-26-m625-spine-13-completion.md",
     "scripts/validate_ad_docs_02.py",
     "scripts/validate_msp_r00_l_ledger.py",
     "scripts/validate_plans_repo.sh",
@@ -1126,11 +1167,33 @@ def release_proof_projection(state: Any) -> dict[str, Any]:
     return RELEASE_PROOF_STATES[state]
 
 
-def render_release_projection_block(state: str) -> str:
-    projection = release_proof_projection(state)
+def control_projection(surface: dict[str, Any]) -> dict[str, Any]:
+    release = release_proof_projection(surface.get("lab_release_proof"))
+    s13_state = surface.get("s13_completion_proof")
+    if s13_state not in S13_COMPLETION_PROOF_STATES:
+        fail("S13 completion proof: unknown canonical control state")
+    s13 = S13_COMPLETION_PROOF_STATES[s13_state]
+    return {
+        "cruise_phase": s13["cruise_phase"],
+        "current_milestone": s13["current_milestone"],
+        "lab_acceptance_state": release["lab_acceptance_state"],
+        "selected_batch": s13["selected_batch"],
+        "accepted_through": s13["accepted_through"],
+    }
+
+
+def render_release_projection_block(
+    lab_release_proof: str, s13_completion_proof: str,
+) -> str:
+    surface = {
+        "lab_release_proof": lab_release_proof,
+        "s13_completion_proof": s13_completion_proof,
+    }
+    projection = control_projection(surface)
     return "\n".join((
         "<!-- M625_RELEASE_PROJECTION_BEGIN -->",
-        f"Release-proof control: `{state}`",
+        f"Release-proof control: `{lab_release_proof}`",
+        f"S13 completion proof: `{s13_completion_proof}`",
         f"Cruise phase: `{projection['cruise_phase']}`",
         f"Current milestone: `{projection['current_milestone']}`",
         f"LAB acceptance state: `{projection['lab_acceptance_state']}`",
@@ -1143,10 +1206,13 @@ def render_release_projection_block(state: str) -> str:
 def validate_control_projection(
     plan: dict[str, Any], matrix: dict[str, Any], plan_dir: Path,
 ) -> None:
-    state = plan.get("lab_release_proof")
-    projection = release_proof_projection(state)
-    if matrix.get("lab_release_proof") != state:
+    lab_state = plan.get("lab_release_proof")
+    s13_state = plan.get("s13_completion_proof")
+    projection = control_projection(plan)
+    if matrix.get("lab_release_proof") != lab_state:
         fail("release proof: plan/matrix control split-brain")
+    if matrix.get("s13_completion_proof") != s13_state:
+        fail("S13 completion proof: plan/matrix control split-brain")
     expected_common = {
         "cruise_phase": projection["cruise_phase"],
         "current_milestone": projection["current_milestone"],
@@ -1166,7 +1232,7 @@ def validate_control_projection(
         fail("release proof: LAB acceptance-state projection drift")
     if readiness(matrix)["selected_batch"] != projection["selected_batch"]:
         fail("release proof: readiness projection drift")
-    expected_block = render_release_projection_block(state)
+    expected_block = render_release_projection_block(lab_state, s13_state)
     for surface in RELEASE_PROJECTION_SURFACES:
         text = (plan_dir / surface).read_text(encoding="utf-8")
         blocks = RELEASE_PROJECTION_RE.findall(text)
@@ -1203,7 +1269,7 @@ def validate_matrix(data: dict[str, Any]) -> None:
     exact_keys(data, set(MATRIX_ROOT_KEYS), "matrix")
     if data["schema_version"] != 2:
         fail("matrix: schema version drift")
-    projection = release_proof_projection(data.get("lab_release_proof"))
+    projection = control_projection(data)
     if (
         data["amendment_count"] != CURRENT_AMENDMENT_COUNT
         or data["amendment"] != CURRENT_AMENDMENT
@@ -1346,6 +1412,7 @@ def render_live_audit(matrix: dict[str, Any]) -> str:
                 matrix["lab_release_proof"]
             )["lab_acceptance_state"],
             "lab_release_proof": matrix["lab_release_proof"],
+            "s13_completion_proof": matrix["s13_completion_proof"],
             "historical_integrity_record": INTEGRITY,
             "historical_integrity_selected_batch": ["MSP-05A-R2"],
             "pre_m625_history_projection_sha256": pre_m625_history_sha256(rows),
@@ -1417,14 +1484,42 @@ def replace_root_yaml_scalar(text: str, key: str, value: str) -> str:
     return updated
 
 
-def project_release_proof_files(root: Path, state: str) -> None:
-    """Project one canonical plan control into every dependent source."""
-    projection = release_proof_projection(state)
+def replace_or_insert_root_yaml_scalar(
+    text: str, key: str, value: str, after: str,
+) -> str:
+    if re.search(rf"(?m)^{re.escape(key)}:", text):
+        return replace_root_yaml_scalar(text, key, value)
+    updated, count = re.subn(
+        rf"(?m)^({re.escape(after)}:[^\n]*\n)",
+        rf"\1{key}: {value}\n",
+        text,
+        count=1,
+    )
+    if count != 1:
+        fail(f"control projection: missing insertion anchor {after}")
+    return updated
+
+
+def project_control_files(
+    root: Path, lab_release_proof: str, s13_completion_proof: str,
+) -> None:
+    """Project the independent LAB and S13 controls into every source."""
+    surface = {
+        "lab_release_proof": lab_release_proof,
+        "s13_completion_proof": s13_completion_proof,
+    }
+    projection = control_projection(surface)
     plan_dir = root / PLAN
     plan_path = plan_dir / "plan.yaml"
     plan_text = plan_path.read_text(encoding="utf-8")
+    plan_text = replace_or_insert_root_yaml_scalar(
+        plan_text,
+        "s13_completion_proof",
+        s13_completion_proof,
+        "lab_release_proof",
+    )
     for key, value in (
-        ("lab_release_proof", state),
+        ("lab_release_proof", lab_release_proof),
         ("cruise_phase", projection["cruise_phase"]),
         ("current_milestone", projection["current_milestone"]),
         ("accepted_through", projection["accepted_through"]),
@@ -1443,8 +1538,14 @@ def project_release_proof_files(root: Path, state: str) -> None:
 
     matrix_path = plan_dir / MATRIX
     matrix_text = matrix_path.read_text(encoding="utf-8")
+    matrix_text = replace_or_insert_root_yaml_scalar(
+        matrix_text,
+        "s13_completion_proof",
+        s13_completion_proof,
+        "lab_release_proof",
+    )
     for key, value in (
-        ("lab_release_proof", state),
+        ("lab_release_proof", lab_release_proof),
         ("cruise_phase", projection["cruise_phase"]),
         ("current_milestone", projection["current_milestone"]),
         ("accepted_through", projection["accepted_through"]),
@@ -1458,9 +1559,34 @@ def project_release_proof_files(root: Path, state: str) -> None:
     )
     if lab_count != 1:
         fail("release proof: missing LAB acceptance_state")
+    matrix_text, ready_count = re.subn(
+        r"(?m)(^  initial_ready_set:\n)(?:  - [^\n]+\n)+",
+        r"\1"
+        + "".join(
+            f"  - {row_id}\n" for row_id in projection["selected_batch"]
+        ),
+        matrix_text,
+        count=1,
+    )
+    if ready_count != 1:
+        fail("S13 completion proof: missing serialization initial_ready_set")
+    for row_id in M625_S13_IDS:
+        matrix_text, state_count = re.subn(
+            rf"(?ms)(^- id: {re.escape(row_id)}\n"
+            rf"(?:(?!^- id:).)*?^  acceptance_state: )[^\n]+$",
+            r"\g<1>completed_published",
+            matrix_text,
+            count=1,
+        )
+        if state_count != 1:
+            fail(
+                f"S13 completion proof: missing {row_id} acceptance_state"
+            )
     matrix_path.write_text(matrix_text, encoding="utf-8")
 
-    expected_block = render_release_projection_block(state)
+    expected_block = render_release_projection_block(
+        lab_release_proof, s13_completion_proof,
+    )
     for surface in RELEASE_PROJECTION_SURFACES:
         path = plan_dir / surface
         text = path.read_text(encoding="utf-8")
@@ -1471,8 +1597,20 @@ def project_release_proof_files(root: Path, state: str) -> None:
 
 
 def apply_release_proof_state(root: Path, state: str) -> None:
-    """Set the canonical plan control and regenerate every dependent projection."""
-    project_release_proof_files(root, state)
+    """Reproject the immutable LAB proof without changing S13 completion."""
+    plan = load_yaml(root / PLAN / "plan.yaml")
+    project_control_files(root, state, plan.get("s13_completion_proof"))
+    _validate_generated_control(root)
+
+
+def apply_s13_completion_proof_state(root: Path, state: str) -> None:
+    """Finalize S13 independently while retaining the LAB release proof."""
+    plan = load_yaml(root / PLAN / "plan.yaml")
+    project_control_files(root, plan.get("lab_release_proof"), state)
+    _validate_generated_control(root)
+
+
+def _validate_generated_control(root: Path) -> None:
     plan_dir = root / PLAN
     matrix = load_yaml(plan_dir / MATRIX)
     plan = load_yaml(plan_dir / "plan.yaml")
@@ -1500,8 +1638,13 @@ def apply_release_proof_state(root: Path, state: str) -> None:
 def write_generated(root: Path) -> None:
     """Regenerate all projections from the canonical plan control."""
     plan_dir = root / PLAN
-    state = load_yaml(plan_dir / "plan.yaml").get("lab_release_proof")
-    apply_release_proof_state(root, state)
+    plan = load_yaml(plan_dir / "plan.yaml")
+    project_control_files(
+        root,
+        plan.get("lab_release_proof"),
+        plan.get("s13_completion_proof"),
+    )
+    _validate_generated_control(root)
 
 def reject_active_routing_pin(value: Any, where: str) -> None:
     """Reject provider/model routing facts in active (not historical) contracts."""
@@ -1530,7 +1673,7 @@ def reject_active_row_string_pins(value: Any, where: str) -> None:
 
 def validate_plan_projection(plan: dict[str, Any]) -> None:
     exact_keys(plan, set(PLAN_ROOT_KEYS), "plan")
-    projection = release_proof_projection(plan.get("lab_release_proof"))
+    projection = control_projection(plan)
     reject_active_routing_pin(plan, "plan")
     policy = plan.get("routing_policy")
     exact_keys(policy, {"resolver", "policy_digest", "forbidden_tier"}, "plan.routing_policy")
@@ -1874,6 +2017,29 @@ def validate_markdown_claims(plan_dir: Path, matrix: dict[str, Any]) -> None:
         raise ValidationError("surfaces.123: malformed tool suffix block") from exc
     if successor_tools != M625_TOOL_SUFFIXES:
         fail("surfaces.123: exact M6.25 tool suffix contract drift")
+    completion_text = (plan_dir / M625_S13_COMPLETION).read_text(
+        encoding="utf-8"
+    )
+    compact_completion = " ".join(completion_text.split())
+    for receipt in M625_S13_COMPLETION_RECEIPTS:
+        if receipt not in compact_completion:
+            fail(f"surfaces.124: missing S13 completion receipt: {receipt}")
+    for fragment in (
+        "`lab_release_proof=released_chain_redeployed`",
+        "`s13_completion_proof=published_evidence_verified`",
+        "Every attempted operation was READ",
+        "WRITE, SET, rollback-dispatch, and mutation probes remained zero",
+        "All 26 baseline successes remained successful",
+        "with zero regressions",
+        "restart recreated the runtime container",
+        "owner-only MCP boundary",
+        "kept public output redacted",
+        "`MSP-065-LIVE-R1` is now the sole logical-ready, dispatchable, selected, and initial-ready row",
+        "M9 remains blocked",
+        "`promoted_leaf_count > 0`",
+    ):
+        if fragment not in compact_completion:
+            fail(f"surfaces.124: missing completion invariant: {fragment}")
     roadmap = (plan_dir / "14-execution-roadmap-issues-and-gates.md").read_text(encoding="utf-8")
     for row_id, tokens in REQUIRES_COMPLETION_TOKENS.items():
         if row_id in {"MSP-DOCS-E2", "MSP-DOCS-E2R-PLATFORM", "MSP-DOCS-E2R-PUBLISH", "MSP-DOCS-E2R-AGGREGATE", "MSP-DOCS-CLEAN", "MSP-03D-R"}:
@@ -2090,12 +2256,21 @@ def main(argv: list[str]) -> int:
             validate_surfaces(ROOT)
             print(f"set LAB release proof to {argv[2]} and regenerated projections")
             return 0
+        if len(argv) == 3 and argv[1] == "--set-s13-completion-proof":
+            apply_s13_completion_proof_state(ROOT, argv[2])
+            validate_surfaces(ROOT)
+            print(
+                f"set S13 completion proof to {argv[2]} "
+                "and regenerated projections"
+            )
+            return 0
         if len(argv) == 3 and argv[1] == "--issue-63-head":
             issue_head = argv[2]
         elif len(argv) != 1:
             fail(
                 "usage: validate_ad_docs_02.py [--write-generated | "
-                "--set-lab-release-proof STATE | --issue-63-head SHA]"
+                "--set-lab-release-proof STATE | "
+                "--set-s13-completion-proof STATE | --issue-63-head SHA]"
             )
         validate_surfaces(ROOT)
         if issue_head is None:

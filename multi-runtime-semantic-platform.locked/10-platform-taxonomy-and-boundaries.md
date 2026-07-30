@@ -1,6 +1,6 @@
 # Platform Taxonomy And Boundaries
 
-Canonical-SHA256: `97ccf972861039b06fd99c75be6c7ad355adb38a694049102075146aa4fa5aef`
+Canonical-SHA256: `5c60f6ba2004791a11af9ca5ae7f6ba1a8ebab4d9e99df69bc3c2f60c39be3bd`
 
 Depends on:
 None. This is the vocabulary root for the draft.

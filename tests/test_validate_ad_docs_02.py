@@ -242,10 +242,12 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
         )
         self.assertEqual(live_predecessors[2:], ["MSP-0625-S13-GW-LAB"])
-        expected_batch = validator.release_proof_projection(
+        release_batch = validator.release_proof_projection(
             self.plan["lab_release_proof"]
         )["selected_batch"]
-        self.assertEqual(expected_batch, ["MSP-0625-S13-DOCS"])
+        self.assertEqual(release_batch, ["MSP-0625-S13-DOCS"])
+        expected_batch = validator.control_projection(self.plan)["selected_batch"]
+        self.assertEqual(expected_batch, ["MSP-065-LIVE-R1"])
         self.assertEqual(validator.readiness(self.matrix)["selected_batch"], expected_batch)
         self.assertEqual(self.plan["initial_ready_set"], expected_batch)
         self.assertEqual(
@@ -253,7 +255,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             expected_batch,
         )
 
-    def test_m625_released_lab_proof_is_preserved_while_erratum_docs_is_selected(self) -> None:
+    def test_m625_released_lab_proof_is_preserved_after_s13_completion(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             shutil.copytree(PLAN, root / validator.PLAN)
@@ -263,18 +265,22 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             matrix = yaml.safe_load((root / validator.PLAN / validator.MATRIX).read_text())
             validator.validate_control_projection(plan, matrix, root / validator.PLAN)
             self.assertEqual(plan["lab_release_proof"], "released_chain_redeployed")
-            self.assertEqual(plan["current_milestone"], "MSP-0625-S13-DOCS")
-            self.assertEqual(plan["cruise_phase"], "MSP-0625-S13-DOCS")
-            self.assertEqual(plan["initial_ready_set"], ["MSP-0625-S13-DOCS"])
-            self.assertEqual(matrix["current_milestone"], "MSP-0625-S13-DOCS")
-            self.assertEqual(matrix["cruise_phase"], "MSP-0625-S13-DOCS")
+            self.assertEqual(
+                plan["s13_completion_proof"],
+                "published_evidence_verified",
+            )
+            self.assertEqual(plan["current_milestone"], "MSP-065-LIVE-R1")
+            self.assertEqual(plan["cruise_phase"], "MSP-065-LIVE-R1")
+            self.assertEqual(plan["initial_ready_set"], ["MSP-065-LIVE-R1"])
+            self.assertEqual(matrix["current_milestone"], "MSP-065-LIVE-R1")
+            self.assertEqual(matrix["cruise_phase"], "MSP-065-LIVE-R1")
             self.assertEqual(
                 self.row(matrix, "MSP-0625-LAB")["acceptance_state"],
                 "accepted",
             )
             self.assertEqual(
                 validator.readiness(matrix)["selected_batch"],
-                ["MSP-0625-S13-DOCS"],
+                ["MSP-065-LIVE-R1"],
             )
             target = root / validator.PLAN
             canonical = (target / "00-canonical.md").read_text(encoding="utf-8")
@@ -764,9 +770,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
 
     def test_live_audit_is_current_integrity_projection(self) -> None:
         audit = validator.render_live_audit(self.matrix)
-        expected_batch = validator.release_proof_projection(
-            self.plan["lab_release_proof"]
-        )["selected_batch"]
+        expected_batch = validator.control_projection(self.plan)["selected_batch"]
         self.assertIn('"current_control"', audit)
         self.assertIn(
             '"selected_batch":' + json.dumps(expected_batch, separators=(",", ":")),
@@ -1105,6 +1109,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "121-w31-26-m625-raw-mutation-contract-correction.md",
                 "122-w31-26-m625-implementation-state-reconciliation.md",
                 "123-w31-26-m625-spine-13-erratum.md",
+                "124-w31-26-m625-spine-13-completion.md",
             ),
         )
         self.assertEqual(

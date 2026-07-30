@@ -4,11 +4,12 @@ Status: `Locked`
 Baseline: `Gateway 0.4.0`
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-0625-S13-DOCS`
-Current milestone: `MSP-0625-S13-DOCS`
+S13 completion proof: `published_evidence_verified`
+Cruise phase: `MSP-065-LIVE-R1`
+Current milestone: `MSP-065-LIVE-R1`
 LAB acceptance state: `accepted`
-Selected batch: `MSP-0625-S13-DOCS`
-Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+Selected batch: `MSP-065-LIVE-R1`
+Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 Amendment: `M6.25 bounded SPINE 1.3 erratum`
 
@@ -21,7 +22,7 @@ Amendment: `M6.25 bounded SPINE 1.3 erratum`
 | M4.5 - Trust And Admin State Freeze | helianthus-eebusreg | M4 | Trust, pairing, admin-local, restore, and quarantine semantics are frozen for gateway/MCP consumption. |
 | M5 - Production Prerequisites And Gateway Sidecar Integration | helianthus-docs-eebus, helianthus-ship-go, helianthus-eebus-go, helianthus-eebusreg, helianthus-ebusgateway | M4.5 and M5A | Freeze activation contract, implement exact-address SHIP plus independent mDNS policy, thread it through eebus-go, install protected identity and real runtime construction, map gateway config losslessly, harden process-exit and remote canonicalization, then add the disabled-by-default sidecar. |
 | M6 - Read-Only eeBUS MCP v1 | helianthus-ebusgateway | M5 | Read-only `eebus.v1.*` tools pass deterministic snapshot/hash/auth/error/anti-leak tests. |
-| M6.25 - Raw SPINE Feature Acquisition | execution-plans, docs-eebus, spine-go, eebus-go, eebusreg, gateway, docs-ebus | M6 | Base typed READ/WRITE and LAB remain accepted. Stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 DOCS -> SPINE -> EEBUS -> REG -> GW-LAB erratum, which is READ-only and preserves the exact tools, no-write stop, raw/public boundary, and candidate_ref prohibition. |
+| M6.25 - Raw SPINE Feature Acquisition | execution-plans, docs-eebus, spine-go, eebus-go, eebusreg, gateway, docs-ebus | M6 | Base typed READ/WRITE, LAB, and the bounded SPINE 1.3 DOCS -> SPINE -> EEBUS -> REG -> GW-LAB erratum are accepted. The erratum remains READ-only and preserves the exact tools, no-write stop, raw/public boundary, and candidate_ref prohibition. |
 | M6.5-LIVE-R1 - Synchronized Evidence Recorder | helianthus-ebusgateway | MSP-0625-LAB, MSP-0625-DOCS-P, and MSP-0625-S13-GW-LAB | Recorder captures synchronized live eeBUS/eBUS/cloud evidence. Historical framework closure and accepted base LAB are insufficient without the final erratum token. |
 | M7-LIVE-R1 - Draft Candidate Fact Graph | helianthus-ebusgateway | M6.5-LIVE-R1 | Candidate facts exist from direct observations with no promotion or consumer exposure. |
 | M8-LIVE-R1 - Multi-Runtime Coexistence | helianthus-ebusgateway | M7-LIVE-R1 | Live coexistence proves no existing consumer drift. |
