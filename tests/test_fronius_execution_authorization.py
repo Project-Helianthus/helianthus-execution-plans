@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 import hashlib
 import json
 import os
@@ -193,6 +194,86 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         copied = Path(temp) / PLAN.name
         shutil.copytree(PLAN, copied)
         return copied
+
+    def amendment_surface_digest(self, plan_root: Path) -> str:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(VALIDATOR),
+                str(plan_root),
+                "--print-amendment-surfaces-sha256",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return result.stdout.strip()
+
+    def rewrite_amendment_surface_digest(self, plan_root: Path) -> None:
+        plan_path = plan_root / "plan.yaml"
+        plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+        plan["execution_authorization"]["authorization_anchor"][
+            "amendment_surfaces_sha256"
+        ] = self.amendment_surface_digest(plan_root)
+        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+
+    def set_gateway_status_authorization(
+        self,
+        plan_root: Path,
+        authorized: bool,
+    ) -> None:
+        status_path = plan_root / "99-status.md"
+        unauthorized = "Gateway work authorized: no; stop before FMV3-M4-01"
+        authorized_status = "Gateway work authorized: yes; FMV3-M4-01 is authorized"
+        old, new = (
+            (unauthorized, authorized_status)
+            if authorized
+            else (authorized_status, unauthorized)
+        )
+        status = status_path.read_text(encoding="utf-8")
+        self.assertEqual(status.count(old), 1)
+        status_path.write_text(status.replace(old, new, 1), encoding="utf-8")
+
+    def published_amendment_snapshots(
+        self,
+        temp: str,
+        mutate_anchor: Callable[[Path], None],
+        mutate_current: Callable[[Path], None],
+    ) -> tuple[Path, str, str]:
+        repo = Path(temp) / "repo"
+        repo.mkdir()
+        plan_root = repo / PLAN.name
+        shutil.copytree(PLAN, plan_root)
+        shutil.copytree(ROOT / "runtime-gates", repo / "runtime-gates")
+        (repo / "repository-marker.txt").write_text("clean\n", encoding="utf-8")
+        self.git(repo, "init", "-b", "main")
+        self.git(repo, "config", "user.name", "Authorization Test")
+        self.git(repo, "config", "user.email", "authorization-test@example.invalid")
+
+        mutate_anchor(plan_root)
+        self.rewrite_amendment_surface_digest(plan_root)
+        self.git(repo, "add", ".")
+        self.git(repo, "commit", "-m", "publish amended authorization anchor")
+        anchor = self.git(repo, "rev-parse", "HEAD").stdout.strip()
+        remote = Path(temp) / "remote.git"
+        subprocess.run(
+            ["git", "init", "--bare", str(remote)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        self.git(repo, "remote", "add", "origin", str(remote))
+        self.git(repo, "push", "-u", "origin", "main")
+
+        mutate_current(plan_root)
+        self.rewrite_amendment_surface_digest(plan_root)
+        self.git(repo, "add", ".")
+        self.git(repo, "commit", "-m", "restore current authorization snapshot")
+        self.git(repo, "push", "origin", "main")
+        current = self.git(repo, "rev-parse", "HEAD").stdout.strip()
+        return plan_root, anchor, current
 
     def rewrite_canonical_hashes(self, plan_root: Path) -> None:
         digest = hashlib.sha256((plan_root / "00-canonical.md").read_bytes()).hexdigest()
@@ -644,6 +725,129 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             result = self.run_validator(copied)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("status issue-count projection mismatch", result.stderr)
+
+    def test_amendment_surface_digest_binds_gateway_authorization_status(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            original = self.amendment_surface_digest(copied)
+            self.set_gateway_status_authorization(copied, authorized=True)
+            self.assertNotEqual(original, self.amendment_surface_digest(copied))
+
+    def test_amendment_surface_digest_binds_corrective_gate_cardinality_and_order(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            original = self.amendment_surface_digest(copied)
+            plan_path = copied / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            gates = plan["phase_gates"]
+            first = next(
+                index
+                for index, gate in enumerate(gates)
+                if gate["id"] == "PG-OPAQUE-ACQUISITION-DOC-GATE"
+            )
+            duplicate = dict(gates[first])
+            gates.insert(first + 1, duplicate)
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            self.assertNotEqual(original, self.amendment_surface_digest(copied))
+
+            gates.pop(first + 1)
+            second = next(
+                index
+                for index, gate in enumerate(gates)
+                if gate["id"] == "PG-OPAQUE-ACQUISITION-CONSUMER-PIN"
+            )
+            gates[first], gates[second] = gates[second], gates[first]
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            self.assertNotEqual(original, self.amendment_surface_digest(copied))
+
+    def test_structural_validator_rejects_reordered_corrective_phase_gates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            plan_path = copied / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            gates = plan["phase_gates"]
+            first = next(
+                index
+                for index, gate in enumerate(gates)
+                if gate["id"] == "PG-OPAQUE-ACQUISITION-DOC-GATE"
+            )
+            second = next(
+                index
+                for index, gate in enumerate(gates)
+                if gate["id"] == "PG-OPAQUE-ACQUISITION-CONSUMER-PIN"
+            )
+            gates[first], gates[second] = gates[second], gates[first]
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("corrective phase gate order mismatch", result.stderr)
+
+    def test_authorization_rejects_anchor_gateway_status_restored_on_current(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor, current = self.published_amendment_snapshots(
+                temp,
+                lambda root: self.set_gateway_status_authorization(root, authorized=True),
+                lambda root: self.set_gateway_status_authorization(root, authorized=False),
+            )
+            result = self.authorize(
+                plan_root,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("status Gateway work authorized mismatch", result.stderr)
+            self.assertEqual(
+                self.git(plan_root.parent, "rev-parse", "HEAD").stdout.strip(),
+                current,
+            )
+
+    def test_authorization_rejects_duplicate_corrective_gate_in_anchor(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            def add_duplicate(root: Path) -> None:
+                plan_path = root / "plan.yaml"
+                plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+                gate = next(
+                    gate
+                    for gate in plan["phase_gates"]
+                    if gate["id"] == "PG-OPAQUE-ACQUISITION-DOC-GATE"
+                )
+                plan["phase_gates"].append(dict(gate))
+                plan_path.write_text(
+                    yaml.safe_dump(plan, sort_keys=False), encoding="utf-8"
+                )
+
+            def remove_duplicate(root: Path) -> None:
+                plan_path = root / "plan.yaml"
+                plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+                seen: set[str] = set()
+                gates = []
+                for gate in plan["phase_gates"]:
+                    if gate["id"] not in seen:
+                        seen.add(gate["id"])
+                        gates.append(gate)
+                plan["phase_gates"] = gates
+                plan_path.write_text(
+                    yaml.safe_dump(plan, sort_keys=False), encoding="utf-8"
+                )
+
+            plan_root, anchor, _ = self.published_amendment_snapshots(
+                temp,
+                add_duplicate,
+                remove_duplicate,
+            )
+            result = self.authorize(
+                plan_root,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("duplicate phase gate ID", result.stderr)
 
     def test_corrective_issue_removal_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
