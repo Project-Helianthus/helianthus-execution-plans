@@ -98,22 +98,25 @@ EXPECTED_CORRECTIVE_GATE_ROWS = [
         "FMV3-M2-01",
     ],
 ]
-EXPECTED_CORRECTIVE_PHASE_GATES = {
-    "PG-OPAQUE-ACQUISITION-DOC-GATE": {
+EXPECTED_CORRECTIVE_PHASE_GATES = [
+    {
         "id": "PG-OPAQUE-ACQUISITION-DOC-GATE",
         "kind": "dependency",
         "after_issues": ["FMV3-M1-05"],
         "before_issues": ["FMV3-M1-06"],
         "requirement": "The public OPAQUE_RUNTIME_ACQUISITION_V1 companion merges after M1-04 and before M1-06 code, defining source_kind runtime versus offline_fixture, source-issued non-serializable one-shot capability semantics, bounded attempt lifecycle, shared copy/recreation state, per-dependent coalesced capabilities, and lossless normalization. A fresh independent OpenAI review of the exact docs revision is a merge blocker.",
     },
-    "PG-OPAQUE-ACQUISITION-CONSUMER-PIN": {
+    {
         "id": "PG-OPAQUE-ACQUISITION-CONSUMER-PIN",
         "kind": "dependency",
         "after_issues": ["FMV3-M1-06"],
         "before_issues": ["FMV3-M2-01"],
         "requirement": "M2-01 cannot begin until M1-06 has merged, its exact full 40-character merge SHA is pinned and verified by the consumer, and the M1 hosted RED/GREEN plus fresh independent review evidence is closed.",
     },
-}
+]
+EXPECTED_CORRECTIVE_PHASE_GATE_IDS = [
+    gate["id"] for gate in EXPECTED_CORRECTIVE_PHASE_GATES
+]
 CONDITIONAL_GATE_IDS = {"CG-M4-LIVE-GO", "CG-M5-SEMANTIC-GO"}
 M1_IMPLEMENTATION_IDS = {f"FMV3-M1-{number:02d}" for number in range(1, 5)}
 M2_IMPLEMENTATION_IDS = {f"FMV3-M2-{number:02d}" for number in range(1, 4)}
@@ -443,6 +446,74 @@ def extract_canonical_authorization_block(text: str) -> str:
         "canonical authorization and hard-stop block mismatch",
     )
     return matches[0]
+
+
+def amendment_status_metadata(status: str) -> dict[str, str]:
+    keys = (
+        "State",
+        "Current milestone",
+        "Review epoch",
+        "Review state",
+        "Accepted adversarial rounds",
+        "Review target",
+        "Lock authorized",
+        "Implementation authorized",
+        "Authorization scope authority",
+        "Authorization anchor",
+        "Repository creation authorized",
+        "Private repository action",
+        "Commit/push authorized",
+        "Gateway work authorized",
+        "Private creation/bootstrap authorized",
+    )
+    metadata: dict[str, str] = {}
+    for key in keys:
+        values = re.findall(rf"^{re.escape(key)}: (.+)$", status, re.MULTILINE)
+        require(len(values) == 1, f"status must contain exactly one {key} field")
+        metadata[key] = values[0]
+    return metadata
+
+
+def corrective_phase_gates(phase_gates: list[Any]) -> list[dict[str, Any]]:
+    return [
+        gate
+        for gate in phase_gates
+        if isinstance(gate, dict)
+        and gate.get("id") in EXPECTED_CORRECTIVE_PHASE_GATE_IDS
+    ]
+
+
+def validate_corrective_phase_gates(phase_gates: list[Any]) -> None:
+    gate_ids = [gate.get("id") for gate in phase_gates if isinstance(gate, dict)]
+    require(len(gate_ids) == len(set(gate_ids)), "duplicate phase gate ID")
+    gates = corrective_phase_gates(phase_gates)
+    require(
+        [gate["id"] for gate in gates] == EXPECTED_CORRECTIVE_PHASE_GATE_IDS,
+        "corrective phase gate order mismatch",
+    )
+    require(
+        gates == EXPECTED_CORRECTIVE_PHASE_GATES,
+        "corrective docs-to-M1-to-M2 phase gate projection mismatch",
+    )
+
+
+def require_matching_amendment_snapshots(
+    anchored_projection: dict[str, Any],
+    current_projection: dict[str, Any],
+) -> None:
+    anchored_status = anchored_projection["status"]["metadata"]
+    current_status = current_projection["status"]["metadata"]
+    require(
+        current_status.get("Gateway work authorized")
+        == anchored_status["Gateway work authorized"],
+        "status Gateway work authorized mismatch",
+    )
+    require(
+        current_projection == anchored_projection,
+        "current main amendment surface digest differs from merged PR #89 anchor",
+    )
+
+
 def amendment_surface_projection(
     plan: dict[str, Any],
     texts: dict[str, str],
@@ -475,15 +546,7 @@ def amendment_surface_projection(
     )
     phase_gates = plan.get("phase_gates")
     require(isinstance(phase_gates, list), "phase_gates must be a list")
-    corrective_gates = {
-        gate.get("id"): gate
-        for gate in phase_gates
-        if isinstance(gate, dict) and gate.get("id") in EXPECTED_CORRECTIVE_PHASE_GATES
-    }
-    require(
-        corrective_gates == EXPECTED_CORRECTIVE_PHASE_GATES,
-        "corrective docs-to-M1-to-M2 phase gate projection mismatch",
-    )
+    corrective_gates = corrective_phase_gates(phase_gates)
     issue_map_rows = parse_issue_map(texts["90-issue-map.md"])
     require(
         all(issue_map_rows.get(issue_id) is not None for issue_id in AMENDMENT_ISSUE_IDS),
@@ -517,7 +580,8 @@ def amendment_surface_projection(
         "milestone-map corrective gate projection mismatch",
     )
     status = texts["99-status.md"]
-    status_states = re.findall(r"^State: (.+)$", status, re.MULTILINE)
+    status_metadata = amendment_status_metadata(status)
+    status_states = [status_metadata["State"]]
     require(
         status_states == [str(plan.get("state"))],
         "status state projection mismatch",
@@ -547,8 +611,7 @@ def amendment_surface_projection(
             issue_map_rows[issue_id] for issue_id in AMENDMENT_ISSUE_IDS
         ],
         "phase_gates": [
-            corrective_gates[gate_id]
-            for gate_id in EXPECTED_CORRECTIVE_PHASE_GATES
+            *corrective_gates,
         ],
         "canonical_authorization_block": canonical_block,
         "milestone_rows": [
@@ -559,10 +622,10 @@ def amendment_surface_projection(
         "status": {
             "state": status_states[0],
             "issue_count": int(status_issue_counts[0]),
+            "metadata": status_metadata,
         },
     }
-def amendment_surface_digest(plan: dict[str, Any], texts: dict[str, str]) -> str:
-    projection = amendment_surface_projection(plan, texts)
+def amendment_projection_digest(projection: dict[str, Any]) -> str:
     encoded = json.dumps(
         projection,
         sort_keys=True,
@@ -570,6 +633,10 @@ def amendment_surface_digest(plan: dict[str, Any], texts: dict[str, str]) -> str
         ensure_ascii=True,
     ).encode("utf-8")
     return hashlib.sha256(encoded).hexdigest()
+
+
+def amendment_surface_digest(plan: dict[str, Any], texts: dict[str, str]) -> str:
+    return amendment_projection_digest(amendment_surface_projection(plan, texts))
 def load_amendment_surface_texts(root: Path) -> dict[str, str]:
     return {
         name: (root / name).read_text(encoding="utf-8")
@@ -1059,15 +1126,7 @@ def validate(root: Path) -> tuple[int, int]:
                         f"phase gate {gate['id']} lacks conditional-gate reference")
     require(len(gate_ids) == len(set(gate_ids)), "duplicate phase gate ID")
     require(set(gate_ids) == REQUIRED_PHASE_GATES, "phase gate set mismatch")
-    gates_by_id = {gate["id"]: gate for gate in gates}
-    require(
-        {
-            gate_id: gates_by_id.get(gate_id)
-            for gate_id in EXPECTED_CORRECTIVE_PHASE_GATES
-        }
-        == EXPECTED_CORRECTIVE_PHASE_GATES,
-        "corrective docs-to-M1-to-M2 phase gate projection mismatch",
-    )
+    validate_corrective_phase_gates(gates)
     conditional_gates = plan["conditional_gates"]
     require(isinstance(conditional_gates, list), "conditional_gates must be a list")
     conditional_ids = [item.get("id") for item in conditional_gates if isinstance(item, dict)]
@@ -1356,6 +1415,12 @@ def main() -> int:
             anchored_plan_text = anchored_plan_result.stdout
             anchored_plan = yaml.load(anchored_plan_text, Loader=UniqueLoader)
             require(isinstance(anchored_plan, dict), "anchored plan.yaml must be a mapping")
+            anchored_phase_gates = anchored_plan.get("phase_gates")
+            require(
+                isinstance(anchored_phase_gates, list),
+                "anchored phase_gates must be a list",
+            )
+            validate_corrective_phase_gates(anchored_phase_gates)
             anchored_authorization = anchored_plan.get("execution_authorization", {})
             require(
                 isinstance(anchored_authorization, dict),
@@ -1402,10 +1467,20 @@ def main() -> int:
                     f"amendment surface {name} is absent from merged PR #89 anchor",
                 )
                 anchored_surface_texts[name] = result.stdout
-            anchored_surface_digest = amendment_surface_digest(
+            anchored_projection = amendment_surface_projection(
                 anchored_plan,
                 anchored_surface_texts,
             )
+            current_projection = amendment_surface_projection(
+                plan,
+                load_amendment_surface_texts(root),
+            )
+            require_matching_amendment_snapshots(
+                anchored_projection,
+                current_projection,
+            )
+            anchored_surface_digest = amendment_projection_digest(anchored_projection)
+            current_surface_digest = amendment_projection_digest(current_projection)
             require(
                 anchored_anchor.get("amendment_surfaces_sha256")
                 == anchored_surface_digest,
@@ -1413,7 +1488,11 @@ def main() -> int:
             )
             require(
                 authorization["authorization_anchor"]["amendment_surfaces_sha256"]
-                == anchored_surface_digest,
+                == current_surface_digest,
+                "current amendment surface digest mismatch",
+            )
+            require(
+                current_surface_digest == anchored_surface_digest,
                 "current main amendment surface digest differs from merged PR #89 anchor",
             )
             if (
