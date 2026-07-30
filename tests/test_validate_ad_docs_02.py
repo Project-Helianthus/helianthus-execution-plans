@@ -291,13 +291,13 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                     )
 
     def test_m625_s13_completion_selects_live_m65_and_binds_public_receipts(self) -> None:
-        expected_control = "released_chain_redeployed_s13_verified"
+        expected_control = "published_evidence_verified"
         expected_states = {
             "MSP-0625-S13-DOCS": "completed_published",
             "MSP-0625-S13-SPINE": "completed_published",
             "MSP-0625-S13-EEBUS": "completed_published",
             "MSP-0625-S13-REG": "completed_published",
-            "MSP-0625-S13-GW-LAB": "accepted_live",
+            "MSP-0625-S13-GW-LAB": "completed_published",
         }
         expected_receipts = (
             "b9166d68ac0fd063598e5f0e8d8f8c941e56aa15",
@@ -311,7 +311,19 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "d764666f6be6cda21162a2aaeca9891c1a852d2a8c61c6e6bcb903de4c127415",
         )
 
-        self.assertEqual(self.plan["lab_release_proof"], expected_control)
+        self.assertEqual(
+            self.plan["lab_release_proof"],
+            "released_chain_redeployed",
+        )
+        self.assertEqual(self.plan["s13_completion_proof"], expected_control)
+        self.assertEqual(
+            self.matrix["lab_release_proof"],
+            "released_chain_redeployed",
+        )
+        self.assertEqual(
+            self.matrix["s13_completion_proof"],
+            expected_control,
+        )
         self.assertEqual(self.plan["cruise_phase"], "MSP-065-LIVE-R1")
         self.assertEqual(self.plan["current_milestone"], "MSP-065-LIVE-R1")
         self.assertEqual(self.plan["initial_ready_set"], ["MSP-065-LIVE-R1"])
