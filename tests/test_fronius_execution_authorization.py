@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from collections.abc import Callable
 import hashlib
 import json
@@ -13,6 +14,8 @@ import unittest
 from pathlib import Path
 
 import yaml
+
+from scripts import validate_modbus_docs_trust as trust_validator
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,12 +63,26 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             anchored = repo / locked.name
             shutil.move(str(locked), anchored)
         shutil.copytree(ROOT / "runtime-gates", repo / "runtime-gates")
+        (repo / "scripts").mkdir()
+        (repo / "scripts/validate_modbus_docs_trust.py").write_bytes(
+            (ROOT / "scripts/validate_modbus_docs_trust.py").read_bytes()
+        )
         (repo / "repository-marker.txt").write_text("clean\n", encoding="utf-8")
         self.git(repo, "init", "-b", "main")
         self.git(repo, "config", "user.name", "Authorization Test")
         self.git(repo, "config", "user.email", "authorization-test@example.invalid")
         self.git(repo, "add", ".")
         self.git(repo, "commit", "-m", "publish authorization anchor")
+        head = self.git(repo, "rev-parse", "HEAD").stdout.strip()
+        gate_path = repo / "runtime-gates/fronius-modbus-m1-admission.json"
+        gate = json.loads(gate_path.read_text(encoding="utf-8"))
+        gate["trust_anchor_commit"] = head
+        gate_path.write_text(
+            json.dumps(gate, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        self.git(repo, "add", gate_path.relative_to(repo).as_posix())
+        self.git(repo, "commit", "-m", "bind test M1 trust anchor")
         head = self.git(repo, "rev-parse", "HEAD").stdout.strip()
         remote = Path(temp) / "remote.git"
         subprocess.run(
@@ -94,6 +111,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         anchor_sha: str,
         issue_id: str,
         amendment_pr: dict[str, object] | None = None,
+        github_responses: dict[str, object] | None = None,
     ) -> subprocess.CompletedProcess[str]:
         plan = yaml.safe_load((plan_root / "plan.yaml").read_text(encoding="utf-8"))
         contract_digest = plan["execution_authorization"]["authorized_issue_contract_sha256"]
@@ -108,7 +126,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             "--authorization-contract-sha256",
             contract_digest,
         ]
-        if amendment_pr is None:
+        if amendment_pr is None and github_responses is None:
             return subprocess.run(
                 command,
                 cwd=ROOT,
@@ -121,19 +139,23 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             gh.write_text(
                 "#!/usr/bin/env python3\n"
                 "import json, os, sys\n"
-                "expected = os.environ['FAKE_GH_ENDPOINT']\n"
-                "if sys.argv[1:] != ['api', expected]:\n"
+                "if len(sys.argv) != 3 or sys.argv[1] != 'api':\n"
                 "    raise SystemExit(2)\n"
-                "print(json.dumps(json.loads(os.environ['FAKE_GH_PAYLOAD'])))\n",
+                "responses = json.loads(os.environ['FAKE_GH_RESPONSES'])\n"
+                "if sys.argv[2] not in responses:\n"
+                "    raise SystemExit(2)\n"
+                "print(json.dumps(responses[sys.argv[2]]))\n",
                 encoding="utf-8",
             )
             gh.chmod(0o755)
             env = os.environ.copy()
             env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
-            env["FAKE_GH_ENDPOINT"] = (
-                "repos/Project-Helianthus/helianthus-execution-plans/pulls/89"
-            )
-            env["FAKE_GH_PAYLOAD"] = json.dumps(amendment_pr)
+            responses = dict(github_responses or {})
+            if amendment_pr is not None:
+                responses[
+                    "repos/Project-Helianthus/helianthus-execution-plans/pulls/89"
+                ] = amendment_pr
+            env["FAKE_GH_RESPONSES"] = json.dumps(responses)
             return subprocess.run(
                 command,
                 cwd=ROOT,
@@ -189,6 +211,54 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         }
         value.update(overrides)
         return value
+
+    def m1_admission_responses(
+        self,
+        plan_root: Path,
+        amendment_anchor: str,
+    ) -> dict[str, object]:
+        gate = json.loads(
+            (plan_root.parent / "runtime-gates/fronius-modbus-m1-admission.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        workflow = json.dumps(
+            trust_validator.expected_workflow(gate["trust_anchor_commit"]),
+            indent=2,
+            sort_keys=True,
+        ) + "\n"
+        return {
+            "repos/Project-Helianthus/helianthus-execution-plans/pulls/89": self.amendment_pr(
+                amendment_anchor
+            ),
+            "repos/Project-Helianthus/helianthus-docs-ebus/pulls/376": {
+                "merged": True,
+                "merge_commit_sha": gate["docs_merge_sha"],
+            },
+            f"repos/Project-Helianthus/helianthus-docs-ebus/pulls/{gate['verification_pr']}": {
+                "merged": True,
+                "base": {"ref": "main"},
+                "head": {"sha": gate["verification_head_sha"]},
+            },
+            "repos/Project-Helianthus/helianthus-docs-ebus/branches/main/protection/required_status_checks": {
+                "contexts": [gate["required_check"]],
+                "checks": [],
+            },
+            f"repos/Project-Helianthus/helianthus-docs-ebus/commits/{gate['verification_head_sha']}/check-runs": {
+                "check_runs": [
+                    {
+                        "name": gate["required_check"],
+                        "conclusion": "success",
+                        "details_url": gate["required_check_run_url"],
+                    }
+                ]
+            },
+            "repos/Project-Helianthus/helianthus-docs-ebus/contents/.github/workflows/modbus-trusted-revision.yml?ref="
+            f"{gate['docs_merge_sha']}": {
+                "encoding": "base64",
+                "content": base64.b64encode(workflow.encode("utf-8")).decode("ascii"),
+            },
+        }
 
     def copied_plan(self, temp: str) -> Path:
         copied = Path(temp) / PLAN.name
@@ -590,6 +660,62 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             self.assertIn(
                 "current main amendment surface digest differs from merged PR #89 anchor",
                 result.stderr,
+            )
+
+    def test_reflowed_canonical_authorization_whitespace_preserves_surface_digest(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            original_digest = self.amendment_surface_digest(copied)
+            canonical = copied / "00-canonical.md"
+            original = "sole immutable\nauthorization anchor"
+            reflowed = "sole\nimmutable authorization anchor"
+            text = canonical.read_text(encoding="utf-8")
+            self.assertEqual(text.count(original), 1)
+            canonical.write_text(text.replace(original, reflowed, 1), encoding="utf-8")
+            self.rewrite_canonical_hashes(copied)
+            self.assertEqual(original_digest, self.amendment_surface_digest(copied))
+            result = self.run_validator(copied)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_current_milestone_reanchor_preserves_amendment_authorization(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_root, anchor = self.published_plan(temp)
+            original_digest = self.amendment_surface_digest(plan_root)
+            plan_path = plan_root / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            self.assertEqual(plan["current_milestone"], "M0")
+            plan["current_milestone"] = "M1"
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            status_path = plan_root / "99-status.md"
+            status = status_path.read_text(encoding="utf-8")
+            self.assertEqual(status.count("Current milestone: M0"), 1)
+            status_path.write_text(
+                status.replace("Current milestone: M0", "Current milestone: M1", 1),
+                encoding="utf-8",
+            )
+            self.assertEqual(original_digest, self.amendment_surface_digest(plan_root))
+            self.rewrite_amendment_surface_digest(plan_root)
+            self.git(plan_root.parent, "add", ".")
+            self.git(plan_root.parent, "commit", "-m", "advance current milestone")
+            self.git(plan_root.parent, "push", "origin", "main")
+            current = self.git(plan_root.parent, "rev-parse", "HEAD").stdout.strip()
+            responses = self.m1_admission_responses(plan_root, anchor)
+            for issue_id in ("FMV3-M1-05", "FMV3-M1-06"):
+                result = self.authorize(
+                    plan_root,
+                    anchor,
+                    issue_id,
+                    github_responses=responses,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("fail-closed execution allowlist", result.stdout)
+            self.assertEqual(
+                self.git(plan_root.parent, "rev-parse", "HEAD").stdout.strip(),
+                current,
             )
 
     def test_amendment_authorization_rejects_unmerged_pr(self) -> None:
