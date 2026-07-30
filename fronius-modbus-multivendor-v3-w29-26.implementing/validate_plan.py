@@ -70,6 +70,27 @@ The hard stop is immediately before FMV3-M4-01. Gateway work is not authorized. 
 issue, branch, PR, import, or code change is authorized by this action. Repository creation,
 implementation issues, commits, pushes, reviews, and merges are authorized only for the
 ordered issue list above and remain subject to every dependency and gate."""
+# The amendment digest binds these normative status facts. Operational lifecycle fields
+# remain structurally validated below, but may advance without a new authorization anchor.
+AMENDMENT_STATUS_IMMUTABLE_FIELDS = (
+    "State",
+    "Authorization scope authority",
+    "Authorization anchor",
+    "Gateway work authorized",
+)
+AMENDMENT_STATUS_MUTABLE_FIELDS = (
+    "Current milestone",
+    "Review epoch",
+    "Review state",
+    "Accepted adversarial rounds",
+    "Review target",
+    "Lock authorized",
+    "Implementation authorized",
+    "Repository creation authorized",
+    "Private repository action",
+    "Commit/push authorized",
+    "Private creation/bootstrap authorized",
+)
 EXPECTED_MILESTONE_ROWS = {
     "M1": [
         "M1",
@@ -442,36 +463,36 @@ def extract_canonical_authorization_block(text: str) -> str:
     )
     require(len(matches) == 1, "canonical authorization block must occur exactly once")
     require(
-        matches[0] == CANONICAL_AUTHORIZATION_BLOCK,
+        normalize_semantic_whitespace(matches[0])
+        == normalize_semantic_whitespace(CANONICAL_AUTHORIZATION_BLOCK),
         "canonical authorization and hard-stop block mismatch",
     )
-    return matches[0]
+    return normalize_semantic_whitespace(matches[0])
 
 
-def amendment_status_metadata(status: str) -> dict[str, str]:
-    keys = (
-        "State",
-        "Current milestone",
-        "Review epoch",
-        "Review state",
-        "Accepted adversarial rounds",
-        "Review target",
-        "Lock authorized",
-        "Implementation authorized",
-        "Authorization scope authority",
-        "Authorization anchor",
-        "Repository creation authorized",
-        "Private repository action",
-        "Commit/push authorized",
-        "Gateway work authorized",
-        "Private creation/bootstrap authorized",
-    )
+def normalize_semantic_whitespace(text: str) -> str:
+    """Collapse non-normative prose whitespace before authorization comparison."""
+    return " ".join(text.split())
+
+
+def amendment_status_projection(status: str) -> dict[str, Any]:
     metadata: dict[str, str] = {}
-    for key in keys:
+    for key in AMENDMENT_STATUS_IMMUTABLE_FIELDS:
         values = re.findall(rf"^{re.escape(key)}: (.+)$", status, re.MULTILINE)
         require(len(values) == 1, f"status must contain exactly one {key} field")
         metadata[key] = values[0]
-    return metadata
+    hard_stop = re.fullmatch(
+        r"no; stop before (FMV3-M[0-8]-\d{2})",
+        metadata["Gateway work authorized"],
+    )
+    gateway_work_authorized = hard_stop is None
+    return {
+        "state": metadata["State"],
+        "authorization_scope": metadata["Authorization scope authority"],
+        "authorization_anchor": metadata["Authorization anchor"],
+        "gateway_work_authorized": gateway_work_authorized,
+        "hard_stop_issue": hard_stop.group(1) if hard_stop is not None else None,
+    }
 
 
 def corrective_phase_gates(phase_gates: list[Any]) -> list[dict[str, Any]]:
@@ -501,11 +522,11 @@ def require_matching_amendment_snapshots(
     anchored_projection: dict[str, Any],
     current_projection: dict[str, Any],
 ) -> None:
-    anchored_status = anchored_projection["status"]["metadata"]
-    current_status = current_projection["status"]["metadata"]
+    anchored_status = anchored_projection["status"]
+    current_status = current_projection["status"]
     require(
-        current_status.get("Gateway work authorized")
-        == anchored_status["Gateway work authorized"],
+        current_status["gateway_work_authorized"]
+        == anchored_status["gateway_work_authorized"],
         "status Gateway work authorized mismatch",
     )
     require(
@@ -580,8 +601,8 @@ def amendment_surface_projection(
         "milestone-map corrective gate projection mismatch",
     )
     status = texts["99-status.md"]
-    status_metadata = amendment_status_metadata(status)
-    status_states = [status_metadata["State"]]
+    status_projection = amendment_status_projection(status)
+    status_states = [status_projection["state"]]
     require(
         status_states == [str(plan.get("state"))],
         "status state projection mismatch",
@@ -620,9 +641,8 @@ def amendment_surface_projection(
         ],
         "milestone_corrective_gate_rows": corrective_gate_rows,
         "status": {
-            "state": status_states[0],
             "issue_count": int(status_issue_counts[0]),
-            "metadata": status_metadata,
+            **status_projection,
         },
     }
 def amendment_projection_digest(projection: dict[str, Any]) -> str:

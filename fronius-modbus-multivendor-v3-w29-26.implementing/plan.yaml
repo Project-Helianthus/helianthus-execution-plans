@@ -43,7 +43,7 @@ execution_authorization:
     amended_issues: [FMV3-M2-01]
     stop_before_issue: FMV3-M4-01
     gateway_work_authorized: false
-    amendment_surfaces_sha256: f25ce21d4ccc41dc6e0e850529703d02c2622959f1b73279d49b27dfb9aac1c0
+    amendment_surfaces_sha256: f492b2a3031989cef8e8d5b35437d7c79fcfa9b933f66c26d860f9b98f50a555
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]

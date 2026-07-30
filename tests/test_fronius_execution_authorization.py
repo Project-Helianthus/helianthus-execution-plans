@@ -665,6 +665,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def test_reflowed_canonical_authorization_whitespace_preserves_surface_digest(
         self,
     ) -> None:
+        """Canonical prose whitespace is mutable; authorization words and fields are not."""
         with tempfile.TemporaryDirectory() as temp:
             copied = self.copied_plan(temp)
             original_digest = self.amendment_surface_digest(copied)
@@ -682,6 +683,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def test_current_milestone_reanchor_preserves_amendment_authorization(
         self,
     ) -> None:
+        """Lifecycle progress is mutable; issue count, state, hard stop, and gateway ban are not."""
         with tempfile.TemporaryDirectory() as temp:
             plan_root, anchor = self.published_plan(temp)
             original_digest = self.amendment_surface_digest(plan_root)
