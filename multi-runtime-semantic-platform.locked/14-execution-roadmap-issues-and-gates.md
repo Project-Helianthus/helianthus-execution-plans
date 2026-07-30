@@ -1,6 +1,6 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `97ccf972861039b06fd99c75be6c7ad355adb38a694049102075146aa4fa5aef`
+Canonical-SHA256: `5c60f6ba2004791a11af9ca5ae7f6ba1a8ebab4d9e99df69bc3c2f60c39be3bd`
 
 Depends on:
 All previous chunks.
@@ -64,11 +64,12 @@ M0-M6 history is accepted. Current release-proof and dispatch state is:
 
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-0625-S13-DOCS`
-Current milestone: `MSP-0625-S13-DOCS`
+S13 completion proof: `published_evidence_verified`
+Cruise phase: `MSP-065-LIVE-R1`
+Current milestone: `MSP-065-LIVE-R1`
 LAB acceptance state: `accepted`
-Selected batch: `MSP-0625-S13-DOCS`
-Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+Selected batch: `MSP-065-LIVE-R1`
+Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 
 ## Historical Initial Ready Rows

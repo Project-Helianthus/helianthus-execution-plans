@@ -3,16 +3,17 @@ schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
 baseline: Gateway 0.4.0
-cruise_phase: MSP-0625-S13-DOCS
-current_milestone: MSP-0625-S13-DOCS
+cruise_phase: MSP-065-LIVE-R1
+current_milestone: MSP-065-LIVE-R1
 amendment_count: 9
 amended_on: '2026-07-30'
 amendment: M6.25 bounded SPINE 1.3 erratum
-accepted_through: Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves
+accepted_through: M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves
 dirty_rescue_candidate: false
 successor_unlocks: true
 successor_unlock_condition: M6.25 SPINE 1.3 erratum and live DAG complete through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
 lab_release_proof: released_chain_redeployed
+s13_completion_proof: published_evidence_verified
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
@@ -97,7 +98,7 @@ serialization:
   - MSP-09A
   - MSP-09B
   initial_ready_set:
-  - MSP-0625-S13-DOCS
+  - MSP-065-LIVE-R1
   dirty_code_unlocks_successors: false
   conditional_rows:
   - MSP-DOCS-CANDIDATE-CLEANUP
@@ -1722,7 +1723,7 @@ issues:
   review_ledger: SPINE 1.3 scope, public baseline, privacy, and no-write review
   tdd_mode: docs_schema_red_green
   smoke_scope: exact issue chain, READ baseline commitments, bounded provenance, exclusions, and anti-leak
-  acceptance_state: proposed
+  acceptance_state: completed_published
   issue_ref: Project-Helianthus/helianthus-docs-eebus#96
   public_baseline:
     operation: READ
@@ -1761,7 +1762,7 @@ issues:
   review_ledger: generated types, selector cardinality, factory coverage, and excluded-diff review
   tdd_mode: strict_red_green
   smoke_scope: focused value-type, selector, function-data factory, marshal, and READ construction tests
-  acceptance_state: proposed
+  acceptance_state: completed_published
   issue_ref: Project-Helianthus/helianthus-spine-go#15
   scope_provenance:
     specification: SPINE 1.3
@@ -1803,7 +1804,7 @@ issues:
   review_ledger: feature/function selection, typed decode, zero-write, and version-boundary review
   tdd_mode: strict_red_green
   smoke_scope: exact target READ construction and typed result handling for the bounded corrected functions
-  acceptance_state: proposed
+  acceptance_state: completed_published
   issue_ref: Project-Helianthus/helianthus-eebus-go#23
   acceptance:
   - existing exact feature and function selection consumes the corrected SPINE 1.3 types without a new executor or namespace
@@ -1828,7 +1829,7 @@ issues:
   review_ledger: DTO stability, JCS, epoch/generation binding, no-write, and anti-leak review
   tdd_mode: strict_red_green
   smoke_scope: corrected typed READ DTOs, deterministic commitments, stale binding, and public redaction
-  acceptance_state: proposed
+  acceptance_state: completed_published
   issue_ref: Project-Helianthus/helianthus-eebusreg#103
   acceptance:
   - RawFeatureRuntimeV1 represents corrected SPINE 1.3 READ results without changing its public method set
@@ -1854,7 +1855,7 @@ issues:
   review_ledger: exact tool inventory, READ-only dispatch, evidence commitments, privacy, and anti-leak review
   tdd_mode: strict_red_green
   smoke_scope: all 49 declared READ targets, deterministic public result table, zero-write instrumentation, and no raw identity
-  acceptance_state: proposed
+  acceptance_state: completed_published
   issue_ref: Project-Helianthus/helianthus-ebusgateway#762
   acceptance:
   - the gateway uses the existing EEBusCommandRouter and exact five M6.25 tool suffixes with no added alias or namespace

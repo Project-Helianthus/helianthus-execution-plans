@@ -5,11 +5,12 @@ Started: `2026-04-12`
 Last revised: `2026-07-30`
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-0625-S13-DOCS`
-Current milestone: `MSP-0625-S13-DOCS`
+S13 completion proof: `published_evidence_verified`
+Cruise phase: `MSP-065-LIVE-R1`
+Current milestone: `MSP-065-LIVE-R1`
 LAB acceptance state: `accepted`
-Selected batch: `MSP-0625-S13-DOCS`
-Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+Selected batch: `MSP-065-LIVE-R1`
+Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 Amendment count: `9`
 Amendment: `M6.25 bounded SPINE 1.3 erratum`
@@ -110,10 +111,6 @@ No runtime successor may start from dirty code or local recovery artifacts.
 
 ## Open Work
 
-- Publish the bounded SPINE 1.3 erratum docs gate, then release and explicitly
-  repin the spine-go -> eebus-go -> eebusreg -> gateway dependency chain.
-- Redeploy that erratum chain and repeat the owner-only, read-only 49-READ
-  sweep while preserving the already accepted base M6.25 lab proof.
 - Execute the live M6.5-R1 through M8.5-R1 chain.
 - Keep M9 blocked until `MSP-085-LIVE-R1` and
   machine-checkable `promoted_leaf_count > 0`.

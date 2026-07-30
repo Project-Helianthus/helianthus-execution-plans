@@ -242,10 +242,12 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             ["MSP-0625-LAB", "MSP-0625-DOCS-P"],
         )
         self.assertEqual(live_predecessors[2:], ["MSP-0625-S13-GW-LAB"])
-        expected_batch = validator.release_proof_projection(
+        release_batch = validator.release_proof_projection(
             self.plan["lab_release_proof"]
         )["selected_batch"]
-        self.assertEqual(expected_batch, ["MSP-0625-S13-DOCS"])
+        self.assertEqual(release_batch, ["MSP-0625-S13-DOCS"])
+        expected_batch = validator.control_projection(self.plan)["selected_batch"]
+        self.assertEqual(expected_batch, ["MSP-065-LIVE-R1"])
         self.assertEqual(validator.readiness(self.matrix)["selected_batch"], expected_batch)
         self.assertEqual(self.plan["initial_ready_set"], expected_batch)
         self.assertEqual(
@@ -253,7 +255,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             expected_batch,
         )
 
-    def test_m625_released_lab_proof_is_preserved_while_erratum_docs_is_selected(self) -> None:
+    def test_m625_released_lab_proof_is_preserved_after_s13_completion(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             shutil.copytree(PLAN, root / validator.PLAN)
@@ -263,18 +265,22 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             matrix = yaml.safe_load((root / validator.PLAN / validator.MATRIX).read_text())
             validator.validate_control_projection(plan, matrix, root / validator.PLAN)
             self.assertEqual(plan["lab_release_proof"], "released_chain_redeployed")
-            self.assertEqual(plan["current_milestone"], "MSP-0625-S13-DOCS")
-            self.assertEqual(plan["cruise_phase"], "MSP-0625-S13-DOCS")
-            self.assertEqual(plan["initial_ready_set"], ["MSP-0625-S13-DOCS"])
-            self.assertEqual(matrix["current_milestone"], "MSP-0625-S13-DOCS")
-            self.assertEqual(matrix["cruise_phase"], "MSP-0625-S13-DOCS")
+            self.assertEqual(
+                plan["s13_completion_proof"],
+                "published_evidence_verified",
+            )
+            self.assertEqual(plan["current_milestone"], "MSP-065-LIVE-R1")
+            self.assertEqual(plan["cruise_phase"], "MSP-065-LIVE-R1")
+            self.assertEqual(plan["initial_ready_set"], ["MSP-065-LIVE-R1"])
+            self.assertEqual(matrix["current_milestone"], "MSP-065-LIVE-R1")
+            self.assertEqual(matrix["cruise_phase"], "MSP-065-LIVE-R1")
             self.assertEqual(
                 self.row(matrix, "MSP-0625-LAB")["acceptance_state"],
                 "accepted",
             )
             self.assertEqual(
                 validator.readiness(matrix)["selected_batch"],
-                ["MSP-0625-S13-DOCS"],
+                ["MSP-065-LIVE-R1"],
             )
             target = root / validator.PLAN
             canonical = (target / "00-canonical.md").read_text(encoding="utf-8")
@@ -289,6 +295,94 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                         path.read_text(encoding="utf-8").count(marker),
                         1,
                     )
+
+    def test_m625_s13_completion_selects_live_m65_and_binds_public_receipts(self) -> None:
+        expected_control = "published_evidence_verified"
+        expected_states = {
+            "MSP-0625-S13-DOCS": "completed_published",
+            "MSP-0625-S13-SPINE": "completed_published",
+            "MSP-0625-S13-EEBUS": "completed_published",
+            "MSP-0625-S13-REG": "completed_published",
+            "MSP-0625-S13-GW-LAB": "completed_published",
+        }
+        expected_receipts = (
+            "b9166d68ac0fd063598e5f0e8d8f8c941e56aa15",
+            "5db11e32ca673fad3fc0d8f8a318615e96e0873d",
+            "3c13e51aa114627ec6e129c73527cc04cbabcf17",
+            "bff5f9e5cbc875a488028a94a741218cb54c8adf",
+            "1a02388170a1ee6befeed1529956a7104aa94e21",
+            "00cd8388b5f384c0d77a56c2de59045f0514759f115c05a44544f7abbee3aa43",
+            "705cd691da1a54f321f644202b913b930e8c6442fa49986e1afb436cb89c0e4b",
+            "ba089a68ac568054b8db2be9d70c8fcec6531fe2bcb568d32dcb7ed7c991ffe5",
+            "d764666f6be6cda21162a2aaeca9891c1a852d2a8c61c6e6bcb903de4c127415",
+            "0bcb08f42a98de30cae02d718ce8d5906ef4ae115babbc5a5dfff819507aeba3",
+        )
+
+        self.assertEqual(
+            self.plan["lab_release_proof"],
+            "released_chain_redeployed",
+        )
+        self.assertEqual(self.plan["s13_completion_proof"], expected_control)
+        self.assertEqual(
+            self.matrix["lab_release_proof"],
+            "released_chain_redeployed",
+        )
+        self.assertEqual(
+            self.matrix["s13_completion_proof"],
+            expected_control,
+        )
+        self.assertEqual(self.plan["cruise_phase"], "MSP-065-LIVE-R1")
+        self.assertEqual(self.plan["current_milestone"], "MSP-065-LIVE-R1")
+        self.assertEqual(self.plan["initial_ready_set"], ["MSP-065-LIVE-R1"])
+        self.assertEqual(
+            self.matrix["serialization"]["initial_ready_set"],
+            ["MSP-065-LIVE-R1"],
+        )
+        self.assertEqual(
+            validator.readiness(self.matrix),
+            {
+                "historical_snapshot": list(validator.PRESERVED_ACCEPTED_IDS),
+                "logical_ready": ["MSP-065-LIVE-R1"],
+                "dispatchable": ["MSP-065-LIVE-R1"],
+                "selected_batch": ["MSP-065-LIVE-R1"],
+            },
+        )
+        for row_id, state in expected_states.items():
+            with self.subTest(row_id=row_id):
+                self.assertEqual(
+                    self.row(self.matrix, row_id)["acceptance_state"],
+                    state,
+                )
+
+        completion_record = (
+            PLAN / "124-w31-26-m625-spine-13-completion.md"
+        ).read_text(encoding="utf-8")
+        for receipt in expected_receipts:
+            with self.subTest(receipt=receipt):
+                self.assertIn(receipt, completion_record)
+        self.assertIn(
+            "https://github.com/Project-Helianthus/"
+            "helianthus-ebusgateway/issues/762#issuecomment-5125059807",
+            completion_record,
+        )
+
+        immutable = {
+            "100-topology-audit.md": (
+                "b84c74551e839a3869a775c2f94c1f0121f2cfe477fe58a076e53bd57568f4d2"
+            ),
+            "106-ad-docs-02-integrity.json": (
+                "1f9d40d669d3e3ede32b521d9338832062bb80fecd789d388f27d890ac69c25b"
+            ),
+            "123-w31-26-m625-spine-13-erratum.md": (
+                "e4b708000fd63f4ef0a31f31ef049397e606cc2de4d8526675f31a932490b9f1"
+            ),
+        }
+        for name, expected_sha256 in immutable.items():
+            with self.subTest(name=name):
+                self.assertEqual(
+                    hashlib.sha256((PLAN / name).read_bytes()).hexdigest(),
+                    expected_sha256,
+                )
 
     def test_rejects_attempt_to_reset_released_lab_proof(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -305,6 +399,25 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             self.assertEqual(
                 plan["lab_release_proof"], "released_chain_redeployed"
             )
+
+    def test_rejects_attempt_to_reset_published_s13_completion_proof(self) -> None:
+        for invalid_state in ("pending", "", "released_chain_redeployed"):
+            with self.subTest(state=invalid_state), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                target = root / validator.PLAN
+                shutil.copytree(PLAN, target)
+                with self.assertRaises(validator.ValidationError):
+                    validator.apply_s13_completion_proof_state(
+                        root,
+                        invalid_state,
+                    )
+                plan = yaml.safe_load(
+                    (target / "plan.yaml").read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    plan["s13_completion_proof"],
+                    "published_evidence_verified",
+                )
 
     def test_release_projection_rejects_duplicate_canonical_digest_marker(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -680,9 +793,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
 
     def test_live_audit_is_current_integrity_projection(self) -> None:
         audit = validator.render_live_audit(self.matrix)
-        expected_batch = validator.release_proof_projection(
-            self.plan["lab_release_proof"]
-        )["selected_batch"]
+        expected_batch = validator.control_projection(self.plan)["selected_batch"]
         self.assertIn('"current_control"', audit)
         self.assertIn(
             '"selected_batch":' + json.dumps(expected_batch, separators=(",", ":")),
@@ -1021,6 +1132,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                 "121-w31-26-m625-raw-mutation-contract-correction.md",
                 "122-w31-26-m625-implementation-state-reconciliation.md",
                 "123-w31-26-m625-spine-13-erratum.md",
+                "124-w31-26-m625-spine-13-completion.md",
             ),
         )
         self.assertEqual(

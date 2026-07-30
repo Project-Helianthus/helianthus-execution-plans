@@ -4,11 +4,12 @@ Status: `Locked`
 Baseline: `Gateway 0.4.0`
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-0625-S13-DOCS`
-Current milestone: `MSP-0625-S13-DOCS`
+S13 completion proof: `published_evidence_verified`
+Cruise phase: `MSP-065-LIVE-R1`
+Current milestone: `MSP-065-LIVE-R1`
 LAB acceptance state: `accepted`
-Selected batch: `MSP-0625-S13-DOCS`
-Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
+Selected batch: `MSP-065-LIVE-R1`
+Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 Successor unlocks: `only through the M6.25 and live-completion chain`
 Amendment: `M6.25 bounded SPINE 1.3 erratum`
@@ -46,7 +47,8 @@ complete projection for review.
 - The generated release-proof projection is the sole current dispatch authority.
 - Base M6.25 LAB remains accepted and
   `lab_release_proof=released_chain_redeployed` remains unchanged.
-- Stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum.
+- The bounded SPINE 1.3 erratum is completed under the independent
+  `s13_completion_proof=published_evidence_verified` control.
 - M6 topology and live counts do not prove canonical typed feature-data
   acquisition.
 - Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` closure cannot
@@ -74,16 +76,17 @@ complete projection for review.
 
 | ID | Issue | Purpose | State |
 | --- | --- | --- | --- |
-| MSP-0625-S13-DOCS | `helianthus-docs-eebus#96` | Freeze bounded SPINE 1.3 scope and 49/26/23 public READ baseline | current and initial ready |
-| MSP-0625-S13-SPINE | `helianthus-spine-go#15` | Apply only pinned value-type and function-data corrections | proposed |
-| MSP-0625-S13-EEBUS | `helianthus-eebus-go#23` | Adopt corrected SPINE 1.3 types in existing exact READ execution | proposed |
-| MSP-0625-S13-REG | `helianthus-eebusreg#103` | Preserve DTO/JCS/binding contracts for corrected READ results | proposed |
-| MSP-0625-S13-GW-LAB | `helianthus-ebusgateway#762` | Integrate and prove aggregate READ outcomes with zero mutation | proposed |
+| MSP-0625-S13-DOCS | `helianthus-docs-eebus#96` | Freeze bounded SPINE 1.3 scope and 49/26/23 public READ baseline | completed_published |
+| MSP-0625-S13-SPINE | `helianthus-spine-go#15` | Apply only pinned value-type and function-data corrections | completed_published |
+| MSP-0625-S13-EEBUS | `helianthus-eebus-go#23` | Adopt corrected SPINE 1.3 types in existing exact READ execution | completed_published |
+| MSP-0625-S13-REG | `helianthus-eebusreg#103` | Preserve DTO/JCS/binding contracts for corrected READ results | completed_published |
+| MSP-0625-S13-GW-LAB | `helianthus-ebusgateway#762` | Integrate and prove aggregate READ outcomes with zero mutation | completed_published |
 
 The issue chain is strict in table order. The DOCS row requires accepted
 `MSP-0625-LAB` plus completed `MSP-0625-DOCS-P`. The final GW-LAB token is the
 only predecessor appended to existing row `MSP-065-LIVE-R1`; all old edges and
 both old LIVE-R1 predecessors remain exact.
+`MSP-065-LIVE-R1` is the sole current and initial ready row.
 
 The exact five M6.25 tool suffixes, fail-closed no-write stop,
 `candidate_ref` prohibition, and owner-local raw/public-redacted boundary
