@@ -290,6 +290,78 @@ class AdDocs02ValidatorTests(unittest.TestCase):
                         1,
                     )
 
+    def test_m625_s13_completion_selects_live_m65_and_binds_public_receipts(self) -> None:
+        expected_control = "released_chain_redeployed_s13_verified"
+        expected_states = {
+            "MSP-0625-S13-DOCS": "completed_published",
+            "MSP-0625-S13-SPINE": "completed_published",
+            "MSP-0625-S13-EEBUS": "completed_published",
+            "MSP-0625-S13-REG": "completed_published",
+            "MSP-0625-S13-GW-LAB": "accepted_live",
+        }
+        expected_receipts = (
+            "b9166d68ac0fd063598e5f0e8d8f8c941e56aa15",
+            "5db11e32ca673fad3fc0d8f8a318615e96e0873d",
+            "3c13e51aa114627ec6e129c73527cc04cbabcf17",
+            "bff5f9e5cbc875a488028a94a741218cb54c8adf",
+            "1a02388170a1ee6befeed1529956a7104aa94e21",
+            "00cd8388b5f384c0d77a56c2de59045f0514759f115c05a44544f7abbee3aa43",
+            "705cd691da1a54f321f644202b913b930e8c6442fa49986e1afb436cb89c0e4b",
+            "ba089a68ac568054b8db2be9d70c8fcec6531fe2bcb568d32dcb7ed7c991ffe5",
+            "d764666f6be6cda21162a2aaeca9891c1a852d2a8c61c6e6bcb903de4c127415",
+        )
+
+        self.assertEqual(self.plan["lab_release_proof"], expected_control)
+        self.assertEqual(self.plan["cruise_phase"], "MSP-065-LIVE-R1")
+        self.assertEqual(self.plan["current_milestone"], "MSP-065-LIVE-R1")
+        self.assertEqual(self.plan["initial_ready_set"], ["MSP-065-LIVE-R1"])
+        self.assertEqual(
+            self.matrix["serialization"]["initial_ready_set"],
+            ["MSP-065-LIVE-R1"],
+        )
+        self.assertEqual(
+            validator.readiness(self.matrix),
+            {
+                "historical_snapshot": list(validator.PRESERVED_ACCEPTED_IDS),
+                "logical_ready": ["MSP-065-LIVE-R1"],
+                "dispatchable": ["MSP-065-LIVE-R1"],
+                "selected_batch": ["MSP-065-LIVE-R1"],
+            },
+        )
+        for row_id, state in expected_states.items():
+            with self.subTest(row_id=row_id):
+                self.assertEqual(
+                    self.row(self.matrix, row_id)["acceptance_state"],
+                    state,
+                )
+
+        completion_record = (
+            PLAN / "124-w31-26-m625-spine-13-completion.md"
+        ).read_text(encoding="utf-8")
+        for receipt in expected_receipts:
+            with self.subTest(receipt=receipt):
+                self.assertIn(receipt, completion_record)
+        self.assertIn(
+            "https://github.com/Project-Helianthus/"
+            "helianthus-ebusgateway/issues/762#issuecomment-5125059807",
+            completion_record,
+        )
+
+        immutable = {
+            "100-topology-audit.md": (
+                "b84c74551e839a3869a775c2f94c1f0121f2cfe477fe58a076e53bd57568f4d2"
+            ),
+            "106-ad-docs-02-integrity.json": (
+                "1f9d40d669d3e3ede32b521d9338832062bb80fecd789d388f27d890ac69c25b"
+            ),
+        }
+        for name, expected_sha256 in immutable.items():
+            with self.subTest(name=name):
+                self.assertEqual(
+                    hashlib.sha256((PLAN / name).read_bytes()).hexdigest(),
+                    expected_sha256,
+                )
+
     def test_rejects_attempt_to_reset_released_lab_proof(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
