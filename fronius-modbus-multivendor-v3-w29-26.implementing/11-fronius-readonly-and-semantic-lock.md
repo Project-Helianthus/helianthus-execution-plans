@@ -1,12 +1,12 @@
 # Fronius read-only vertical and semantic lock
 
-Canonical-SHA256: `f97c2ff9dc212d5a3eb19302111078d5c7372077061c8959a4793b141b9f1af8`
+Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
 
 Depends on: `10-architecture-and-repo-boundaries.md`; M1 TCP and M2 profile contracts.
 Scope: Fronius phase-1 evidence, fixtures, profile detection, gateway raw MCP, live hardware proof, canonical PV lock, and public consumer order.
 Idempotence contract: Repeating fixture replay, detection, polling, or promotion with the same inputs produces the same profile outcome and canonical observation without duplicate endpoints, entities, or counters.
 Falsifiability gate: Reject the vertical if fixtures and live reads disagree without an explicit applicability explanation, a write is emitted, raw evidence cannot reproduce a decode, GraphQL or a downstream consumer precedes lock of the tested semantic MCP, or recovery cannot disable the endpoint.
-Coverage: Decisions D03-D06, D11-D12; issues M3-M5; risks R01-R03, R07-R08.
+Coverage: Decisions D03-D06, D11-D13; corrective acquisition boundary from M1/M2 and issues M3-M5; risks R01-R03, R07-R08.
 
 ## Claim register
 
@@ -52,6 +52,14 @@ order/packing descriptor remain in provenance. The torn-read case must either pa
 profile's bounded coherence validation and re-read or emit no observation. A fixture cannot claim hardware support; it proves
 deterministic code behavior only and leaves the profile default-disabled
 `experimental_opt_in`.
+
+Fixture replay preserves the full versioned normalization record exactly, including
+source-kind and unknown extension fields, but it never impersonates a runtime acquisition.
+Every offline fixture has `source_kind: offline_fixture`, receives no opaque acquisition
+capability, performs zero capability CAS operations, and cannot mint a production
+`sample_id`. Runtime-derived fixture material remains offline and untrusted after
+sanitization. Only a deliverable live runtime source may issue the non-serializable
+one-shot capability consumed through the shared bounded M2 attempt ledger.
 
 FMV3-M3-01 is the public docs companion for M3-02 and M3-03, with explicit companion
 metadata and ancestry. M3-02 first implements the minimal applicable SunSpec standard-family

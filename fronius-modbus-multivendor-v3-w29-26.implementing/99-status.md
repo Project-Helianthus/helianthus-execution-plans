@@ -1,6 +1,6 @@
 # Implementing status
 
-Canonical-SHA256: `f97c2ff9dc212d5a3eb19302111078d5c7372077061c8959a4793b141b9f1af8`
+Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
 
 State: implementing
 Current milestone: M0
@@ -11,6 +11,7 @@ Review target: TERMINAL_NO_FINDINGS
 Lock authorized: yes, for plan publication only
 Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
 Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative
+Authorization anchor: PR #89 merge commit required; issue #88 is tracking only
 Repository creation authorized: yes, through FMV3-M0-01
 Private repository action: deferred; creation requires future explicit authorization
 Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
@@ -20,10 +21,16 @@ Private creation/bootstrap authorized: no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-0
 This package supersedes `fronius-modbus-eebus-bridge-w28-26.draft` as execution
 intent while preserving that directory unchanged as forensic history.
 
-Completed through terminal epoch 3 R5:
+Completed through terminal epoch 3 R5 plus the PR #89 amendment tracked by issue #88:
 
 - canonical and four isolated implementation chunks authored;
-- 44-issue one-repository DAG and nine milestone groupings authored;
+- 46-issue one-repository DAG and nine milestone groupings authored;
+- additive FMV3-M1-05 public companion and FMV3-M1-06 runtime corrective authorized,
+  with FMV3-M2-01 depending on the merged corrective producer and retaining the original
+  companion history;
+- strict hosted RED/GREEN, full producer-SHA pin, source trust split, bounded
+  seal-before-publish lifecycle, lossless normalization, and fresh revision-bound
+  adversarial gates are explicit;
 - R1 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and eleven
   preserved CLOSED findings;
 - R2 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and seven
@@ -78,8 +85,10 @@ Completed through terminal epoch 3 R5:
 - structural validator remains bounded and does not simulate runtime behavior.
 
 Terminal review closure did not itself lock the plan. The operator separately authorized
-lock and publication on 2026-07-14, then authorized the bounded pre-gateway execution wave
-on 2026-07-26 without authorizing gateway or private binding work.
+lock and publication on 2026-07-14. The merge commit of PR #89 is the sole immutable anchor
+for the amended pre-gateway allowlist; issue #88 tracks M1-05/M1-06 and the M2-01 change but
+is not authorization evidence. The hard stop remains before FMV3-M4-01; gateway and private
+binding work remain unauthorized.
 
 Not performed:
 
