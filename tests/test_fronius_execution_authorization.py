@@ -30,7 +30,7 @@ PLAN = PLAN_CANDIDATES[0]
 VALIDATOR = PLAN / "validate_plan.py"
 PLAN_DATA = yaml.safe_load((PLAN / "plan.yaml").read_text(encoding="utf-8"))
 AMENDMENT_PR_URL = (
-    "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89"
+    "PENDING_PR_URL"
 )
 
 
@@ -1034,6 +1034,163 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             result = self.run_validator(copied)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("exactly one State field", result.stderr)
+
+    def mutate_issue_contract(
+        self,
+        plan_root: Path,
+        issue_id: str,
+        field: str,
+        mutate: Callable[[dict[str, object]], None],
+    ) -> subprocess.CompletedProcess[str]:
+        plan_path = plan_root / "plan.yaml"
+        plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+        issue = next(issue for issue in plan["issues"] if issue["id"] == issue_id)
+        mutate(issue[field])
+        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+        return self.run_validator(plan_root)
+
+    def test_capability_state_is_source_private_and_not_a_ledger_pointer(self) -> None:
+        contract = next(
+            issue for issue in PLAN_DATA["issues"] if issue["id"] == "FMV3-M1-05"
+        )["opaque_runtime_acquisition_contract"]
+        self.assertEqual(
+            contract["source_state_contract"],
+            {
+                "owner": "runtime_source_private",
+                "issued_by": "runtime_source",
+                "serializable": False,
+                "shared_with": "copies_of_same_capability_only",
+                "m2_ledger_pointer": False,
+            },
+        )
+
+    def test_old_source_issued_shared_ledger_pointer_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            result = self.mutate_issue_contract(
+                copied,
+                "FMV3-M1-05",
+                "opaque_runtime_acquisition_contract",
+                lambda contract: contract["source_state_contract"].update(
+                    {
+                        "owner": "source_issued_shared_ledger_pointer",
+                        "m2_ledger_pointer": True,
+                    }
+                ),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("opaque runtime acquisition contract mismatch", result.stderr)
+
+    def test_caller_controlled_deliverability_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            result = self.mutate_issue_contract(
+                copied,
+                "FMV3-M1-06",
+                "opaque_runtime_acquisition_contract",
+                lambda contract: contract["deliverability_contract"].update(
+                    {"authority": "caller_boolean", "caller_controlled": True}
+                ),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("opaque runtime acquisition contract mismatch", result.stderr)
+
+    def test_endpoint_recreation_aliasing_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            result = self.mutate_issue_contract(
+                copied,
+                "FMV3-M1-05",
+                "opaque_runtime_acquisition_contract",
+                lambda contract: contract["endpoint_recreation_contract"].update(
+                    {"new_acquisition_state": "alias_prior_visible_identity"}
+                ),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("opaque runtime acquisition contract mismatch", result.stderr)
+
+    def test_open_only_attempt_bound_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            result = self.mutate_issue_contract(
+                copied,
+                "FMV3-M2-01",
+                "attempt_ledger_contract",
+                lambda contract: contract["bounds"].update(
+                    {"active_attempt_states": ["open"]}
+                ),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("attempt ledger contract mismatch", result.stderr)
+
+    def test_undefined_claim_transition_or_outcome_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            result = self.mutate_issue_contract(
+                copied,
+                "FMV3-M2-01",
+                "attempt_ledger_contract",
+                lambda contract: contract["claim_entry_lifecycle"].update(
+                    {"terminal_outcomes": []}
+                ),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("attempt ledger contract mismatch", result.stderr)
+
+    def test_retryable_or_mutable_publish_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            result = self.mutate_issue_contract(
+                copied,
+                "FMV3-M2-01",
+                "attempt_ledger_contract",
+                lambda contract: contract["publish"].update(
+                    {"one_shot": False, "retryable": True, "mutable_input": True}
+                ),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("attempt ledger contract mismatch", result.stderr)
+
+    def test_unbounded_terminal_state_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            result = self.mutate_issue_contract(
+                copied,
+                "FMV3-M2-01",
+                "attempt_ledger_contract",
+                lambda contract: contract["reclamation"].update(
+                    {"terminal_audit": "unbounded"}
+                ),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("attempt ledger contract mismatch", result.stderr)
+
+    def test_pr89_cannot_remain_current_authority(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            plan_path = copied / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            plan["execution_authorization"]["authorization_anchor"][
+                "authorization_pr"
+            ] = "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89"
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("current authorization PR mismatch", result.stderr)
+
+    def test_scope_and_hard_stop_reconciliation_remain_exact(self) -> None:
+        authorization = PLAN_DATA["execution_authorization"]
+        anchor = authorization["authorization_anchor"]
+        self.assertEqual(len(PLAN_DATA["issues"]), 46)
+        self.assertEqual(len(PLAN_DATA["milestones"]), 9)
+        self.assertEqual(anchor["stop_before_issue"], "FMV3-M4-01")
+        self.assertFalse(anchor["gateway_authorized"])
+        self.assertEqual(anchor["authorization_pr"], AMENDMENT_PR_URL)
+        self.assertEqual(
+            anchor["predecessor_authorization_pr"],
+            "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89",
+        )
+        self.assertEqual(anchor["predecessor_role"], "provenance_only")
 
 
 if __name__ == "__main__":
