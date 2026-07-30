@@ -1,12 +1,12 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `f97c2ff9dc212d5a3eb19302111078d5c7372077061c8959a4793b141b9f1af8`
+Canonical-SHA256: `a575c012fc1623c68d9895605e5391cdbda57bedc00a0cea2dcabb42707f7973`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
 Idempotence contract: Reapplying these boundaries creates no additional repository, owner, scheduler, profile catalog, semantic ID, or binding direction.
 Falsifiability gate: Reject this chunk if any required behavior has two owners, an import points upward/private-to-public, a profile owns endpoint lifecycle, or a decoded value cannot be traced to bounded raw evidence.
-Coverage: Decisions D01-D05, D07-D08, D11-D12; issues M0, M1, M2; risks R01-R03, R05, R07-R08.
+Coverage: Decisions D01-D05, D07-D08, D11-D13; issues M0, M1, M2; risks R01-R03, R05, R07-R08.
 
 ## Claim register
 
@@ -33,9 +33,9 @@ Coverage: Decisions D01-D05, D07-D08, D11-D12; issues M0, M1, M2; risks R01-R03,
 
 | Layer | Owner | Owns | Must not own |
 |---|---|---|---|
-| Transport/runtime | `Project-Helianthus/helianthus-modbus` | TCP, RTU, endpoint owner, queues, fairness, coalescing, deadlines, cancellation, backoff, reconnect, limits, metrics | Vendor detection, register meaning, PV semantics, private bindings |
+| Transport/runtime | `Project-Helianthus/helianthus-modbus` | TCP, RTU, endpoint owner, queues, fairness, coalescing, deadlines, cancellation, backoff, reconnect, limits, metrics, source-issued opaque one-shot acquisition capability | Vendor detection, register meaning, attempt publication, PV semantics, private bindings |
 | Modbus protocol | `Project-Helianthus/helianthus-modbus` | ADU/PDU types, FC03/FC04 register reads, FC2B/MEI0E Device Identification, exceptions, uninterpreted words/bytes, correlation | Signedness, scale, units, source validity, canonical values, writes in this plan |
-| Profile registry | `Project-Helianthus/helianthus-modbusreg` | Catalog, profile API, signedness/scale codecs, source-observation validity/timestamps, detector, fixtures, standard families, vendor overlays | Sockets, serial ownership, retries, canonical quality/freshness/IDs, consumers |
+| Profile registry | `Project-Helianthus/helianthus-modbusreg` | Catalog, profile API, signedness/scale codecs, source-observation validity/timestamps, bounded shared attempt ledger, detector, fixtures, standard families, vendor overlays | Sockets, serial ownership, capability issuance, retries, canonical quality/freshness/IDs, consumers |
 | Canonical semantics | `Project-Helianthus/helianthus-ebusreg` | Protocol-independent identity, quantities, quality, freshness, counters, versions, compatibility | Modbus addresses, vendor probes, endpoint lifecycle |
 | Gateway protocol adapter | `Project-Helianthus/helianthus-ebusgateway/internal/modbusadapter` | Implements the existing protocol-agnostic adapter interface, composes Modbus runtime/profile registry, converts to neutral gateway DTOs | Any second gateway Modbus importer, canonical policy, or new repository |
 | Public composition/API | Gateway core outside the local Modbus adapter | Configuration, adapter interface, raw MCP service, projection, semantic MCP, externally routable machine-to-machine GraphQL contract, Portal | Direct `modbus`/`modbusreg` imports, defining profile facts, canonical meaning locally, or raw registers in GraphQL |
@@ -84,6 +84,14 @@ coherence, and fixture/mutation contracts. It is one docs issue/PR merged before
 M2 implementation. FMV3-M1-01 through FMV3-M1-04 and FMV3-M2-01 through FMV3-M2-03 all
 carry `doc_gate: required` and `companion_issue: FMV3-M1-00`; each has direct or explicit
 acyclic dependency ancestry to the merged companion.
+
+Issue #88 adds a successor lane without rewriting those contracts. FMV3-M1-05 follows
+M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` in the public docs repository.
+FMV3-M1-06 depends explicitly on both M1-04 and M1-05. FMV3-M2-01 retains its M1-00
+companion metadata, records M1-05 as its corrective companion, depends on M1-06, and pins
+the full 40-character merged M1-06 SHA before RED. The docs head, test-only RED revisions,
+and implementation heads are each reviewed in fresh independent OpenAI contexts; unresolved
+findings block merge.
 
 ## Profile families
 
@@ -157,6 +165,22 @@ normalization when the source document uses one-based register numbers. FC03 hol
 FC04 input sources at the same numeric offset are never equal identities. `sample_id`
 binds the exact response set admitted for one decode; validation/re-read responses remain
 in its coherence transcript and response/sample IDs are not reused across attempts.
+
+Runtime acquisition origin is carried by behavior, not by a forgeable serialized field.
+Only a deliverable runtime source issues an opaque non-serializable capability. Its
+one-shot compare-and-swap state is shared across capability value copies and endpoint
+recreation, so copied views racing the same capability produce exactly one winner.
+Coalescing never shares the capability itself: every dependent logical view receives an
+independent capability. Non-deliverable runtime acquisitions and offline fixtures receive
+none.
+
+The M2 attempt ledger owns pointer state shared by every view of an attempt. Hard limits
+bound open attempts and claims per attempt; duplicate `AttemptKey` is rejected. The only
+publication path seals one immutable attempt set and then invokes `Publish()` from the
+sealed ledger state, with no mutable DTO accepted. Offline fixtures are explicitly
+untrusted, execute zero capability CAS operations, and cannot mint a production
+`sample_id`. The versioned normalization record round-trips exactly, including unknown
+extension fields, rather than retaining only the normalized address.
 
 All members of a decode dependency set must carry one `poll_generation_id`; the harness
 and gateway reject mixed generations. Profiles also declare coherence as one response

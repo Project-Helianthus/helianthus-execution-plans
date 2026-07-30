@@ -1,12 +1,12 @@
 # Roadmap gates and risks
 
-Canonical-SHA256: `f97c2ff9dc212d5a3eb19302111078d5c7372077061c8959a4793b141b9f1af8`
+Canonical-SHA256: `a575c012fc1623c68d9895605e5391cdbda57bedc00a0cea2dcabb42707f7973`
 
 Depends on: Chunks 10-12 and the issue DAG in `plan.yaml`.
 Scope: Milestone grouping, critical path, TDD, documentation and transport gates, hardware classes, rollback/recovery, review, and stop/go decisions.
 Idempotence contract: Re-evaluating readiness from unchanged issue and gate states yields the same ready set and does not create work, accept a review, or lock the plan.
 Falsifiability gate: Reject the roadmap if an issue has multiple repository owners, a dependency is missing/cyclic, GraphQL or a downstream consumer can precede lock of the tested semantic MCP, a required gate has no evidence, or rollback crosses ownership boundaries.
-Coverage: Decisions D05-D07, D10-D12; milestones M0-M8; all phase and conditional gates and risks R01-R08.
+Coverage: Decisions D05-D07, D10-D13; milestones M0-M8; all phase and conditional gates and risks R01-R08.
 
 ## Claim register
 
@@ -65,7 +65,9 @@ Coverage: Decisions D05-D07, D10-D12; milestones M0-M8; all phase and conditiona
 
 Milestones are groupings, not cross-repository issues and not automatic serial barriers.
 The issue graph in `plan.yaml` and `90-issue-map.md` is authoritative. FMV3-M1-03 depends
-on M1-02, serializing TCP before RTU. FMV3-M7-01 waits until the critical docs lane reaches
+on M1-02, serializing TCP before RTU. Additive successor M1-05 depends on M1-04, M1-06
+depends on both M1-04 and M1-05, and M2-01 adds M1-06 as a producer dependency without
+renumbering or replacing any prior issue. FMV3-M7-01 waits until the critical docs lane reaches
 FMV3-M5-09 and closes only after the complete Growatt contract, a public qualified admission
 packet or `NO_ADMISSIBLE_PROFILE` for every SmartLogger/S-Dongle candidate, plus an EMMA
 gateway/model/software/version discriminator inventory or per-field unavailable markers are
@@ -99,13 +101,18 @@ complete M2 source-observation/provenance, detector activation lifecycle, hardwa
 qualification, coherence, and fixture/mutation contracts. FMV3-M1-01 through FMV3-M1-04
 and FMV3-M2-01 through FMV3-M2-03 retain its `doc_gate` and `companion_issue` metadata and
 direct or explicit acyclic ancestry, preserving one docs issue/PR at a time.
+After that preserved history, FMV3-M1-05 publishes the new
+`OPAQUE_RUNTIME_ACQUISITION_V1` companion. M1-06 consumes it under strict hosted RED/GREEN,
+and M2-01 retains M1-00 while recording M1-05 as a corrective companion and pinning the
+full merged M1-06 producer SHA. `PG-OPAQUE-ACQUISITION-DOC-GATE` and
+`PG-OPAQUE-ACQUISITION-CONSUMER-PIN` enforce both transitions.
 FMV3-M5-02 likewise retains M4 GO/evidence ancestry and merges the public canonical PV
 contract before FMV3-M5-01 semantic implementation; the validator checks this ancestry.
 FMV3-M5-04 then depends on M5-01/M5-02 and produces the candidate golden- and live-tested
 semantic MCP before FMV3-M5-03 reviews and locks that exact version. Later in the same
 serialized docs lane, FMV3-M5-09 depends on M5-03 `GO` ancestry and is the one public
 `PUBLIC_GRAPHQL_M2M_V1` companion issue/PR before FMV3-M5-05 GraphQL implementation. The
-current DAG contains 44 issues, and semantic GO never gates M5-04.
+current DAG contains 46 issues, and semantic GO never gates M5-04.
 FMV3-M3-01 is separately the companion for M3-02/M3-03; FMV3-M7-01 is the companion for
 M7-02/M7-03/M7-04, with exact companion metadata and ancestry in `plan.yaml`.
 
@@ -122,6 +129,12 @@ requires public evidence and green conformance CI but no implementation commit o
 evidence-only dispositions, governance, lab-only, and repository-bootstrap work use their
 named non-code gates.
 
+FMV3-M1-06 and amended FMV3-M2-01 additionally require hosted CI evidence for both the
+exact test-only RED revision and GREEN implementation head. M1-05, M1-06, and M2-01 each
+require a fresh independent OpenAI adversarial review bound to the exact applicable full
+SHA; every finding must be resolved or the reviewer must return `NO_FINDINGS`. The
+historical terminal epoch does not satisfy these per-issue amendment gates.
+
 **CI:** Repository-local CI is green at issue head. Generated artifacts and fixtures are
 deterministic. Failures in unrelated profiles do not get waived by narrowing test scope.
 
@@ -131,7 +144,9 @@ transitions, and reverse-engineered knowledge trigger the docs gate in
 Hypothesis, and Unknown and names normative code/schema ownership. M1 implementation has
 the bounded FMV3-M1-00 companion merged first. M2 implementation reuses the same merged
 companion for its complete public contracts; issue completion without that ancestor,
-`doc_gate`, and companion metadata is invalid. M5 canonical documentation in FMV3-M5-02
+`doc_gate`, and companion metadata is invalid. The corrective source-acquisition contract
+is separately docs-first: M1-05 must merge after M1-04 and before M1-06, then M2-01 must
+pin merged M1-06 and carry M1-05 corrective companion metadata. M5 canonical documentation in FMV3-M5-02
 must merge before semantic implementation in FMV3-M5-01. FMV3-M5-04 then implements and
 golden/live-tests candidate semantic MCP before FMV3-M5-03 can lock that exact version.
 After M5-03 GO, FMV3-M5-09 must merge the GraphQL schema projection, external
@@ -174,6 +189,12 @@ Coalescing binds one `wire_response_id` to the physical request/range and one li
 overlapping compatible reads must replay each view's exact words and provenance; cross-unit,
 cross-table, cross-authorization, cross-generation, and deadline-incompatible reads must
 not coalesce. FMV3-M1-00/M1-02 and M2-01/M2-03 mirror and mutate this contract.
+M1-05/M1-06 separately require one source-issued non-serializable capability per
+coalesced dependent, shared one-shot state across copies and endpoint recreation, and one
+winner for copied-view races. M2-01 owns the bounded shared attempt ledger, rejects
+duplicate `AttemptKey`, seals before `Publish()`, rejects mutable DTO publication, keeps
+offline fixtures at zero CAS with no production `sample_id`, and round-trips the full
+normalization record exactly.
 
 RTU records exactly `PHYSICALLY_QUALIFIED` or `FIXTURE_ONLY_NO_HARDWARE` against
 `RTU_PHYSICAL_QUALIFICATION_V1`. Physical qualification requires adapter/transceiver
@@ -272,8 +293,8 @@ the shared runtime gate also fails.
 | Risk | Blocking evidence | Required response |
 |---|---|---|
 | Wrong profile or ambiguity | More than one eligible interpretation or incomplete identity | Fail closed; add evidence/fixture; do not promote |
-| Data corruption | FC03/FC04 alias, documentary off-by-one mapping, physical wire/logical slice alias, incompatible coalescing, wrong word/byte order or string packing/padding, mixed generation, torn multi-response sample, or conflated source/canonical state | Reject observation; repair wire-response/logical-view identity and mutation coverage, normalization/coherence, versioned modbusreg codec/provenance, or ebusreg transition |
-| Endpoint starvation/correlation | Queue, fairness, deadline, same-socket tombstone reuse, tombstone exhaustion rollover, old-generation TCP frame, RTU late same-shape frame, failed bus-idle resynchronization, or reconnect failure | Disable endpoint; fix the shared scheduler, per-connection allocator/generation, or RTU quarantine/recovery before profile work |
+| Data corruption | FC03/FC04 alias, documentary off-by-one mapping, lossy normalization round-trip, physical wire/logical slice alias, incompatible coalescing, duplicate AttemptKey, mutable post-seal publication, wrong word/byte order or string packing/padding, mixed generation, torn multi-response sample, or conflated source/canonical state | Reject observation; repair wire-response/logical-view identity, shared bounded ledger/seal semantics, mutation coverage, normalization/coherence, versioned modbusreg codec/provenance, or ebusreg transition |
+| Endpoint starvation/correlation | Queue, fairness, deadline, reused/copy-raced acquisition capability, capability/attempt/claim bound exhaustion, same-socket tombstone reuse, tombstone exhaustion rollover, old-generation TCP frame, RTU late same-shape frame, failed bus-idle resynchronization, or reconnect failure | Disable endpoint; fix source-issued shared one-shot capability state, bounded ledger reclamation, scheduler, per-connection allocator/generation, or RTU quarantine/recovery before profile work |
 | Huawei branch drift, unowned detector operation, unlicensed admission, or EMMA collision | Candidate needs a PDU outside FC03/FC04/FC2B-MEI0E, lacks public applicability, or EMMA could activate a profile | Enumerate every probe against the runtime allowlist; unsupported operations force non-admission, modbusreg cannot frame PDUs, packets stay public/licensed, and missing discrimination blocks auto-eligibility |
 | IP boundary breach | Public artifact needs restricted/private source | Quarantine artifact; rebuild clean evidence or stop profile |
 | External GraphQL or myVaillant incompatibility | Plaintext credential path, untrusted server identity, or the exact packaged GraphQL/eeBUS path cannot carry the same fresh post-run-start observation from an enabled qualified live Fronius endpoint to the accepted myVaillant observable | Fail closed; replay/cache/fixture/synthetic/simulator input cannot GO; disable private output and preserve the public contract and sanitized honest evidence |
@@ -306,6 +327,11 @@ no finding IDs, so epoch 3 is the sole terminal `PASSED` R1-R5 set at `5/5`, tar
 round metadata records verdict, integration state, and exact ordered unique finding IDs;
 the validator compares those lists to every accepted review table and requires `[]` for
 `NO_FINDINGS`.
+
+Issue #88 is a post-lock corrective amendment. It preserves all three epoch histories and
+does not claim that epoch 3 R5 reviewed the new capability. Instead, the exact M1-05 docs
+head, M1-06 RED and GREEN heads, and M2-01 RED and GREEN heads each pass their own fresh
+independent OpenAI gate before merge, with all findings resolved or `NO_FINDINGS`.
 
 Even a terminal `PASSED` review leaves the plan unlocked until the canonical hash mirrors
 validate, status is consistent, and the operator separately authorizes lock. The operator

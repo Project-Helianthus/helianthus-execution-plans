@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -77,32 +78,107 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             self.git(repo, "add", "-A")
             self.git(repo, "commit", "-m", "enter current lifecycle")
             self.git(repo, "push", "origin", "main")
+            head = self.git(repo, "rev-parse", "HEAD").stdout.strip()
         else:
             copied = anchored
         return copied, head
 
     def authorize(
-        self, plan_root: Path, anchor_sha: str, issue_id: str
+        self,
+        plan_root: Path,
+        anchor_sha: str,
+        issue_id: str,
+        amendment_pr: dict[str, object] | None = None,
     ) -> subprocess.CompletedProcess[str]:
         plan = yaml.safe_load((plan_root / "plan.yaml").read_text(encoding="utf-8"))
         contract_digest = plan["execution_authorization"]["authorized_issue_contract_sha256"]
-        return subprocess.run(
-            [
-                sys.executable,
-                str(VALIDATOR),
-                str(plan_root),
-                "--authorize-issue",
-                issue_id,
-                "--plan-head-sha",
-                anchor_sha,
-                "--authorization-contract-sha256",
-                contract_digest,
-            ],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
+        command = [
+            sys.executable,
+            str(VALIDATOR),
+            str(plan_root),
+            "--authorize-issue",
+            issue_id,
+            "--plan-head-sha",
+            anchor_sha,
+            "--authorization-contract-sha256",
+            contract_digest,
+        ]
+        if amendment_pr is None:
+            return subprocess.run(
+                command,
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        with tempfile.TemporaryDirectory() as fake_bin:
+            gh = Path(fake_bin) / "gh"
+            gh.write_text(
+                "#!/usr/bin/env python3\n"
+                "import json, os, sys\n"
+                "expected = os.environ['FAKE_GH_ENDPOINT']\n"
+                "if sys.argv[1:] != ['api', expected]:\n"
+                "    raise SystemExit(2)\n"
+                "print(json.dumps(json.loads(os.environ['FAKE_GH_PAYLOAD'])))\n",
+                encoding="utf-8",
+            )
+            gh.chmod(0o755)
+            env = os.environ.copy()
+            env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
+            env["FAKE_GH_ENDPOINT"] = (
+                "repos/Project-Helianthus/helianthus-execution-plans/pulls/999"
+            )
+            env["FAKE_GH_PAYLOAD"] = json.dumps(amendment_pr)
+            return subprocess.run(
+                command,
+                cwd=ROOT,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+    def publish_amendment_reference(
+        self,
+        plan_root: Path,
+        value: str = "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/999",
+    ) -> str:
+        repo = plan_root.parent
+        plan_path = plan_root / "plan.yaml"
+        plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+        plan["execution_authorization"]["authorization_amendment"]["authorization_pr"] = value
+        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+        self.git(repo, "add", plan_path.relative_to(repo).as_posix())
+        staged = subprocess.run(
+            ["git", "-C", str(repo), "diff", "--cached", "--quiet"],
             check=False,
         )
+        self.assertIn(staged.returncode, {0, 1})
+        if staged.returncode == 1:
+            self.git(repo, "commit", "-m", "publish amendment PR reference")
+            self.git(repo, "push", "origin", "main")
+        return self.git(repo, "rev-parse", "HEAD").stdout.strip()
+
+    def amendment_pr(
+        self,
+        anchor_sha: str,
+        **overrides: object,
+    ) -> dict[str, object]:
+        value: dict[str, object] = {
+            "number": 999,
+            "html_url": "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/999",
+            "state": "closed",
+            "merged": True,
+            "merge_commit_sha": anchor_sha,
+            "author_association": "OWNER",
+            "user": {"login": "d3vi1"},
+            "base": {
+                "ref": "main",
+                "repo": {"full_name": "Project-Helianthus/helianthus-execution-plans"},
+            },
+        }
+        value.update(overrides)
+        return value
 
     def block_m1_admission(self, plan_root: Path) -> None:
         repo = plan_root.parent
@@ -166,16 +242,28 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def test_last_pre_gateway_issue_is_blocked_until_docs_trust_opens(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             plan_root, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(plan_root)
             self.block_m1_admission(plan_root)
-            result = self.authorize(plan_root, anchor, "FMV3-M3-03")
+            result = self.authorize(
+                plan_root,
+                anchor,
+                "FMV3-M3-03",
+                self.amendment_pr(anchor),
+            )
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("Modbus M1 admission gate is not OPEN", result.stderr)
 
     def test_m1_implementation_is_blocked_until_docs_trust_opens(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             plan_root, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(plan_root)
             self.block_m1_admission(plan_root)
-            result = self.authorize(plan_root, anchor, "FMV3-M1-01")
+            result = self.authorize(
+                plan_root,
+                anchor,
+                "FMV3-M1-01",
+                self.amendment_pr(anchor),
+            )
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("Modbus M1 admission gate is not OPEN", result.stderr)
 
@@ -283,13 +371,92 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             result = self.run_validator(copied)
             self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_implementing_lifecycle_authorizes_against_locked_anchor(self) -> None:
+    def test_implementing_lifecycle_authorizes_against_active_amendment_anchor(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             implementing, anchor = self.published_plan(temp)
             self.assertTrue(implementing.name.endswith(".implementing"))
-            result = self.authorize(implementing, anchor, "FMV3-M0-02")
+            anchor = self.publish_amendment_reference(implementing)
+            result = self.authorize(
+                implementing,
+                anchor,
+                "FMV3-M0-02",
+                self.amendment_pr(anchor),
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("fail-closed execution allowlist", result.stdout)
+
+    def test_corrective_docs_issue_authorizes_against_active_amendment_anchor(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing)
+            result = self.authorize(
+                implementing,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor),
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("fail-closed execution allowlist", result.stdout)
+
+    def test_amendment_authorization_rejects_placeholder_pr(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing, "PENDING_PR_URL")
+            result = self.authorize(implementing, anchor, "FMV3-M1-05")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("requires a concrete PR URL", result.stderr)
+
+    def test_amendment_authorization_rejects_unmerged_pr(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing)
+            result = self.authorize(
+                implementing,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor, state="open", merged=False, merge_commit_sha=None),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("not merged at the plan authorization SHA", result.stderr)
+
+    def test_amendment_authorization_rejects_wrong_merge_sha(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing)
+            result = self.authorize(
+                implementing,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor, merge_commit_sha="f" * 40),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("not merged at the plan authorization SHA", result.stderr)
+
+    def test_amendment_authorization_rejects_wrong_issuer(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing)
+            result = self.authorize(
+                implementing,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor, user={"login": "not-the-owner"}),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("issuer mismatch", result.stderr)
+
+    def test_amendment_authorization_rejects_wrong_author_association(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing)
+            result = self.authorize(
+                implementing,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor, author_association="CONTRIBUTOR"),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("author association is not allowed", result.stderr)
 
     def test_implementing_gateway_milestone_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

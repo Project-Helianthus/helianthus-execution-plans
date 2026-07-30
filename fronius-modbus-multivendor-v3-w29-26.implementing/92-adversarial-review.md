@@ -389,3 +389,22 @@ Epochs 1 and 2 are immutable `FAILED` archives after their R5 `FINDINGS` integra
 reached `CLOSED`. Epoch 3 R1-R4 `FINDINGS`, including E3-R1-F01 through E3-R4-F01, are
 integrated `CLOSED`; R5 returned `NO_FINDINGS` with no integration required. Epoch 3 is the
 sole highest/current terminal `PASSED` epoch at `5/5`, targeting `TERMINAL_NO_FINDINGS`.
+
+## Issue #88 corrective amendment gate
+
+The epoch history above is immutable evidence for the previously locked plan and does not
+retroactively place the amendment inside epoch 3 R5. The corrective successor uses
+revision-bound, fresh independent OpenAI gates instead:
+
+- FMV3-M1-05: fresh review of the exact full-SHA public docs head; every finding is
+  resolved or the verdict is `NO_FINDINGS` before merge.
+- FMV3-M1-06: hosted CI observes the exact test-only RED commit failing for the intended
+  missing behavior, then GREEN at implementation head; a fresh context reviews both exact
+  revisions before merge.
+- FMV3-M2-01: after pinning the full 40-character merged M1-06 SHA, hosted CI observes the
+  exact test-only RED and implementation GREEN revisions; a fresh context reviews both
+  before merge.
+
+These gates are additive. They do not renumber M1-01 through M1-04, replace the original
+FMV3-M1-00 companion, authorize gateway work, or convert the archived review epochs into
+evidence for contracts they did not contain.

@@ -20,13 +20,15 @@ execution_authorization:
     - FMV3-M1-02
     - FMV3-M1-03
     - FMV3-M1-04
+    - FMV3-M1-05
+    - FMV3-M1-06
     - FMV3-M2-01
     - FMV3-M2-02
     - FMV3-M2-03
     - FMV3-M3-01
     - FMV3-M3-02
     - FMV3-M3-03
-  authorized_issue_contract_sha256: e2700e6da559b851fef6b9d510033f1f9b9004964d19cb8c136885c78e7da8a5
+  authorized_issue_contract_sha256: 13e3f2c1bf9551992ee56f2b00fa54594d73d41d22b7e189b12ff8cf32c22c60
   authorization_anchor:
     required: true
     record_type: github_meta_issue_comment_v1
@@ -40,6 +42,22 @@ execution_authorization:
     comment_edit_policy: created_at_equals_updated_at
     merge_requirement: anchor_equals_pr_merge_commit_and_is_ancestor_of_origin_main
     bind: [plan_head_sha, authorized_issue_contract_sha256, authorized_issue]
+    state: pending_until_authorization_pr_merge
+  authorization_amendment:
+    required: true
+    record_type: github_issue_pr_v1
+    issue: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/88
+    authorization_pr: PENDING_PR_URL
+    marker: execution-authorization-amendment:v1
+    plan_repo: Project-Helianthus/helianthus-execution-plans
+    plan_path: fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml
+    authorized_issuer: d3vi1
+    allowed_author_associations: [MEMBER, OWNER]
+    merge_requirement: amendment_pr_merge_commit_and_is_ancestor_of_origin_main
+    bind: [plan_head_sha, authorized_issue_contract_sha256, authorized_issue]
+    adds_authorized_issues: [FMV3-M1-05, FMV3-M1-06]
+    preserves_stop_before_issue: FMV3-M4-01
+    gateway_work_authorized: false
     state: pending_until_authorization_pr_merge
   repository_creation_authorized: true
   repository_creation_targets:
@@ -66,7 +84,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: f97c2ff9dc212d5a3eb19302111078d5c7372077061c8959a4793b141b9f1af8
+canonical_sha256: a575c012fc1623c68d9895605e5391cdbda57bedc00a0cea2dcabb42707f7973
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0
@@ -248,6 +266,9 @@ decisions:
   - id: D12
     status: accepted
     decision: Every physical read response has a wire_response_id bound to its physical request/range, and every dependent logical observation has a linked logical_view_id plus exact slice identity; raw dependency identity also includes endpoint, unit, function/table, logical zero-based PDU offset/count, sample identity, and recorded documentary address normalization. Versioned modbusreg codec/provenance fields own multi-register word order, applicable intra-word byte order, string packing and padding, while profile-declared coherence rejects unrecoverable torn multi-response reads.
+  - id: D13
+    status: accepted
+    decision: FMV3-M1-05 documents and FMV3-M1-06 implements OPAQUE_RUNTIME_ACQUISITION_V1 as an additive successor to M1-04 before M2-01. Runtime sources alone issue non-serializable one-shot capabilities backed by shared state across value copies and endpoint recreation; offline fixtures and non-deliverable acquisitions receive no capability. M2-01 pins the merged M1-06 producer SHA, keeps runtime and fixture trust distinct, owns bounded attempt/claim state in a shared ledger pointer, seals an immutable attempt set before Publish(), and preserves the complete normalization record losslessly.
 
 milestones:
   - id: M0
@@ -257,11 +278,11 @@ milestones:
   - id: M1
     title: helianthus-modbus foundation
     depends_on: [M0]
-    exit_gate: The bounded public Modbus companion documents the exact write/response-wait and wire-response/logical-view coalescing identity contracts before implementation; protocol core and TCP conformance are green. RTU fixture conformance may close as default-disabled experimental FIXTURE_ONLY_NO_HARDWARE; only RTU_PHYSICAL_QUALIFICATION_V1 permits an enabled/supported RTU claim, and its absence blocks no TCP-sufficient work.
+    exit_gate: The original bounded public Modbus companion remains merged and protocol core plus TCP/RTU conformance are green. After M1-04, FMV3-M1-05 must merge the OPAQUE_RUNTIME_ACQUISITION_V1 docs companion before strict hosted RED/GREEN implementation in M1-06; fresh independent review must accept the exact docs, RED, and GREEN revisions. RTU fixture conformance may close as default-disabled experimental FIXTURE_ONLY_NO_HARDWARE; only RTU_PHYSICAL_QUALIFICATION_V1 permits an enabled/supported RTU claim, and its absence blocks no TCP-sufficient work.
   - id: M2
     title: helianthus-modbusreg framework
     depends_on: [M0]
-    exit_gate: The reused FMV3-M1-00 public companion is merged before M2 implementation; profile API, exact wire-response/logical-view/sample identity and provenance, coherence, detector activation and hardware-qualification lifecycle, coalescing mutation format, and conformance harness are stable.
+    exit_gate: The reused FMV3-M1-00 companion remains merged, and M2-01 starts only after M1-06 merges and the consumer pins its full 40-character producer SHA. Profile API, exact wire-response/logical-view/sample identity and provenance, runtime-versus-fixture trust, shared ledger-owned bounded attempt/claim state, duplicate AttemptKey rejection, sealed immutable publication, exact normalization round-trip, detector lifecycle, and conformance harness are stable under strict hosted RED/GREEN and fresh independent review.
   - id: M3
     title: Minimal SunSpec family, Fronius applicability, and fixtures
     depends_on: [M2]
@@ -303,6 +324,16 @@ phase_gates:
     after_issues: [FMV3-M1-00]
     before_issues: [FMV3-M1-01, FMV3-M1-02, FMV3-M1-03, FMV3-M1-04, FMV3-M2-01, FMV3-M2-02, FMV3-M2-03]
     requirement: The single bounded public companion publishes transport-write linearization and the M1 runtime plus complete M2 source-observation/provenance, detector lifecycle, qualification, coherence, and fixture/mutation contracts before every M1/M2 implementation issue; each carries the same companion metadata.
+  - id: PG-OPAQUE-ACQUISITION-DOC-GATE
+    kind: dependency
+    after_issues: [FMV3-M1-05]
+    before_issues: [FMV3-M1-06]
+    requirement: The public OPAQUE_RUNTIME_ACQUISITION_V1 companion merges after M1-04 and before M1-06 code, defining source_kind runtime versus offline_fixture, source-issued non-serializable one-shot capability semantics, bounded attempt lifecycle, shared copy/recreation state, per-dependent coalesced capabilities, and lossless normalization. A fresh independent OpenAI review of the exact docs revision is a merge blocker.
+  - id: PG-OPAQUE-ACQUISITION-CONSUMER-PIN
+    kind: dependency
+    after_issues: [FMV3-M1-06]
+    before_issues: [FMV3-M2-01]
+    requirement: M2-01 cannot begin until M1-06 has merged, its exact full 40-character merge SHA is pinned and verified by the consumer, and the M1 hosted RED/GREEN plus fresh independent review evidence is closed.
   - id: PG-MODBUSREG-BOOT
     kind: dependency
     after_issues: [FMV3-M0-03]
@@ -402,13 +433,13 @@ risks:
     mitigation: Fail closed, preserve raw evidence, and require cross-profile ambiguity fixtures.
     stop_trigger: More than one eligible profile remains after bounded read-only probes.
   - id: R02
-    statement: Function/table aliasing, incorrect coalesced slicing, documentary off-by-one addressing, reuse of an abandoned TCP transaction ID, delivery of a late same-shape RTU response, wrong codec order/packing, mixed generations, torn samples, or conflated source/canonical state can corrupt values.
-    mitigation: Bind wire_response_id to the physical request/range and every logical observation to logical_view_id plus exact slice identity; reject incompatible coalescing, preserve write/response-wait recovery, keep protocol words uninterpreted, version codec interpretation/coherence, and leave canonical transitions to ebusreg.
-    stop_trigger: A replay cannot reproduce exact logical-view words/provenance, incompatible reads coalesce, a late response crosses identity, a sample aliases FC03/FC04, mixes generations, or emits after an unvalidated torn read.
+    statement: Function/table aliasing, incorrect coalesced slicing, lossy normalization, duplicate AttemptKey, mutable post-seal publication, reuse of an abandoned TCP transaction ID, delivery of a late same-shape RTU response, wrong codec order/packing, mixed generations, torn samples, or conflated source/canonical state can corrupt values.
+    mitigation: Bind wire_response_id to the physical request/range and every logical observation to logical_view_id plus exact slice identity; use a shared bounded ledger that rejects duplicate keys and publishes only a sealed immutable attempt set; require exact normalization round-trip, reject incompatible coalescing, preserve write/response-wait recovery, keep protocol words uninterpreted, version codec interpretation/coherence, and leave canonical transitions to ebusreg.
+    stop_trigger: A replay cannot reproduce exact logical-view words/provenance and the full normalization record, incompatible reads coalesce, duplicate AttemptKey is accepted, Publish() accepts mutable state, a late response crosses identity, or a sample aliases FC03/FC04, mixes generations, or emits after an unvalidated torn read.
   - id: R03
-    statement: Endpoint contention, incorrect connection-wide correlation, tombstone exhaustion, RTU failure to quiesce, or reconnect storms can starve consumers or misdeliver responses.
-    mitigation: One endpoint owner, one MBAP allocator/map per connection across all units, socket-lifetime tombstones with controlled generation rollover, isolated state, bounded scheduling, and RTU fixture-only default-disabled experimental status until RTU_PHYSICAL_QUALIFICATION_V1 records adapter/transceiver, baud/topology, physical silent intervals, and timeout/cancellation quarantine.
-    stop_trigger: Tests exceed limits, reuse a tombstoned ID, accept an old-generation frame, misdeliver a logical slice, or claim RTU enabled/supported without the named physical qualification evidence.
+    statement: Endpoint contention, incorrect connection-wide correlation, replayed or copy-raced acquisition capability, unbounded capability/attempt/claim state, tombstone exhaustion, RTU failure to quiesce, or reconnect storms can starve consumers or misdeliver responses.
+    mitigation: One endpoint owner, source-issued opaque one-shot capabilities with shared copy/recreation state and terminal reclamation, one MBAP allocator/map per connection across all units, socket-lifetime tombstones with controlled generation rollover, isolated bounded scheduling, and RTU fixture-only default-disabled experimental status until RTU_PHYSICAL_QUALIFICATION_V1 records adapter/transceiver, baud/topology, physical silent intervals, and timeout/cancellation quarantine.
+    stop_trigger: Tests exceed capability, attempt, claim, queue, or transport limits; more than one copied view wins; a coalesced dependent lacks its own capability; a tombstoned ID is reused; an old-generation frame is accepted; a logical slice is misdelivered; or RTU is claimed enabled/supported without the named physical qualification evidence.
   - id: R04
     statement: Operator-authored Huawei analysis may contain stale or branch-inapplicable conclusions.
     mitigation: Rebuild provenance, model, gateway, firmware-branch, and probe evidence; enumerate every detector operation against the runtime FC03/FC04/FC2B-MEI0E allowlist; inventory EMMA discriminators or mark unavailable while semantics remain deferred.
@@ -586,15 +617,101 @@ issues:
     identity_operation_matrix: [tcp_fc2b_mei0e_device_identification, rtu_fc2b_mei0e_device_identification]
     transport_recovery_matrix: [tcp_provable_zero_no_abandonment, tcp_partial_write_close_reconnect, tcp_indeterminate_error_close_reconnect, tcp_cancellation_race_close_reconnect, tcp_ambiguous_completion_close_reconnect, tcp_full_transmit_timeout_tombstone, tcp_full_transmit_cancellation_tombstone, tcp_same_socket_tombstone_reuse_rejected, tcp_tombstone_exhaustion_controlled_rollover, tcp_old_generation_late_frame_rejected, rtu_provable_zero_no_abandonment, rtu_partial_write_quarantine, rtu_indeterminate_error_quarantine, rtu_cancellation_race_quarantine, rtu_ambiguous_completion_quarantine, rtu_full_transmit_timeout_quarantine, rtu_full_transmit_cancellation_quarantine, rtu_late_same_shape_discarded, rtu_quiescence_failure_endpoint_recovery]
     rollback: Hold the failing transport disabled and keep passing transports available behind explicit capability flags.
+  - id: FMV3-M1-05
+    milestone: M1
+    repo: Project-Helianthus/helianthus-docs-ebus
+    depends_on: [FMV3-M1-04]
+    what: Publish the OPAQUE_RUNTIME_ACQUISITION_V1 companion contract before corrective runtime code.
+    acceptance: After M1-04, one public docs issue/PR defines source_kind as runtime or offline_fixture; only a deliverable runtime acquisition may receive a source-issued, opaque, non-serializable capability. It defines one-shot CAS backed by shared state across value copies and endpoint recreation, no capability for non-deliverable acquisitions or offline fixtures, one independent capability for every coalesced dependent, exactly one copied-view race winner, bounded capability/attempt/claim lifecycle, and a lossless versioned normalization record with exact round-trip. A fresh independent OpenAI review of the exact docs revision must close with all findings resolved or NO_FINDINGS before merge.
+    gates: [doc_gate, licensing, data_integrity, fresh_adversarial_review]
+    doc_gate: companion
+    companion_for: [FMV3-M1-06, FMV3-M2-01]
+    documents_contract: OPAQUE_RUNTIME_ACQUISITION_V1
+    contract_sections: [opaque_single_use_runtime_acquisition_capability, source_kind_runtime_vs_offline_fixture, source_issued_deliverability, attempt_lifecycle_and_bounds, copied_view_and_endpoint_recreation_cas, per_coalesced_dependent_capability, lossless_normalization]
+    source_kind_contract:
+      allowed: [runtime, offline_fixture]
+      runtime_trust: capability_required_for_delivery
+      offline_fixture_trust: untrusted_no_capability
+    opaque_runtime_acquisition_contract:
+      representation: opaque_non_serializable
+      issuer: runtime_source
+      issue_condition: deliverable_runtime_acquisition_only
+      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
+      consumption: one_shot_compare_and_swap
+      state_owner: source_issued_shared_ledger_pointer
+      value_copy_semantics: shared_state
+      endpoint_recreation_semantics: shared_state
+      coalesced_dependents: independent_capability_per_dependent
+      copied_view_race: exactly_one_winner
+      terminal_reuse: forbidden
+      bounded_state: {capabilities: endpoint_configured_hard_limit, open_attempts: consumer_configured_hard_limit, claims_per_attempt: dependency_set_hard_limit, terminal_reclamation: required}
+    normalization_round_trip_contract:
+      schema: versioned
+      record_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
+      unknown_extension_fields: preserved_losslessly
+      round_trip: exact_record_equality
+    fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revision: exact_docs_head_full_sha, findings: resolve_all_or_no_findings, merge_blocker: true}
+    rollback: Correct the public contract before M1-06; after implementation, publish a versioned forward correction without weakening one-shot or source-origin guarantees.
+  - id: FMV3-M1-06
+    milestone: M1
+    repo: Project-Helianthus/helianthus-modbus
+    depends_on: [FMV3-M1-04, FMV3-M1-05]
+    what: Implement the source-issued opaque single-use runtime acquisition capability.
+    acceptance: Against merged M1-05, a test-only RED commit observed failing by hosted CI precedes implementation. Tests prove the token is opaque and non-serializable, issued only by a deliverable runtime source, absent for non-deliverable acquisitions and offline fixtures, and consumed by one-shot CAS against shared state across value copies and endpoint recreation. Every coalesced dependent receives its own capability, copied views racing the same capability produce exactly one winner, all state is bounded and reclaimed, and hosted GREEN plus fresh independent OpenAI review of the exact RED and implementation revisions pass before merge.
+    gates: [TDD_RED, CI, doc_gate, data_integrity, concurrency, fresh_adversarial_review]
+    doc_gate: required
+    companion_issue: FMV3-M1-05
+    implements_contract: OPAQUE_RUNTIME_ACQUISITION_V1
+    opaque_runtime_acquisition_contract:
+      representation: opaque_non_serializable
+      issuer: runtime_source
+      issue_condition: deliverable_runtime_acquisition_only
+      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
+      consumption: one_shot_compare_and_swap
+      state_owner: source_issued_shared_ledger_pointer
+      value_copy_semantics: shared_state
+      endpoint_recreation_semantics: shared_state
+      coalesced_dependents: independent_capability_per_dependent
+      copied_view_race: exactly_one_winner
+      terminal_reuse: forbidden
+      bounded_state: {capabilities: endpoint_configured_hard_limit, open_attempts: consumer_configured_hard_limit, claims_per_attempt: dependency_set_hard_limit, terminal_reclamation: required}
+    strict_tdd_contract: {red_commit: test_only, hosted_red: fails_for_missing_behavior, implementation_before_hosted_red: forbidden, hosted_green: required_on_implementation_head}
+    fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revisions: [red_commit_full_sha, implementation_head_full_sha], findings: resolve_all_or_no_findings, merge_blocker: true}
+    rollback: Disable capability delivery and pin consumers to the last compatible runtime; never replace the token with a serializable or replayable surrogate.
   - id: FMV3-M2-01
     milestone: M2
     repo: Project-Helianthus/helianthus-modbusreg
-    depends_on: [FMV3-M0-03, FMV3-M1-00, FMV3-M1-01]
+    depends_on: [FMV3-M0-03, FMV3-M1-00, FMV3-M1-01, FMV3-M1-06]
     what: Define profile, codec, catalog, source-observation identity/coherence, and raw-provenance contracts.
-    acceptance: Against merged FMV3-M1-00, versioned codecs require source validity/times, versions, sample_id, poll_generation_id, dependency_set_id, and for every dependency a logical_view_id linked to wire_response_id with logical offset/count and slice offset/count; replay reproduces exact view words/provenance even when unequal overlapping reads share one wire response. Codec order/packing, coherence, documentary normalization, and absence of canonical policy remain explicit.
-    gates: [TDD_RED, CI, doc_gate, data_integrity]
+    acceptance: Against merged FMV3-M1-00 and M1-05, the consumer pins and verifies the full 40-character merged M1-06 SHA before a test-only RED commit is observed failing by hosted CI. Tests prove runtime acquisitions require the opaque capability while offline_fixture remains untrusted with zero capability CAS and no production sample_id; an attempt uses shared ledger-owned pointer state with hard bounds on attempts and claims, rejects duplicate AttemptKey, seals one immutable attempt set, and then Publish() consumes that sealed set without a mutable DTO. Versioned codecs preserve existing wire/logical/sample provenance and exact normalization-record round-trip. Hosted GREEN and a fresh independent OpenAI review of the exact RED and implementation revisions are merge blockers.
+    gates: [TDD_RED, CI, doc_gate, data_integrity, concurrency, fresh_adversarial_review]
     doc_gate: required
     companion_issue: FMV3-M1-00
+    corrective_companion_issue: FMV3-M1-05
+    consumes_contract: OPAQUE_RUNTIME_ACQUISITION_V1
+    producer_pin_contract: {producer_issue: FMV3-M1-06, merge_sha: required_full_40_lowercase_hex, consumer_resolution: exact_sha_verified_before_red}
+    source_trust_contract:
+      runtime: {capability: required, delivery_trust: successful_one_shot_cas}
+      offline_fixture: {capability: forbidden, capability_cas_calls: 0, trust: untrusted, production_sample_id: forbidden}
+    attempt_ledger_contract:
+      state_owner: shared_ledger_owned_pointer
+      attempt_key_uniqueness: duplicate_rejected
+      attempt_bound: configured_hard_limit
+      claims_per_attempt_bound: dependency_set_hard_limit
+      claim_capability: one_shot_runtime_capability
+      seal_transition: open_to_sealed_once
+      sealed_attempt_set: immutable
+      publish_signature: Publish()
+      publish_input: sealed_ledger_state
+      mutable_dto: forbidden
+      terminal_reclamation: required
+    normalization_round_trip_contract:
+      schema: versioned
+      record_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
+      unknown_extension_fields: preserved_losslessly
+      round_trip: exact_record_equality
+    strict_tdd_contract: {red_commit: test_only, hosted_red: fails_for_missing_behavior, implementation_before_hosted_red: forbidden, hosted_green: required_on_implementation_head}
+    fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revisions: [red_commit_full_sha, implementation_head_full_sha], findings: resolve_all_or_no_findings, merge_blocker: true}
     observation_view_fields: [logical_view_id, wire_response_id, logical_zero_based_pdu_offset, logical_word_count, slice_offset_within_wire, slice_word_count]
     rollback: Version the unpublished contract or add a compatible successor before profile release.
   - id: FMV3-M2-02

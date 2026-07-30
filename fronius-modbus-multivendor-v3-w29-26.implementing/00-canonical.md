@@ -8,7 +8,9 @@ Supersedes: `fronius-modbus-eebus-bridge-w28-26.draft`
 This implementing plan replaces the W28 package as execution intent. The W28 directory remains
 unchanged as forensic history. The operator action on 2026-07-14 authorized plan lock and
 publication. A separate operator action on 2026-07-26 authorizes execution of the M0-M3
-transport, documentation, and registry wave only.
+transport, documentation, and registry wave only. Issue #88 on 2026-07-30 amends that
+pre-gateway authorization with two additive M1 corrective issues; it does not authorize
+gateway work or rewrite completed M1/M2 issue history.
 
 ## Execution authorization
 
@@ -16,6 +18,9 @@ The exact `authorized_issues` list in `plan.yaml` is the sole normative executio
 milestone names are non-authoritative grouping labels and do not authorize every issue in
 those milestones. The 2026-07-26 authorization covers FMV3-M0-01, M0-02, M0-03, M0-06,
 M1-00 through M1-04, M2-01 through M2-03, and M3-01 through M3-03 in `openai_only` mode.
+The issue #88 amendment additionally authorizes FMV3-M1-05 and FMV3-M1-06. M1-05 is the
+new public docs companion and M1-06 is the corrective `helianthus-modbus` implementation;
+both remain inside the same fail-closed pre-gateway authorization digest.
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
 `helianthus-modbusreg`. Private governance creation FMV3-M0-04 and destination bootstraps
 FMV3-M0-05/FMV3-M0-07 remain deferred pending future explicit authorization; no private
@@ -73,7 +78,9 @@ Deliver a public, reusable Modbus stack with a Fronius-first read-only vertical:
    RTU remains default-disabled and experimental until `RTU_PHYSICAL_QUALIFICATION_V1`
    records adapter/transceiver, baud/topology, physical silent intervals, and
    timeout/cancellation quarantine evidence; absent hardware creates no support claim and
-   blocks no TCP-sufficient work.
+   blocks no TCP-sufficient work. Additive successor FMV3-M1-06 also owns the
+   source-issued opaque, non-serializable, single-use runtime acquisition capability
+   documented first by FMV3-M1-05.
 2. `helianthus-modbusreg` owns one catalog of standard and vendor profiles, codecs,
    detector rules, fixtures, and profile conformance. M3 implements the minimal SunSpec
    standard family needed by Fronius before an evidence-dependent Fronius disposition;
@@ -94,7 +101,8 @@ Deliver a public, reusable Modbus stack with a Fronius-first read-only vertical:
    server identity, fails closed for plaintext or untrusted identity, and invents no
    subscription. PV is their first vertical, not their repository identity.
 
-The critical delivery path is M0 -> M1 TCP slice -> M2 -> M3 -> M4 -> M5 packaged
+The critical delivery path is M0 -> M1 TCP slice -> M1-05 docs -> M1-06 opaque capability
+corrective -> M2 pinned consumer -> M3 -> M4 -> M5 packaged
 public rollout -> M6.
 RTU completion, vendor expansion, and Matter remain explicit work but do not gate the
 Fronius-to-eeBUS lab result unless an issue dependency says otherwise.
@@ -239,6 +247,22 @@ validation is a torn read, not a partial value. The gateway propagates source
 validity/timestamps and sample/generation/dependency/response identities unchanged.
 Partial, incoherent, or torn reads do not create a new source observation.
 
+Runtime acquisition trust is not inferred from serializable request fields. A deliverable
+`source_kind: runtime` acquisition receives one source-issued opaque capability backed by
+shared one-shot CAS state. Value copies and endpoint recreation refer to the same state;
+racing copied views have exactly one winner. Every coalesced dependent receives its own
+capability even when dependents share a physical wire response. Non-deliverable runtime
+acquisitions and `source_kind: offline_fixture` receive no capability.
+
+`helianthus-modbusreg` pins the full 40-character merged FMV3-M1-06 producer SHA before
+consuming this contract. Its attempt ledger owns shared pointer state with hard bounds on
+open attempts and claims, rejects duplicate `AttemptKey`, transitions an attempt from open
+to one sealed immutable attempt set, and calls `Publish()` from sealed ledger state without
+a mutable DTO. Offline fixtures perform zero capability CAS operations and cannot receive a
+production `sample_id`. The versioned normalization record preserves source kind, evidence
+identity, documentary notation/address/base, function/table, normalized zero-based PDU
+offset, word count, and unknown extension fields with exact record round-trip.
+
 Only `helianthus-ebusreg` maps source validity/timestamps to canonical quality and owns
 freshness deadlines, last-good retention, stale/unavailable transitions, expiry, stable
 IDs, meaning, compatibility, and schema versions. Counter rollover, reset, device restart,
@@ -333,7 +357,11 @@ and the complete M2 source-observation/provenance, detector activation lifecycle
 qualification, coherence, and fixture/mutation contracts. It is one public docs issue/PR,
 merged before any M1 or M2 implementation; FMV3-M1-01 through FMV3-M1-04 and FMV3-M2-01
 through FMV3-M2-03 all depend on it directly or through explicit ancestry and carry its
-doc-gate/companion metadata.
+doc-gate/companion metadata. That original history remains unchanged. The additive
+issue #88 lane starts after FMV3-M1-04: FMV3-M1-05 publishes
+`OPAQUE_RUNTIME_ACQUISITION_V1`, FMV3-M1-06 implements it after both M1-04 and M1-05, and
+FMV3-M2-01 adds M1-06 as a producer dependency while retaining its original M1-00
+companion and recording M1-05 as the corrective companion.
 
 ### M1-M3: shared stack and Fronius fixtures
 
@@ -354,13 +382,18 @@ experimental with no supported/enabled claim. Only `PHYSICALLY_QUALIFIED` from
 `RTU_PHYSICAL_QUALIFICATION_V1` permits such a claim; absent hardware blocks neither the
 TCP/Fronius path nor TCP-sufficient M1/M7 work.
 Protocol
-outputs remain uninterpreted words/bytes in received order. M2 starts only with the same
-FMV3-M1-00 companion merged and establishes
+outputs remain uninterpreted words/bytes in received order. After M1-04, the corrective
+path is strictly docs-first: M1-05 documents source-kind, one-shot capability, lifecycle,
+bounded-state, coalesced-dependent, copy/recreation, and lossless-normalization behavior;
+M1-06 then proves the opaque capability with strict hosted RED/GREEN and fresh independent
+review. M2 starts only with the same FMV3-M1-00 companion merged and M1-06 merged and pinned
+at its full producer SHA, and establishes
 versioned codec/source-observation/detector contracts and deterministic fixtures, including
 physical `wire_response_id`, linked logical `logical_view_id`/slice provenance,
 explicit word composition, applicable intra-word byte order, string packing/padding, and
-mixed-generation rejection. M2 may start after the M1 protocol contract while the RTU lane
-continues; the issue DAG records that safe overlap without a second docs issue.
+mixed-generation rejection. M2-01 additionally proves the runtime/offline-fixture trust
+split, shared bounded attempt ledger, duplicate-key rejection, immutable seal-then-publish,
+fixture zero-CAS/no-production-sample behavior, and exact normalization round-trip.
 M3-01 is the public companion for M3-02/M3-03. M3 builds that provenance-qualified evidence packet, implements the minimal standard SunSpec
 family needed by phase 1, then records the Fronius TCP read-only disposition. M3-03 returns
 `STANDARD_ONLY` when M3-01/M3-02 prove the required slice fully standard, or
@@ -384,6 +417,13 @@ CI before implementation is pushed. Conditional disposition issues invoke that r
 when their declared implementation branch is selected. Transport changes require the applicable transport
 matrix. Protocol, semantic, licensing, or reverse-engineered knowledge changes require the
 documentation gate.
+
+For FMV3-M1-06 and the amended FMV3-M2-01 specifically, hosted CI must observe the exact
+test-only RED revision failing for the intended missing behavior before implementation,
+then observe GREEN on the implementation head. FMV3-M1-05, M1-06, and M2-01 each require a
+fresh independent OpenAI adversarial review of the exact applicable revision; all findings
+must be resolved or the reviewer must return `NO_FINDINGS` before merge. The historical
+epoch 3 R5 remains immutable and does not retroactively review this amendment.
 
 ### M4: raw MCP and real-device proof
 

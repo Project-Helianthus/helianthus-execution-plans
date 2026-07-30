@@ -1,6 +1,6 @@
 # Implementing status
 
-Canonical-SHA256: `f97c2ff9dc212d5a3eb19302111078d5c7372077061c8959a4793b141b9f1af8`
+Canonical-SHA256: `a575c012fc1623c68d9895605e5391cdbda57bedc00a0cea2dcabb42707f7973`
 
 State: implementing
 Current milestone: M0
@@ -20,10 +20,16 @@ Private creation/bootstrap authorized: no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-0
 This package supersedes `fronius-modbus-eebus-bridge-w28-26.draft` as execution
 intent while preserving that directory unchanged as forensic history.
 
-Completed through terminal epoch 3 R5:
+Completed through terminal epoch 3 R5 plus the issue #88 governance amendment:
 
 - canonical and four isolated implementation chunks authored;
-- 44-issue one-repository DAG and nine milestone groupings authored;
+- 46-issue one-repository DAG and nine milestone groupings authored;
+- additive FMV3-M1-05 public companion and FMV3-M1-06 runtime corrective authorized,
+  with FMV3-M2-01 depending on the merged corrective producer and retaining the original
+  companion history;
+- strict hosted RED/GREEN, full producer-SHA pin, source trust split, bounded
+  seal-before-publish lifecycle, lossless normalization, and fresh revision-bound
+  adversarial gates are explicit;
 - R1 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and eleven
   preserved CLOSED findings;
 - R2 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and seven
@@ -79,7 +85,8 @@ Completed through terminal epoch 3 R5:
 
 Terminal review closure did not itself lock the plan. The operator separately authorized
 lock and publication on 2026-07-14, then authorized the bounded pre-gateway execution wave
-on 2026-07-26 without authorizing gateway or private binding work.
+on 2026-07-26. Issue #88 amends only that pre-gateway allowlist with M1-05/M1-06 and keeps
+the hard stop before FMV3-M4-01; gateway and private binding work remain unauthorized.
 
 Not performed:
 

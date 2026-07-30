@@ -32,8 +32,8 @@ Project-Helianthus/helianthus-matter-binding-private
 Project-Helianthus/helianthus-execution-plans
 """.split())
 REVIEW_SCOPE = {"implementability", "correctness/data integrity", "protocol interoperability", "security/safety", "licensing/IP boundary", "operability/recovery", "testability", "dependency/DAG feasibility"}
-REQUIRED_PHASE_GATES = set("PG-REPOSITORY-CREATION PG-MODBUS-BOOT PG-MODBUS-DOC-GATE PG-MODBUSREG-BOOT PG-EEBUS-BOOT PG-MATTER-BOOT PG-RAW-FIRST PG-PV-DOC-GATE PG-SEMANTIC-LOCK PG-CONSUMER-PROMOTION PG-GRAPHQL-DOC-GATE PG-PUBLIC-ROLLOUT PG-EEBUS-DOC-GATE PG-MATTER-DOC-GATE PG-VENDOR-EXPANSION PG-READ-ONLY PG-RECOVERABLE-RELEASE".split())
-EXPECTED_ISSUE_COUNT = 44
+REQUIRED_PHASE_GATES = set("PG-REPOSITORY-CREATION PG-MODBUS-BOOT PG-MODBUS-DOC-GATE PG-OPAQUE-ACQUISITION-DOC-GATE PG-OPAQUE-ACQUISITION-CONSUMER-PIN PG-MODBUSREG-BOOT PG-EEBUS-BOOT PG-MATTER-BOOT PG-RAW-FIRST PG-PV-DOC-GATE PG-SEMANTIC-LOCK PG-CONSUMER-PROMOTION PG-GRAPHQL-DOC-GATE PG-PUBLIC-ROLLOUT PG-EEBUS-DOC-GATE PG-MATTER-DOC-GATE PG-VENDOR-EXPANSION PG-READ-ONLY PG-RECOVERABLE-RELEASE".split())
+EXPECTED_ISSUE_COUNT = 46
 CONDITIONAL_GATE_IDS = {"CG-M4-LIVE-GO", "CG-M5-SEMANTIC-GO"}
 M1_IMPLEMENTATION_IDS = {f"FMV3-M1-{number:02d}" for number in range(1, 5)}
 M2_IMPLEMENTATION_IDS = {f"FMV3-M2-{number:02d}" for number in range(1, 4)}
@@ -82,6 +82,42 @@ def github_api(endpoint: str) -> Any:
     value = json.loads(result.stdout)
     require(isinstance(value, (dict, list)), f"GitHub API returned invalid JSON for {endpoint}")
     return value
+def require_authorization_amendment_merged(
+    amendment: dict[str, Any],
+    plan_head_sha: str,
+) -> None:
+    pr_url = amendment.get("authorization_pr")
+    match = re.fullmatch(
+        r"https://github\.com/Project-Helianthus/helianthus-execution-plans/pull/([1-9]\d*)",
+        str(pr_url),
+    )
+    require(match is not None, "authorization amendment requires a concrete PR URL")
+    pr_number = int(match.group(1))
+    pr = github_api(
+        f"repos/Project-Helianthus/helianthus-execution-plans/pulls/{pr_number}"
+    )
+    require(
+        isinstance(pr, dict)
+        and pr.get("number") == pr_number
+        and pr.get("html_url") == pr_url
+        and pr.get("base", {}).get("ref") == "main"
+        and pr.get("base", {}).get("repo", {}).get("full_name") == amendment["plan_repo"],
+        "authorization amendment PR identity mismatch",
+    )
+    require(
+        pr.get("state") == "closed"
+        and pr.get("merged") is True
+        and pr.get("merge_commit_sha") == plan_head_sha,
+        "authorization amendment PR is not merged at the plan authorization SHA",
+    )
+    require(
+        pr.get("user", {}).get("login") == amendment["authorized_issuer"],
+        "authorization amendment PR issuer mismatch",
+    )
+    require(
+        pr.get("author_association") in amendment["allowed_author_associations"],
+        "authorization amendment PR author association is not allowed",
+    )
 def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
     gate_path = repo_root / M1_ADMISSION_GATE
     require(gate_path.is_file() and not gate_path.is_symlink(), "Modbus M1 admission gate is missing")
@@ -184,6 +220,8 @@ def render_issue_map_gates(issue: dict[str, Any]) -> str:
     values = list(issue["gates"])
     if issue.get("companion_issue"):
         values.append(f"companion {issue['companion_issue']}")
+    if issue.get("corrective_companion_issue"):
+        values.append(f"corrective companion {issue['corrective_companion_issue']}")
     return ", ".join(values)
 def load_plan(path: Path) -> dict[str, Any]:
     value = yaml.load(path.read_text(encoding="utf-8"), Loader=UniqueLoader)
@@ -257,6 +295,7 @@ def validate(root: Path) -> tuple[int, int]:
     authorized_issues = [
         "FMV3-M0-01", "FMV3-M0-02", "FMV3-M0-03", "FMV3-M0-06",
         "FMV3-M1-00", "FMV3-M1-01", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04",
+        "FMV3-M1-05", "FMV3-M1-06",
         "FMV3-M2-01", "FMV3-M2-02", "FMV3-M2-03",
         "FMV3-M3-01", "FMV3-M3-02", "FMV3-M3-03",
     ]
@@ -285,6 +324,23 @@ def validate(root: Path) -> tuple[int, int]:
             "bind": ["plan_head_sha", "authorized_issue_contract_sha256", "authorized_issue"],
             "state": "pending_until_authorization_pr_merge",
         },
+        "authorization_amendment": {
+            "required": True,
+            "record_type": "github_issue_pr_v1",
+            "issue": "https://github.com/Project-Helianthus/helianthus-execution-plans/issues/88",
+            "authorization_pr": plan["execution_authorization"]["authorization_amendment"].get("authorization_pr"),
+            "marker": "execution-authorization-amendment:v1",
+            "plan_repo": "Project-Helianthus/helianthus-execution-plans",
+            "plan_path": "fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml",
+            "authorized_issuer": "d3vi1",
+            "allowed_author_associations": ["MEMBER", "OWNER"],
+            "merge_requirement": "amendment_pr_merge_commit_and_is_ancestor_of_origin_main",
+            "bind": ["plan_head_sha", "authorized_issue_contract_sha256", "authorized_issue"],
+            "adds_authorized_issues": ["FMV3-M1-05", "FMV3-M1-06"],
+            "preserves_stop_before_issue": "FMV3-M4-01",
+            "gateway_work_authorized": False,
+            "state": "pending_until_authorization_pr_merge",
+        },
         "repository_creation_authorized": True,
         "repository_creation_targets": {
             "public": ["helianthus-modbus", "helianthus-modbusreg"],
@@ -297,6 +353,12 @@ def validate(root: Path) -> tuple[int, int]:
         "stop_before_issue": "FMV3-M4-01",
         "gateway_work_authorized": False,
     }, "execution authorization mismatch")
+    amendment_pr = plan["execution_authorization"]["authorization_amendment"]["authorization_pr"]
+    require(
+        amendment_pr == "PENDING_PR_URL"
+        or re.fullmatch(r"https://github\.com/Project-Helianthus/helianthus-execution-plans/pull/[1-9]\d*", amendment_pr) is not None,
+        "authorization amendment PR URL mismatch",
+    )
     require(plan["started_on"] == "2026-07-14", "started_on mismatch")
     if plan["state"] == "locked":
         require(plan["current_milestone"] == "M0", "locked plan current_milestone must be M0")
@@ -451,6 +513,8 @@ def validate(root: Path) -> tuple[int, int]:
         "FMV3-M1-02": "Project-Helianthus/helianthus-modbus",
         "FMV3-M1-03": "Project-Helianthus/helianthus-modbus",
         "FMV3-M1-04": "Project-Helianthus/helianthus-modbus",
+        "FMV3-M1-05": "Project-Helianthus/helianthus-docs-ebus",
+        "FMV3-M1-06": "Project-Helianthus/helianthus-modbus",
         "FMV3-M2-01": "Project-Helianthus/helianthus-modbusreg",
         "FMV3-M2-02": "Project-Helianthus/helianthus-modbusreg",
         "FMV3-M2-03": "Project-Helianthus/helianthus-modbusreg",
@@ -508,6 +572,138 @@ def validate(root: Path) -> tuple[int, int]:
     require(issues_by_id["FMV3-M1-02"].get("possibly_transmitted_action") == tcp_action and issues_by_id["FMV3-M1-03"].get("possibly_transmitted_action") == write_contract["rtu_possibly_transmitted_action"] and issues_by_id["FMV3-M1-03"]["depends_on"] == ["FMV3-M1-02"], "transport recovery/serialization mismatch")
     recovery_matrix = ["tcp_provable_zero_no_abandonment", "tcp_partial_write_close_reconnect", "tcp_indeterminate_error_close_reconnect", "tcp_cancellation_race_close_reconnect", "tcp_ambiguous_completion_close_reconnect", "tcp_full_transmit_timeout_tombstone", "tcp_full_transmit_cancellation_tombstone", "tcp_same_socket_tombstone_reuse_rejected", "tcp_tombstone_exhaustion_controlled_rollover", "tcp_old_generation_late_frame_rejected", "rtu_provable_zero_no_abandonment", "rtu_partial_write_quarantine", "rtu_indeterminate_error_quarantine", "rtu_cancellation_race_quarantine", "rtu_ambiguous_completion_quarantine", "rtu_full_transmit_timeout_quarantine", "rtu_full_transmit_cancellation_quarantine", "rtu_late_same_shape_discarded", "rtu_quiescence_failure_endpoint_recovery"]
     require(issues_by_id["FMV3-M1-04"].get("full_transmit_success_transition") == "response_wait" and issues_by_id["FMV3-M1-04"].get("transport_recovery_matrix") == recovery_matrix, "FMV3-M1-04 transport recovery matrix mismatch")
+    opaque_contract = {
+        "representation": "opaque_non_serializable",
+        "issuer": "runtime_source",
+        "issue_condition": "deliverable_runtime_acquisition_only",
+        "forbidden_issue_conditions": ["non_deliverable_runtime_acquisition", "offline_fixture"],
+        "consumption": "one_shot_compare_and_swap",
+        "state_owner": "source_issued_shared_ledger_pointer",
+        "value_copy_semantics": "shared_state",
+        "endpoint_recreation_semantics": "shared_state",
+        "coalesced_dependents": "independent_capability_per_dependent",
+        "copied_view_race": "exactly_one_winner",
+        "terminal_reuse": "forbidden",
+        "bounded_state": {
+            "capabilities": "endpoint_configured_hard_limit",
+            "open_attempts": "consumer_configured_hard_limit",
+            "claims_per_attempt": "dependency_set_hard_limit",
+            "terminal_reclamation": "required",
+        },
+    }
+    normalization_contract = {
+        "schema": "versioned",
+        "record_fields": [
+            "schema_version", "source_kind", "source_evidence_id",
+            "documentary_notation", "documentary_address",
+            "documentary_address_base", "function_code", "logical_table",
+            "normalized_zero_based_pdu_offset", "word_count",
+        ],
+        "unknown_extension_fields": "preserved_losslessly",
+        "round_trip": "exact_record_equality",
+    }
+    strict_tdd = {
+        "red_commit": "test_only",
+        "hosted_red": "fails_for_missing_behavior",
+        "implementation_before_hosted_red": "forbidden",
+        "hosted_green": "required_on_implementation_head",
+    }
+    fresh_docs_review = {
+        "provider": "openai",
+        "context": "fresh_independent",
+        "reviewed_revision": "exact_docs_head_full_sha",
+        "findings": "resolve_all_or_no_findings",
+        "merge_blocker": True,
+    }
+    fresh_code_review = {
+        "provider": "openai",
+        "context": "fresh_independent",
+        "reviewed_revisions": ["red_commit_full_sha", "implementation_head_full_sha"],
+        "findings": "resolve_all_or_no_findings",
+        "merge_blocker": True,
+    }
+    opaque_docs = issues_by_id["FMV3-M1-05"]
+    opaque_runtime = issues_by_id["FMV3-M1-06"]
+    m2_contract = issues_by_id["FMV3-M2-01"]
+    require(
+        opaque_docs["repo"] == "Project-Helianthus/helianthus-docs-ebus"
+        and opaque_docs["depends_on"] == ["FMV3-M1-04"]
+        and opaque_docs.get("doc_gate") == "companion"
+        and opaque_docs.get("companion_for") == ["FMV3-M1-06", "FMV3-M2-01"]
+        and opaque_docs.get("documents_contract") == "OPAQUE_RUNTIME_ACQUISITION_V1"
+        and opaque_docs.get("contract_sections") == [
+            "opaque_single_use_runtime_acquisition_capability",
+            "source_kind_runtime_vs_offline_fixture",
+            "source_issued_deliverability",
+            "attempt_lifecycle_and_bounds",
+            "copied_view_and_endpoint_recreation_cas",
+            "per_coalesced_dependent_capability",
+            "lossless_normalization",
+        ]
+        and opaque_docs.get("source_kind_contract") == {
+            "allowed": ["runtime", "offline_fixture"],
+            "runtime_trust": "capability_required_for_delivery",
+            "offline_fixture_trust": "untrusted_no_capability",
+        }
+        and opaque_docs.get("opaque_runtime_acquisition_contract") == opaque_contract
+        and opaque_docs.get("normalization_round_trip_contract") == normalization_contract
+        and opaque_docs.get("fresh_adversarial_contract") == fresh_docs_review
+        and set(opaque_docs["gates"]) == {"doc_gate", "licensing", "data_integrity", "fresh_adversarial_review"},
+        "FMV3-M1-05 opaque acquisition docs contract mismatch",
+    )
+    require(
+        opaque_runtime["repo"] == "Project-Helianthus/helianthus-modbus"
+        and opaque_runtime["depends_on"] == ["FMV3-M1-04", "FMV3-M1-05"]
+        and opaque_runtime.get("doc_gate") == "required"
+        and opaque_runtime.get("companion_issue") == "FMV3-M1-05"
+        and opaque_runtime.get("implements_contract") == "OPAQUE_RUNTIME_ACQUISITION_V1"
+        and opaque_runtime.get("opaque_runtime_acquisition_contract") == opaque_contract
+        and opaque_runtime.get("strict_tdd_contract") == strict_tdd
+        and opaque_runtime.get("fresh_adversarial_contract") == fresh_code_review
+        and {"TDD_RED", "CI", "doc_gate", "data_integrity", "concurrency", "fresh_adversarial_review"} == set(opaque_runtime["gates"]),
+        "FMV3-M1-06 opaque acquisition implementation contract mismatch",
+    )
+    require(
+        m2_contract["depends_on"] == ["FMV3-M0-03", "FMV3-M1-00", "FMV3-M1-01", "FMV3-M1-06"]
+        and m2_contract.get("corrective_companion_issue") == "FMV3-M1-05"
+        and m2_contract.get("consumes_contract") == "OPAQUE_RUNTIME_ACQUISITION_V1"
+        and m2_contract.get("producer_pin_contract") == {
+            "producer_issue": "FMV3-M1-06",
+            "merge_sha": "required_full_40_lowercase_hex",
+            "consumer_resolution": "exact_sha_verified_before_red",
+        }
+        and m2_contract.get("source_trust_contract") == {
+            "runtime": {
+                "capability": "required",
+                "delivery_trust": "successful_one_shot_cas",
+            },
+            "offline_fixture": {
+                "capability": "forbidden",
+                "capability_cas_calls": 0,
+                "trust": "untrusted",
+                "production_sample_id": "forbidden",
+            },
+        }
+        and m2_contract.get("attempt_ledger_contract") == {
+            "state_owner": "shared_ledger_owned_pointer",
+            "attempt_key_uniqueness": "duplicate_rejected",
+            "attempt_bound": "configured_hard_limit",
+            "claims_per_attempt_bound": "dependency_set_hard_limit",
+            "claim_capability": "one_shot_runtime_capability",
+            "seal_transition": "open_to_sealed_once",
+            "sealed_attempt_set": "immutable",
+            "publish_signature": "Publish()",
+            "publish_input": "sealed_ledger_state",
+            "mutable_dto": "forbidden",
+            "terminal_reclamation": "required",
+        }
+        and m2_contract.get("normalization_round_trip_contract") == normalization_contract
+        and m2_contract.get("strict_tdd_contract") == strict_tdd
+        and m2_contract.get("fresh_adversarial_contract") == fresh_code_review
+        and "FMV3-M1-05" in ancestors("FMV3-M2-01", issue_deps)
+        and {"TDD_RED", "CI", "doc_gate", "data_integrity", "concurrency", "fresh_adversarial_review"} == set(m2_contract["gates"]),
+        "FMV3-M2-01 opaque capability consumer contract mismatch",
+    )
     profile_companions = {"FMV3-M3-01": ["FMV3-M3-02", "FMV3-M3-03"], "FMV3-M7-01": ["FMV3-M7-02", "FMV3-M7-03", "FMV3-M7-04"], "FMV3-M6-00": ["FMV3-M6-01"], "FMV3-M8-00": ["FMV3-M8-01"]}
     for docs_id, consumers in profile_companions.items():
         require(issues_by_id[docs_id].get("doc_gate") == "companion" and issues_by_id[docs_id].get("companion_for") == consumers, f"{docs_id} companion metadata mismatch")
@@ -578,6 +774,17 @@ def validate(root: Path) -> tuple[int, int]:
                         f"phase gate {gate['id']} lacks conditional-gate reference")
     require(len(gate_ids) == len(set(gate_ids)), "duplicate phase gate ID")
     require(set(gate_ids) == REQUIRED_PHASE_GATES, "phase gate set mismatch")
+    gates_by_id = {gate["id"]: gate for gate in gates}
+    require(
+        gates_by_id["PG-OPAQUE-ACQUISITION-DOC-GATE"]["after_issues"] == ["FMV3-M1-05"]
+        and gates_by_id["PG-OPAQUE-ACQUISITION-DOC-GATE"]["before_issues"] == ["FMV3-M1-06"],
+        "opaque acquisition docs-first phase gate mismatch",
+    )
+    require(
+        gates_by_id["PG-OPAQUE-ACQUISITION-CONSUMER-PIN"]["after_issues"] == ["FMV3-M1-06"]
+        and gates_by_id["PG-OPAQUE-ACQUISITION-CONSUMER-PIN"]["before_issues"] == ["FMV3-M2-01"],
+        "opaque acquisition consumer-pin phase gate mismatch",
+    )
     conditional_gates = plan["conditional_gates"]
     require(isinstance(conditional_gates, list), "conditional_gates must be a list")
     conditional_ids = [item.get("id") for item in conditional_gates if isinstance(item, dict)]
@@ -636,8 +843,19 @@ def validate(root: Path) -> tuple[int, int]:
     milestone_map = (root / "91-milestone-map.md").read_text(encoding="utf-8")
     require(all(gate_id in milestone_map for gate_id in CONDITIONAL_GATE_IDS),
             "milestone map missing conditional gate mirror")
-    require("FMV3-M5-09" in milestone_map and "44 issues" in issue_map_text and "repository mutex" in issue_map_text,
+    require(
+        "FMV3-M5-09" in milestone_map
+        and "FMV3-M1-05" in milestone_map
+        and "FMV3-M1-06" in milestone_map
+        and "PG-OPAQUE-ACQUISITION-DOC-GATE" in milestone_map
+        and "PG-OPAQUE-ACQUISITION-CONSUMER-PIN" in milestone_map
+        and "46 issues" in issue_map_text
+        and "repository mutex" in issue_map_text,
             "issue/milestone maps missing docs, mutex, or issue-count mirror")
+    require(
+        "corrective companion FMV3-M1-05" in issue_rows["FMV3-M2-01"][6],
+        "issue map corrective companion metadata missing: FMV3-M2-01",
+    )
     for chunk_name in CHUNKS:
         text = (root / chunk_name).read_text(encoding="utf-8")
         for heading in ("Depends on:", "Scope:", "Idempotence contract:",
@@ -693,6 +911,14 @@ def validate(root: Path) -> tuple[int, int]:
             f"Current target: `{review_target}`" in review and all((int(a), b) == (accepted_rounds, review_target) for a, b in re.findall(r"at `(\d)/5`, targeting (R[1-5])", review)), "current review epoch mirror mismatch")
     require("archived intact" in review and "next numbered epoch at R1" in review and "there is no R6" in review and "TERMINAL_NO_FINDINGS" in review,
             "review epoch history/restart contract missing")
+    require(
+        "Issue #88 corrective amendment gate" in review
+        and "FMV3-M1-05" in review
+        and "FMV3-M1-06" in review
+        and "FMV3-M2-01" in review
+        and re.search(r"does not\s+retroactively place the amendment inside epoch 3 R5", review) is not None,
+        "issue #88 fresh adversarial amendment gate mirror missing",
+    )
     for category in REVIEW_SCOPE:
         require(category in review, f"review contract missing category: {category}")
     canonical_bytes = (root / "00-canonical.md").read_bytes()
@@ -807,17 +1033,11 @@ def main() -> int:
                 text=True,
             ).stdout.strip()
             require(not plan_worktree_status, "authorization requires the entire checkout to match the committed main HEAD")
-            if (
-                re.fullmatch(r"FMV3-M[123]-\d{2}", args.authorize_issue)
-                is not None
-                and args.authorize_issue != "FMV3-M1-00"
-            ):
-                require_m1_admission_open(repo_root, origin_main)
             require(
                 args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
                 "authorization contract digest does not match the plan",
             )
-            anchor_relpath = authorization["authorization_anchor"]["plan_path"]
+            anchor_relpath = authorization["authorization_amendment"]["plan_path"]
             require(
                 isinstance(anchor_relpath, str)
                 and not Path(anchor_relpath).is_absolute()
@@ -839,6 +1059,11 @@ def main() -> int:
             anchored_plan = yaml.load(anchored_plan_text, Loader=UniqueLoader)
             require(isinstance(anchored_plan, dict), "anchored plan.yaml must be a mapping")
             anchored_authorization = anchored_plan.get("execution_authorization", {})
+            anchored_amendment = anchored_authorization.get("authorization_amendment")
+            require(
+                isinstance(anchored_amendment, dict),
+                "authorization amendment is absent from the merged anchor",
+            )
             require(
                 anchored_authorization.get("authorized_issue_contract_sha256")
                 == args.authorization_contract_sha256,
@@ -856,6 +1081,16 @@ def main() -> int:
                 args.authorize_issue != authorization["stop_before_issue"],
                 f"issue {args.authorize_issue} reaches the hard stop",
             )
+            require_authorization_amendment_merged(
+                anchored_amendment,
+                args.plan_head_sha,
+            )
+            if (
+                re.fullmatch(r"FMV3-M[123]-\d{2}", args.authorize_issue)
+                is not None
+                and args.authorize_issue not in {"FMV3-M1-00", "FMV3-M1-05"}
+            ):
+                require_m1_admission_open(repo_root, origin_main)
     except (OSError, UnicodeError, yaml.YAMLError, ValidationError, subprocess.SubprocessError) as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 1
