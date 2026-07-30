@@ -392,7 +392,8 @@ sole highest/current terminal `PASSED` epoch at `5/5`, targeting `TERMINAL_NO_FI
 
 ## Issue #88 corrective amendment gate
 
-The epoch history above is immutable evidence for the previously locked plan and does not
+Issue #88 tracks the corrective scope but is not authorization evidence; the merge commit
+of PR #89 is the immutable anchor. The epoch history above is immutable evidence for the previously locked plan and does not
 retroactively place the amendment inside epoch 3 R5. The corrective successor uses
 revision-bound, fresh independent OpenAI gates instead:
 

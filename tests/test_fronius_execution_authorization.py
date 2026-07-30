@@ -200,7 +200,14 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
         plan["canonical_sha256"] = digest
         plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
-        for name in ("01-index.md", "99-status.md"):
+        for name in (
+            "01-index.md",
+            "10-architecture-and-repo-boundaries.md",
+            "11-fronius-readonly-and-semantic-lock.md",
+            "12-vendor-expansion-and-private-bindings.md",
+            "13-roadmap-gates-and-risks.md",
+            "99-status.md",
+        ):
             path = plan_root / name
             text = path.read_text(encoding="utf-8")
             replaced, count = re.subn(
@@ -211,24 +218,19 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             self.assertEqual(count, 1)
             path.write_text(replaced, encoding="utf-8")
 
-    def publish_bad_anchor_digest(self, plan_root: Path) -> tuple[str, str]:
+    def publish_current_lifecycle_digest_drift(
+        self,
+        plan_root: Path,
+    ) -> tuple[Path, str, str]:
         repo = plan_root.parent
-        plan_path = plan_root / "plan.yaml"
-        original = plan_path.read_text(encoding="utf-8")
-        plan = yaml.safe_load(original)
-        plan["execution_authorization"]["authorization_anchor"][
-            "amendment_surfaces_sha256"
-        ] = "f" * 64
-        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
-        self.git(repo, "add", plan_path.relative_to(repo).as_posix())
-        self.git(repo, "commit", "-m", "publish bad amendment surface digest")
         anchor = self.git(repo, "rev-parse", "HEAD").stdout.strip()
-        plan_path.write_text(original, encoding="utf-8")
-        self.git(repo, "add", plan_path.relative_to(repo).as_posix())
-        self.git(repo, "commit", "-m", "restore amendment surface digest")
+        locked = self.copy_lifecycle(str(repo), "locked", "M0")
+        shutil.rmtree(plan_root)
+        self.git(repo, "add", "-A")
+        self.git(repo, "commit", "-m", "regenerate current lifecycle digest")
         self.git(repo, "push", "origin", "main")
         current = self.git(repo, "rev-parse", "HEAD").stdout.strip()
-        return anchor, current
+        return locked, anchor, current
 
     def block_m1_admission(self, plan_root: Path) -> None:
         repo = plan_root.parent
@@ -287,6 +289,24 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
                     1,
                 )
             path.write_text(text, encoding="utf-8")
+        digest_result = subprocess.run(
+            [
+                sys.executable,
+                str(VALIDATOR),
+                str(copied),
+                "--print-amendment-surfaces-sha256",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(digest_result.returncode, 0, digest_result.stderr)
+        plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+        plan["execution_authorization"]["authorization_anchor"][
+            "amendment_surfaces_sha256"
+        ] = digest_result.stdout.strip()
+        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
         return copied
 
     def test_last_pre_gateway_issue_is_blocked_until_docs_trust_opens(self) -> None:
@@ -472,19 +492,24 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("exact merged PR #89 URL", result.stderr)
 
-    def test_authorization_rejects_anchor_amendment_surface_digest_drift(self) -> None:
+    def test_authorization_rejects_recomputed_current_surface_digest_drift(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             implementing, _ = self.published_plan(temp)
             self.publish_amendment_reference(implementing)
-            anchor, _ = self.publish_bad_anchor_digest(implementing)
+            current, anchor, _ = self.publish_current_lifecycle_digest_drift(
+                implementing
+            )
             result = self.authorize(
-                implementing,
+                current,
                 anchor,
                 "FMV3-M1-05",
                 self.amendment_pr(anchor),
             )
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("anchor amendment surface digest mismatch", result.stderr)
+            self.assertIn(
+                "current main amendment surface digest differs from merged PR #89 anchor",
+                result.stderr,
+            )
 
     def test_amendment_authorization_rejects_unmerged_pr(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

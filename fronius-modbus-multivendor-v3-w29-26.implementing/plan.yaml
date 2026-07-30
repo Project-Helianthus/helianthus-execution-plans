@@ -3,7 +3,7 @@ title: Fronius-first Modbus runtime, multi-profile registry, and private output 
 state: implementing
 lock_authorized: true
 execution_authorization:
-  authorized_on: '2026-07-26'
+  authorized_on: '2026-07-30'
   availability_mode: openai_only
   scope: pre_gateway_transport_docs_registry
   scope_authority: authorized_issues_only
@@ -31,34 +31,19 @@ execution_authorization:
   authorized_issue_contract_sha256: 13e3f2c1bf9551992ee56f2b00fa54594d73d41d22b7e189b12ff8cf32c22c60
   authorization_anchor:
     required: true
-    record_type: github_meta_issue_comment_v1
-    meta_issue: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71
-    authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/72
-    marker: execution-authorization:v1
-    plan_repo: Project-Helianthus/helianthus-execution-plans
-    plan_path: fronius-modbus-multivendor-v3-w29-26.locked/plan.yaml
-    authorized_issuer: d3vi1
-    allowed_author_associations: [MEMBER, OWNER]
-    comment_edit_policy: created_at_equals_updated_at
-    merge_requirement: anchor_equals_pr_merge_commit_and_is_ancestor_of_origin_main
-    bind: [plan_head_sha, authorized_issue_contract_sha256, authorized_issue]
-    state: pending_until_authorization_pr_merge
-  authorization_amendment:
-    required: true
-    record_type: github_issue_pr_v1
-    issue: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/88
-    authorization_pr: PENDING_PR_URL
-    marker: execution-authorization-amendment:v1
+    record_type: github_merged_pr_v1
+    authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89
     plan_repo: Project-Helianthus/helianthus-execution-plans
     plan_path: fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml
     authorized_issuer: d3vi1
     allowed_author_associations: [MEMBER, OWNER]
-    merge_requirement: amendment_pr_merge_commit_and_is_ancestor_of_origin_main
-    bind: [plan_head_sha, authorized_issue_contract_sha256, authorized_issue]
-    adds_authorized_issues: [FMV3-M1-05, FMV3-M1-06]
-    preserves_stop_before_issue: FMV3-M4-01
+    merge_requirement: exact_pr_merge_commit_is_anchor_and_ancestor_of_origin_main
+    bind: [plan_head_sha, authorized_issue_contract_sha256, amendment_surfaces_sha256, authorized_issue]
+    added_issues: [FMV3-M1-05, FMV3-M1-06]
+    amended_issues: [FMV3-M2-01]
+    stop_before_issue: FMV3-M4-01
     gateway_work_authorized: false
-    state: pending_until_authorization_pr_merge
+    amendment_surfaces_sha256: 031999254b702aa99747bc541bfdbd9bec072d124c16dc57b7b8ef410dfb1624
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]
@@ -84,7 +69,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: a575c012fc1623c68d9895605e5391cdbda57bedc00a0cea2dcabb42707f7973
+canonical_sha256: 5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0

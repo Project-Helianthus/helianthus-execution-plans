@@ -7,29 +7,33 @@ Supersedes: `fronius-modbus-eebus-bridge-w28-26.draft`
 
 This implementing plan replaces the W28 package as execution intent. The W28 directory remains
 unchanged as forensic history. The operator action on 2026-07-14 authorized plan lock and
-publication. A separate operator action on 2026-07-26 authorizes execution of the M0-M3
-transport, documentation, and registry wave only. Issue #88 on 2026-07-30 amends that
-pre-gateway authorization with two additive M1 corrective issues; it does not authorize
-gateway work or rewrite completed M1/M2 issue history.
+publication. PR #89 carries the complete amended pre-gateway authorization. Its merge commit
+is the sole immutable execution anchor; issue #88 tracks the change but is not authorization
+evidence.
 
 ## Execution authorization
 
-The exact `authorized_issues` list in `plan.yaml` is the sole normative execution scope;
-milestone names are non-authoritative grouping labels and do not authorize every issue in
-those milestones. The 2026-07-26 authorization covers FMV3-M0-01, M0-02, M0-03, M0-06,
-M1-00 through M1-04, M2-01 through M2-03, and M3-01 through M3-03 in `openai_only` mode.
-The issue #88 amendment additionally authorizes FMV3-M1-05 and FMV3-M1-06. M1-05 is the
-new public docs companion and M1-06 is the corrective `helianthus-modbus` implementation;
-both remain inside the same fail-closed pre-gateway authorization digest.
-FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
-`helianthus-modbusreg`. Private governance creation FMV3-M0-04 and destination bootstraps
-FMV3-M0-05/FMV3-M0-07 remain deferred pending future explicit authorization; no private
-repository or private binding implementation is authorized in this wave.
+Execution activates only after PR #89 merges. Its exact merge commit is the sole immutable
+authorization anchor. Issue #88 is tracking metadata only and is not cryptographic or
+authorization evidence.
 
-The hard stop is immediately before FMV3-M4-01. No gateway issue, branch, PR, import, or
-code change is authorized by this action. Repository creation, implementation issues,
-commits, pushes, reviews, and merges are authorized only for the issue set above and remain
-subject to every locked dependency and gate.
+The ordered `authorized_issues` list in `plan.yaml` is the sole normative execution scope:
+FMV3-M0-01, FMV3-M0-02, FMV3-M0-03, FMV3-M0-06, FMV3-M1-00, FMV3-M1-01,
+FMV3-M1-02, FMV3-M1-03, FMV3-M1-04, FMV3-M1-05, FMV3-M1-06, FMV3-M2-01,
+FMV3-M2-02, FMV3-M2-03, FMV3-M3-01, FMV3-M3-02, and FMV3-M3-03. Milestone names
+are non-authoritative grouping labels. The amendment adds FMV3-M1-05 and FMV3-M1-06
+and amends FMV3-M2-01.
+
+FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
+`helianthus-modbusreg`. FMV3-M1-05 publishes the public
+`OPAQUE_RUNTIME_ACQUISITION_V1` companion, FMV3-M1-06 implements it after M1-05, and
+FMV3-M2-01 consumes the merged M1-06 producer by exact full-SHA pin. Private governance
+creation FMV3-M0-04 and destination bootstraps FMV3-M0-05/FMV3-M0-07 remain deferred.
+
+The hard stop is immediately before FMV3-M4-01. Gateway work is not authorized. No gateway
+issue, branch, PR, import, or code change is authorized by this action. Repository creation,
+implementation issues, commits, pushes, reviews, and merges are authorized only for the
+ordered issue list above and remain subject to every dependency and gate.
 
 ## Claim discipline
 
@@ -358,7 +362,7 @@ qualification, coherence, and fixture/mutation contracts. It is one public docs 
 merged before any M1 or M2 implementation; FMV3-M1-01 through FMV3-M1-04 and FMV3-M2-01
 through FMV3-M2-03 all depend on it directly or through explicit ancestry and carry its
 doc-gate/companion metadata. That original history remains unchanged. The additive
-issue #88 lane starts after FMV3-M1-04: FMV3-M1-05 publishes
+PR #89's corrective lane, tracked by issue #88, starts after FMV3-M1-04: FMV3-M1-05 publishes
 `OPAQUE_RUNTIME_ACQUISITION_V1`, FMV3-M1-06 implements it after both M1-04 and M1-05, and
 FMV3-M2-01 adds M1-06 as a producer dependency while retaining its original M1-00
 companion and recording M1-05 as the corrective companion.

@@ -34,6 +34,86 @@ Project-Helianthus/helianthus-execution-plans
 REVIEW_SCOPE = {"implementability", "correctness/data integrity", "protocol interoperability", "security/safety", "licensing/IP boundary", "operability/recovery", "testability", "dependency/DAG feasibility"}
 REQUIRED_PHASE_GATES = set("PG-REPOSITORY-CREATION PG-MODBUS-BOOT PG-MODBUS-DOC-GATE PG-OPAQUE-ACQUISITION-DOC-GATE PG-OPAQUE-ACQUISITION-CONSUMER-PIN PG-MODBUSREG-BOOT PG-EEBUS-BOOT PG-MATTER-BOOT PG-RAW-FIRST PG-PV-DOC-GATE PG-SEMANTIC-LOCK PG-CONSUMER-PROMOTION PG-GRAPHQL-DOC-GATE PG-PUBLIC-ROLLOUT PG-EEBUS-DOC-GATE PG-MATTER-DOC-GATE PG-VENDOR-EXPANSION PG-READ-ONLY PG-RECOVERABLE-RELEASE".split())
 EXPECTED_ISSUE_COUNT = 46
+AMENDMENT_PR_URL = "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89"
+AMENDMENT_SURFACE_FILES = (
+    "00-canonical.md",
+    "90-issue-map.md",
+    "91-milestone-map.md",
+    "99-status.md",
+)
+AMENDMENT_ISSUE_IDS = ("FMV3-M1-05", "FMV3-M1-06", "FMV3-M2-01")
+AUTHORIZED_ISSUES = [
+    "FMV3-M0-01", "FMV3-M0-02", "FMV3-M0-03", "FMV3-M0-06",
+    "FMV3-M1-00", "FMV3-M1-01", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04",
+    "FMV3-M1-05", "FMV3-M1-06",
+    "FMV3-M2-01", "FMV3-M2-02", "FMV3-M2-03",
+    "FMV3-M3-01", "FMV3-M3-02", "FMV3-M3-03",
+]
+CANONICAL_AUTHORIZATION_BLOCK = """Execution activates only after PR #89 merges. Its exact merge commit is the sole immutable
+authorization anchor. Issue #88 is tracking metadata only and is not cryptographic or
+authorization evidence.
+
+The ordered `authorized_issues` list in `plan.yaml` is the sole normative execution scope:
+FMV3-M0-01, FMV3-M0-02, FMV3-M0-03, FMV3-M0-06, FMV3-M1-00, FMV3-M1-01,
+FMV3-M1-02, FMV3-M1-03, FMV3-M1-04, FMV3-M1-05, FMV3-M1-06, FMV3-M2-01,
+FMV3-M2-02, FMV3-M2-03, FMV3-M3-01, FMV3-M3-02, and FMV3-M3-03. Milestone names
+are non-authoritative grouping labels. The amendment adds FMV3-M1-05 and FMV3-M1-06
+and amends FMV3-M2-01.
+
+FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
+`helianthus-modbusreg`. FMV3-M1-05 publishes the public
+`OPAQUE_RUNTIME_ACQUISITION_V1` companion, FMV3-M1-06 implements it after M1-05, and
+FMV3-M2-01 consumes the merged M1-06 producer by exact full-SHA pin. Private governance
+creation FMV3-M0-04 and destination bootstraps FMV3-M0-05/FMV3-M0-07 remain deferred.
+
+The hard stop is immediately before FMV3-M4-01. Gateway work is not authorized. No gateway
+issue, branch, PR, import, or code change is authorized by this action. Repository creation,
+implementation issues, commits, pushes, reviews, and merges are authorized only for the
+ordered issue list above and remain subject to every dependency and gate."""
+EXPECTED_MILESTONE_ROWS = {
+    "M1": [
+        "M1",
+        "M0",
+        "Modbus bootstrap and M0 boundary docs complete",
+        "FMV3-M1-00 fixes existing operations/recovery/coalescing; after M1-04, M1-05 docs then M1-06 hosted RED/GREEN implement OPAQUE_RUNTIME_ACQUISITION_V1 with fresh review",
+        "Original history stays intact; the corrective docs issue precedes code, and absent RTU hardware blocks no TCP work",
+    ],
+    "M2": [
+        "M2",
+        "M0",
+        "Modbusreg bootstrap, merged FMV3-M1-00, merged M1-06, and exact full-SHA consumer pin",
+        "Shared bounded attempt ledger, duplicate-key rejection, sealed immutable Publish(), runtime/fixture trust split, exact normalization round-trip, logical-view provenance, detector/qualification/coherence conformance",
+        "M2-01 retains M1-00 and adds M1-05 corrective companion metadata; hosted RED/GREEN and fresh review are mandatory",
+    ],
+}
+EXPECTED_CORRECTIVE_GATE_ROWS = [
+    [
+        "PG-OPAQUE-ACQUISITION-DOC-GATE",
+        "FMV3-M1-05 merged after M1-04, exact docs head fresh-reviewed",
+        "FMV3-M1-06",
+    ],
+    [
+        "PG-OPAQUE-ACQUISITION-CONSUMER-PIN",
+        "FMV3-M1-06 merged after hosted RED/GREEN and fresh review; consumer pins full merged SHA",
+        "FMV3-M2-01",
+    ],
+]
+EXPECTED_CORRECTIVE_PHASE_GATES = {
+    "PG-OPAQUE-ACQUISITION-DOC-GATE": {
+        "id": "PG-OPAQUE-ACQUISITION-DOC-GATE",
+        "kind": "dependency",
+        "after_issues": ["FMV3-M1-05"],
+        "before_issues": ["FMV3-M1-06"],
+        "requirement": "The public OPAQUE_RUNTIME_ACQUISITION_V1 companion merges after M1-04 and before M1-06 code, defining source_kind runtime versus offline_fixture, source-issued non-serializable one-shot capability semantics, bounded attempt lifecycle, shared copy/recreation state, per-dependent coalesced capabilities, and lossless normalization. A fresh independent OpenAI review of the exact docs revision is a merge blocker.",
+    },
+    "PG-OPAQUE-ACQUISITION-CONSUMER-PIN": {
+        "id": "PG-OPAQUE-ACQUISITION-CONSUMER-PIN",
+        "kind": "dependency",
+        "after_issues": ["FMV3-M1-06"],
+        "before_issues": ["FMV3-M2-01"],
+        "requirement": "M2-01 cannot begin until M1-06 has merged, its exact full 40-character merge SHA is pinned and verified by the consumer, and the M1 hosted RED/GREEN plus fresh independent review evidence is closed.",
+    },
+}
 CONDITIONAL_GATE_IDS = {"CG-M4-LIVE-GO", "CG-M5-SEMANTIC-GO"}
 M1_IMPLEMENTATION_IDS = {f"FMV3-M1-{number:02d}" for number in range(1, 5)}
 M2_IMPLEMENTATION_IDS = {f"FMV3-M2-{number:02d}" for number in range(1, 4)}
@@ -82,17 +162,13 @@ def github_api(endpoint: str) -> Any:
     value = json.loads(result.stdout)
     require(isinstance(value, (dict, list)), f"GitHub API returned invalid JSON for {endpoint}")
     return value
-def require_authorization_amendment_merged(
-    amendment: dict[str, Any],
+def require_authorization_pr_merged(
+    anchor: dict[str, Any],
     plan_head_sha: str,
 ) -> None:
-    pr_url = amendment.get("authorization_pr")
-    match = re.fullmatch(
-        r"https://github\.com/Project-Helianthus/helianthus-execution-plans/pull/([1-9]\d*)",
-        str(pr_url),
-    )
-    require(match is not None, "authorization amendment requires a concrete PR URL")
-    pr_number = int(match.group(1))
+    pr_url = anchor.get("authorization_pr")
+    require(pr_url == AMENDMENT_PR_URL, "authorization requires the exact merged PR #89 URL")
+    pr_number = 89
     pr = github_api(
         f"repos/Project-Helianthus/helianthus-execution-plans/pulls/{pr_number}"
     )
@@ -101,22 +177,22 @@ def require_authorization_amendment_merged(
         and pr.get("number") == pr_number
         and pr.get("html_url") == pr_url
         and pr.get("base", {}).get("ref") == "main"
-        and pr.get("base", {}).get("repo", {}).get("full_name") == amendment["plan_repo"],
-        "authorization amendment PR identity mismatch",
+        and pr.get("base", {}).get("repo", {}).get("full_name") == anchor["plan_repo"],
+        "authorization PR #89 identity mismatch",
     )
     require(
         pr.get("state") == "closed"
         and pr.get("merged") is True
         and pr.get("merge_commit_sha") == plan_head_sha,
-        "authorization amendment PR is not merged at the plan authorization SHA",
+        "authorization PR #89 is not merged at the plan authorization SHA",
     )
     require(
-        pr.get("user", {}).get("login") == amendment["authorized_issuer"],
-        "authorization amendment PR issuer mismatch",
+        pr.get("user", {}).get("login") == anchor["authorized_issuer"],
+        "authorization PR #89 issuer mismatch",
     )
     require(
-        pr.get("author_association") in amendment["allowed_author_associations"],
-        "authorization amendment PR author association is not allowed",
+        pr.get("author_association") in anchor["allowed_author_associations"],
+        "authorization PR #89 author association is not allowed",
     )
 def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
     gate_path = repo_root / M1_ADMISSION_GATE
@@ -269,6 +345,236 @@ def parse_issue_map(text: str) -> dict[str, list[str]]:
         require(cells[0] not in rows, f"duplicate issue-map row: {cells[0]}")
         rows[cells[0]] = cells
     return rows
+def parse_exact_markdown_table(
+    text: str,
+    header: str,
+    separator: str,
+    label: str,
+) -> list[list[str]]:
+    lines = text.splitlines()
+    require(lines.count(header) == 1, f"{label} must contain one exact header")
+    index = lines.index(header)
+    require(index + 1 < len(lines) and lines[index + 1] == separator,
+            f"{label} separator mismatch")
+    rows: list[list[str]] = []
+    for line in lines[index + 2:]:
+        if not line.startswith("|"):
+            break
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        rows.append(cells)
+    require(rows, f"{label} must contain rows")
+    return rows
+def validate_authorization_schema(plan: dict[str, Any]) -> dict[str, Any]:
+    authorization = plan.get("execution_authorization")
+    require(isinstance(authorization, dict), "execution_authorization must be a mapping")
+    anchor = authorization.get("authorization_anchor")
+    require(isinstance(anchor, dict), "authorization_anchor must be a mapping")
+    require(
+        anchor.get("authorization_pr") == AMENDMENT_PR_URL,
+        "authorization requires the exact merged PR #89 URL",
+    )
+    require(
+        not ({"issue", "meta_issue", "marker"} & set(anchor))
+        and "authorization_amendment" not in authorization,
+        "authorization schema must not contain unverified GitHub issue or marker authority",
+    )
+    surface_digest = anchor.get("amendment_surfaces_sha256")
+    require(
+        isinstance(surface_digest, str)
+        and re.fullmatch(r"[0-9a-f]{64}", surface_digest) is not None,
+        "authorization amendment surface digest must be lowercase SHA-256",
+    )
+    expected = {
+        "authorized_on": "2026-07-30",
+        "availability_mode": "openai_only",
+        "scope": "pre_gateway_transport_docs_registry",
+        "scope_authority": "authorized_issues_only",
+        "selection_policy": "fail_closed",
+        "preflight_enforcement": "validate_plan.py --authorize-issue <ID>",
+        "milestone_labels_non_authoritative": ["M0", "M1", "M2", "M3"],
+        "authorized_issues": AUTHORIZED_ISSUES,
+        "authorized_issue_contract_sha256": authorization.get(
+            "authorized_issue_contract_sha256"
+        ),
+        "authorization_anchor": {
+            "required": True,
+            "record_type": "github_merged_pr_v1",
+            "authorization_pr": AMENDMENT_PR_URL,
+            "plan_repo": "Project-Helianthus/helianthus-execution-plans",
+            "plan_path": "fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml",
+            "authorized_issuer": "d3vi1",
+            "allowed_author_associations": ["MEMBER", "OWNER"],
+            "merge_requirement": "exact_pr_merge_commit_is_anchor_and_ancestor_of_origin_main",
+            "bind": [
+                "plan_head_sha",
+                "authorized_issue_contract_sha256",
+                "amendment_surfaces_sha256",
+                "authorized_issue",
+            ],
+            "added_issues": ["FMV3-M1-05", "FMV3-M1-06"],
+            "amended_issues": ["FMV3-M2-01"],
+            "stop_before_issue": "FMV3-M4-01",
+            "gateway_work_authorized": False,
+            "amendment_surfaces_sha256": surface_digest,
+        },
+        "repository_creation_authorized": True,
+        "repository_creation_targets": {
+            "public": ["helianthus-modbus", "helianthus-modbusreg"],
+            "private": [],
+        },
+        "private_repository_creation": "deferred_requires_future_explicit_authorization",
+        "implementation_authorized": True,
+        "issue_commit_push_authorized": True,
+        "deferred_issues": ["FMV3-M0-04", "FMV3-M0-05", "FMV3-M0-07"],
+        "stop_before_issue": "FMV3-M4-01",
+        "gateway_work_authorized": False,
+    }
+    require(authorization == expected, "execution authorization mismatch")
+    return authorization
+def extract_canonical_authorization_block(text: str) -> str:
+    matches = re.findall(
+        r"^## Execution authorization\n\n(.*?)\n\n^## Claim discipline$",
+        text,
+        re.MULTILINE | re.DOTALL,
+    )
+    require(len(matches) == 1, "canonical authorization block must occur exactly once")
+    require(
+        matches[0] == CANONICAL_AUTHORIZATION_BLOCK,
+        "canonical authorization and hard-stop block mismatch",
+    )
+    return matches[0]
+def amendment_surface_projection(
+    plan: dict[str, Any],
+    texts: dict[str, str],
+) -> dict[str, Any]:
+    require(
+        set(texts) == set(AMENDMENT_SURFACE_FILES),
+        "amendment surface file set mismatch",
+    )
+    authorization = validate_authorization_schema(plan)
+    anchor = authorization["authorization_anchor"]
+    issues = plan.get("issues")
+    require(isinstance(issues, list), "issues must be a list")
+    issue_sequence = [
+        issue.get("id")
+        for issue in issues
+        if isinstance(issue, dict) and issue.get("id") in AMENDMENT_ISSUE_IDS
+    ]
+    require(
+        issue_sequence == list(AMENDMENT_ISSUE_IDS),
+        "corrective issue sequence mismatch",
+    )
+    issues_by_id = {
+        issue.get("id"): issue
+        for issue in issues
+        if isinstance(issue, dict) and issue.get("id") in AMENDMENT_ISSUE_IDS
+    }
+    require(
+        list(issues_by_id) == list(AMENDMENT_ISSUE_IDS),
+        "corrective issue rows missing or duplicated",
+    )
+    phase_gates = plan.get("phase_gates")
+    require(isinstance(phase_gates, list), "phase_gates must be a list")
+    corrective_gates = {
+        gate.get("id"): gate
+        for gate in phase_gates
+        if isinstance(gate, dict) and gate.get("id") in EXPECTED_CORRECTIVE_PHASE_GATES
+    }
+    require(
+        corrective_gates == EXPECTED_CORRECTIVE_PHASE_GATES,
+        "corrective docs-to-M1-to-M2 phase gate projection mismatch",
+    )
+    issue_map_rows = parse_issue_map(texts["90-issue-map.md"])
+    require(
+        all(issue_map_rows.get(issue_id) is not None for issue_id in AMENDMENT_ISSUE_IDS),
+        "issue-map corrective rows missing",
+    )
+    milestone_rows = parse_exact_markdown_table(
+        texts["91-milestone-map.md"],
+        "| Milestone | Depends on | Entry | Exit | Parallelism |",
+        "|---|---|---|---|---|",
+        "milestone map",
+    )
+    require(
+        [row[0] for row in milestone_rows] == [f"M{number}" for number in range(9)]
+        and all(len(row) == 5 for row in milestone_rows),
+        "milestone-map row order or shape mismatch",
+    )
+    milestone_by_id = {row[0]: row for row in milestone_rows}
+    require(
+        {key: milestone_by_id.get(key) for key in EXPECTED_MILESTONE_ROWS}
+        == EXPECTED_MILESTONE_ROWS,
+        "milestone-map M1/M2 projection mismatch",
+    )
+    corrective_gate_rows = parse_exact_markdown_table(
+        texts["91-milestone-map.md"],
+        "| Gate | Required predecessor | Blocked issue |",
+        "|---|---|---|",
+        "milestone-map corrective gate",
+    )
+    require(
+        corrective_gate_rows == EXPECTED_CORRECTIVE_GATE_ROWS,
+        "milestone-map corrective gate projection mismatch",
+    )
+    status = texts["99-status.md"]
+    status_states = re.findall(r"^State: (.+)$", status, re.MULTILINE)
+    require(
+        status_states == [str(plan.get("state"))],
+        "status state projection mismatch",
+    )
+    status_issue_counts = re.findall(
+        r"^- ([0-9]+)-issue one-repository DAG and nine milestone groupings authored;$",
+        status,
+        re.MULTILINE,
+    )
+    require(
+        status_issue_counts == [str(EXPECTED_ISSUE_COUNT)],
+        "status issue-count projection mismatch",
+    )
+    canonical_block = extract_canonical_authorization_block(texts["00-canonical.md"])
+    return {
+        "schema": "helianthus.fmv3-amendment-surfaces.v1",
+        "execution_authorization": {
+            "authorized_issues": authorization["authorized_issues"],
+            "added_issues": anchor["added_issues"],
+            "amended_issues": anchor["amended_issues"],
+            "stop_before_issue": authorization["stop_before_issue"],
+            "gateway_work_authorized": authorization["gateway_work_authorized"],
+        },
+        "issue_sequence": issue_sequence,
+        "issue_rows": [issues_by_id[issue_id] for issue_id in AMENDMENT_ISSUE_IDS],
+        "issue_map_rows": [
+            issue_map_rows[issue_id] for issue_id in AMENDMENT_ISSUE_IDS
+        ],
+        "phase_gates": [
+            corrective_gates[gate_id]
+            for gate_id in EXPECTED_CORRECTIVE_PHASE_GATES
+        ],
+        "canonical_authorization_block": canonical_block,
+        "milestone_rows": [
+            milestone_by_id["M1"],
+            milestone_by_id["M2"],
+        ],
+        "milestone_corrective_gate_rows": corrective_gate_rows,
+        "status": {
+            "state": status_states[0],
+            "issue_count": int(status_issue_counts[0]),
+        },
+    }
+def amendment_surface_digest(plan: dict[str, Any], texts: dict[str, str]) -> str:
+    projection = amendment_surface_projection(plan, texts)
+    encoded = json.dumps(
+        projection,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+def load_amendment_surface_texts(root: Path) -> dict[str, str]:
+    return {
+        name: (root / name).read_text(encoding="utf-8")
+        for name in AMENDMENT_SURFACE_FILES
+    }
 def validate_content_hygiene(root: Path) -> None:
     path_patterns = {"macOS absolute path": re.compile(r"/Users/"), "Unix home path": re.compile(r"/home/[A-Za-z0-9._-]+/"),
                      "Windows absolute path": re.compile(r"[A-Za-z]:\\\\"), "file URI": re.compile(r"file://", re.IGNORECASE)}
@@ -292,73 +598,7 @@ def validate(root: Path) -> tuple[int, int]:
     require(plan["state"] in supported_states, "state must be locked, implementing, or maintenance")
     require(root.name == f"{plan['slug']}.{plan['state']}", "directory suffix/state mismatch")
     require(plan["lock_authorized"] is True, "lock_authorized must be true")
-    authorized_issues = [
-        "FMV3-M0-01", "FMV3-M0-02", "FMV3-M0-03", "FMV3-M0-06",
-        "FMV3-M1-00", "FMV3-M1-01", "FMV3-M1-02", "FMV3-M1-03", "FMV3-M1-04",
-        "FMV3-M1-05", "FMV3-M1-06",
-        "FMV3-M2-01", "FMV3-M2-02", "FMV3-M2-03",
-        "FMV3-M3-01", "FMV3-M3-02", "FMV3-M3-03",
-    ]
-    require(plan["execution_authorization"] == {
-        "authorized_on": "2026-07-26",
-        "availability_mode": "openai_only",
-        "scope": "pre_gateway_transport_docs_registry",
-        "scope_authority": "authorized_issues_only",
-        "selection_policy": "fail_closed",
-        "preflight_enforcement": "validate_plan.py --authorize-issue <ID>",
-        "milestone_labels_non_authoritative": ["M0", "M1", "M2", "M3"],
-        "authorized_issues": authorized_issues,
-        "authorized_issue_contract_sha256": plan["execution_authorization"].get("authorized_issue_contract_sha256"),
-        "authorization_anchor": {
-            "required": True,
-            "record_type": "github_meta_issue_comment_v1",
-            "meta_issue": "https://github.com/Project-Helianthus/helianthus-execution-plans/issues/71",
-            "authorization_pr": "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/72",
-            "marker": "execution-authorization:v1",
-            "plan_repo": "Project-Helianthus/helianthus-execution-plans",
-            "plan_path": "fronius-modbus-multivendor-v3-w29-26.locked/plan.yaml",
-            "authorized_issuer": "d3vi1",
-            "allowed_author_associations": ["MEMBER", "OWNER"],
-            "comment_edit_policy": "created_at_equals_updated_at",
-            "merge_requirement": "anchor_equals_pr_merge_commit_and_is_ancestor_of_origin_main",
-            "bind": ["plan_head_sha", "authorized_issue_contract_sha256", "authorized_issue"],
-            "state": "pending_until_authorization_pr_merge",
-        },
-        "authorization_amendment": {
-            "required": True,
-            "record_type": "github_issue_pr_v1",
-            "issue": "https://github.com/Project-Helianthus/helianthus-execution-plans/issues/88",
-            "authorization_pr": plan["execution_authorization"]["authorization_amendment"].get("authorization_pr"),
-            "marker": "execution-authorization-amendment:v1",
-            "plan_repo": "Project-Helianthus/helianthus-execution-plans",
-            "plan_path": "fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml",
-            "authorized_issuer": "d3vi1",
-            "allowed_author_associations": ["MEMBER", "OWNER"],
-            "merge_requirement": "amendment_pr_merge_commit_and_is_ancestor_of_origin_main",
-            "bind": ["plan_head_sha", "authorized_issue_contract_sha256", "authorized_issue"],
-            "adds_authorized_issues": ["FMV3-M1-05", "FMV3-M1-06"],
-            "preserves_stop_before_issue": "FMV3-M4-01",
-            "gateway_work_authorized": False,
-            "state": "pending_until_authorization_pr_merge",
-        },
-        "repository_creation_authorized": True,
-        "repository_creation_targets": {
-            "public": ["helianthus-modbus", "helianthus-modbusreg"],
-            "private": [],
-        },
-        "private_repository_creation": "deferred_requires_future_explicit_authorization",
-        "implementation_authorized": True,
-        "issue_commit_push_authorized": True,
-        "deferred_issues": ["FMV3-M0-04", "FMV3-M0-05", "FMV3-M0-07"],
-        "stop_before_issue": "FMV3-M4-01",
-        "gateway_work_authorized": False,
-    }, "execution authorization mismatch")
-    amendment_pr = plan["execution_authorization"]["authorization_amendment"]["authorization_pr"]
-    require(
-        amendment_pr == "PENDING_PR_URL"
-        or re.fullmatch(r"https://github\.com/Project-Helianthus/helianthus-execution-plans/pull/[1-9]\d*", amendment_pr) is not None,
-        "authorization amendment PR URL mismatch",
-    )
+    validate_authorization_schema(plan)
     require(plan["started_on"] == "2026-07-14", "started_on mismatch")
     if plan["state"] == "locked":
         require(plan["current_milestone"] == "M0", "locked plan current_milestone must be M0")
@@ -626,6 +866,43 @@ def validate(root: Path) -> tuple[int, int]:
     opaque_runtime = issues_by_id["FMV3-M1-06"]
     m2_contract = issues_by_id["FMV3-M2-01"]
     require(
+        [
+            issue_id
+            for issue_id in issue_ids
+            if issue_id in AMENDMENT_ISSUE_IDS
+        ]
+        == list(AMENDMENT_ISSUE_IDS),
+        "corrective issue sequence mismatch",
+    )
+    expected_corrective_issue_fields = {
+        "FMV3-M1-05": issue_fields | {
+            "companion_for", "contract_sections", "doc_gate",
+            "documents_contract", "fresh_adversarial_contract",
+            "normalization_round_trip_contract",
+            "opaque_runtime_acquisition_contract", "source_kind_contract",
+        },
+        "FMV3-M1-06": issue_fields | {
+            "companion_issue", "doc_gate", "fresh_adversarial_contract",
+            "implements_contract", "opaque_runtime_acquisition_contract",
+            "strict_tdd_contract",
+        },
+        "FMV3-M2-01": issue_fields | {
+            "attempt_ledger_contract", "companion_issue",
+            "consumes_contract", "corrective_companion_issue",
+            "doc_gate", "fresh_adversarial_contract",
+            "normalization_round_trip_contract", "observation_view_fields",
+            "producer_pin_contract", "source_trust_contract",
+            "strict_tdd_contract",
+        },
+    }
+    require(
+        all(
+            set(issues_by_id[issue_id]) == expected_fields
+            for issue_id, expected_fields in expected_corrective_issue_fields.items()
+        ),
+        "corrective issue field projection mismatch",
+    )
+    require(
         opaque_docs["repo"] == "Project-Helianthus/helianthus-docs-ebus"
         and opaque_docs["depends_on"] == ["FMV3-M1-04"]
         and opaque_docs.get("doc_gate") == "companion"
@@ -648,7 +925,9 @@ def validate(root: Path) -> tuple[int, int]:
         and opaque_docs.get("opaque_runtime_acquisition_contract") == opaque_contract
         and opaque_docs.get("normalization_round_trip_contract") == normalization_contract
         and opaque_docs.get("fresh_adversarial_contract") == fresh_docs_review
-        and set(opaque_docs["gates"]) == {"doc_gate", "licensing", "data_integrity", "fresh_adversarial_review"},
+        and opaque_docs["gates"] == [
+            "doc_gate", "licensing", "data_integrity", "fresh_adversarial_review"
+        ],
         "FMV3-M1-05 opaque acquisition docs contract mismatch",
     )
     require(
@@ -660,7 +939,10 @@ def validate(root: Path) -> tuple[int, int]:
         and opaque_runtime.get("opaque_runtime_acquisition_contract") == opaque_contract
         and opaque_runtime.get("strict_tdd_contract") == strict_tdd
         and opaque_runtime.get("fresh_adversarial_contract") == fresh_code_review
-        and {"TDD_RED", "CI", "doc_gate", "data_integrity", "concurrency", "fresh_adversarial_review"} == set(opaque_runtime["gates"]),
+        and opaque_runtime["gates"] == [
+            "TDD_RED", "CI", "doc_gate", "data_integrity",
+            "concurrency", "fresh_adversarial_review",
+        ],
         "FMV3-M1-06 opaque acquisition implementation contract mismatch",
     )
     require(
@@ -701,7 +983,10 @@ def validate(root: Path) -> tuple[int, int]:
         and m2_contract.get("strict_tdd_contract") == strict_tdd
         and m2_contract.get("fresh_adversarial_contract") == fresh_code_review
         and "FMV3-M1-05" in ancestors("FMV3-M2-01", issue_deps)
-        and {"TDD_RED", "CI", "doc_gate", "data_integrity", "concurrency", "fresh_adversarial_review"} == set(m2_contract["gates"]),
+        and m2_contract["gates"] == [
+            "TDD_RED", "CI", "doc_gate", "data_integrity",
+            "concurrency", "fresh_adversarial_review",
+        ],
         "FMV3-M2-01 opaque capability consumer contract mismatch",
     )
     profile_companions = {"FMV3-M3-01": ["FMV3-M3-02", "FMV3-M3-03"], "FMV3-M7-01": ["FMV3-M7-02", "FMV3-M7-03", "FMV3-M7-04"], "FMV3-M6-00": ["FMV3-M6-01"], "FMV3-M8-00": ["FMV3-M8-01"]}
@@ -776,14 +1061,12 @@ def validate(root: Path) -> tuple[int, int]:
     require(set(gate_ids) == REQUIRED_PHASE_GATES, "phase gate set mismatch")
     gates_by_id = {gate["id"]: gate for gate in gates}
     require(
-        gates_by_id["PG-OPAQUE-ACQUISITION-DOC-GATE"]["after_issues"] == ["FMV3-M1-05"]
-        and gates_by_id["PG-OPAQUE-ACQUISITION-DOC-GATE"]["before_issues"] == ["FMV3-M1-06"],
-        "opaque acquisition docs-first phase gate mismatch",
-    )
-    require(
-        gates_by_id["PG-OPAQUE-ACQUISITION-CONSUMER-PIN"]["after_issues"] == ["FMV3-M1-06"]
-        and gates_by_id["PG-OPAQUE-ACQUISITION-CONSUMER-PIN"]["before_issues"] == ["FMV3-M2-01"],
-        "opaque acquisition consumer-pin phase gate mismatch",
+        {
+            gate_id: gates_by_id.get(gate_id)
+            for gate_id in EXPECTED_CORRECTIVE_PHASE_GATES
+        }
+        == EXPECTED_CORRECTIVE_PHASE_GATES,
+        "corrective docs-to-M1-to-M2 phase gate projection mismatch",
     )
     conditional_gates = plan["conditional_gates"]
     require(isinstance(conditional_gates, list), "conditional_gates must be a list")
@@ -944,6 +1227,7 @@ def validate(root: Path) -> tuple[int, int]:
         "Lock authorized": "yes, for plan publication only",
         "Implementation authorized": "yes, for the pre-gateway M0-M3 issue allowlist only",
         "Authorization scope authority": "exact authorized_issues allowlist; milestone labels are non-authoritative",
+        "Authorization anchor": "PR #89 merge commit required; issue #88 is tracking only",
         "Repository creation authorized": "yes, through FMV3-M0-01",
         "Private repository action": "deferred; creation requires future explicit authorization",
         "Commit/push authorized": "yes, for the plan package and authorized pre-gateway issues only",
@@ -952,6 +1236,15 @@ def validate(root: Path) -> tuple[int, int]:
     }
     for key, expected in status_fields.items():
         require_unique_metadata(status, key, expected, "status")
+    surface_texts = load_amendment_surface_texts(root)
+    derived_surface_digest = amendment_surface_digest(plan, surface_texts)
+    require(
+        plan["execution_authorization"]["authorization_anchor"][
+            "amendment_surfaces_sha256"
+        ]
+        == derived_surface_digest,
+        "current amendment surface digest mismatch",
+    )
     validate_content_hygiene(root)
     return len(issues), len(milestones)
 def main() -> int:
@@ -960,9 +1253,14 @@ def main() -> int:
     parser.add_argument("--authorize-issue")
     parser.add_argument("--plan-head-sha")
     parser.add_argument("--authorization-contract-sha256")
+    parser.add_argument("--print-amendment-surfaces-sha256", action="store_true")
     args = parser.parse_args()
     root = args.root.resolve() if args.root is not None else Path(__file__).resolve().parent
     try:
+        if args.print_amendment_surfaces_sha256:
+            plan = load_plan(root / "plan.yaml")
+            print(amendment_surface_digest(plan, load_amendment_surface_texts(root)))
+            return 0
         issue_count, milestone_count = validate(root)
         if args.authorize_issue is not None:
             plan = load_plan(root / "plan.yaml")
@@ -1037,7 +1335,7 @@ def main() -> int:
                 args.authorization_contract_sha256 == authorization["authorized_issue_contract_sha256"],
                 "authorization contract digest does not match the plan",
             )
-            anchor_relpath = authorization["authorization_amendment"]["plan_path"]
+            anchor_relpath = authorization["authorization_anchor"]["plan_path"]
             require(
                 isinstance(anchor_relpath, str)
                 and not Path(anchor_relpath).is_absolute()
@@ -1059,10 +1357,14 @@ def main() -> int:
             anchored_plan = yaml.load(anchored_plan_text, Loader=UniqueLoader)
             require(isinstance(anchored_plan, dict), "anchored plan.yaml must be a mapping")
             anchored_authorization = anchored_plan.get("execution_authorization", {})
-            anchored_amendment = anchored_authorization.get("authorization_amendment")
             require(
-                isinstance(anchored_amendment, dict),
-                "authorization amendment is absent from the merged anchor",
+                isinstance(anchored_authorization, dict),
+                "anchored execution authorization must be a mapping",
+            )
+            anchored_anchor = anchored_authorization.get("authorization_anchor")
+            require(
+                isinstance(anchored_anchor, dict),
+                "authorization record is absent from the merged PR #89 anchor",
             )
             require(
                 anchored_authorization.get("authorized_issue_contract_sha256")
@@ -1081,9 +1383,38 @@ def main() -> int:
                 args.authorize_issue != authorization["stop_before_issue"],
                 f"issue {args.authorize_issue} reaches the hard stop",
             )
-            require_authorization_amendment_merged(
-                anchored_amendment,
+            require_authorization_pr_merged(
+                anchored_anchor,
                 args.plan_head_sha,
+            )
+            anchor_directory = Path(anchor_relpath).parent
+            anchored_surface_texts: dict[str, str] = {}
+            for name in AMENDMENT_SURFACE_FILES:
+                relative = (anchor_directory / name).as_posix()
+                result = subprocess.run(
+                    ["git", "-C", str(repo_root), "show", f"{args.plan_head_sha}:{relative}"],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                )
+                require(
+                    result.returncode == 0,
+                    f"amendment surface {name} is absent from merged PR #89 anchor",
+                )
+                anchored_surface_texts[name] = result.stdout
+            anchored_surface_digest = amendment_surface_digest(
+                anchored_plan,
+                anchored_surface_texts,
+            )
+            require(
+                anchored_anchor.get("amendment_surfaces_sha256")
+                == anchored_surface_digest,
+                "anchor amendment surface digest mismatch",
+            )
+            require(
+                authorization["authorization_anchor"]["amendment_surfaces_sha256"]
+                == anchored_surface_digest,
+                "current main amendment surface digest differs from merged PR #89 anchor",
             )
             if (
                 re.fullmatch(r"FMV3-M[123]-\d{2}", args.authorize_issue)

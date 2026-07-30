@@ -1,6 +1,6 @@
 # Roadmap gates and risks
 
-Canonical-SHA256: `a575c012fc1623c68d9895605e5391cdbda57bedc00a0cea2dcabb42707f7973`
+Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
 
 Depends on: Chunks 10-12 and the issue DAG in `plan.yaml`.
 Scope: Milestone grouping, critical path, TDD, documentation and transport gates, hardware classes, rollback/recovery, review, and stop/go decisions.
@@ -328,7 +328,8 @@ round metadata records verdict, integration state, and exact ordered unique find
 the validator compares those lists to every accepted review table and requires `[]` for
 `NO_FINDINGS`.
 
-Issue #88 is a post-lock corrective amendment. It preserves all three epoch histories and
+PR #89 is the post-lock corrective authorization anchor after merge; issue #88 is its
+non-authoritative tracking record. The amendment preserves all three epoch histories and
 does not claim that epoch 3 R5 reviewed the new capability. Instead, the exact M1-05 docs
 head, M1-06 RED and GREEN heads, and M2-01 RED and GREEN heads each pass their own fresh
 independent OpenAI gate before merge, with all findings resolved or `NO_FINDINGS`.

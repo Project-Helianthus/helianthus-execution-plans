@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `a575c012fc1623c68d9895605e5391cdbda57bedc00a0cea2dcabb42707f7973`
+Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -85,7 +85,8 @@ M2 implementation. FMV3-M1-01 through FMV3-M1-04 and FMV3-M2-01 through FMV3-M2-
 carry `doc_gate: required` and `companion_issue: FMV3-M1-00`; each has direct or explicit
 acyclic dependency ancestry to the merged companion.
 
-Issue #88 adds a successor lane without rewriting those contracts. FMV3-M1-05 follows
+PR #89 adds a successor lane without rewriting those contracts; issue #88 tracks its scope
+but is not authorization evidence. FMV3-M1-05 follows
 M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` in the public docs repository.
 FMV3-M1-06 depends explicitly on both M1-04 and M1-05. FMV3-M2-01 retains its M1-00
 companion metadata, records M1-05 as its corrective companion, depends on M1-06, and pins

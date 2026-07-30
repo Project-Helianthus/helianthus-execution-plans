@@ -21,8 +21,9 @@ disposition releases M4, and completed Growatt `NO_ADMISSIBLE_PROFILE` releases 
 while preserving the pre-published public evidence/unsupported disposition and creating no
 code, catalog entry, support claim, or later companion docs change.
 FMV3-M1-00 is the one public companion docs issue/PR for both M1 runtime and the complete M2
-contract set; it is not replaced or rewritten. Issue #88 adds M1-05 as a corrective M1
-companion after M1-04, then M1-06 code, then the M2-01 full producer-SHA pin. There is no
+contract set; it is not replaced or rewritten. PR #89 adds M1-05 as a corrective M1
+companion after M1-04, then M1-06 code, then the M2-01 full producer-SHA pin; issue #88 is
+tracking metadata only. There is no
 renumbered or replacement M2 docs issue.
 The docs lane remains serialized: FMV3-M5-02 is the earlier canonical PV issue, FMV3-M5-04
 then implements/tests candidate semantic MCP, FMV3-M5-03 locks that exact version, and
