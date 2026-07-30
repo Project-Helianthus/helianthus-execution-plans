@@ -315,6 +315,7 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "705cd691da1a54f321f644202b913b930e8c6442fa49986e1afb436cb89c0e4b",
             "ba089a68ac568054b8db2be9d70c8fcec6531fe2bcb568d32dcb7ed7c991ffe5",
             "d764666f6be6cda21162a2aaeca9891c1a852d2a8c61c6e6bcb903de4c127415",
+            "0bcb08f42a98de30cae02d718ce8d5906ef4ae115babbc5a5dfff819507aeba3",
         )
 
         self.assertEqual(
@@ -372,6 +373,9 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             "106-ad-docs-02-integrity.json": (
                 "1f9d40d669d3e3ede32b521d9338832062bb80fecd789d388f27d890ac69c25b"
             ),
+            "123-w31-26-m625-spine-13-erratum.md": (
+                "e4b708000fd63f4ef0a31f31ef049397e606cc2de4d8526675f31a932490b9f1"
+            ),
         }
         for name, expected_sha256 in immutable.items():
             with self.subTest(name=name):
@@ -395,6 +399,25 @@ class AdDocs02ValidatorTests(unittest.TestCase):
             self.assertEqual(
                 plan["lab_release_proof"], "released_chain_redeployed"
             )
+
+    def test_rejects_attempt_to_reset_published_s13_completion_proof(self) -> None:
+        for invalid_state in ("pending", "", "released_chain_redeployed"):
+            with self.subTest(state=invalid_state), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                target = root / validator.PLAN
+                shutil.copytree(PLAN, target)
+                with self.assertRaises(validator.ValidationError):
+                    validator.apply_s13_completion_proof_state(
+                        root,
+                        invalid_state,
+                    )
+                plan = yaml.safe_load(
+                    (target / "plan.yaml").read_text(encoding="utf-8")
+                )
+                self.assertEqual(
+                    plan["s13_completion_proof"],
+                    "published_evidence_verified",
+                )
 
     def test_release_projection_rejects_duplicate_canonical_digest_marker(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
