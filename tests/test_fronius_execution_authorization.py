@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -24,6 +25,9 @@ if len(PLAN_CANDIDATES) != 1:
 PLAN = PLAN_CANDIDATES[0]
 VALIDATOR = PLAN / "validate_plan.py"
 PLAN_DATA = yaml.safe_load((PLAN / "plan.yaml").read_text(encoding="utf-8"))
+AMENDMENT_PR_URL = (
+    "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89"
+)
 
 
 class FroniusExecutionAuthorizationTests(unittest.TestCase):
@@ -126,7 +130,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             env = os.environ.copy()
             env["PATH"] = f"{fake_bin}{os.pathsep}{env['PATH']}"
             env["FAKE_GH_ENDPOINT"] = (
-                "repos/Project-Helianthus/helianthus-execution-plans/pulls/999"
+                "repos/Project-Helianthus/helianthus-execution-plans/pulls/89"
             )
             env["FAKE_GH_PAYLOAD"] = json.dumps(amendment_pr)
             return subprocess.run(
@@ -141,12 +145,17 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
     def publish_amendment_reference(
         self,
         plan_root: Path,
-        value: str = "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/999",
+        value: str = AMENDMENT_PR_URL,
     ) -> str:
         repo = plan_root.parent
         plan_path = plan_root / "plan.yaml"
         plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
-        plan["execution_authorization"]["authorization_amendment"]["authorization_pr"] = value
+        authorization = plan["execution_authorization"]
+        record = authorization.get(
+            "authorization_amendment",
+            authorization["authorization_anchor"],
+        )
+        record["authorization_pr"] = value
         plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
         self.git(repo, "add", plan_path.relative_to(repo).as_posix())
         staged = subprocess.run(
@@ -165,8 +174,8 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         **overrides: object,
     ) -> dict[str, object]:
         value: dict[str, object] = {
-            "number": 999,
-            "html_url": "https://github.com/Project-Helianthus/helianthus-execution-plans/pull/999",
+            "number": 89,
+            "html_url": AMENDMENT_PR_URL,
             "state": "closed",
             "merged": True,
             "merge_commit_sha": anchor_sha,
@@ -179,6 +188,47 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         }
         value.update(overrides)
         return value
+
+    def copied_plan(self, temp: str) -> Path:
+        copied = Path(temp) / PLAN.name
+        shutil.copytree(PLAN, copied)
+        return copied
+
+    def rewrite_canonical_hashes(self, plan_root: Path) -> None:
+        digest = hashlib.sha256((plan_root / "00-canonical.md").read_bytes()).hexdigest()
+        plan_path = plan_root / "plan.yaml"
+        plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+        plan["canonical_sha256"] = digest
+        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+        for name in ("01-index.md", "99-status.md"):
+            path = plan_root / name
+            text = path.read_text(encoding="utf-8")
+            replaced, count = re.subn(
+                r"Canonical-SHA256: `[0-9a-f]{64}`",
+                f"Canonical-SHA256: `{digest}`",
+                text,
+            )
+            self.assertEqual(count, 1)
+            path.write_text(replaced, encoding="utf-8")
+
+    def publish_bad_anchor_digest(self, plan_root: Path) -> tuple[str, str]:
+        repo = plan_root.parent
+        plan_path = plan_root / "plan.yaml"
+        original = plan_path.read_text(encoding="utf-8")
+        plan = yaml.safe_load(original)
+        plan["execution_authorization"]["authorization_anchor"][
+            "amendment_surfaces_sha256"
+        ] = "f" * 64
+        plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+        self.git(repo, "add", plan_path.relative_to(repo).as_posix())
+        self.git(repo, "commit", "-m", "publish bad amendment surface digest")
+        anchor = self.git(repo, "rev-parse", "HEAD").stdout.strip()
+        plan_path.write_text(original, encoding="utf-8")
+        self.git(repo, "add", plan_path.relative_to(repo).as_posix())
+        self.git(repo, "commit", "-m", "restore amendment surface digest")
+        self.git(repo, "push", "origin", "main")
+        current = self.git(repo, "rev-parse", "HEAD").stdout.strip()
+        return anchor, current
 
     def block_m1_admission(self, plan_root: Path) -> None:
         repo = plan_root.parent
@@ -398,13 +448,43 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("fail-closed execution allowlist", result.stdout)
 
+    def test_structural_validator_rejects_placeholder_amendment_pr(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            plan_path = copied / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            authorization = plan["execution_authorization"]
+            record = authorization.get(
+                "authorization_amendment",
+                authorization["authorization_anchor"],
+            )
+            record["authorization_pr"] = "PENDING_PR_URL"
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exact merged PR #89 URL", result.stderr)
+
     def test_amendment_authorization_rejects_placeholder_pr(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             implementing, anchor = self.published_plan(temp)
             anchor = self.publish_amendment_reference(implementing, "PENDING_PR_URL")
             result = self.authorize(implementing, anchor, "FMV3-M1-05")
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("requires a concrete PR URL", result.stderr)
+            self.assertIn("exact merged PR #89 URL", result.stderr)
+
+    def test_authorization_rejects_anchor_amendment_surface_digest_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, _ = self.published_plan(temp)
+            self.publish_amendment_reference(implementing)
+            anchor, _ = self.publish_bad_anchor_digest(implementing)
+            result = self.authorize(
+                implementing,
+                anchor,
+                "FMV3-M1-05",
+                self.amendment_pr(anchor),
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("anchor amendment surface digest mismatch", result.stderr)
 
     def test_amendment_authorization_rejects_unmerged_pr(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -467,8 +547,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
 
     def test_issue_map_action_drift_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
-            copied = Path(temp) / PLAN.name
-            shutil.copytree(PLAN, copied)
+            copied = self.copied_plan(temp)
             issue_map = copied / "90-issue-map.md"
             issue_map.write_text(
                 issue_map.read_text(encoding="utf-8").replace(
@@ -482,10 +561,114 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("issue-map action mismatch", result.stderr)
 
+    def test_canonical_hard_stop_inversion_with_regenerated_hashes_is_rejected(
+        self,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            canonical = copied / "00-canonical.md"
+            text = canonical.read_text(encoding="utf-8")
+            old = "The hard stop is immediately before FMV3-M4-01."
+            self.assertEqual(text.count(old), 1)
+            canonical.write_text(
+                text.replace(
+                    old,
+                    "The hard stop is immediately after FMV3-M4-01.",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            self.rewrite_canonical_hashes(copied)
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("canonical authorization and hard-stop block mismatch", result.stderr)
+
+    def test_milestone_map_m2_01_target_drift_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            milestone_map = copied / "91-milestone-map.md"
+            text = milestone_map.read_text(encoding="utf-8")
+            old = (
+                "| PG-OPAQUE-ACQUISITION-CONSUMER-PIN | "
+                "FMV3-M1-06 merged after hosted RED/GREEN and fresh review; "
+                "consumer pins full merged SHA | FMV3-M2-01 |"
+            )
+            self.assertEqual(text.count(old), 1)
+            milestone_map.write_text(
+                text.replace(old, old.replace("FMV3-M2-01", "FMV3-M2-02"), 1),
+                encoding="utf-8",
+            )
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("milestone-map corrective gate projection mismatch", result.stderr)
+
+    def test_status_issue_count_drift_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            status = copied / "99-status.md"
+            text = status.read_text(encoding="utf-8")
+            self.assertEqual(text.count("46-issue one-repository DAG"), 1)
+            status.write_text(
+                text.replace(
+                    "46-issue one-repository DAG",
+                    "45-issue one-repository DAG",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("status issue-count projection mismatch", result.stderr)
+
+    def test_corrective_issue_removal_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            plan_path = copied / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            plan["issues"] = [
+                issue for issue in plan["issues"] if issue["id"] != "FMV3-M1-05"
+            ]
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+
+    def test_corrective_issue_reorder_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            plan_path = copied / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            positions = {
+                issue["id"]: index
+                for index, issue in enumerate(plan["issues"])
+                if issue["id"] in {"FMV3-M1-05", "FMV3-M1-06"}
+            }
+            first = positions["FMV3-M1-05"]
+            second = positions["FMV3-M1-06"]
+            plan["issues"][first], plan["issues"][second] = (
+                plan["issues"][second],
+                plan["issues"][first],
+            )
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("corrective issue sequence mismatch", result.stderr)
+
+    def test_corrective_issue_dependency_drift_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            copied = self.copied_plan(temp)
+            plan_path = copied / "plan.yaml"
+            plan = yaml.safe_load(plan_path.read_text(encoding="utf-8"))
+            issue = next(
+                issue for issue in plan["issues"] if issue["id"] == "FMV3-M1-06"
+            )
+            issue["depends_on"] = ["FMV3-M1-04"]
+            plan_path.write_text(yaml.safe_dump(plan, sort_keys=False), encoding="utf-8")
+            result = self.run_validator(copied)
+            self.assertNotEqual(result.returncode, 0)
+
     def test_duplicate_status_state_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
-            copied = Path(temp) / PLAN.name
-            shutil.copytree(PLAN, copied)
+            copied = self.copied_plan(temp)
             status = copied / "99-status.md"
             status.write_text(
                 status.read_text(encoding="utf-8") + f"\nState: {PLAN_DATA['state']}\n",
