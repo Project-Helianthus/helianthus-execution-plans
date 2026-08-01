@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f`
+Canonical-SHA256: `76e676f1c0c724d5f26a078253f8ecbb698ca921b02e7ed6053a175b01bc215c`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -87,18 +87,25 @@ acyclic dependency ancestry to the merged companion.
 
 PR #89 remains predecessor provenance for the successor lane. PR #91 becomes the sole
 current authorization anchor only after the fixed GitHub API proves its original base/head
-identity, one-parent squash topology, authorized merger, and tree equality with one unique
-unedited authorized-issuer external attestation. The attestation is created after the exact
-live head and before merge, binds its full SHA/tree, records `NO_FINDINGS`, and contains at
-least two unique fresh OpenAI reviewer run IDs. Issue #90 tracks scope but is not evidence.
+identity, one-parent squash topology, authorized merger, and tree equality with a successful
+canonical `pull_request` workflow run, two separate submitted authorized-issuer native reviews,
+and their unedited aggregate. Each review binds its full SHA/tree, `NO_FINDINGS`, provider, and
+fresh context; the aggregate binds the workflow run and review IDs. Issue #90 tracks scope but is not evidence.
 
-FMV3-M1-05 follows M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` in the public docs
-repository; it remains authorizable before docs merge. FMV3-M1-06 depends explicitly on
-both M1-04 and M1-05 and requires docs PR #386 merged with the exact bound head and tree.
+FMV3-M1-05 follows M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` through exact docs
+issue #385 and closing PR #386 evidence. FMV3-M1-06 depends explicitly on both M1-04 and
+M1-05 and requires docs PR #386 merged with the exact bound head and tree.
 FMV3-M2-01 retains its M1-00 companion metadata, records M1-05 as its corrective companion,
 depends on M1-06, and accepts the producer only through an external fail-closed JSON file
-whose full merge SHA, canonical `helianthus-modbus` main ancestry, merged PR, and closed
-issue relationship all verify live. The exact docs R2 commit/tree, complete predecessor-inclusive
+whose bounded issue/PR/commit/run/review IDs are selectors only. Live GitHub must prove the
+immutable marked/title issue; exact same-repo closing squash PR, head/tree/base topology, issue
+closure, and canonical-main ancestry; bounded test-only RED ancestry/diff with empty page two and
+exact-PR hosted `ci_local` failure; exact-head GREEN required-check and `ci_local` success; official
+Codex canonical-template zero-inline review after eight exact-parent production-only mutants whose
+canonical patch digests are precommitted by the GREEN report and whose mapped tests fail only after
+same-SHA compile/no-tests success; two owner `NO_FINDINGS` process attestations after GREEN and mutations;
+and the fixed closed conformance report binding all pinned cases to exact nonempty Go tests/PASS, patch digests,
+and production contract symbols. The exact docs R2 commit/tree, complete predecessor-inclusive
 normative closure, and expanded `bounded_values` projection are bound. They require
 claim-in-progress, cancelling, atomic all-success-before-seal, source-owned CancelOpen,
 byte/field bounds, and pre-reserved non-wrapping, non-reused terminal sequences. M1-06 and

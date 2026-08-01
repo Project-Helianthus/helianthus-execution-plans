@@ -4,6 +4,25 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONDONTWRITEBYTECODE=1
 
+FMV3_DOCS_CANDIDATE_SHA="0dd470495ac69a3a7f30ec235dd0bb83977a99ad"
+FMV3_DOCS_CANDIDATE_REMOTE="https://github.com/Project-Helianthus/helianthus-docs-ebus.git"
+fmv3_docs_temp=""
+cleanup_fmv3_docs_candidate() {
+  if [ -n "$fmv3_docs_temp" ]; then
+    rm -rf "$fmv3_docs_temp"
+  fi
+}
+trap cleanup_fmv3_docs_candidate EXIT
+if [ -z "${FMV3_DOCS_CANDIDATE_ROOT:-}" ]; then
+  fmv3_docs_temp="$(mktemp -d "${TMPDIR:-/tmp}/fmv3-docs-candidate.XXXXXX")"
+  git -C "$fmv3_docs_temp" init -q
+  git -C "$fmv3_docs_temp" remote add origin "$FMV3_DOCS_CANDIDATE_REMOTE"
+  git -C "$fmv3_docs_temp" fetch -q --depth=1 origin "$FMV3_DOCS_CANDIDATE_SHA"
+  git -C "$fmv3_docs_temp" checkout -q --detach FETCH_HEAD
+  git -C "$fmv3_docs_temp" remote set-url --push origin "$FMV3_DOCS_CANDIDATE_REMOTE"
+  export FMV3_DOCS_CANDIDATE_ROOT="$fmv3_docs_temp"
+fi
+
 TOKEN_VENV="${TMPDIR:-/tmp}/helianthus-plans-tokenenv"
 if [ ! -x "$TOKEN_VENV/bin/python" ]; then
   python3 -m venv "$TOKEN_VENV"

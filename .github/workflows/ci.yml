@@ -30,6 +30,13 @@ jobs:
           path: .ci/fmv3-docs-candidate
           fetch-depth: 1
 
+      - name: Normalize FMV3 docs candidate origin
+        run: |
+          git -C .ci/fmv3-docs-candidate remote set-url origin \
+            https://github.com/Project-Helianthus/helianthus-docs-ebus.git
+          git -C .ci/fmv3-docs-candidate remote set-url --push origin \
+            https://github.com/Project-Helianthus/helianthus-docs-ebus.git
+
       - name: Fetch aggregate review evidence history
         run: git fetch --no-tags origin +refs/pull/66/head:refs/remotes/origin/evidence/aggregate
 

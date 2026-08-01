@@ -20,10 +20,15 @@ authority for the corrected M1 capability or M2 ledger fields.
 
 PR #91 must retain its exact original base/head repository and ref identity. Its squash
 merge must have exactly one parent equal to the expected original base SHA and a tree equal
-to the externally attested PR head tree. The authorized issuer must create exactly one
-unedited trusted-association attestation after the exact head commit and before merge. That
-attestation binds the live full head SHA and tree, records `NO_FINDINGS`, and carries at
-least two unique fresh OpenAI reviewer run IDs; the plan never self-embeds its own head SHA.
+to the externally attested PR head tree. Before review, a successful canonical `pull_request`
+workflow run must bind the exact live head and PR base/head identity. One submitted official
+Codex bot `COMMENTED` review must equal the canonical Codex no-suggestions template for the
+exact ten-character head prefix and have zero inline findings; no severity or arbitrary finding
+text is accepted. Two separate submitted owner reviews then bind that head/tree, `NO_FINDINGS`,
+and owner-attested fresh-process references/output digests; they are process attestations, not
+independently authenticated OpenAI artifacts. One unedited aggregate binds the
+workflow-run ID and immutable submitted review IDs;
+the plan never self-embeds its own head SHA.
 
 The ordered `authorized_issues` list in `plan.yaml` is the sole normative execution scope:
 FMV3-M0-01, FMV3-M0-02, FMV3-M0-03, FMV3-M0-06, FMV3-M1-00, FMV3-M1-01,
@@ -35,9 +40,10 @@ and FMV3-M2-01 without changing the allowlist.
 Authorization runs only from a fully clean canonical
 `Project-Helianthus/helianthus-execution-plans` main checkout resolved through the fixed
 GitHub API. A configured remote named `origin` is never main authority and must identify
-the canonical repository exactly. Cruise preflight invokes the checked-out validator
-without its internal flag; it materializes the validator blob from the plan anchor,
-verifies the anchored SHA-256, and re-executes that one-use blob internally.
+the canonical repository exactly. The trusted cruise-preflight launcher authenticates the
+PR #91 merge SHA first, materializes the validator blob directly from that immutable commit,
+verifies its anchored SHA-256, and only then executes the one-use blob with the internal flag.
+The checked-out candidate validator is defense-in-depth and is never the bootstrap trust root.
 
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
 `helianthus-modbusreg`. FMV3-M1-05 publishes the public
@@ -45,11 +51,52 @@ FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` an
 FMV3-M2-01 consumes the merged M1-06 producer by exact full-SHA pin. Private governance
 creation FMV3-M0-04 and destination bootstraps FMV3-M0-05/FMV3-M0-07 remain deferred.
 
-FMV3-M1-05 remains authorizable before its docs PR merges. FMV3-M1-06 requires docs PR
-#386 merged with the exact bound candidate head and tree. FMV3-M2-01 additionally requires
-an external authorization-evidence JSON file carrying the full 40-character M1-06 producer
-merge SHA plus canonical `helianthus-modbus` issue and PR numbers; live API evidence must
-prove that merge is on canonical main and that the merged PR closed the supplied issue.
+Every authorized issue must prove completion of exactly its direct `depends_on` predecessors.
+Completed FMV3 predecessors use immutable exact live-GitHub bindings for repository, issue and PR
+titles/numbers, closing body and timeline relation, closure time, base/head/merge/tree/topology,
+canonical-main ancestry, and exact-head required checks. M0-01 is the sole no-PR exception because
+repository creation produced no Git object; it instead binds the exact issue closure event and
+unedited completion-attestation comment. Every unresolved direct predecessor must appear exactly
+once in the bounded external `dependencies` certificate array; exact set equality rejects missing,
+duplicate, extra, and non-direct rows. Each row binds exact repository, issue/PR selectors,
+an anchored issue-spec digest and marker, head/tree/merge SHAs, and the complete dynamic main
+required-check policy, all authenticated live. Every authorization-relevant required check has a
+concrete positive GitHub App ID; legacy context-only and any-app evidence is rejected.
+M2-01 retains its producer extension, which must equal its M1-06 dependency row. Stale, unmerged,
+wrong issue/PR, failed-check, wrong-tree/topology, or non-main evidence fails closed.
+M1-05 completion is the exact docs issue #385 with its immutable title and repository, closed by
+docs PR #386 through an exact `Closes #385` body line, live timeline relation, and authoritative
+GraphQL `closingIssuesReferences`, with issue closure inside a bounded 60-second post-merge window. FMV3-M1-06 requires docs PR #386 merged with the exact bound candidate
+head and tree, dynamically ancestral to canonical docs main, with all exact-head required checks
+successful under its concrete app-bound policy, one official Codex exact-head `COMMENTED` review using the
+exact canonical no-suggestions template and zero inline findings, and two owner structured
+`NO_FINDINGS` process attestations submitted after CI. FMV3-M2-01 additionally accepts only external selectors for the
+M1-06 issue, closing PR, merge and RED commit SHAs, failed RED workflow run, official Codex
+review, and exactly two owner reviews; those selector values are not trusted outcome claims.
+Live GitHub must prove the exact immutable issue title and
+`<!-- helianthus-fmv3-m1-06-opaque-runtime-acquisition-v1 -->` marker, canonical same-repo
+main/base/head PR identity, exact issue closure by that PR, reviewed head-tree equality with
+the one-parent squash merge tree and PR base, and canonical-main ancestry. The test-only RED
+commit must be an implementation-head ancestor whose bounded first diff page contains only Go
+tests, fixtures, or the fixed conformance-report path and no production path; diff page two must be
+empty. Its exact `pull_request` run and `checks` check must fail on that RED SHA and PR, and the
+exact `checks` job must fail at `./scripts/ci_local.sh` after successful setup. All dynamically
+required checks must then succeed on the exact implementation head, with the selected GREEN run's
+exact `checks` job succeeding at `./scripts/ci_local.sh`. Eight ordered, production-Go-only mutant
+commits must each be a direct child of GREEN. The GREEN conformance report precommits each
+canonical GitHub patch digest; every selected run must then pass `go test -run ^$ ./...` on the
+mutant before the validator-mapped test fails. One official Codex exact-head review after those mutations must use the exact
+canonical no-suggestions template and have zero inline findings. Two owner `COMMENTED` closed-schema
+`NO_FINDINGS` process attestations after GREEN and mutations must bind the exact RED/head/tree,
+fixed conformance-report blob, validator-pinned case digest, and mutation-evidence digest. The regular committed report
+`.github/fmv3/fmv3-m1-06-conformance-report.json` must use
+`helianthus.fmv3-m1-06-conformance-report.v1`; its closed fixed case set binds deliverability
+exclusions, copy one-winner, fresh non-alias, terminal outcomes, CancelOpen drain/reclaim,
+bounds/overflow, sequence exhaustion, and coalesced isolation to exact Go test declarations,
+source blobs, regular modes, nonempty failure/assertion bodies, semantic calls, `PASS`, and the
+exact per-case mutation patch digest. Its
+production Go blobs must declare every fixed contract symbol. Missing, stale, fake, failed,
+semantic-no-op, non-direct, or mismatched producer proof fails closed.
 The exact docs R2 commit/tree, complete predecessor-inclusive normative closure, and expanded
 machine projection including `bounded_values` are bound. They require claim-in-progress,
 cancelling, atomic all-success-before-seal, source-owned CancelOpen, byte/field bounds, and
@@ -59,7 +106,7 @@ authorization until docs PR #386 is merged at that exact head and tree.
 The hard stop is immediately before FMV3-M4-01. Gateway work is not authorized. No gateway
 issue, branch, PR, import, or code change is authorized by this action. Repository creation,
 implementation issues, commits, pushes, reviews, and merges are authorized only for the
-ordered issue list above and remain subject to every dependency and gate.
+ordered issue list above and remain subject to every direct dependency and gate.
 
 ## Claim discipline
 

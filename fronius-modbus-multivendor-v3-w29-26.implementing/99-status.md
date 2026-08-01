@@ -1,6 +1,6 @@
 # Implementing status
 
-Canonical-SHA256: `1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f`
+Canonical-SHA256: `76e676f1c0c724d5f26a078253f8ecbb698ca921b02e7ed6053a175b01bc215c`
 
 State: implementing
 Current milestone: M0
@@ -13,8 +13,8 @@ Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
 Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative
 Authorization anchor: PR #91 exact squash merge plus external review attestation required; PR #89 is predecessor provenance only; issue #90 is tracking only
 Canonical main authority: fixed GitHub API for Project-Helianthus/helianthus-execution-plans; origin is identity-only
-External review attestation: one unique unedited authorized-issuer tag binding exact live PR #91 head/tree, NO_FINDINGS, and at least two fresh OpenAI reviewer run IDs
-Docs R2 rebind: complete; exact docs PR #386 head/tree and expanded bounded_values projection bound
+External review attestation: successful exact-head canonical pull_request workflow run, one authenticated official Codex review, two owner process attestations, and unedited aggregate binding workflow-run and review IDs
+Docs R2 rebind: complete; exact docs PR #386 head/tree, canonical-main ancestry, exact-head CI, and review chain bound
 Repository creation authorized: yes, through FMV3-M0-01
 Private repository action: deferred; creation requires future explicit authorization
 Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
@@ -32,12 +32,22 @@ correction tracked by issue #90:
 - additive FMV3-M1-05 public companion and FMV3-M1-06 runtime corrective authorized,
   with FMV3-M2-01 depending on the merged corrective producer and retaining the original
   companion history;
-- PR #91 authorization requires one external exact-head/tree `NO_FINDINGS` attestation,
-  canonical-main API resolution, one-parent squash topology, and self-materialized anchored
-  validator execution;
-- the exact docs R2 commit/tree, complete predecessor-inclusive normative closure, and
-  expanded machine projection including `bounded_values` are bound; M1-06 and M2-01
+- PR #91 authorization requires a successful exact-head pull_request workflow run, one authenticated official Codex review, two owner exact-head/tree `NO_FINDINGS` process attestations, and an aggregate binding their IDs,
+  canonical-main API resolution, one-parent squash topology, and trusted-launcher materialization
+  of the anchored validator before execution;
+- direct predecessor completion is fail-closed: completed dependencies use exact static live-GitHub
+  issue/PR/title/relation/tree/topology/check bindings; unresolved direct predecessors require exact-set,
+  bounded GitHub-authenticated `dependencies` certificates with no missing, duplicate, or extra rows;
+- the exact docs R2 commit/tree, complete predecessor-inclusive normative closure, canonical-main
+  ancestry, successful exact-head required checks, official Codex zero-inline review, and two fresh
+  owner `NO_FINDINGS` reviews after CI are bound; the expanded machine projection including
+  `bounded_values` is bound; M1-06 and M2-01
   still require docs PR #386 merged at that exact head/tree;
+- M2-01 treats its bounded M1-06 issue/PR/commit/run/review values only as selectors. Live GitHub
+  must prove the immutable marker/title, exact closing squash topology and main ancestry, test-only
+  RED ancestor/page bounds plus exact-PR hosted `ci_local` failure, exact-head GREEN/checks-job
+  success, canonical-template official and owner review gates, and the fixed closed conformance
+  report binding exact production declarations and nonempty validator-pinned Go tests/PASS;
 - strict hosted RED/GREEN, full producer-SHA pin, source-private capability trust,
   complete bounded claim/attempt lifecycles, one-shot seal-before-publish, deterministic
   synchronous fixed-ring reclamation, lossless normalization, and fresh revision-bound
@@ -94,6 +104,12 @@ correction tracked by issue #90:
   and integration `NOT_REQUIRED`;
 - epoch 3 is the sole terminal `PASSED` epoch at 5/5, targeting `TERMINAL_NO_FINDINGS`;
 - structural validator remains bounded and does not simulate runtime behavior.
+
+Current corrective state: R3d is active, not terminal. The authorization suite has added
+app-bound checks, bounded pagination, anchor-derived dependency identities, exact merge-time
+issue closure, honest owner process attestations, self-provisioned docs validation, and
+report-bound mutation patches with compile/no-tests success before mapped-test failure. A fresh
+exact-tree adversarial `NO_FINDINGS` verdict and exact-head hosted evidence are still required.
 
 Terminal review closure did not itself lock the plan. The operator separately authorized
 lock and publication on 2026-07-14. After PR #91 merges, its exact merge commit is the sole

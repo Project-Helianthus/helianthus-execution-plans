@@ -3,7 +3,7 @@
 from __future__ import annotations
 import argparse
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import json
 import os
@@ -51,8 +51,115 @@ CANONICAL_GITHUB_REMOTE = {
 }
 DOCS_CANDIDATE_ENV = "FMV3_DOCS_CANDIDATE_ROOT"
 AUTHORIZATION_EVIDENCE_SCHEMA = "helianthus.fmv3-issue-authorization-evidence.v1"
+ISSUE_SPEC_MARKER_PREFIX = "helianthus-fmv3-issue-spec-v1"
+ISSUE_SPEC_FIELDS = (
+    "id", "repo", "depends_on", "what", "acceptance", "gates", "doc_gate",
+)
+DEPENDENCY_COMPLETION_CERTIFICATE_SCHEMA = (
+    "helianthus.fmv3-direct-dependency-completion-certificate.v1"
+)
+M1_06_PRODUCER_ISSUE_TITLE = (
+    "FMV3-M1-06: Implement the source-issued opaque single-use runtime acquisition capability."
+)
+M1_06_PRODUCER_PULL_REQUEST_TITLE = M1_06_PRODUCER_ISSUE_TITLE
+M1_06_PRODUCER_ISSUE_MARKER = (
+    "<!-- helianthus-fmv3-m1-06-opaque-runtime-acquisition-v1 -->"
+)
+M1_06_CONFORMANCE_REPORT_PATH = (
+    ".github/fmv3/fmv3-m1-06-conformance-report.json"
+)
+M1_06_CONFORMANCE_REPORT_SCHEMA = (
+    "helianthus.fmv3-m1-06-conformance-report.v1"
+)
+M1_06_OWNER_REVIEW_SCHEMA = "helianthus.fmv3-m1-06-owner-review.v1"
+M1_06_RED_REQUIRED_CHECK = "checks"
+GITHUB_ACTIONS_APP_ID = 15368
+M1_06_CI_JOB_NAME = "checks"
+M1_06_SETUP_STEP_NAME = "Set up Go"
+M1_06_CI_STEP_NAME = "./scripts/ci_local.sh"
+M1_06_PRODUCTION_SYMBOLS = (
+    "OpaqueRuntimeCapability",
+    "NewRuntimeAcquisition",
+    "Claim",
+    "CancelOpen",
+    "NewBoundedCapability",
+    "ReserveTerminalSequence",
+    "TerminalOutcome",
+)
+M1_06_CONFORMANCE_CASES = {
+    "M1-06-DELIVERABILITY-EXCLUSIONS": (
+        "TestDeliverabilityExclusions", ("NewRuntimeAcquisition",)
+    ),
+    "M1-06-COPY-ONE-WINNER": (
+        "TestCopiedCapabilityOneWinner", ("Claim",)
+    ),
+    "M1-06-FRESH-NON-ALIAS": (
+        "TestFreshAcquisitionNonAlias", ("NewRuntimeAcquisition",)
+    ),
+    "M1-06-TERMINAL-OUTCOMES": (
+        "TestTerminalOutcomes", ("TerminalOutcome",)
+    ),
+    "M1-06-CANCEL-OPEN-DRAIN-RECLAIM": (
+        "TestCancelOpenDrainAndReclaim", ("CancelOpen",)
+    ),
+    "M1-06-BOUNDS-OVERFLOW": (
+        "TestBoundsAndOverflow", ("NewBoundedCapability",)
+    ),
+    "M1-06-SEQUENCE-EXHAUSTION": (
+        "TestTerminalSequenceExhaustion", ("ReserveTerminalSequence",)
+    ),
+    "M1-06-COALESCED-ISOLATION": (
+        "TestCoalescedDependentIsolation", ("NewRuntimeAcquisition",)
+    ),
+}
+M1_06_CONFORMANCE_CASE_DIGEST = hashlib.sha256(
+    json.dumps(
+        list(M1_06_CONFORMANCE_CASES),
+        sort_keys=False,
+        separators=(",", ":"),
+    ).encode("utf-8")
+).hexdigest()
+M1_06_MUTATION_WORKFLOW_PATH = ".github/workflows/ci.yml"
+M1_06_MUTATION_COMPILE_STEP_NAME = "go test -run ^$ ./..."
+M1_06_MUTATION_CASES = {
+    case_id: f"go test -run ^{test_function}$ ./..."
+    for case_id, (test_function, _) in M1_06_CONFORMANCE_CASES.items()
+}
+M1_05_COMPLETION_BINDING = {
+    "kind": "docs_candidate_completion",
+    "repository": DOCS_REPOSITORY,
+    "github_issue_number": 385,
+    "issue_title": "FMV3-M1-05: define opaque runtime acquisition contract",
+    "github_pull_request_number": 386,
+    "pull_request_title": "FMV3-M1-05: define opaque runtime acquisition contract",
+}
+CODEX_REVIEW_BODY_TEMPLATE = "".join((
+    "\n### 💡 Codex Review\n\n",
+    "Here are some automated review suggestions for this pull request.\n\n",
+    "**Reviewed commit:** `{commit_prefix}`\n",
+    "\x20\x20\x20\x20\n\n",
+    "<details> <summary>ℹ️ About Codex in GitHub</summary>\n",
+    "<br/>\n\n",
+    "Codex has been enabled to automatically review pull requests in this repo. Reviews are triggered when you\n",
+    "- Open a pull request for review\n",
+    "- Mark a draft as ready\n",
+    "- Comment \"@codex review\".\n\n",
+    "If Codex has suggestions, it will comment; otherwise it will react with 👍.\n\n\n\n\n",
+    "When you [sign up for Codex through ChatGPT](https://openai.com/codex), Codex can also answer questions or update the PR, like \"@codex address that feedback\".\n",
+    "\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\n",
+    "</details>",
+))
+
+
+def canonical_codex_review_body(commit_sha: str) -> str:
+    require(re.fullmatch(r"[0-9a-f]{40}", commit_sha) is not None,
+            "official Codex reviewed commit must be one full SHA")
+    return CODEX_REVIEW_BODY_TEMPLATE.format(commit_prefix=commit_sha[:10])
 EXTERNAL_REVIEW_ATTESTATION_TAG = (
     "<!-- helianthus-fmv3-pr91-external-review-attestation-v1 -->"
+)
+EXTERNAL_REVIEW_EVIDENCE_TAG = (
+    "<!-- helianthus-fmv3-pr91-external-review-evidence-v1 -->"
 )
 EXTERNAL_REVIEW_ATTESTATION_SCHEMA = (
     "helianthus.fmv3-pr91-external-review-attestation.v1"
@@ -134,14 +241,14 @@ EXPECTED_EXTERNAL_REVIEW_ATTESTATION = {
     "edit_policy": "created_at_equals_updated_at",
     "timing": "strictly_after_head_commit_and_before_merged_at",
     "verdict": "NO_FINDINGS",
-    "provider": "openai",
-    "fresh_context": True,
-    "minimum_unique_reviewer_run_ids": 2,
-    "binds": ["repository", "pull_request", "head_sha", "head_tree_sha"],
+    "owner_process_attestations": 2,
+    "evidence_reviews": "one_authenticated_official_codex_review_plus_two_owner_process_attestations",
+    "aggregate_binds": ["repository", "pull_request", "head_sha", "head_tree_sha", "workflow_run_id", "official_review_id", "owner_review_ids"],
+    "head_publication_evidence": "successful_pull_request_workflow_run_before_reviews",
 }
 EXPECTED_ISSUE_EVIDENCE_POLICY = {
     "FMV3-M1-05": {
-        "external_evidence": "none_before_docs_merge",
+        "completion_binding": "exact_docs_issue_385_and_closing_pr_386",
     },
     "FMV3-M1-06": {
         "requires": "docs_pr_386_merged_at_exact_bound_candidate_head_and_tree",
@@ -149,15 +256,95 @@ EXPECTED_ISSUE_EVIDENCE_POLICY = {
     "FMV3-M2-01": {
         "cli": "--authorization-evidence <external-json-file>",
         "schema": AUTHORIZATION_EVIDENCE_SCHEMA,
+        "dependencies": ["FMV3-M1-06"],
         "producer_issue": "FMV3-M1-06",
         "producer_repository": MODBUS_REPOSITORY,
         "requires": [
             "full_40_character_merge_sha",
             "canonical_main_ancestry",
-            "merged_pull_request",
-            "closed_issue_relationship",
+            "immutable_issue_marker_and_title",
+            "exact_squash_pull_request_head_tree_and_base_parent",
+            "test_only_red_ancestor_with_exact_pull_request_hosted_failure",
+            "exact_implementation_head_green_required_checks",
+            "official_codex_exact_head_zero_inline_findings",
+            "two_owner_process_attestations_after_green_and_mutations",
+            "fixed_path_closed_conformance_report_with_exact_source_blobs_and_mutation_patch_digests",
+            "exact_red_and_green_ci_local_jobs",
+            "eight_exact_parent_report_bound_mutants_compile_before_mapped_test_failure",
         ],
     },
+    "FMV3-M2-02": {"schema": AUTHORIZATION_EVIDENCE_SCHEMA, "dependencies": ["FMV3-M2-01"]},
+    "FMV3-M2-03": {"schema": AUTHORIZATION_EVIDENCE_SCHEMA, "dependencies": ["FMV3-M2-01", "FMV3-M2-02"]},
+    "FMV3-M3-01": {"schema": AUTHORIZATION_EVIDENCE_SCHEMA, "dependencies": ["FMV3-M2-01"]},
+    "FMV3-M3-02": {"schema": AUTHORIZATION_EVIDENCE_SCHEMA, "dependencies": ["FMV3-M2-03", "FMV3-M3-01"]},
+    "FMV3-M3-03": {"schema": AUTHORIZATION_EVIDENCE_SCHEMA, "dependencies": ["FMV3-M3-02"]},
+}
+COMPLETED_FMV3_DEPENDENCIES = {
+    "FMV3-M0-01": {
+        "kind": "manual_repository_creation", "repository": "Project-Helianthus/.github",
+        "github_issue_number": 2,
+        "issue_title": "FMV3-M0-01: create public Modbus repositories",
+        "closed_at": "2026-07-26T15:23:57Z", "closed_by": "d3vi1",
+        "completion_comment_id": 5084116709,
+        "completion_comment_sha256": "9f2a13dcaa5da76000bfad85e371dff9d1a3abc9aa1f62aa32f937e5d32f38b3",
+    },
+    "FMV3-M0-02": {
+        "repository": MODBUS_REPOSITORY, "github_issue_number": 1,
+        "issue_title": "FMV3-M0-02: bootstrap the public Modbus runtime repository",
+        "github_pull_request_number": 2, "pull_request_title": "chore: bootstrap public Modbus runtime repository",
+        "head_sha": "e938946cb332d64a5f8331abe6a6f1b39f67a00e", "head_tree_sha": "71355ffdc8d60b319797e94355705764ba679f0e",
+        "merge_sha": "7e4b4c53a8b91751550222d6d98125e41d3db8c1", "required_checks": [{"context": "checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "lint", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M0-03": {
+        "repository": "Project-Helianthus/helianthus-modbusreg", "github_issue_number": 1,
+        "issue_title": "FMV3-M0-03: bootstrap the public multi-profile registry repository",
+        "github_pull_request_number": 2, "pull_request_title": "chore: bootstrap public Modbus profile registry",
+        "head_sha": "b8fa5b1b5f01e4776338f2b9ffaf2b99ee058d85", "head_tree_sha": "9dbf08e3681b8bf9bd9a71f516a7ee0318c5b16d",
+        "merge_sha": "c6f26b33e38525cddc1c0ce19389ed19a8bb6844", "required_checks": [{"context": "checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "lint", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M0-06": {
+        "repository": DOCS_REPOSITORY, "github_issue_number": 371,
+        "issue_title": "FMV3-M0-06: publish Modbus ownership and licensing boundaries",
+        "github_pull_request_number": 372, "pull_request_title": "docs(platform): define Modbus repository boundaries",
+        "head_sha": "a0ba25ef445abd5d17f5df4ff386040c3f4ed8a7", "head_tree_sha": "600cf88f8e742f8412ba2ae8d91076a4c44fa389",
+        "merge_sha": "7b0dd0abba8bc3420f1d8d2bae2db5bc229b75f3", "required_checks": [{"context": "Docs Checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "Platform Contracts Combined Ref / Validate Explicit Combined Refs", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M1-00": {
+        "repository": DOCS_REPOSITORY, "github_issue_number": 373,
+        "issue_title": "FMV3-M1-00: Define Modbus M1/M2 companion contract",
+        "github_pull_request_number": 376, "pull_request_title": "docs(platform): define Modbus M1/M2 companion contract",
+        "head_sha": "db88c05ad9f49a23fdd3fc9de0e5d9ea3ca99055", "head_tree_sha": "25d4cd89216f0d1f2f05261506316bd64f91483b",
+        "merge_sha": "711a556fee344c6fe7f1ecf3253fcdb3f5f22d06", "required_checks": [{"context": "Docs Checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "Platform Contracts Combined Ref / Validate Explicit Combined Refs", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M1-01": {
+        "repository": MODBUS_REPOSITORY, "github_issue_number": 3,
+        "issue_title": "FMV3-M1-01: implement strict phase-one Modbus PDU codecs",
+        "github_pull_request_number": 4, "pull_request_title": "feat: implement strict phase-one Modbus PDU codecs",
+        "head_sha": "9a07587a6157c6f570b054fe2eb6bd60f009fc7f", "head_tree_sha": "b13d5be4f965b3b6f3aae796aa6281f0526ccfe4",
+        "merge_sha": "c9b3281b5025fd3b1b714235493bd36d526f865f", "required_checks": [{"context": "checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "lint", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M1-02": {
+        "repository": MODBUS_REPOSITORY, "github_issue_number": 5,
+        "issue_title": "FMV3-M1-02: implement owned Modbus TCP runtime",
+        "github_pull_request_number": 6, "pull_request_title": "FMV3-M1-02: implement owned Modbus TCP runtime",
+        "head_sha": "0aac61ddad62f664b47900334c48803587183fa3", "head_tree_sha": "ac81a5294a84a1783cb84f56cfe1ba455291c1ee",
+        "merge_sha": "467229104bfe34ca90aa653ca22ad79da4fa9a32", "required_checks": [{"context": "checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "lint", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M1-03": {
+        "repository": MODBUS_REPOSITORY, "github_issue_number": 9,
+        "issue_title": "FMV3-M1-03: implement fixture-only Modbus RTU runtime",
+        "github_pull_request_number": 10, "pull_request_title": "FMV3-M1-03: fixture-only Modbus RTU runtime",
+        "head_sha": "4f8e69dad3c57c798f3eb3d74f7382f3ae9d685b", "head_tree_sha": "12717cdd6efc34dcc6560cc98690d9436fd59951",
+        "merge_sha": "fd7524fee3d4ea808a67185341a3bf13f6d151cd", "required_checks": [{"context": "checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "lint", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M1-04": {
+        "repository": MODBUS_REPOSITORY, "github_issue_number": 13,
+        "issue_title": "FMV3-M1-04: close offline transport conformance and recovery matrices",
+        "github_pull_request_number": 14, "pull_request_title": "FMV3-M1-04: close offline transport conformance matrices",
+        "head_sha": "ada08479e73ecf7c9f892558e577347bf2f16dd9", "head_tree_sha": "1c2a90e5637ab989d66b87de264fc555c25965d0",
+        "merge_sha": "4f81cbeb6321e64fa51676ed6e375ce36b60d16d", "required_checks": [{"context": "checks", "app_id": GITHUB_ACTIONS_APP_ID}, {"context": "lint", "app_id": GITHUB_ACTIONS_APP_ID}],
+    },
+    "FMV3-M1-05": M1_05_COMPLETION_BINDING,
 }
 EXPECTED_M1_06_PRODUCER_PIN_CONTRACT = {
     "producer_issue": "FMV3-M1-06",
@@ -167,10 +354,31 @@ EXPECTED_M1_06_PRODUCER_PIN_CONTRACT = {
     "merge_sha": "required_full_40_lowercase_hex",
     "github_issue_number": "required_positive_integer",
     "github_pull_request_number": "required_positive_integer",
+    "red_commit_sha": "required_full_40_lowercase_hex_selector",
+    "red_workflow_run_id": "required_positive_integer_selector",
+    "green_workflow_run_id": "required_positive_integer_selector",
+    "mutation_runs": "eight_ordered_case_commit_and_workflow_selectors",
+    "mutation_compile_step": M1_06_MUTATION_COMPILE_STEP_NAME,
+    "mutation_report_binding": "canonical_github_patch_sha256_per_case",
+    "official_review_id": "required_positive_integer_selector",
+    "owner_review_ids": "exactly_two_distinct_positive_integer_selectors",
+    "issue_title": M1_06_PRODUCER_ISSUE_TITLE,
+    "pull_request_title": M1_06_PRODUCER_PULL_REQUEST_TITLE,
+    "issue_marker": M1_06_PRODUCER_ISSUE_MARKER,
+    "conformance_report_path": M1_06_CONFORMANCE_REPORT_PATH,
+    "conformance_report_schema": M1_06_CONFORMANCE_REPORT_SCHEMA,
+    "conformance_case_digest": M1_06_CONFORMANCE_CASE_DIGEST,
     "verification": [
         "fixed_github_api_canonical_main_ancestry",
-        "exact_merged_pull_request",
-        "closed_issue_cross_reference",
+        "exact_issue_marker_title_and_closing_pull_request",
+        "squash_head_tree_and_single_base_parent",
+        "test_only_red_ancestor_and_exact_pull_request_failure",
+        "exact_head_required_checks_success",
+        "official_codex_zero_inline_findings",
+        "two_fresh_owner_no_findings_after_green",
+        "fixed_path_closed_conformance_report_exact_regular_blobs_and_mutation_patch_digests",
+        "red_and_green_jobs_execute_ci_local",
+        "eight_exact_parent_report_bound_mutants_compile_before_mapped_test_failure",
     ],
     "consumer_resolution": "exact_sha_verified_before_red",
 }
@@ -179,7 +387,7 @@ EXPECTED_TOOLING_PATHS = {
     "workflow_path": ".github/workflows/ci.yml",
 }
 EXPECTED_D13_DECISION = "FMV3-M1-05 documents and FMV3-M1-06 implements OPAQUE_RUNTIME_ACQUISITION_V1 as an additive successor to M1-04 before M2-01. A runtime source privately owns and issues each non-serializable one-shot capability only after all post-correlation successful-dependent deliverability conditions; only copies of that same capability share its state, and M1 state is never an M2 ledger pointer. Endpoint recreation and every new acquisition create fresh independent state even when visible identity or data match. Capability state moves open to claimed, cancelled, failed, or expired and is synchronously reclaimed by a pre-reserved terminal sequence into a finite-positive, byte-bounded, non-reconstructing tombstone ring. M2-01 pins the merged M1-06 producer SHA, keeps runtime and fixture trust distinct, and owns a separately bounded attempt/claim ledger across every retained state. The exact docs R2 binding requires unresolved claims to enter claim_in_progress before one immutable terminal result, open or sealed attempts to enter cancelling before cancelled, an atomic seal predicate in which every data-bearing runtime claim is claim_succeeded, runtime-source-owned CancelOpen linearized by exact bounded AttemptKey, explicit byte and field bounds validated before allocation, one-shot sealed-to-publishing Publish(), and pre-reserved nonzero uint64 terminal sequences that never wrap or reuse. Deterministic reclamation preserves only bounded non-reconstructing audit metadata and the complete normalization record round-trips losslessly within admitted bounds."
-EXPECTED_M2_EXIT_GATE = "The reused FMV3-M1-00 companion remains merged, and M2-01 starts only after M1-06 merges and external authorization evidence proves its full 40-character producer merge SHA on canonical helianthus-modbus main with the exact merged PR and closed issue relationship. The exact docs R2 head/tree binding requires claim_in_progress and cancelling states, an atomic all-data-bearing-runtime-claims-succeeded seal predicate, runtime-source-owned CancelOpen linearization by exact bounded AttemptKey, byte and field bounds validated before allocation, and pre-reserved nonzero uint64 terminal sequences that never wrap or reuse. Profile API, exact wire-response/logical-view/sample identity and provenance, runtime-versus-fixture trust, independently ledger-owned bounded attempt/claim state across all retained states, finite-positive limits with a checked retained-attempt-limit times claim-limit product, duplicate AttemptKey rejection, complete immutable-terminal lifecycles, one-shot sealed publication, deterministic synchronous terminal-sequence reclamation into a finite-positive byte-bounded non-reconstructing audit/tombstone ring, exact bounded normalization round-trip, detector lifecycle, and conformance harness are stable under strict hosted RED/GREEN and fresh independent review."
+EXPECTED_M2_EXIT_GATE = "The reused FMV3-M1-00 companion remains merged, and M2-01 starts only after M1-06 merges and external authorization evidence supplies bounded selectors whose live GitHub objects prove the exact immutable marked/title issue, exact closing same-repo squash PR and canonical-main topology, test-only RED ancestor with an exact-PR hosted run/check failure at ./scripts/ci_local.sh after successful setup, exact-head GREEN app-bound required checks and successful ./scripts/ci_local.sh job, eight exact-parent production-only mutants whose canonical patch digests are precommitted in the GREEN report and whose mapped tests fail only after same-SHA compile/no-tests success, official Codex canonical-template zero-inline exact-head review after mutations, two owner NO_FINDINGS process attestations after GREEN and mutations, and the fixed-path closed conformance report binding every validator-pinned case to an exact Go test/source blob/PASS, exact mutation patch digest, and exact production contract symbols. The exact docs R2 head/tree binding requires claim_in_progress and cancelling states, an atomic all-data-bearing-runtime-claims-succeeded seal predicate, runtime-source-owned CancelOpen linearization by exact bounded AttemptKey, byte and field bounds validated before allocation, and pre-reserved nonzero uint64 terminal sequences that never wrap or reuse. Profile API, exact wire-response/logical-view/sample identity and provenance, runtime-versus-fixture trust, independently ledger-owned bounded attempt/claim state across all retained states, finite-positive limits with a checked retained-attempt-limit times claim-limit product, duplicate AttemptKey rejection, complete immutable-terminal lifecycles, one-shot sealed publication, deterministic synchronous terminal-sequence reclamation into a finite-positive byte-bounded non-reconstructing audit/tombstone ring, exact bounded normalization round-trip, detector lifecycle, and conformance harness are stable under strict hosted RED/GREEN and fresh independent review."
 AMENDMENT_SURFACE_FILES = (
     "00-canonical.md",
     "01-index.md",
@@ -207,10 +415,15 @@ authority for the corrected M1 capability or M2 ledger fields.
 
 PR #91 must retain its exact original base/head repository and ref identity. Its squash
 merge must have exactly one parent equal to the expected original base SHA and a tree equal
-to the externally attested PR head tree. The authorized issuer must create exactly one
-unedited trusted-association attestation after the exact head commit and before merge. That
-attestation binds the live full head SHA and tree, records `NO_FINDINGS`, and carries at
-least two unique fresh OpenAI reviewer run IDs; the plan never self-embeds its own head SHA.
+to the externally attested PR head tree. Before review, a successful canonical `pull_request`
+workflow run must bind the exact live head and PR base/head identity. One submitted official
+Codex bot `COMMENTED` review must equal the canonical Codex no-suggestions template for the
+exact ten-character head prefix and have zero inline findings; no severity or arbitrary finding
+text is accepted. Two separate submitted owner reviews then bind that head/tree, `NO_FINDINGS`,
+and owner-attested fresh-process references/output digests; they are process attestations, not
+independently authenticated OpenAI artifacts. One unedited aggregate binds the
+workflow-run ID and immutable submitted review IDs;
+the plan never self-embeds its own head SHA.
 
 The ordered `authorized_issues` list in `plan.yaml` is the sole normative execution scope:
 FMV3-M0-01, FMV3-M0-02, FMV3-M0-03, FMV3-M0-06, FMV3-M1-00, FMV3-M1-01,
@@ -222,9 +435,10 @@ and FMV3-M2-01 without changing the allowlist.
 Authorization runs only from a fully clean canonical
 `Project-Helianthus/helianthus-execution-plans` main checkout resolved through the fixed
 GitHub API. A configured remote named `origin` is never main authority and must identify
-the canonical repository exactly. Cruise preflight invokes the checked-out validator
-without its internal flag; it materializes the validator blob from the plan anchor,
-verifies the anchored SHA-256, and re-executes that one-use blob internally.
+the canonical repository exactly. The trusted cruise-preflight launcher authenticates the
+PR #91 merge SHA first, materializes the validator blob directly from that immutable commit,
+verifies its anchored SHA-256, and only then executes the one-use blob with the internal flag.
+The checked-out candidate validator is defense-in-depth and is never the bootstrap trust root.
 
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
 `helianthus-modbusreg`. FMV3-M1-05 publishes the public
@@ -232,11 +446,52 @@ FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` an
 FMV3-M2-01 consumes the merged M1-06 producer by exact full-SHA pin. Private governance
 creation FMV3-M0-04 and destination bootstraps FMV3-M0-05/FMV3-M0-07 remain deferred.
 
-FMV3-M1-05 remains authorizable before its docs PR merges. FMV3-M1-06 requires docs PR
-#386 merged with the exact bound candidate head and tree. FMV3-M2-01 additionally requires
-an external authorization-evidence JSON file carrying the full 40-character M1-06 producer
-merge SHA plus canonical `helianthus-modbus` issue and PR numbers; live API evidence must
-prove that merge is on canonical main and that the merged PR closed the supplied issue.
+Every authorized issue must prove completion of exactly its direct `depends_on` predecessors.
+Completed FMV3 predecessors use immutable exact live-GitHub bindings for repository, issue and PR
+titles/numbers, closing body and timeline relation, closure time, base/head/merge/tree/topology,
+canonical-main ancestry, and exact-head required checks. M0-01 is the sole no-PR exception because
+repository creation produced no Git object; it instead binds the exact issue closure event and
+unedited completion-attestation comment. Every unresolved direct predecessor must appear exactly
+once in the bounded external `dependencies` certificate array; exact set equality rejects missing,
+duplicate, extra, and non-direct rows. Each row binds exact repository, issue/PR selectors,
+an anchored issue-spec digest and marker, head/tree/merge SHAs, and the complete dynamic main
+required-check policy, all authenticated live. Every authorization-relevant required check has a
+concrete positive GitHub App ID; legacy context-only and any-app evidence is rejected.
+M2-01 retains its producer extension, which must equal its M1-06 dependency row. Stale, unmerged,
+wrong issue/PR, failed-check, wrong-tree/topology, or non-main evidence fails closed.
+M1-05 completion is the exact docs issue #385 with its immutable title and repository, closed by
+docs PR #386 through an exact `Closes #385` body line, live timeline relation, and authoritative
+GraphQL `closingIssuesReferences`, with issue closure inside a bounded 60-second post-merge window. FMV3-M1-06 requires docs PR #386 merged with the exact bound candidate
+head and tree, dynamically ancestral to canonical docs main, with all exact-head required checks
+successful under its concrete app-bound policy, one official Codex exact-head `COMMENTED` review using the
+exact canonical no-suggestions template and zero inline findings, and two owner structured
+`NO_FINDINGS` process attestations submitted after CI. FMV3-M2-01 additionally accepts only external selectors for the
+M1-06 issue, closing PR, merge and RED commit SHAs, failed RED workflow run, official Codex
+review, and exactly two owner reviews; those selector values are not trusted outcome claims.
+Live GitHub must prove the exact immutable issue title and
+`<!-- helianthus-fmv3-m1-06-opaque-runtime-acquisition-v1 -->` marker, canonical same-repo
+main/base/head PR identity, exact issue closure by that PR, reviewed head-tree equality with
+the one-parent squash merge tree and PR base, and canonical-main ancestry. The test-only RED
+commit must be an implementation-head ancestor whose bounded first diff page contains only Go
+tests, fixtures, or the fixed conformance-report path and no production path; diff page two must be
+empty. Its exact `pull_request` run and `checks` check must fail on that RED SHA and PR, and the
+exact `checks` job must fail at `./scripts/ci_local.sh` after successful setup. All dynamically
+required checks must then succeed on the exact implementation head, with the selected GREEN run's
+exact `checks` job succeeding at `./scripts/ci_local.sh`. Eight ordered, production-Go-only mutant
+commits must each be a direct child of GREEN. The GREEN conformance report precommits each
+canonical GitHub patch digest; every selected run must then pass `go test -run ^$ ./...` on the
+mutant before the validator-mapped test fails. One official Codex exact-head review after those mutations must use the exact
+canonical no-suggestions template and have zero inline findings. Two owner `COMMENTED` closed-schema
+`NO_FINDINGS` process attestations after GREEN and mutations must bind the exact RED/head/tree,
+fixed conformance-report blob, validator-pinned case digest, and mutation-evidence digest. The regular committed report
+`.github/fmv3/fmv3-m1-06-conformance-report.json` must use
+`helianthus.fmv3-m1-06-conformance-report.v1`; its closed fixed case set binds deliverability
+exclusions, copy one-winner, fresh non-alias, terminal outcomes, CancelOpen drain/reclaim,
+bounds/overflow, sequence exhaustion, and coalesced isolation to exact Go test declarations,
+source blobs, regular modes, nonempty failure/assertion bodies, semantic calls, `PASS`, and the
+exact per-case mutation patch digest. Its
+production Go blobs must declare every fixed contract symbol. Missing, stale, fake, failed,
+semantic-no-op, non-direct, or mismatched producer proof fails closed.
 The exact docs R2 commit/tree, complete predecessor-inclusive normative closure, and expanded
 machine projection including `bounded_values` are bound. They require claim-in-progress,
 cancelling, atomic all-success-before-seal, source-owned CancelOpen, byte/field bounds, and
@@ -246,7 +501,7 @@ authorization until docs PR #386 is merged at that exact head and tree.
 The hard stop is immediately before FMV3-M4-01. Gateway work is not authorized. No gateway
 issue, branch, PR, import, or code change is authorized by this action. Repository creation,
 implementation issues, commits, pushes, reviews, and merges are authorized only for the
-ordered issue list above and remain subject to every dependency and gate."""
+ordered issue list above and remain subject to every direct dependency and gate."""
 # The amendment digest binds these normative status facts. Operational lifecycle fields
 # remain structurally validated below, but may advance without a new authorization anchor.
 AMENDMENT_STATUS_IMMUTABLE_FIELDS = (
@@ -276,7 +531,7 @@ EXPECTED_MILESTONE_ROWS = {
     "M2": [
         "M2",
         "M0",
-        "Modbusreg bootstrap, merged FMV3-M1-00, merged M1-06, external full-SHA canonical-main/PR/issue evidence, and exact docs R2 binding",
+        "Modbusreg bootstrap, merged FMV3-M1-00 and M1-06, live selector-authenticated producer TDD/review/artifact closure, and exact docs R2 binding",
         "Independent ledger adds claim_in_progress/cancelling, all runtime claims succeeded before seal, CancelOpen linearization, byte/field bounds, reserved non-wrapping terminal sequences, finite-positive limits and checked product; one-shot immutable Publish(); non-reconstructing reclamation; runtime/fixture trust; exact normalization/provenance/conformance",
         "M2-01 retains M1-00 and adds M1-05 corrective companion metadata; hosted RED/GREEN and fresh review are mandatory",
     ],
@@ -289,7 +544,7 @@ EXPECTED_CORRECTIVE_GATE_ROWS = [
     ],
     [
         "PG-OPAQUE-ACQUISITION-CONSUMER-PIN",
-        "FMV3-M1-06 merged after hosted RED/GREEN and fresh review; external JSON proves full merge SHA on canonical main plus exact PR/issue relationship",
+        "FMV3-M1-06 merged after live exact issue/PR/topology, RED/GREEN ci_local jobs, canonical-template review, fixed conformance report, and canonical-main proof",
         "FMV3-M2-01",
     ],
 ]
@@ -306,7 +561,7 @@ EXPECTED_CORRECTIVE_PHASE_GATES = [
         "kind": "dependency",
         "after_issues": ["FMV3-M1-06"],
         "before_issues": ["FMV3-M2-01"],
-        "requirement": "M2-01 cannot begin until M1-06 has merged and an external authorization-evidence JSON file supplies its exact full 40-character merge SHA plus canonical helianthus-modbus issue and PR numbers. Fixed GitHub API evidence must prove canonical-main ancestry, the exact merged PR, and its closed issue relationship; M1 hosted RED/GREEN, fresh independent review, and the exact docs R2 binding must also verify.",
+        "requirement": "M2-01 cannot begin until M1-06 has merged and bounded external selectors resolve live to its immutable marked/title issue, exact closing same-repository squash PR and canonical-main topology, bounded test-only RED ancestor with empty second diff page and exact-PR hosted checks-job failure at ./scripts/ci_local.sh after successful setup, exact-head GREEN app-bound required checks and checks-job success at ./scripts/ci_local.sh, eight exact-parent production-only mutants whose canonical patch digests are precommitted in the GREEN report and whose mapped tests fail only after same-SHA compile/no-tests success, official Codex canonical-template zero-inline review after mutations, two owner NO_FINDINGS process attestations after GREEN and mutations binding the fixed report blob/case/mutation digests, and the fixed-path closed conformance report binding every validator-pinned case to exact Go test/source blob/PASS, exact mutation patch digest, and exact production contract symbols. The exact docs R2 binding must also verify.",
     },
 ]
 EXPECTED_CORRECTIVE_PHASE_GATE_IDS = [
@@ -700,6 +955,155 @@ def github_issue_comments(repository: str, issue_number: int) -> list[dict[str, 
     raise ValidationError("GitHub issue comment pagination exceeds the fail-closed bound")
 
 
+def github_paginated_list(endpoint: str, label: str,
+                          *, maximum_pages: int = 100) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    separator = "&" if "?" in endpoint else "?"
+    for page in range(1, maximum_pages + 1):
+        value = github_api(f"{endpoint}{separator}per_page=100&page={page}")
+        require(isinstance(value, list), f"{label} response is invalid")
+        require(all(isinstance(item, dict) for item in value),
+                f"{label} contains an invalid row")
+        rows.extend(value)
+        if len(value) < 100:
+            return rows
+    raise ValidationError(f"{label} pagination exceeds the fail-closed bound")
+
+
+def github_paginated_object_rows(endpoint: str, row_key: str, label: str,
+                                 *, query: str = "",
+                                 maximum_pages: int = 100) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    expected_total: int | None = None
+    separator = "&" if "?" in endpoint else "?"
+    prefix = f"{query}&" if query else ""
+    for page in range(1, maximum_pages + 1):
+        value = github_api(
+            f"{endpoint}{separator}{prefix}per_page=100&page={page}"
+        )
+        page_rows = value.get(row_key) if isinstance(value, dict) else None
+        total = value.get("total_count") if isinstance(value, dict) else None
+        require(type(total) is int and total >= 0 and isinstance(page_rows, list),
+                f"{label} response is invalid")
+        require(all(isinstance(item, dict) for item in page_rows),
+                f"{label} contains an invalid row")
+        if expected_total is None:
+            expected_total = total
+            require(expected_total <= maximum_pages * 100,
+                    f"{label} exceeds the fail-closed row bound")
+        require(total == expected_total, f"{label} total_count changed during pagination")
+        rows.extend(page_rows)
+        require(len(rows) <= expected_total, f"{label} returned duplicate excess rows")
+        if len(page_rows) < 100:
+            require(len(rows) == expected_total,
+                    f"{label} pagination omitted rows")
+            return rows
+    raise ValidationError(f"{label} pagination exceeds the fail-closed bound")
+
+
+def github_latest_check_runs(repository: str, head_sha: str,
+                             label: str) -> list[dict[str, Any]]:
+    return github_paginated_object_rows(
+        f"repos/{repository}/commits/{head_sha}/check-runs",
+        "check_runs",
+        label,
+        query="filter=latest",
+    )
+
+
+CLOSING_ISSUES_QUERY = """
+query($owner: String!, $name: String!, $number: Int!, $cursor: String) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $number) {
+      closingIssuesReferences(first: 100, after: $cursor) {
+        nodes { number repository { nameWithOwner } }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}
+""".strip()
+
+
+def github_closing_issue_references(
+    repository: str,
+    pull_request_number: int,
+) -> set[tuple[str, int]]:
+    owner, name = repository.split("/", 1)
+    references: set[tuple[str, int]] = set()
+    cursor: str | None = None
+    for _page in range(100):
+        command = [
+            "gh", "api", "graphql",
+            "-f", f"query={CLOSING_ISSUES_QUERY}",
+            "-F", f"owner={owner}",
+            "-F", f"name={name}",
+            "-F", f"number={pull_request_number}",
+        ]
+        if cursor is not None:
+            command.extend(["-f", f"cursor={cursor}"])
+        result = subprocess.run(
+            command, check=True, capture_output=True, text=True,
+        )
+        value = json.loads(result.stdout)
+        connection = (
+            value.get("data", {}).get("repository", {})
+            .get("pullRequest", {}).get("closingIssuesReferences")
+            if isinstance(value, dict) else None
+        )
+        nodes = connection.get("nodes") if isinstance(connection, dict) else None
+        page_info = connection.get("pageInfo") if isinstance(connection, dict) else None
+        require(isinstance(nodes, list) and len(nodes) <= 100
+                and isinstance(page_info, dict)
+                and type(page_info.get("hasNextPage")) is bool,
+                "GitHub closingIssuesReferences response is invalid")
+        for node in nodes:
+            node_repository = (
+                node.get("repository", {}).get("nameWithOwner")
+                if isinstance(node, dict) else None
+            )
+            number = node.get("number") if isinstance(node, dict) else None
+            require(isinstance(node_repository, str)
+                    and type(number) is int and number > 0,
+                    "GitHub closingIssuesReferences contains an invalid row")
+            reference = (node_repository, number)
+            require(reference not in references,
+                    "GitHub closingIssuesReferences contains duplicate rows")
+            references.add(reference)
+        if not page_info["hasNextPage"]:
+            require(page_info.get("endCursor") is None
+                    or isinstance(page_info.get("endCursor"), str),
+                    "GitHub closingIssuesReferences terminal cursor is invalid")
+            return references
+        next_cursor = page_info.get("endCursor")
+        require(isinstance(next_cursor, str) and next_cursor
+                and next_cursor != cursor,
+                "GitHub closingIssuesReferences pagination cursor is invalid")
+        cursor = next_cursor
+    raise ValidationError(
+        "GitHub closingIssuesReferences pagination exceeds the fail-closed bound"
+    )
+
+
+def require_issue_closed_by_pull_request(
+    repository: str,
+    issue_number: int,
+    issue: dict[str, Any],
+    pull_request_number: int,
+    pull_request: dict[str, Any],
+    label: str,
+) -> None:
+    references = github_closing_issue_references(repository, pull_request_number)
+    require((repository, issue_number) in references,
+            f"{label} is absent from pull request closingIssuesReferences")
+    closed_at = parse_github_time(issue.get("closed_at"), f"{label} issue closed_at")
+    merged_at = parse_github_time(
+        pull_request.get("merged_at"), f"{label} pull request merged_at"
+    )
+    require(merged_at <= closed_at <= merged_at + timedelta(seconds=60),
+            f"{label} issue closure is not within the bounded post-merge window")
+
+
 def unique_json_object(text: str, label: str) -> dict[str, Any]:
     def build_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
         value: dict[str, Any] = {}
@@ -735,11 +1139,7 @@ def require_external_review_attestation(
         "external review attestation contract mismatch",
     )
     comments = github_issue_comments(PLAN_REPOSITORY, AMENDMENT_PR_NUMBER)
-    tagged = [
-        comment
-        for comment in comments
-        if EXTERNAL_REVIEW_ATTESTATION_TAG in str(comment.get("body", ""))
-    ]
+    tagged = [comment for comment in comments if EXTERNAL_REVIEW_ATTESTATION_TAG in str(comment.get("body", ""))]
     require(
         len(tagged) == 1
         and sum(
@@ -780,15 +1180,18 @@ def require_external_review_attestation(
         "head_sha",
         "head_tree_sha",
         "verdict",
-        "provider",
-        "fresh_context",
-        "reviewer_run_ids",
+        "review_process_attestation",
+        "workflow_run_id",
+        "official_review_id",
+        "owner_review_ids",
     }
     require(
         set(attestation) == expected_keys,
         "PR #91 review attestation schema keys mismatch",
     )
-    run_ids = attestation["reviewer_run_ids"]
+    workflow_run_id = attestation.get("workflow_run_id")
+    official_review_id = attestation.get("official_review_id")
+    owner_review_ids = attestation.get("owner_review_ids")
     require(
         attestation["schema"] == EXTERNAL_REVIEW_ATTESTATION_SCHEMA
         and attestation["repository"] == PLAN_REPOSITORY
@@ -797,24 +1200,20 @@ def require_external_review_attestation(
         and attestation["head_sha"] == head_sha
         and attestation["head_tree_sha"] == head_tree
         and attestation["verdict"] == "NO_FINDINGS"
-        and attestation["provider"] == "openai"
-        and attestation["fresh_context"] is True,
-        "PR #91 review attestation does not bind the exact reviewed head/tree and NO_FINDINGS",
+        and attestation["review_process_attestation"]
+        == "owner_attests_two_fresh_openai_contexts",
+        "PR #91 review attestation does not bind the exact reviewed head/tree, verdict, and owner-attested process",
     )
     require(
-        isinstance(run_ids, list)
-        and len(run_ids) >= 2
-        and len(run_ids) == len(set(run_ids))
-        and all(
-            isinstance(run_id, str)
-            and re.fullmatch(
-                r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-                run_id,
-            )
-            is not None
-            for run_id in run_ids
-        ),
-        "PR #91 review attestation requires at least two unique full OpenAI reviewer run IDs",
+        type(workflow_run_id) is int
+        and workflow_run_id > 0
+        and type(official_review_id) is int and official_review_id > 0
+        and isinstance(owner_review_ids, list)
+        and len(owner_review_ids) == 2
+        and len(owner_review_ids) == len(set(owner_review_ids))
+        and official_review_id not in owner_review_ids
+        and all(type(review_id) is int and review_id > 0 for review_id in owner_review_ids),
+        "PR #91 review aggregate requires one workflow run, one official review, and two distinct owner review IDs",
     )
     head_commit_time = head_commit.get("committer", {}).get("date")
     created_at = parse_github_time(comment.get("created_at"), "attestation created_at")
@@ -823,6 +1222,87 @@ def require_external_review_attestation(
         and created_at < parse_github_time(pr.get("merged_at"), "PR #91 merged_at"),
         "PR #91 review attestation must be created after the head commit and before mergedAt",
     )
+    workflow = github_api(f"repos/{PLAN_REPOSITORY}/actions/runs/{workflow_run_id}")
+    require(isinstance(workflow, dict), "PR #91 workflow run evidence is invalid")
+    pull_requests = workflow.get("pull_requests")
+    require(
+        workflow.get("id") == workflow_run_id
+        and workflow.get("workflow_id") == 244018027
+        and workflow.get("event") == "pull_request"
+        and workflow.get("status") == "completed"
+        and workflow.get("conclusion") == "success"
+        and workflow.get("head_sha") == head_sha
+        and workflow.get("path") == ".github/workflows/ci.yml"
+        and workflow.get("actor", {}).get("login") == anchor["authorized_issuer"]
+        and workflow.get("head_repository", {}).get("full_name") == PLAN_REPOSITORY
+        and isinstance(pull_requests, list)
+        and len(pull_requests) == 1
+        and isinstance(pull_requests[0], dict)
+        and pull_requests[0].get("number") == AMENDMENT_PR_NUMBER
+        and pull_requests[0].get("base", {}).get("repo", {}).get("url") == f"https://api.github.com/repos/{EXPECTED_PR_IDENTITY['base_repo']}"
+        and pull_requests[0].get("base", {}).get("ref") == EXPECTED_PR_IDENTITY["base_ref"]
+        and pull_requests[0].get("head", {}).get("repo", {}).get("url") == f"https://api.github.com/repos/{EXPECTED_PR_IDENTITY['head_repo']}"
+        and pull_requests[0].get("head", {}).get("ref") == EXPECTED_PR_IDENTITY["head_ref"]
+        and pull_requests[0].get("head", {}).get("sha") == head_sha,
+        "PR #91 workflow run does not prove exact live canonical PR head",
+    )
+    workflow_time = parse_github_time(workflow.get("updated_at"), "PR #91 workflow updated_at")
+    reviews = github_paginated_list(
+        f"repos/{PLAN_REPOSITORY}/pulls/{AMENDMENT_PR_NUMBER}/reviews",
+        "PR #91 native reviews",
+    )
+    by_id = {review.get("id"): review for review in reviews if isinstance(review, dict) and type(review.get("id")) is int}
+    require(len(by_id) == len({review.get("id") for review in reviews if isinstance(review, dict)}), "PR #91 native reviews have duplicate or invalid IDs")
+    official_review = by_id.get(official_review_id)
+    owner_reviews = [by_id.get(review_id) for review_id in owner_review_ids]
+    require(isinstance(official_review, dict) and all(isinstance(item, dict) for item in owner_reviews), "PR #91 aggregate references absent native reviews")
+    require(
+        official_review.get("user", {}).get("login") == "chatgpt-codex-connector[bot]"
+        and official_review.get("state") == "COMMENTED"
+        and official_review.get("commit_id") == head_sha
+        and official_review.get("body") == canonical_codex_review_body(head_sha),
+        "PR #91 official Codex review is not an exact-head submitted COMMENTED review",
+    )
+    inline = github_paginated_list(
+        f"repos/{PLAN_REPOSITORY}/pulls/{AMENDMENT_PR_NUMBER}/reviews/{official_review_id}/comments",
+        "PR #91 official Codex inline comments",
+    )
+    require(not inline, "PR #91 official Codex review has inline findings")
+    official_time = parse_github_time(official_review.get("submitted_at"), "official native review submitted_at")
+    require(official_time > workflow_time and created_at >= official_time, "PR #91 official Codex review timing is invalid")
+    owner_run_ids: list[str] = []
+    owner_output_hashes: list[str] = []
+    for evidence in owner_reviews:
+        assert isinstance(evidence, dict)
+        require(
+            evidence.get("user", {}).get("login") == anchor["authorized_issuer"]
+            and evidence.get("author_association") in anchor["allowed_author_associations"]
+            and evidence.get("state") == "COMMENTED"
+            and evidence.get("commit_id") == head_sha,
+            "PR #91 native review is not submitted, trusted, and bound to the exact head",
+        )
+        review = unique_json_object(str(evidence.get("body", "")), "PR #91 native review body")
+        require(
+            set(review) == {"schema", "repository", "pull_request", "head_sha", "head_tree_sha", "verdict", "attestation_kind", "review_process", "reviewer_run_reference", "output_digest_sha256"}
+            and review["schema"] == EXTERNAL_REVIEW_ATTESTATION_SCHEMA
+            and review["repository"] == PLAN_REPOSITORY
+            and review["pull_request"] == AMENDMENT_PR_NUMBER
+            and review["head_sha"] == head_sha
+            and review["head_tree_sha"] == head_tree
+            and review["verdict"] == "NO_FINDINGS"
+            and review["attestation_kind"] == "owner_process_attestation"
+            and review["review_process"] == "fresh_openai_context"
+            and isinstance(review["reviewer_run_reference"], str)
+            and re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", review["reviewer_run_reference"]) is not None
+            and isinstance(review["output_digest_sha256"], str)
+            and re.fullmatch(r"[0-9a-f]{64}", review["output_digest_sha256"]) is not None,
+            "PR #91 owner process attestation does not bind exact head/tree/process/NO_FINDINGS",
+        )
+        evidence_time = parse_github_time(evidence.get("submitted_at"), "native review submitted_at")
+        require(created_at >= evidence_time > workflow_time, "PR #91 aggregate or native review timing is invalid")
+        owner_run_ids.append(review["reviewer_run_reference"])
+        owner_output_hashes.append(review["output_digest_sha256"])
+    require(len(owner_run_ids) == len(set(owner_run_ids)) and len(owner_output_hashes) == len(set(owner_output_hashes)), "PR #91 owner process references and output digests must be unique")
 
 
 def require_authorization_pr_merged(
@@ -961,22 +1441,80 @@ def require_docs_candidate_pr_merged(
         and merge_commit["parents"][0].get("sha") == identity["base_sha"],
         "docs PR #386 squash merge topology or tree mismatch",
     )
+    docs_main = canonical_main_sha(DOCS_REPOSITORY)
+    compare = github_api(
+        f"repos/{DOCS_REPOSITORY}/compare/{pr['merge_commit_sha']}...{docs_main}"
+    )
+    require(
+        isinstance(compare, dict)
+        and compare.get("status") in {"ahead", "identical"}
+        and compare.get("merge_base_commit", {}).get("sha") == pr["merge_commit_sha"],
+        "docs PR #386 merge is not on dynamic canonical docs main",
+    )
+    protection = github_api(
+        f"repos/{DOCS_REPOSITORY}/branches/main/protection/required_status_checks"
+    )
+    docs_check_specs = live_required_check_specs(
+        protection, "docs PR #386 canonical main required-check policy"
+    )
+    check_runs = require_exact_head_checks(
+        DOCS_REPOSITORY,
+        binding["commit_sha"],
+        [{"context": name, "app_id": app_id} for name, app_id in docs_check_specs],
+        "docs PR #386",
+    )
+    reviews = github_paginated_list(
+        f"repos/{DOCS_REPOSITORY}/pulls/{binding['pr']}/reviews",
+        "docs PR #386 reviews",
+    )
+    codex_reviews = [
+        review for review in reviews if isinstance(review, dict)
+        and review.get("user", {}).get("login") == "chatgpt-codex-connector[bot]"
+        and review.get("state") == "COMMENTED"
+        and review.get("commit_id") == binding["commit_sha"]
+        and review.get("body") == canonical_codex_review_body(binding["commit_sha"])
+    ]
+    require(len(codex_reviews) == 1, "docs PR #386 requires one official Codex exact-head COMMENTED review")
+    codex_review = codex_reviews[0]
+    inline = github_paginated_list(
+        f"repos/{DOCS_REPOSITORY}/pulls/{binding['pr']}/reviews/{codex_review['id']}/comments",
+        "docs PR #386 official Codex inline comments",
+    )
+    require(not inline, "docs PR #386 official Codex review has inline findings")
+    checks_time = max(
+        parse_github_time(item.get("completed_at"), "docs required check completed_at")
+        for item in check_runs
+    )
+    owner_reviews = []
+    for review in reviews:
+        if not isinstance(review, dict) or review.get("user", {}).get("login") != anchor["authorized_issuer"]:
+            continue
+        if review.get("author_association") not in anchor["allowed_author_associations"] or review.get("state") != "COMMENTED" or review.get("commit_id") != binding["commit_sha"]:
+            continue
+        body = unique_json_object(str(review.get("body", "")), "docs owner review body")
+        require(
+            set(body) == {"schema", "repository", "pull_request", "head_sha", "head_tree_sha", "verdict", "attestation_kind", "review_process", "reviewer_run_reference", "output_digest_sha256"}
+            and body["schema"] == EXTERNAL_REVIEW_ATTESTATION_SCHEMA
+            and body["repository"] == DOCS_REPOSITORY and body["pull_request"] == binding["pr"]
+            and body["head_sha"] == binding["commit_sha"] and body["head_tree_sha"] == binding["commit_tree_sha"]
+            and body["verdict"] == "NO_FINDINGS"
+            and body["attestation_kind"] == "owner_process_attestation"
+            and body["review_process"] == "fresh_openai_context"
+            and isinstance(body["reviewer_run_reference"], str) and re.fullmatch(r"[0-9a-f-]{36}", body["reviewer_run_reference"])
+            and isinstance(body["output_digest_sha256"], str) and re.fullmatch(r"[0-9a-f]{64}", body["output_digest_sha256"]),
+            "docs PR #386 owner review is not structured owner-attested exact-head NO_FINDINGS process evidence",
+        )
+        require(parse_github_time(review.get("submitted_at"), "docs owner review submitted_at") > checks_time, "docs PR #386 owner reviews must follow successful CI")
+        owner_reviews.append((body["reviewer_run_reference"], body["output_digest_sha256"]))
+    require(len(owner_reviews) == 2 and len(set(owner_reviews)) == 2, "docs PR #386 requires two distinct owner COMMENTED process attestations")
 
 
 def load_issue_authorization_evidence(
     path_value: str | None,
     issue_id: str,
-) -> dict[str, Any] | None:
-    if issue_id != "FMV3-M2-01":
-        require(
-            path_value is None,
-            "--authorization-evidence is accepted only for FMV3-M2-01",
-        )
-        return None
-    require(
-        isinstance(path_value, str) and path_value,
-        "FMV3-M2-01 requires --authorization-evidence <external-json-file>",
-    )
+) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+    if path_value is None:
+        return [], None
     path = Path(path_value)
     require(
         path.is_absolute() and path.is_file() and not path.is_symlink(),
@@ -991,132 +1529,1027 @@ def load_issue_authorization_evidence(
         evidence_bytes.decode("utf-8"),
         "authorization evidence",
     )
-    require(
-        set(evidence) == {"schema", "authorization_issue", "producer"}
-        and evidence.get("schema") == AUTHORIZATION_EVIDENCE_SCHEMA
-        and evidence.get("authorization_issue") == "FMV3-M2-01",
-        "authorization evidence envelope mismatch",
-    )
+    expected_keys = {"schema", "authorization_issue", "dependencies"}
+    if issue_id == "FMV3-M2-01":
+        expected_keys.add("producer")
+    require(set(evidence) == expected_keys
+            and evidence.get("schema") == AUTHORIZATION_EVIDENCE_SCHEMA
+            and evidence.get("authorization_issue") == issue_id,
+            "authorization evidence envelope mismatch")
+    dependencies = evidence.get("dependencies")
+    require(isinstance(dependencies, list) and len(dependencies) <= 8,
+            "authorization evidence dependencies must be a bounded array")
+    certificate_keys = {
+        "plan_issue", "repository", "github_issue_number",
+        "github_pull_request_number", "issue_spec_sha256", "head_sha",
+        "head_tree_sha", "merge_sha", "required_checks",
+    }
+    for dependency in dependencies:
+        require(isinstance(dependency, dict) and set(dependency) == certificate_keys,
+                "dependency completion certificate schema mismatch")
+        require(isinstance(dependency["plan_issue"], str)
+                and re.fullmatch(r"FMV3-M[0-8]-\d{2}", dependency["plan_issue"])
+                and isinstance(dependency["repository"], str)
+                and dependency["repository"] in TARGET_REPOS
+                and type(dependency["github_issue_number"]) is int
+                and dependency["github_issue_number"] > 0
+                and type(dependency["github_pull_request_number"]) is int
+                and dependency["github_pull_request_number"] > 0,
+                "dependency completion certificate selector mismatch")
+        require(isinstance(dependency["issue_spec_sha256"], str)
+                and re.fullmatch(r"[0-9a-f]{64}", dependency["issue_spec_sha256"]),
+                "dependency completion certificate issue spec digest is invalid")
+        for key in ("head_sha", "head_tree_sha", "merge_sha"):
+            require(isinstance(dependency[key], str)
+                    and re.fullmatch(r"[0-9a-f]{40}", dependency[key]),
+                    f"dependency completion certificate {key} must be a full SHA")
+        checks = dependency["required_checks"]
+        require(isinstance(checks, list) and 0 < len(checks) <= 16
+                and all(isinstance(check, dict) for check in checks),
+                "dependency completion certificate required-check policy is invalid")
+        required_check_specs(checks, "dependency completion certificate required-check policy")
     producer = evidence.get("producer")
-    require(
-        isinstance(producer, dict)
-        and set(producer)
-        == {
-            "plan_issue",
-            "repository",
-            "github_issue_number",
-            "github_pull_request_number",
-            "merge_sha",
+    if issue_id == "FMV3-M2-01":
+        producer_keys = {
+            "plan_issue", "repository", "github_issue_number",
+            "github_pull_request_number", "merge_sha", "red_commit_sha",
+            "red_workflow_run_id", "green_workflow_run_id",
+            "mutation_runs", "official_review_id", "owner_review_ids",
         }
-        and producer.get("plan_issue") == "FMV3-M1-06"
-        and producer.get("repository") == MODBUS_REPOSITORY
-        and type(producer.get("github_issue_number")) is int
-        and producer["github_issue_number"] > 0
-        and type(producer.get("github_pull_request_number")) is int
-        and producer["github_pull_request_number"] > 0
-        and isinstance(producer.get("merge_sha"), str)
-        and re.fullmatch(r"[0-9a-f]{40}", producer["merge_sha"]) is not None,
-        "FMV3-M2-01 producer evidence schema mismatch",
+        require(isinstance(producer, dict)
+                and set(producer) == producer_keys
+                and producer.get("plan_issue") == "FMV3-M1-06"
+                and producer.get("repository") == MODBUS_REPOSITORY
+                and type(producer.get("github_issue_number")) is int and producer["github_issue_number"] > 0
+                and type(producer.get("github_pull_request_number")) is int and producer["github_pull_request_number"] > 0
+                and isinstance(producer.get("merge_sha"), str)
+                and re.fullmatch(r"[0-9a-f]{40}", producer["merge_sha"])
+                and isinstance(producer.get("red_commit_sha"), str)
+                and re.fullmatch(r"[0-9a-f]{40}", producer["red_commit_sha"])
+                and type(producer.get("red_workflow_run_id")) is int
+                and producer["red_workflow_run_id"] > 0
+                and type(producer.get("green_workflow_run_id")) is int
+                and producer["green_workflow_run_id"] > 0
+                and isinstance(producer.get("mutation_runs"), list)
+                and len(producer["mutation_runs"]) == len(M1_06_MUTATION_CASES)
+                and type(producer.get("official_review_id")) is int
+                and producer["official_review_id"] > 0
+                and isinstance(producer.get("owner_review_ids"), list)
+                and len(producer["owner_review_ids"]) == 2
+                and len(set(producer["owner_review_ids"])) == 2
+                and all(type(review_id) is int and review_id > 0
+                        for review_id in producer["owner_review_ids"]),
+                "FMV3-M2-01 producer evidence schema mismatch")
+        mutation_keys = {"case_id", "mutation_commit_sha", "workflow_run_id"}
+        mutation_ids: list[str] = []
+        mutation_commits: list[str] = []
+        mutation_runs: list[int] = []
+        for mutation in producer["mutation_runs"]:
+            require(isinstance(mutation, dict) and set(mutation) == mutation_keys
+                    and mutation.get("case_id") in M1_06_MUTATION_CASES
+                    and isinstance(mutation.get("mutation_commit_sha"), str)
+                    and re.fullmatch(r"[0-9a-f]{40}", mutation["mutation_commit_sha"])
+                    and type(mutation.get("workflow_run_id")) is int
+                    and mutation["workflow_run_id"] > 0,
+                    "FMV3-M2-01 mutation evidence selector schema mismatch")
+            mutation_ids.append(mutation["case_id"])
+            mutation_commits.append(mutation["mutation_commit_sha"])
+            mutation_runs.append(mutation["workflow_run_id"])
+        require(mutation_ids == list(M1_06_MUTATION_CASES)
+                and len(set(mutation_commits)) == len(mutation_commits)
+                and len(set(mutation_runs)) == len(mutation_runs),
+                "FMV3-M2-01 mutation evidence must be ordered and unique")
+    return dependencies, producer
+
+
+def required_check_specs(value: Any, label: str) -> list[tuple[str, int]]:
+    require(isinstance(value, list) and value, f"{label} must be a nonempty list")
+    specs: list[tuple[str, int]] = []
+    for item in value:
+        require(isinstance(item, dict) and set(item) == {"context", "app_id"},
+                f"{label} check entry schema mismatch")
+        context, app_id = item.get("context"), item.get("app_id")
+        require(isinstance(context, str) and 0 < len(context.encode("utf-8")) <= 256
+                and type(app_id) is int and app_id > 0,
+                f"{label} contains an invalid context or app_id")
+        specs.append((context, app_id))
+    require(len(specs) == len(set(specs)), f"{label} contains duplicate checks")
+    return specs
+
+
+def live_required_check_specs(protection: Any, label: str) -> list[tuple[str, int]]:
+    require(isinstance(protection, dict), f"{label} response is invalid")
+    checks = protection.get("checks")
+    require(isinstance(checks, list) and checks,
+            f"{label} app-bound checks are unavailable")
+    value: list[dict[str, Any]] = []
+    for check in checks:
+        require(isinstance(check, dict), f"{label} check entry is invalid")
+        value.append({"context": check.get("context"), "app_id": check.get("app_id")})
+    return required_check_specs(value, label)
+
+
+def require_exact_head_checks(repository: str, head_sha: str,
+                              expected: list[Any], label: str) -> list[dict[str, Any]]:
+    rows = github_latest_check_runs(repository, head_sha,
+                                    f"{label} exact-head check runs")
+    matched: list[dict[str, Any]] = []
+    for name, app_id in required_check_specs(expected, f"{label} required-check policy"):
+        matching = [row for row in rows if isinstance(row, dict)
+                    and row.get("name") == name
+                    and row.get("head_sha") == head_sha
+                    and isinstance(row.get("app"), dict)
+                    and row["app"].get("id") == app_id]
+        require(len(matching) == 1 and matching[0].get("status") == "completed"
+                and matching[0].get("conclusion") == "success",
+                f"{label} exact-head required check failed: {name}@{app_id}")
+        matched.append(matching[0])
+    return matched
+
+
+def issue_spec_projection(issue: dict[str, Any]) -> dict[str, Any]:
+    require(set(ISSUE_SPEC_FIELDS) <= set(issue),
+            "anchored issue is missing issue-spec fields")
+    return {key: issue[key] for key in ISSUE_SPEC_FIELDS}
+
+
+def issue_spec_digest(issue: dict[str, Any]) -> str:
+    return hashlib.sha256(json.dumps(
+        issue_spec_projection(issue), sort_keys=True, separators=(",", ":"),
+        ensure_ascii=True,
+    ).encode("ascii")).hexdigest()
+
+
+def issue_spec_marker(digest: str) -> str:
+    return f"<!-- {ISSUE_SPEC_MARKER_PREFIX}:{digest} -->"
+
+
+def issue_spec_title(issue: dict[str, Any]) -> str:
+    title = f"{issue['id']}: {issue['what']}"
+    require(len(title.encode("utf-8")) <= 256,
+            f"{issue['id']} anchored issue title exceeds GitHub bound")
+    return title
+
+
+def require_pull_request_completion(plan_issue: str, binding: dict[str, Any],
+                                    *, dynamic_policy: bool,
+                                    issue_spec: dict[str, Any] | None = None) -> None:
+    repository = binding["repository"]
+    issue_number = binding["github_issue_number"]
+    pr_number = binding["github_pull_request_number"]
+    merge_sha = binding["merge_sha"]
+    issue = github_api(f"repos/{repository}/issues/{issue_number}")
+    pr = github_api(f"repos/{repository}/pulls/{pr_number}")
+    head_commit = github_api(f"repos/{repository}/git/commits/{binding['head_sha']}")
+    merge_commit = github_api(f"repos/{repository}/git/commits/{merge_sha}")
+    main_sha = canonical_main_sha(repository)
+    compare = github_api(f"repos/{repository}/compare/{merge_sha}...{main_sha}")
+    timeline = github_paginated_list(
+        f"repos/{repository}/issues/{issue_number}/timeline",
+        f"dependency {plan_issue} issue timeline",
     )
-    return producer
+    label = f"dependency {plan_issue}"
+    if dynamic_policy:
+        require(isinstance(issue_spec, dict) and issue_spec.get("id") == plan_issue,
+                f"{label} anchored issue spec is absent")
+        expected_spec_digest = issue_spec_digest(issue_spec)
+        expected_title = issue_spec_title(issue_spec)
+        marker = issue_spec_marker(expected_spec_digest)
+        require(binding.get("issue_spec_sha256") == expected_spec_digest,
+                f"{label} certificate issue spec digest differs from anchor")
+    else:
+        expected_title = binding["issue_title"]
+        marker = None
+    require(isinstance(issue, dict) and issue.get("number") == issue_number
+            and issue.get("repository_url") == f"https://api.github.com/repos/{repository}"
+            and issue.get("state") == "closed" and not issue.get("pull_request")
+            and issue.get("title") == expected_title
+            and (marker is None or (
+                isinstance(issue.get("body"), str)
+                and issue["body"].count(marker) == 1
+            )),
+            f"{label} issue identity/title/closure mismatch")
+    require(isinstance(pr, dict) and pr.get("number") == pr_number
+            and pr.get("title") == (expected_title if dynamic_policy
+                                    else binding["pull_request_title"])
+            and pr.get("state") == "closed" and pr.get("merged") is True
+            and pr.get("merge_commit_sha") == merge_sha
+            and pr.get("head", {}).get("sha") == binding["head_sha"]
+            and pr.get("head", {}).get("repo", {}).get("full_name") == repository
+            and pr.get("base", {}).get("ref") == "main"
+            and pr.get("base", {}).get("repo", {}).get("full_name") == repository,
+            f"{label} wrong or unmerged issue/PR binding")
+    require(isinstance(pr.get("body"), str)
+            and re.search(rf"(?im)^\s*(?:[-*]\s*)?(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#{issue_number}\s*[.]?\s*$", pr["body"]),
+            f"{label} PR does not close the exact issue")
+    require_issue_closed_by_pull_request(
+        repository, issue_number, issue, pr_number, pr, label,
+    )
+    require(isinstance(head_commit, dict) and head_commit.get("sha") == binding["head_sha"]
+            and head_commit.get("tree", {}).get("sha") == binding["head_tree_sha"],
+            f"{label} head commit tree mismatch")
+    require(isinstance(merge_commit, dict) and merge_commit.get("sha") == merge_sha
+            and merge_commit.get("tree", {}).get("sha") == binding["head_tree_sha"]
+            and isinstance(merge_commit.get("parents"), list)
+            and len(merge_commit["parents"]) == 1
+            and merge_commit["parents"][0].get("sha") == pr.get("base", {}).get("sha"),
+            f"{label} squash tree/topology mismatch")
+    require(isinstance(compare, dict) and compare.get("status") in {"ahead", "identical"}
+            and compare.get("merge_base_commit", {}).get("sha") == merge_sha,
+            f"{label} merge is not on canonical main")
+    require(any(
+        isinstance(event, dict) and event.get("event") == "cross-referenced"
+        and event.get("source", {}).get("issue", {}).get("number") == pr_number
+        and event.get("source", {}).get("issue", {}).get("pull_request", {}).get("url")
+        == f"https://api.github.com/repos/{repository}/pulls/{pr_number}"
+        and event.get("source", {}).get("issue", {}).get("pull_request", {}).get("merged_at")
+        == pr.get("merged_at")
+        for event in timeline), f"{label} PR/issue timeline relation is absent")
+    checks = binding["required_checks"]
+    if dynamic_policy:
+        policy = github_api(f"repos/{repository}/branches/main/protection/required_status_checks")
+        live_policy = set(live_required_check_specs(policy, f"{label} live required-check policy"))
+        expected_policy = set(required_check_specs(checks, f"{label} certificate required-check policy"))
+        require(live_policy == expected_policy,
+                f"{label} required-check policy is stale or incomplete")
+    require_exact_head_checks(repository, binding["head_sha"], checks, label)
 
 
-def require_m1_06_producer_evidence(producer: dict[str, Any]) -> None:
-    merge_sha = producer["merge_sha"]
+def github_repository_identity(value: Any, repository: str) -> bool:
+    return isinstance(value, dict) and (
+        value.get("full_name") == repository
+        or value.get("url") == f"https://api.github.com/repos/{repository}"
+    )
+
+
+def decode_exact_github_blob(value: Any, sha: str, label: str,
+                             maximum_bytes: int) -> bytes:
+    require(isinstance(value, dict) and value.get("sha") == sha
+            and value.get("encoding") == "base64"
+            and type(value.get("size")) is int
+            and 0 < value["size"] <= maximum_bytes
+            and isinstance(value.get("content"), str),
+            f"{label} response is invalid")
+    encoded = re.sub(r"\s+", "", value["content"])
+    try:
+        blob = base64.b64decode(encoded, validate=True)
+    except (ValueError, base64.binascii.Error) as exc:
+        raise ValidationError(f"{label} is not valid base64") from exc
+    require(len(blob) == value["size"], f"{label} size mismatch")
+    git_blob_sha = hashlib.sha1(
+        f"blob {len(blob)}\0".encode("ascii") + blob,
+        usedforsecurity=False,
+    ).hexdigest()
+    require(git_blob_sha == sha, f"{label} content does not match its Git blob SHA")
+    return blob
+
+
+def require_m1_06_red_path(path: str) -> bool:
+    relative = safe_repository_path(path, "M1-06 RED diff path")
+    parts = relative.parts
+    return (
+        path in {"go.mod", "go.sum", M1_06_CONFORMANCE_REPORT_PATH}
+        or path.endswith("_test.go")
+        or "testdata" in parts
+        or "fixtures" in parts
+    )
+
+
+def go_code_projection(source: str) -> str:
+    """Preserve Go code positions while blanking comments and literals."""
+    projected = list(source)
+    index = 0
+    state = "normal"
+    escaped = False
+    while index < len(source):
+        char = source[index]
+        following = source[index + 1] if index + 1 < len(source) else ""
+        if state == "normal":
+            if char == "/" and following == "/":
+                projected[index] = projected[index + 1] = " "
+                state = "line_comment"
+                index += 2
+                continue
+            if char == "/" and following == "*":
+                projected[index] = projected[index + 1] = " "
+                state = "block_comment"
+                index += 2
+                continue
+            if char in {'"', "'", "`"}:
+                projected[index] = " "
+                state = {"\"": "string", "'": "rune", "`": "raw"}[char]
+                escaped = False
+        elif state == "line_comment":
+            if char == "\n":
+                state = "normal"
+            else:
+                projected[index] = " "
+        elif state == "block_comment":
+            projected[index] = " " if char != "\n" else "\n"
+            if char == "*" and following == "/":
+                projected[index + 1] = " "
+                state = "normal"
+                index += 2
+                continue
+        elif state == "raw":
+            projected[index] = " " if char != "\n" else "\n"
+            if char == "`":
+                state = "normal"
+        else:
+            projected[index] = " " if char != "\n" else "\n"
+            quote = '"' if state == "string" else "'"
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                state = "normal"
+        index += 1
+    require(state in {"normal", "line_comment"},
+            "M1-06 Go source contains an unterminated comment or literal")
+    return "".join(projected)
+
+
+def go_function_body(source: str, function_name: str) -> str:
+    projected = go_code_projection(source)
+    declaration = re.compile(
+        rf"(?m)^func {re.escape(function_name)}\(t \*testing\.T\) \{{"
+    )
+    matches = list(declaration.finditer(projected))
+    require(len(matches) == 1,
+            f"M1-06 conformance source must declare exact {function_name}(t *testing.T)")
+    start = matches[0].end() - 1
+    depth = 0
+    index = start
+    while index < len(projected):
+        char = projected[index]
+        if char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return projected[start + 1:index]
+        index += 1
+    raise ValidationError(f"M1-06 conformance test {function_name} has no closing brace")
+
+
+def require_m1_06_conformance_report(
+    repository: str,
+    head_tree_sha: str,
+) -> tuple[str, str, dict[str, str]]:
+    tree_value = github_api(
+        f"repos/{repository}/git/trees/{head_tree_sha}?recursive=1"
+    )
+    tree = tree_value.get("tree") if isinstance(tree_value, dict) else None
+    require(isinstance(tree_value, dict) and tree_value.get("sha") == head_tree_sha
+            and tree_value.get("truncated") is False and isinstance(tree, list)
+            and len(tree) <= 4096,
+            "M1-06 implementation tree response is invalid or truncated")
+    entries: dict[str, dict[str, Any]] = {}
+    for item in tree:
+        require(isinstance(item, dict) and isinstance(item.get("path"), str)
+                and item["path"] not in entries,
+                "M1-06 implementation tree contains an invalid or duplicate path")
+        entries[item["path"]] = item
+    report_entry = entries.get(M1_06_CONFORMANCE_REPORT_PATH)
+    require(isinstance(report_entry, dict)
+            and report_entry.get("type") == "blob"
+            and report_entry.get("mode") == "100644"
+            and isinstance(report_entry.get("sha"), str)
+            and re.fullmatch(r"[0-9a-f]{40}", report_entry["sha"]),
+            "M1-06 required conformance report is missing or not a regular committed blob")
+    report_blob = github_api(
+        f"repos/{repository}/git/blobs/{report_entry['sha']}"
+    )
+    report_bytes = decode_exact_github_blob(
+        report_blob, report_entry["sha"], "M1-06 conformance report", 65536
+    )
+    try:
+        report = unique_json_object(
+            report_bytes.decode("utf-8"), "M1-06 conformance report"
+        )
+    except UnicodeError as exc:
+        raise ValidationError("M1-06 conformance report is not UTF-8") from exc
+    require(set(report) == {
+        "schema", "plan_issue", "repository", "contract_id",
+        "case_digest", "production", "cases",
+    } and report.get("schema") == M1_06_CONFORMANCE_REPORT_SCHEMA
+            and report.get("plan_issue") == "FMV3-M1-06"
+            and report.get("repository") == repository
+            and report.get("contract_id") == "OPAQUE_RUNTIME_ACQUISITION_V1"
+            and report.get("case_digest") == M1_06_CONFORMANCE_CASE_DIGEST,
+            "M1-06 conformance report identity, digest, or closed schema mismatch")
+    production = report.get("production")
+    cases = report.get("cases")
+    require(isinstance(production, list) and 1 <= len(production) <= 8
+            and isinstance(cases, list)
+            and len(cases) == len(M1_06_CONFORMANCE_CASES),
+            "M1-06 conformance report production/case bounds mismatch")
+    blob_cache: dict[str, bytes] = {}
+    total_blob_bytes = 0
+
+    def source_blob(path: Any, blob_sha: Any, mode: Any, label: str) -> bytes:
+        nonlocal total_blob_bytes
+        require(isinstance(path, str) and 0 < len(path.encode("utf-8")) <= 256,
+                f"{label} path is invalid")
+        safe_repository_path(path, f"{label} path")
+        require(isinstance(blob_sha, str) and re.fullmatch(r"[0-9a-f]{40}", blob_sha)
+                and mode == "100644", f"{label} blob or mode is invalid")
+        tree_entry = entries.get(path)
+        require(isinstance(tree_entry, dict) and tree_entry.get("type") == "blob"
+                and tree_entry.get("mode") == mode and tree_entry.get("sha") == blob_sha,
+                f"{label} is missing or differs from the implementation tree")
+        if blob_sha not in blob_cache:
+            blob_cache[blob_sha] = decode_exact_github_blob(
+                github_api(f"repos/{repository}/git/blobs/{blob_sha}"),
+                blob_sha, label, 2 * 1024 * 1024,
+            )
+            total_blob_bytes += len(blob_cache[blob_sha])
+            require(total_blob_bytes <= 8 * 1024 * 1024,
+                    "M1-06 conformance source blobs exceed aggregate byte bound")
+        return blob_cache[blob_sha]
+
+    bound_symbols: list[str] = []
+    for item in production:
+        require(isinstance(item, dict)
+                and set(item) == {"path", "blob_sha", "mode", "symbols"}
+                and isinstance(item.get("symbols"), list)
+                and item["symbols"],
+                "M1-06 conformance production entry schema mismatch")
+        source = source_blob(item.get("path"), item.get("blob_sha"),
+                             item.get("mode"), "M1-06 production source")
+        try:
+            text = source.decode("utf-8")
+        except UnicodeError as exc:
+            raise ValidationError("M1-06 production source is not UTF-8") from exc
+        require(str(item["path"]).endswith(".go")
+                and not str(item["path"]).endswith("_test.go"),
+                "M1-06 production source must be a production Go file")
+        for symbol in item["symbols"]:
+            require(symbol in M1_06_PRODUCTION_SYMBOLS,
+                    "M1-06 production source reports an unknown contract symbol")
+            projected = go_code_projection(text)
+            declaration = (rf"(?m)^type\s+{re.escape(symbol)}\b"
+                           if symbol in {"OpaqueRuntimeCapability", "TerminalOutcome"}
+                           else rf"(?m)^func\s+(?:\([^\n)]*\)\s*)?{re.escape(symbol)}\s*\(")
+            require(re.search(declaration, projected) is not None,
+                    f"M1-06 production source lacks declared contract symbol: {symbol}")
+            bound_symbols.append(symbol)
+    require(tuple(bound_symbols) == M1_06_PRODUCTION_SYMBOLS,
+            "M1-06 production contract symbols are missing, reordered, or duplicated")
+
+    case_ids: list[str] = []
+    test_functions: set[str] = set()
+    mutation_patch_digests: dict[str, str] = {}
+    for item in cases:
+        require(isinstance(item, dict) and set(item) == {
+            "case_id", "test_function", "source_path", "source_blob_sha", "mode",
+            "status", "mutation_patch_sha256",
+        }, "M1-06 conformance case closed schema mismatch")
+        case_id = item.get("case_id")
+        mutation_patch_sha256 = item.get("mutation_patch_sha256")
+        require(case_id in M1_06_CONFORMANCE_CASES and item.get("status") == "PASS"
+                and isinstance(mutation_patch_sha256, str)
+                and re.fullmatch(r"[0-9a-f]{64}", mutation_patch_sha256),
+                "M1-06 conformance case ID or PASS status mismatch")
+        test_function, required_calls = M1_06_CONFORMANCE_CASES[case_id]
+        require(item.get("test_function") == test_function
+                and test_function not in test_functions
+                and isinstance(item.get("source_path"), str)
+                and item["source_path"].endswith("_test.go"),
+                "M1-06 conformance case test function/path mismatch")
+        source = source_blob(item.get("source_path"), item.get("source_blob_sha"),
+                             item.get("mode"), f"M1-06 conformance case {case_id}")
+        try:
+            text = source.decode("utf-8")
+        except UnicodeError as exc:
+            raise ValidationError(f"M1-06 conformance case {case_id} source is not UTF-8") from exc
+        body = go_function_body(text, test_function)
+        require(body.strip()
+                and re.search(r"\bt\.(?:Fatal|Fatalf|Error|Errorf|Fail|FailNow)\s*\(", body)
+                and all(re.search(rf"\b{re.escape(call)}\s*\(", body)
+                        for call in required_calls),
+                f"M1-06 conformance case {case_id} is empty, assertion-free, or semantic no-op")
+        case_ids.append(case_id)
+        test_functions.add(test_function)
+        mutation_patch_digests[case_id] = mutation_patch_sha256
+    require(case_ids == list(M1_06_CONFORMANCE_CASES),
+            "M1-06 conformance cases are missing, extra, or reordered")
+    return (
+        report_entry["sha"],
+        M1_06_CONFORMANCE_CASE_DIGEST,
+        mutation_patch_digests,
+    )
+
+
+def require_m1_06_ci_local_job(repository: str, run_id: int, head_sha: str,
+                               *, expected_job_conclusion: str,
+                               expected_ci_conclusion: str) -> None:
+    jobs = github_paginated_object_rows(
+        f"repos/{repository}/actions/runs/{run_id}/jobs",
+        "jobs",
+        "M1-06 workflow jobs",
+    )
+    matching = [job for job in jobs if isinstance(job, dict)
+                and job.get("name") == M1_06_CI_JOB_NAME]
+    require(len(matching) == 1 and matching[0].get("head_sha") == head_sha
+            and matching[0].get("status") == "completed"
+            and matching[0].get("conclusion") == expected_job_conclusion,
+            "M1-06 exact checks job identity, head, or conclusion mismatch")
+    steps = matching[0].get("steps")
+    require(isinstance(steps, list) and 2 <= len(steps) <= 64,
+            "M1-06 checks job steps are invalid or unbounded")
+    setup = [step for step in steps if isinstance(step, dict)
+             and step.get("name") == M1_06_SETUP_STEP_NAME]
+    ci_local = [step for step in steps if isinstance(step, dict)
+                and step.get("name") == M1_06_CI_STEP_NAME]
+    require(len(setup) == 1 and setup[0].get("status") == "completed"
+            and setup[0].get("conclusion") == "success"
+            and type(setup[0].get("number")) is int
+            and len(ci_local) == 1 and ci_local[0].get("status") == "completed"
+            and ci_local[0].get("conclusion") == expected_ci_conclusion
+            and type(ci_local[0].get("number")) is int
+            and setup[0]["number"] < ci_local[0]["number"],
+            "M1-06 checks job must run ci_local after successful setup with exact outcome")
+
+
+def require_m1_06_mutation_evidence(
+    anchor: dict[str, Any],
+    repository: str,
+    head_sha: str,
+    mutations: list[dict[str, Any]],
+    expected_patch_digests: dict[str, str],
+) -> tuple[str, datetime]:
+    require(set(expected_patch_digests) == set(M1_06_MUTATION_CASES),
+            "M1-06 mutation patch digest set differs from closed report")
+    latest_time: datetime | None = None
+    for mutation in mutations:
+        case_id = mutation["case_id"]
+        commit_sha = mutation["mutation_commit_sha"]
+        run_id = mutation["workflow_run_id"]
+        commit = github_api(f"repos/{repository}/git/commits/{commit_sha}")
+        require(isinstance(commit, dict) and commit.get("sha") == commit_sha
+                and isinstance(commit.get("parents"), list)
+                and len(commit["parents"]) == 1
+                and commit["parents"][0].get("sha") == head_sha,
+                f"M1-06 mutation {case_id} is not an exact child of GREEN head")
+        diff = github_api(f"repos/{repository}/commits/{commit_sha}?per_page=65&page=1")
+        diff_page_2 = github_api(
+            f"repos/{repository}/commits/{commit_sha}?per_page=65&page=2"
+        )
+        files = diff.get("files") if isinstance(diff, dict) else None
+        require(isinstance(diff, dict) and diff.get("sha") == commit_sha
+                and isinstance(files, list) and 0 < len(files) <= 8
+                and isinstance(diff_page_2, dict)
+                and diff_page_2.get("sha") == commit_sha
+                and diff_page_2.get("files") == [],
+                f"M1-06 mutation {case_id} diff is invalid or unbounded")
+        paths: set[str] = set()
+        patch_projection: list[dict[str, str]] = []
+        for item in files:
+            path = item.get("filename") if isinstance(item, dict) else None
+            patch = item.get("patch") if isinstance(item, dict) else None
+            require(isinstance(path, str) and path not in paths
+                    and path.endswith(".go") and not path.endswith("_test.go")
+                    and item.get("status") == "modified"
+                    and type(item.get("changes")) is int
+                    and 0 < item["changes"] <= 128
+                    and isinstance(patch, str)
+                    and 0 < len(patch.encode("utf-8")) <= 65536
+                    and "\x00" not in patch,
+                    f"M1-06 mutation {case_id} must be a bounded production-Go-only diff")
+            paths.add(path)
+            patch_projection.append({
+                "filename": path,
+                "status": "modified",
+                "patch": patch,
+            })
+        patch_digest = hashlib.sha256(json.dumps(
+            sorted(patch_projection, key=lambda item: item["filename"]),
+            sort_keys=True, separators=(",", ":"), ensure_ascii=True,
+        ).encode("ascii")).hexdigest()
+        require(patch_digest == expected_patch_digests[case_id],
+                f"M1-06 mutation {case_id} patch differs from closed GREEN report")
+        run = github_api(f"repos/{repository}/actions/runs/{run_id}")
+        require(isinstance(run, dict) and run.get("id") == run_id
+                and run.get("event") == "workflow_dispatch"
+                and run.get("status") == "completed"
+                and run.get("conclusion") == "failure"
+                and run.get("head_sha") == commit_sha
+                and run.get("path") == M1_06_MUTATION_WORKFLOW_PATH
+                and run.get("actor", {}).get("login") == anchor["authorized_issuer"]
+                and github_repository_identity(run.get("head_repository"), repository),
+                f"M1-06 mutation {case_id} run is not exact-SHA hosted failure")
+        run_url = f"https://github.com/{repository}/actions/runs/{run_id}"
+        check_name = f"mutation/{case_id}"
+        checks = github_latest_check_runs(
+            repository, commit_sha, f"M1-06 mutation {case_id} check runs"
+        )
+        selected_checks = [item for item in checks
+                           if item.get("name") == check_name
+                           and isinstance(item.get("app"), dict)
+                           and item["app"].get("id") == GITHUB_ACTIONS_APP_ID]
+        require(len(selected_checks) == 1
+                and selected_checks[0].get("head_sha") == commit_sha
+                and selected_checks[0].get("status") == "completed"
+                and selected_checks[0].get("conclusion") == "failure"
+                and isinstance(selected_checks[0].get("details_url"), str)
+                and (selected_checks[0]["details_url"] == run_url
+                     or selected_checks[0]["details_url"].startswith(run_url + "/")),
+                f"M1-06 mutation {case_id} check is not exact-App exact-run failure")
+        jobs = github_paginated_object_rows(
+            f"repos/{repository}/actions/runs/{run_id}/jobs",
+            "jobs",
+            f"M1-06 mutation {case_id} jobs",
+        )
+        selected_jobs = [job for job in jobs if job.get("name") == check_name]
+        require(len(selected_jobs) == 1
+                and selected_jobs[0].get("head_sha") == commit_sha
+                and selected_jobs[0].get("status") == "completed"
+                and selected_jobs[0].get("conclusion") == "failure",
+                f"M1-06 mutation {case_id} job is not exact-SHA failure")
+        steps = selected_jobs[0].get("steps")
+        require(isinstance(steps, list) and 3 <= len(steps) <= 64,
+                f"M1-06 mutation {case_id} job steps are invalid")
+        setup = [step for step in steps if isinstance(step, dict)
+                 and step.get("name") == M1_06_SETUP_STEP_NAME]
+        compile_step = [step for step in steps if isinstance(step, dict)
+                        and step.get("name") == M1_06_MUTATION_COMPILE_STEP_NAME]
+        test_step = [step for step in steps if isinstance(step, dict)
+                     and step.get("name") == M1_06_MUTATION_CASES[case_id]]
+        require(len(setup) == 1 and setup[0].get("conclusion") == "success"
+                and len(compile_step) == 1
+                and compile_step[0].get("status") == "completed"
+                and compile_step[0].get("conclusion") == "success"
+                and len(test_step) == 1 and test_step[0].get("status") == "completed"
+                and test_step[0].get("conclusion") == "failure"
+                and type(setup[0].get("number")) is int
+                and type(compile_step[0].get("number")) is int
+                and type(test_step[0].get("number")) is int
+                and setup[0]["number"] < compile_step[0]["number"]
+                < test_step[0]["number"],
+                f"M1-06 mutation {case_id} did not compile before failing its exact mapped test")
+        run_time = parse_github_time(run.get("updated_at"),
+                                     f"M1-06 mutation {case_id} updated_at")
+        latest_time = run_time if latest_time is None else max(latest_time, run_time)
+    digest = hashlib.sha256(json.dumps(
+        mutations, sort_keys=True, separators=(",", ":"),
+    ).encode("ascii")).hexdigest()
+    assert latest_time is not None
+    return digest, latest_time
+
+
+def require_m1_06_producer_evidence(anchor: dict[str, Any],
+                                    producer: dict[str, Any],
+                                    dependency: dict[str, Any]) -> None:
+    repository = MODBUS_REPOSITORY
     issue_number = producer["github_issue_number"]
     pr_number = producer["github_pull_request_number"]
-    main_sha = canonical_main_sha(MODBUS_REPOSITORY)
-    issue = github_api(f"repos/{MODBUS_REPOSITORY}/issues/{issue_number}")
-    pr = github_api(f"repos/{MODBUS_REPOSITORY}/pulls/{pr_number}")
-    merge_commit = github_api(f"repos/{MODBUS_REPOSITORY}/git/commits/{merge_sha}")
-    compare = github_api(
-        f"repos/{MODBUS_REPOSITORY}/compare/{merge_sha}...{main_sha}"
+    head_sha = dependency["head_sha"]
+    head_tree_sha = dependency["head_tree_sha"]
+    merge_sha = producer["merge_sha"]
+    red_sha = producer["red_commit_sha"]
+    issue = github_api(f"repos/{repository}/issues/{issue_number}")
+    pr = github_api(f"repos/{repository}/pulls/{pr_number}")
+    head_commit = github_api(f"repos/{repository}/git/commits/{head_sha}")
+    merge_commit = github_api(f"repos/{repository}/git/commits/{merge_sha}")
+    require(isinstance(issue, dict) and issue.get("number") == issue_number
+            and issue.get("repository_url") == f"https://api.github.com/repos/{repository}"
+            and issue.get("title") == M1_06_PRODUCER_ISSUE_TITLE
+            and issue.get("state") == "closed" and not issue.get("pull_request")
+            and isinstance(issue.get("body"), str)
+            and issue["body"].count(M1_06_PRODUCER_ISSUE_MARKER) == 1,
+            "M1-06 producer issue immutable marker/title/identity mismatch")
+    require(isinstance(pr, dict) and pr.get("number") == pr_number
+            and pr.get("title") == M1_06_PRODUCER_PULL_REQUEST_TITLE
+            and pr.get("merged") is True and pr.get("state") == "closed"
+            and pr.get("merge_commit_sha") == merge_sha
+            and pr.get("head", {}).get("sha") == head_sha
+            and github_repository_identity(pr.get("head", {}).get("repo"), repository)
+            and isinstance(pr.get("head", {}).get("ref"), str)
+            and re.fullmatch(rf"issue/{issue_number}-[a-z0-9]+(?:-[a-z0-9]+)*",
+                             pr["head"]["ref"])
+            and pr.get("base", {}).get("ref") == "main"
+            and github_repository_identity(pr.get("base", {}).get("repo"), repository),
+            "M1-06 producer exact closing PR or canonical base/head mismatch")
+    require(isinstance(head_commit, dict) and head_commit.get("sha") == head_sha
+            and head_commit.get("tree", {}).get("sha") == head_tree_sha
+            and isinstance(merge_commit, dict) and merge_commit.get("sha") == merge_sha
+            and merge_commit.get("tree", {}).get("sha") == head_tree_sha
+            and isinstance(merge_commit.get("parents"), list)
+            and len(merge_commit["parents"]) == 1
+            and merge_commit["parents"][0].get("sha") == pr.get("base", {}).get("sha"),
+            "M1-06 reviewed implementation head/squash tree or base topology mismatch")
+
+    red_commit = github_api(f"repos/{repository}/git/commits/{red_sha}")
+    red_diff = github_api(
+        f"repos/{repository}/commits/{red_sha}?per_page=65&page=1"
     )
-    timeline = github_api(
-        f"repos/{MODBUS_REPOSITORY}/issues/{issue_number}/timeline?per_page=100"
+    red_diff_page_2 = github_api(
+        f"repos/{repository}/commits/{red_sha}?per_page=65&page=2"
     )
-    require(
-        isinstance(issue, dict)
-        and issue.get("number") == issue_number
-        and issue.get("repository_url")
-        == f"https://api.github.com/repos/{MODBUS_REPOSITORY}"
-        and issue.get("state") == "closed"
-        and not issue.get("pull_request")
-        and isinstance(issue.get("title"), str)
-        and issue["title"].startswith("FMV3-M1-06"),
-        "M1-06 producer issue identity or closure mismatch",
+    red_compare = github_api(f"repos/{repository}/compare/{red_sha}...{head_sha}")
+    require(isinstance(red_commit, dict) and red_commit.get("sha") == red_sha
+            and isinstance(red_commit.get("parents"), list)
+            and len(red_commit["parents"]) == 1,
+            "M1-06 RED commit identity/topology mismatch")
+    require(isinstance(red_compare, dict) and red_compare.get("status") == "ahead"
+            and red_compare.get("merge_base_commit", {}).get("sha") == red_sha,
+            "M1-06 test-only RED commit is not an ancestor of the implementation head")
+    files = red_diff.get("files") if isinstance(red_diff, dict) else None
+    require(isinstance(red_diff, dict) and red_diff.get("sha") == red_sha
+            and isinstance(files, list) and 0 < len(files) <= 64,
+            "M1-06 RED commit diff response is invalid or outside bounds")
+    require(isinstance(red_diff_page_2, dict)
+            and red_diff_page_2.get("sha") == red_sha
+            and red_diff_page_2.get("files") == [],
+            "M1-06 RED commit diff page 2 must be empty")
+    red_paths: set[str] = set()
+    has_test = False
+    for item in files:
+        require(isinstance(item, dict) and isinstance(item.get("filename"), str)
+                and item["filename"] not in red_paths
+                and item.get("status") in {"added", "modified"}
+                and type(item.get("changes")) is int
+                and 0 < item["changes"] <= 10000
+                and require_m1_06_red_path(item["filename"]),
+                "M1-06 RED commit contains a non-test, unbounded, or invalid diff path")
+        red_paths.add(item["filename"])
+        has_test = has_test or item["filename"].endswith("_test.go")
+    require(has_test, "M1-06 RED commit must add or modify at least one Go test")
+
+    red_run_id = producer["red_workflow_run_id"]
+    red_run = github_api(f"repos/{repository}/actions/runs/{red_run_id}")
+    run_prs = red_run.get("pull_requests") if isinstance(red_run, dict) else None
+    require(isinstance(red_run, dict) and red_run.get("id") == red_run_id
+            and red_run.get("event") == "pull_request"
+            and red_run.get("status") == "completed"
+            and red_run.get("conclusion") == "failure"
+            and red_run.get("head_sha") == red_sha
+            and github_repository_identity(red_run.get("head_repository"), repository)
+            and isinstance(run_prs, list) and len(run_prs) == 1
+            and run_prs[0].get("number") == pr_number
+            and run_prs[0].get("base", {}).get("ref") == "main"
+            and github_repository_identity(run_prs[0].get("base", {}).get("repo"), repository)
+            and run_prs[0].get("head", {}).get("sha") == red_sha
+            and run_prs[0].get("head", {}).get("ref") == pr.get("head", {}).get("ref")
+            and github_repository_identity(run_prs[0].get("head", {}).get("repo"), repository),
+            "M1-06 hosted RED run did not fail on the exact RED SHA and PR")
+    red_checks = github_latest_check_runs(
+        repository, red_sha, "M1-06 hosted RED check runs"
     )
-    require(
-        isinstance(pr, dict)
-        and pr.get("number") == pr_number
-        and pr.get("state") == "closed"
-        and pr.get("merged") is True
-        and pr.get("merge_commit_sha") == merge_sha
-        and pr.get("base", {}).get("ref") == "main"
-        and pr.get("base", {}).get("repo", {}).get("full_name")
-        == MODBUS_REPOSITORY
-        and pr.get("head", {}).get("repo", {}).get("full_name")
-        == MODBUS_REPOSITORY,
-        "M1-06 producer PR identity or merge SHA mismatch",
+    matching_red_checks = [item for item in red_checks if isinstance(item, dict)
+                           and item.get("name") == M1_06_RED_REQUIRED_CHECK]
+    require(len(matching_red_checks) == 1, "M1-06 exact RED required check is missing or ambiguous")
+    red_check = matching_red_checks[0]
+    red_check_prs = red_check.get("pull_requests")
+    run_url = f"https://github.com/{repository}/actions/runs/{red_run_id}"
+    require(red_check.get("head_sha") == red_sha
+            and red_check.get("status") == "completed"
+            and red_check.get("conclusion") == "failure"
+            and isinstance(red_check.get("details_url"), str)
+            and (red_check["details_url"] == run_url
+                 or red_check["details_url"].startswith(run_url + "/"))
+            and isinstance(red_check_prs, list) and len(red_check_prs) == 1
+            and red_check_prs[0].get("number") == pr_number
+            and red_check_prs[0].get("head", {}).get("sha") == red_sha,
+            "M1-06 hosted RED check is not a failing exact-SHA exact-PR check")
+    require_m1_06_ci_local_job(
+        repository, red_run_id, red_sha,
+        expected_job_conclusion="failure", expected_ci_conclusion="failure",
     )
-    require(
-        isinstance(pr.get("body"), str)
-        and re.search(
-            rf"(?im)^\s*(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#{issue_number}\s*[.]?\s*$",
-            pr["body"],
+
+    green_rows = require_exact_head_checks(
+        repository, head_sha, dependency["required_checks"], "M1-06 hosted GREEN"
+    )
+    green_completed_at = max(parse_github_time(
+        item.get("completed_at"), f"M1-06 GREEN {item.get('name')} completed_at"
+    ) for item in green_rows)
+    green_run_id = producer["green_workflow_run_id"]
+    green_run = github_api(f"repos/{repository}/actions/runs/{green_run_id}")
+    green_prs = green_run.get("pull_requests") if isinstance(green_run, dict) else None
+    require(isinstance(green_run, dict) and green_run.get("id") == green_run_id
+            and green_run.get("event") == "pull_request"
+            and green_run.get("status") == "completed"
+            and green_run.get("conclusion") == "success"
+            and green_run.get("head_sha") == head_sha
+            and github_repository_identity(green_run.get("head_repository"), repository)
+            and isinstance(green_prs, list) and len(green_prs) == 1
+            and green_prs[0].get("number") == pr_number
+            and green_prs[0].get("base", {}).get("ref") == "main"
+            and github_repository_identity(green_prs[0].get("base", {}).get("repo"), repository)
+            and green_prs[0].get("head", {}).get("sha") == head_sha
+            and green_prs[0].get("head", {}).get("ref") == pr.get("head", {}).get("ref")
+            and github_repository_identity(green_prs[0].get("head", {}).get("repo"), repository),
+            "M1-06 hosted GREEN run is not exact-head exact-PR success")
+    green_run_url = f"https://github.com/{repository}/actions/runs/{green_run_id}"
+    green_check_rows = {
+        item.get("id"): item for item in green_rows
+        if item.get("name") == M1_06_RED_REQUIRED_CHECK
+        and type(item.get("id")) is int
+    }
+    require(len(green_check_rows) == 1
+            and isinstance(next(iter(green_check_rows.values())).get("details_url"), str)
+            and (next(iter(green_check_rows.values()))["details_url"] == green_run_url
+                 or next(iter(green_check_rows.values()))["details_url"].startswith(green_run_url + "/")),
+            "M1-06 GREEN checks check-run is not bound to the selected GREEN run")
+    require_m1_06_ci_local_job(
+        repository, green_run_id, head_sha,
+        expected_job_conclusion="success", expected_ci_conclusion="success",
+    )
+    report_blob_sha, case_digest, mutation_patch_digests = (
+        require_m1_06_conformance_report(
+        repository, head_tree_sha
         )
-        is not None,
-        "M1-06 producer PR does not close the supplied issue",
     )
-    require(
-        parse_github_time(issue.get("closed_at"), "M1-06 issue closed_at")
-        >= parse_github_time(pr.get("merged_at"), "M1-06 PR merged_at"),
-        "M1-06 producer issue closed before the supplied PR merged",
+    mutation_digest, mutations_completed_at = require_m1_06_mutation_evidence(
+        anchor, repository, head_sha, producer["mutation_runs"],
+        mutation_patch_digests,
     )
-    require(
-        isinstance(merge_commit, dict)
-        and merge_commit.get("sha") == merge_sha
-        and isinstance(merge_commit.get("parents"), list)
-        and len(merge_commit["parents"]) == 1,
-        "M1-06 producer merge commit is not one exact squash commit",
+    review_not_before = max(green_completed_at, mutations_completed_at)
+
+    reviews = github_paginated_list(
+        f"repos/{repository}/pulls/{pr_number}/reviews",
+        "M1-06 producer reviews",
     )
-    require(
-        isinstance(compare, dict)
-        and compare.get("status") in {"ahead", "identical"}
-        and compare.get("merge_base_commit", {}).get("sha") == merge_sha,
-        "M1-06 producer merge SHA is not on canonical helianthus-modbus main",
+    official = [review for review in reviews if isinstance(review, dict)
+                and review.get("id") == producer["official_review_id"]]
+    require(len(official) == 1
+            and official[0].get("user", {}).get("login") == "chatgpt-codex-connector[bot]"
+            and official[0].get("state") == "COMMENTED"
+            and official[0].get("commit_id") == head_sha
+            and official[0].get("body") == canonical_codex_review_body(head_sha)
+            and parse_github_time(official[0].get("submitted_at"),
+                                  "M1-06 official Codex submitted_at") > review_not_before,
+            "M1-06 official Codex exact-head review is missing, stale, or not after GREEN and mutation evidence")
+    inline = github_paginated_list(
+        f"repos/{repository}/pulls/{pr_number}/reviews/{producer['official_review_id']}/comments",
+        "M1-06 official Codex inline comments",
     )
-    require(isinstance(timeline, list), "M1-06 producer issue timeline is invalid")
-    require(
-        any(
-            isinstance(event, dict)
-            and event.get("event") == "cross-referenced"
+    require(not inline, "M1-06 official Codex exact-head review has inline findings")
+    owner_reviews: list[tuple[str, str]] = []
+    for review_id in producer["owner_review_ids"]:
+        selected = [review for review in reviews if isinstance(review, dict)
+                    and review.get("id") == review_id]
+        require(len(selected) == 1, "M1-06 owner review selector is missing or ambiguous")
+        review = selected[0]
+        body = unique_json_object(str(review.get("body", "")), "M1-06 owner review body")
+        require(review.get("user", {}).get("login") == anchor["authorized_issuer"]
+                and review.get("author_association") in anchor["allowed_author_associations"]
+                and review.get("state") == "COMMENTED"
+                and review.get("commit_id") == head_sha
+                and parse_github_time(review.get("submitted_at"),
+                                      "M1-06 owner review submitted_at") > review_not_before
+                and set(body) == {
+                    "schema", "repository", "pull_request", "plan_issue",
+                    "red_commit_sha", "head_sha", "head_tree_sha", "verdict",
+                    "attestation_kind", "review_process", "reviewer_run_reference",
+                    "output_digest_sha256",
+                    "conformance_report_blob_sha", "conformance_case_digest",
+                    "mutation_evidence_sha256",
+                }
+                and body.get("schema") == M1_06_OWNER_REVIEW_SCHEMA
+                and body.get("repository") == repository
+                and body.get("pull_request") == pr_number
+                and body.get("plan_issue") == "FMV3-M1-06"
+                and body.get("red_commit_sha") == red_sha
+                and body.get("head_sha") == head_sha
+                and body.get("head_tree_sha") == head_tree_sha
+                and body.get("conformance_report_blob_sha") == report_blob_sha
+                and body.get("conformance_case_digest") == case_digest
+                and body.get("mutation_evidence_sha256") == mutation_digest
+                and body.get("verdict") == "NO_FINDINGS"
+                and body.get("attestation_kind") == "owner_process_attestation"
+                and body.get("review_process") == "fresh_openai_context"
+                and isinstance(body.get("reviewer_run_reference"), str)
+                and re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", body["reviewer_run_reference"])
+                and isinstance(body.get("output_digest_sha256"), str)
+                and re.fullmatch(r"[0-9a-f]{64}", body["output_digest_sha256"]),
+                "M1-06 owner review is not structured owner-attested exact-head NO_FINDINGS process evidence after GREEN and mutations")
+        owner_reviews.append((body["reviewer_run_reference"], body["output_digest_sha256"]))
+    require(len({run_id for run_id, _ in owner_reviews}) == 2
+            and len({output for _, output in owner_reviews}) == 2,
+            "M1-06 requires two distinct owner fresh-review runs and outputs")
+
+
+def require_static_dependency_completion(issue_id: str, binding: dict[str, Any]) -> None:
+    if binding.get("kind") == "docs_candidate_completion":
+        repository = binding["repository"]
+        issue_number = binding["github_issue_number"]
+        pr_number = binding["github_pull_request_number"]
+        issue = github_api(f"repos/{repository}/issues/{issue_number}")
+        pr = github_api(f"repos/{repository}/pulls/{pr_number}")
+        timeline = github_paginated_list(
+            f"repos/{repository}/issues/{issue_number}/timeline",
+            "FMV3-M1-05 docs issue timeline",
+        )
+        require(isinstance(issue, dict) and issue.get("number") == issue_number
+                and issue.get("repository_url") == f"https://api.github.com/repos/{repository}"
+                and issue.get("title") == binding["issue_title"]
+                and issue.get("state") == "closed" and not issue.get("pull_request"),
+                "FMV3-M1-05 docs issue #385 identity/title/closure mismatch")
+        require(isinstance(pr, dict) and pr.get("number") == pr_number
+                and pr.get("title") == binding["pull_request_title"]
+                and pr.get("state") == "closed" and pr.get("merged") is True
+                and pr.get("base", {}).get("ref") == "main"
+                and github_repository_identity(pr.get("base", {}).get("repo"), repository)
+                and github_repository_identity(pr.get("head", {}).get("repo"), repository),
+                "FMV3-M1-05 docs closing PR #386 identity mismatch")
+        require(isinstance(pr.get("body"), str)
+                and re.search(r"(?im)^\s*(?:[-*]\s*)?(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#385\s*[.]?\s*$", pr["body"]),
+                "FMV3-M1-05 docs PR #386 does not close exact issue #385")
+        require_issue_closed_by_pull_request(
+            repository, issue_number, issue, pr_number, pr, "FMV3-M1-05",
+        )
+        require(any(
+            isinstance(event, dict) and event.get("event") == "cross-referenced"
             and event.get("source", {}).get("issue", {}).get("number") == pr_number
-            and event.get("source", {})
-            .get("issue", {})
-            .get("pull_request", {})
-            .get("url")
-            == f"https://api.github.com/repos/{MODBUS_REPOSITORY}/pulls/{pr_number}"
-            for event in timeline
-        ),
-        "M1-06 producer PR/issue cross-reference is absent",
-    )
+            and event.get("source", {}).get("issue", {}).get("pull_request", {}).get("url")
+            == f"https://api.github.com/repos/{repository}/pulls/{pr_number}"
+            and event.get("source", {}).get("issue", {}).get("pull_request", {}).get("merged_at")
+            == pr.get("merged_at")
+            for event in timeline),
+            "FMV3-M1-05 docs issue #385 lacks exact PR #386 timeline relation")
+        return
+    if binding.get("kind") != "manual_repository_creation":
+        require_pull_request_completion(issue_id, binding, dynamic_policy=False)
+        return
+    repository = binding["repository"]
+    issue = github_api(f"repos/{repository}/issues/{binding['github_issue_number']}")
+    timeline = github_api(f"repos/{repository}/issues/{binding['github_issue_number']}/timeline?per_page=100")
+    comment = github_api(f"repos/{repository}/issues/comments/{binding['completion_comment_id']}")
+    require(isinstance(issue, dict) and issue.get("repository_url") == f"https://api.github.com/repos/{repository}"
+            and issue.get("number") == binding["github_issue_number"]
+            and issue.get("title") == binding["issue_title"] and issue.get("state") == "closed"
+            and issue.get("closed_at") == binding["closed_at"],
+            f"static completion binding is stale or wrong for {issue_id}")
+    require(isinstance(timeline, list) and sum(
+        isinstance(event, dict) and event.get("event") == "closed"
+        and event.get("created_at") == binding["closed_at"]
+        and event.get("actor", {}).get("login") == binding["closed_by"]
+        for event in timeline) == 1, f"{issue_id} exact manual closure event mismatch")
+    require(isinstance(comment, dict) and comment.get("id") == binding["completion_comment_id"]
+            and comment.get("user", {}).get("login") == binding["closed_by"]
+            and comment.get("created_at") == comment.get("updated_at")
+            and hashlib.sha256(str(comment.get("body", "")).encode()).hexdigest()
+            == binding["completion_comment_sha256"],
+            f"{issue_id} exact manual completion attestation mismatch")
+
+
+def require_direct_dependency_completion(
+    issue_id: str,
+    issue_deps: dict[str, list[str]],
+    issue_repos: dict[str, str],
+    issue_specs: dict[str, dict[str, Any]],
+    certificates: list[dict[str, Any]],
+) -> None:
+    direct = issue_deps[issue_id]
+    static = [dependency for dependency in direct if dependency in COMPLETED_FMV3_DEPENDENCIES]
+    future = [dependency for dependency in direct
+              if dependency not in COMPLETED_FMV3_DEPENDENCIES]
+    for dependency in static:
+        require_static_dependency_completion(
+            dependency, COMPLETED_FMV3_DEPENDENCIES[dependency]
+        )
+    certificate_ids = [item["plan_issue"] for item in certificates]
+    require(len(certificate_ids) == len(set(certificate_ids)),
+            "dependency completion certificate contains duplicate predecessors")
+    require(set(certificate_ids) == set(future),
+            f"dependency completion certificates must equal direct unresolved predecessors for {issue_id}")
+    for certificate in certificates:
+        require(certificate["repository"] == issue_repos[certificate["plan_issue"]],
+                f"dependency {certificate['plan_issue']} repository differs from plan topology")
+        require_pull_request_completion(certificate["plan_issue"], certificate,
+                                        dynamic_policy=True,
+                                        issue_spec=issue_specs[certificate["plan_issue"]])
 
 
 def require_issue_authorization_dependencies(
     issue_id: str,
     anchor: dict[str, Any],
     evidence_path: str | None,
+    issue_deps: dict[str, list[str]],
+    issue_repos: dict[str, str],
+    issue_specs: dict[str, dict[str, Any]],
 ) -> None:
     require(
         anchor.get("issue_evidence_policy") == EXPECTED_ISSUE_EVIDENCE_POLICY,
         "issue authorization evidence policy mismatch",
     )
-    producer = load_issue_authorization_evidence(evidence_path, issue_id)
+    certificates, producer = load_issue_authorization_evidence(evidence_path, issue_id)
+    require_direct_dependency_completion(
+        issue_id, issue_deps, issue_repos, issue_specs, certificates
+    )
     if issue_id in {"FMV3-M1-06", "FMV3-M2-01"}:
         require_docs_candidate_pr_merged(anchor)
     if producer is not None:
-        require_m1_06_producer_evidence(producer)
+        matching = [item for item in certificates if item["plan_issue"] == "FMV3-M1-06"]
+        require(len(matching) == 1 and all(
+            producer[key] == matching[0][key]
+            for key in ("plan_issue", "repository", "github_issue_number",
+                        "github_pull_request_number", "merge_sha")),
+            "M1-06 producer extension differs from its dependency certificate")
+        require_m1_06_producer_evidence(anchor, producer, matching[0])
     r2_rebind = anchor["docs_candidate_binding"]["r2_rebind"]
     require(
         r2_rebind["status"] == "BOUND_DOCS_R2"
@@ -1175,20 +2608,29 @@ def require_m1_admission_open(repo_root: Path, origin_main: str) -> None:
         "required-check verification PR evidence mismatch",
     )
     protection = github_api("repos/Project-Helianthus/helianthus-docs-ebus/branches/main/protection/required_status_checks")
-    contexts = protection.get("contexts", [])
     checks = protection.get("checks", [])
     require(
-        gate["required_check"] in contexts
-        or any(isinstance(check, dict) and check.get("context") == gate["required_check"] for check in checks),
-        "Modbus Trusted Revision is not a required main check",
+        isinstance(checks, list)
+        and any(
+            isinstance(check, dict)
+            and check.get("context") == gate["required_check"]
+            and check.get("app_id") == GITHUB_ACTIONS_APP_ID
+            for check in checks
+        ),
+        "Modbus Trusted Revision is not pinned to the GitHub Actions App",
     )
-    check_runs = github_api(f"repos/Project-Helianthus/helianthus-docs-ebus/commits/{gate['verification_head_sha']}/check-runs")
-    runs = check_runs.get("check_runs", [])
+    runs = github_latest_check_runs(
+        DOCS_REPOSITORY,
+        gate["verification_head_sha"],
+        "Modbus M1 verification check runs",
+    )
     require(
         any(
             isinstance(run, dict)
             and run.get("name") == gate["required_check"]
             and run.get("conclusion") == "success"
+            and isinstance(run.get("app"), dict)
+            and run["app"].get("id") == GITHUB_ACTIONS_APP_ID
             and run.get("details_url") == gate["required_check_run_url"]
             for run in runs
         ),
@@ -1346,6 +2788,7 @@ def validate_authorization_schema(plan: dict[str, Any]) -> dict[str, Any]:
                 "pull_request_identity",
                 "external_review_attestation",
                 "issue_evidence_policy",
+                "direct_dependency_completion",
                 "accepted_decision_d13",
                 "m2_exit_gate",
             ],
@@ -1355,6 +2798,7 @@ def validate_authorization_schema(plan: dict[str, Any]) -> dict[str, Any]:
             "pull_request_identity": EXPECTED_PR_IDENTITY,
             "external_review_attestation": EXPECTED_EXTERNAL_REVIEW_ATTESTATION,
             "issue_evidence_policy": EXPECTED_ISSUE_EVIDENCE_POLICY,
+            "direct_dependency_completion": "exact_static_live_github_bindings_for_completed_predecessors_plus_bounded_github_authenticated_certificate_bound_to_anchored_issue_spec_for_future_direct_predecessors",
             "stop_before_issue": "FMV3-M4-01",
             "gateway_work_authorized": False,
             "amendment_surfaces_sha256": surface_digest,
@@ -1788,92 +3232,6 @@ def require_materialized_validator_context() -> None:
         "materialized anchor validator one-use token mismatch",
     )
     token_path.unlink()
-
-
-def materialize_and_reexec_anchor_validator(
-    root: Path,
-    args: argparse.Namespace,
-) -> int:
-    require(
-        args.plan_head_sha is not None
-        and re.fullmatch(r"[0-9a-f]{40}", args.plan_head_sha) is not None,
-        "--plan-head-sha with a full lowercase 40-character SHA is mandatory",
-    )
-    repo_root = Path(
-        git_command(
-            root,
-            ["rev-parse", "--show-toplevel"],
-            "plan repository toplevel lookup",
-        ).strip()
-    ).resolve()
-    anchored_plan_path = Path(
-        "fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml"
-    )
-    anchored_plan_bytes = committed_regular_blob(
-        repo_root,
-        args.plan_head_sha,
-        anchored_plan_path.as_posix(),
-        "authorization anchor plan",
-    )
-    anchored_plan = yaml.load(anchored_plan_bytes, Loader=UniqueLoader)
-    require(isinstance(anchored_plan, dict), "anchored plan.yaml must be a mapping")
-    anchored_authorization = anchored_plan.get("execution_authorization")
-    require(
-        isinstance(anchored_authorization, dict),
-        "anchored execution authorization must be a mapping",
-    )
-    anchored_anchor = anchored_authorization.get("authorization_anchor")
-    require(
-        isinstance(anchored_anchor, dict),
-        "authorization record is absent from the supplied plan anchor",
-    )
-    tooling = anchored_anchor.get("tooling_binding")
-    require(
-        isinstance(tooling, dict)
-        and tooling.get("authorization_execution")
-        == "materialized_from_pr91_anchor"
-        and tooling.get("validator_path") == EXPECTED_TOOLING_PATHS["validator_path"],
-        "anchored validator materialization binding mismatch",
-    )
-    expected_digest = tooling.get("validator_sha256")
-    require(
-        isinstance(expected_digest, str)
-        and re.fullmatch(r"[0-9a-f]{64}", expected_digest) is not None,
-        "anchored validator SHA-256 is invalid",
-    )
-    validator_bytes = committed_regular_blob(
-        repo_root,
-        args.plan_head_sha,
-        tooling["validator_path"],
-        "authorization anchor validator",
-    )
-    require(
-        hashlib.sha256(validator_bytes).hexdigest() == expected_digest,
-        "authorization anchor validator SHA-256 mismatch",
-    )
-    with tempfile.TemporaryDirectory(prefix="fmv3-anchor-validator-") as temporary:
-        temporary_path = Path(temporary)
-        temporary_path.chmod(0o700)
-        validator_path = temporary_path / "validate_plan.py"
-        token_path = temporary_path / "one-use-token"
-        token = secrets.token_hex(32)
-        validator_path.write_bytes(validator_bytes)
-        validator_path.chmod(0o500)
-        token_path.write_text(token, encoding="ascii")
-        token_path.chmod(0o400)
-        environment = os.environ.copy()
-        environment[f"{MATERIALIZATION_ENV_PREFIX}VALIDATOR"] = str(validator_path)
-        environment[f"{MATERIALIZATION_ENV_PREFIX}SHA256"] = expected_digest
-        environment[f"{MATERIALIZATION_ENV_PREFIX}TOKEN"] = token
-        environment[f"{MATERIALIZATION_ENV_PREFIX}TOKEN_FILE"] = str(token_path)
-        command = [
-            sys.executable,
-            str(validator_path),
-            *sys.argv[1:],
-            "--materialized-anchor-validator",
-        ]
-        result = subprocess.run(command, check=False, env=environment)
-        return result.returncode
 
 
 def prepare_plan_authorization_checkout(root: Path) -> tuple[Path, str]:
@@ -2512,8 +3870,8 @@ def validate(root: Path) -> tuple[int, int]:
         "Authorization scope authority": "exact authorized_issues allowlist; milestone labels are non-authoritative",
         "Authorization anchor": "PR #91 exact squash merge plus external review attestation required; PR #89 is predecessor provenance only; issue #90 is tracking only",
         "Canonical main authority": "fixed GitHub API for Project-Helianthus/helianthus-execution-plans; origin is identity-only",
-        "External review attestation": "one unique unedited authorized-issuer tag binding exact live PR #91 head/tree, NO_FINDINGS, and at least two fresh OpenAI reviewer run IDs",
-        "Docs R2 rebind": "complete; exact docs PR #386 head/tree and expanded bounded_values projection bound",
+        "External review attestation": "successful exact-head canonical pull_request workflow run, one authenticated official Codex review, two owner process attestations, and unedited aggregate binding workflow-run and review IDs",
+        "Docs R2 rebind": "complete; exact docs PR #386 head/tree, canonical-main ancestry, exact-head CI, and review chain bound",
         "Repository creation authorized": "yes, through FMV3-M0-01",
         "Private repository action": "deferred; creation requires future explicit authorization",
         "Commit/push authorized": "yes, for the plan package and authorized pre-gateway issues only",
@@ -2546,7 +3904,9 @@ def main() -> int:
     root = args.root.resolve() if args.root is not None else Path(__file__).resolve().parent
     try:
         if args.authorize_issue is not None and not args.materialized_anchor_validator:
-            return materialize_and_reexec_anchor_validator(root, args)
+            raise ValidationError(
+                "issue authorization requires the trusted cruise-preflight anchor materializer"
+            )
         if args.materialized_anchor_validator:
             require(
                 args.authorize_issue is not None,
@@ -2691,10 +4051,38 @@ def main() -> int:
                 anchored_anchor,
                 args.plan_head_sha,
             )
+            anchored_issues = anchored_plan.get("issues")
+            require(isinstance(anchored_issues, list), "anchored issues must be a list")
+            anchored_deps = {
+                item.get("id"): item.get("depends_on")
+                for item in anchored_issues
+                if isinstance(item, dict)
+            }
+            anchored_repos = {
+                item.get("id"): item.get("repo")
+                for item in anchored_issues
+                if isinstance(item, dict)
+            }
+            anchored_issue_specs = {
+                item.get("id"): item
+                for item in anchored_issues
+                if isinstance(item, dict) and isinstance(item.get("id"), str)
+            }
+            require(
+                set(anchored_authorization["authorized_issues"]) <= set(anchored_deps)
+                and all(
+                    isinstance(anchored_deps[issue], list)
+                    for issue in anchored_authorization["authorized_issues"]
+                ),
+                "anchored direct dependency graph is invalid",
+            )
             require_issue_authorization_dependencies(
                 args.authorize_issue,
                 anchored_anchor,
                 args.authorization_evidence,
+                anchored_deps,
+                anchored_repos,
+                anchored_issue_specs,
             )
             anchor_directory = Path(anchor_relpath).parent
             anchored_surface_texts: dict[str, str] = {}

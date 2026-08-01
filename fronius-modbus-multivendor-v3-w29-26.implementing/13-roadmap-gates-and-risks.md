@@ -1,6 +1,6 @@
 # Roadmap gates and risks
 
-Canonical-SHA256: `1838f0906a42dbb989a660605c88b99e20362925af33964940877678d4bdcd0f`
+Canonical-SHA256: `76e676f1c0c724d5f26a078253f8ecbb698ca921b02e7ed6053a175b01bc215c`
 
 Depends on: Chunks 10-12 and the issue DAG in `plan.yaml`.
 Scope: Milestone grouping, critical path, TDD, documentation and transport gates, hardware classes, rollback/recovery, review, and stop/go decisions.
@@ -134,6 +134,17 @@ exact test-only RED revision and GREEN implementation head. M1-05, M1-06, and M2
 require a fresh independent OpenAI adversarial review bound to the exact applicable full
 SHA; every finding must be resolved or the reviewer must return `NO_FINDINGS`. The
 historical terminal epoch does not satisfy these per-issue amendment gates.
+
+Before M2-01 RED, its M1-06 producer selectors must resolve live to the immutable marked/title
+issue and exact closing same-repository squash PR on canonical main. The RED commit must be a
+test-only implementation-head ancestor with a bounded first diff page and empty page two, and its
+exact-PR `pull_request` run/check and exact `checks` job must fail at `./scripts/ci_local.sh` after
+setup succeeds. GREEN required checks pinned to the GitHub Actions App and its selected `checks`
+job must succeed on the exact head. Eight production-only mutant children of GREEN must match
+canonical patch digests precommitted in the GREEN report, pass same-SHA compile/no-tests, and only
+then fail their mapped tests. An official Codex canonical-template zero-inline review and two owner structured
+`NO_FINDINGS` process attestations must follow. The fixed closed conformance report binds exact production
+contract declarations and the validator-pinned semantic cases to exact nonempty Go tests/PASS and mutation patches.
 
 **CI:** Repository-local CI is green at issue head. Generated artifacts and fixtures are
 deterministic. Failures in unrelated profiles do not get waived by narrowing test scope.

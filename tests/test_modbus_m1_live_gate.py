@@ -109,15 +109,22 @@ class ModbusM1LiveGateTests(unittest.TestCase):
                 }
             if endpoint.endswith("/protection/required_status_checks"):
                 return {
-                    "contexts": [gate["required_check"]],
-                    "checks": [],
+                    "contexts": [],
+                    "checks": [
+                        {
+                            "context": gate["required_check"],
+                            "app_id": VALIDATOR.GITHUB_ACTIONS_APP_ID,
+                        }
+                    ],
                 }
-            if endpoint.endswith("/check-runs"):
+            if "/check-runs?" in endpoint:
                 return {
+                    "total_count": 1,
                     "check_runs": [
                         {
                             "name": gate["required_check"],
                             "conclusion": "success",
+                            "app": {"id": VALIDATOR.GITHUB_ACTIONS_APP_ID},
                             "details_url": gate["required_check_run_url"],
                         }
                     ]
@@ -160,6 +167,42 @@ class ModbusM1LiveGateTests(unittest.TestCase):
                 with self.assertRaisesRegex(
                     VALIDATOR.ValidationError,
                     "docs PR #376 merge evidence mismatch",
+                ):
+                    VALIDATOR.require_m1_admission_open(repo, head)
+
+    def test_open_gate_rejects_same_name_required_check_from_wrong_app(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            repo, gate, head = self.repository(temp)
+            api = self.api(gate)
+
+            def wrong_app(endpoint: str):
+                value = api(endpoint)
+                if endpoint.endswith("/protection/required_status_checks"):
+                    value["checks"][0]["app_id"] = 1
+                return value
+
+            with mock.patch.object(VALIDATOR, "github_api", wrong_app):
+                with self.assertRaisesRegex(
+                    VALIDATOR.ValidationError,
+                    "not pinned to the GitHub Actions App",
+                ):
+                    VALIDATOR.require_m1_admission_open(repo, head)
+
+    def test_open_gate_rejects_same_name_check_run_from_wrong_app(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            repo, gate, head = self.repository(temp)
+            api = self.api(gate)
+
+            def wrong_app(endpoint: str):
+                value = api(endpoint)
+                if "/check-runs?" in endpoint:
+                    value["check_runs"][0]["app"]["id"] = 1
+                return value
+
+            with mock.patch.object(VALIDATOR, "github_api", wrong_app):
+                with self.assertRaisesRegex(
+                    VALIDATOR.ValidationError,
+                    "successful required-check run evidence mismatch",
                 ):
                     VALIDATOR.require_m1_admission_open(repo, head)
 

@@ -48,6 +48,25 @@ No finding is invented to force closure, and there is no R6. Even `PASSED` leave
 unlocked until a separate operator action; that action was provided on 2026-07-14 for plan
 publication only.
 
+## Corrective R3d authorization review
+
+R3d remains non-terminal until a fresh exact-tree review returns `NO_FINDINGS`. Its closed
+implementation findings are:
+
+| ID | State | Resolution |
+|---|---|---|
+| R3D-F01 | CLOSED | Dynamic completion certificates bind the plan-anchored issue-spec digest, exact title, marker, authoritative GraphQL closing reference, timeline relation, and bounded post-merge closure. |
+| R3D-F02 | CLOSED | M1-06 replaces source-text-only semantic checks with eight exact-parent hosted mutation runs. |
+| R3D-F03 | CLOSED | Reviews, inline comments, check runs, jobs, timelines, and comments use bounded fail-closed pagination with second-page negative tests. |
+| R3D-F04 | CLOSED | Every authorization-relevant required check is pinned to GitHub Actions app ID `15368`; legacy context-only policy is rejected. |
+| R3D-F05 | CLOSED | The two owner records are represented honestly as process attestations; only the official Codex review is an authenticated independent review artifact. |
+| R3D-F06 | CLOSED | Standard repository validation self-provisions the exact bound docs candidate revision. |
+| R3D-F07 | CLOSED | Cruise preflight must materialize and hash the validator from the authenticated anchor before invoking its internal entry point. |
+| R3D-F08 | CLOSED | Each mutant matches a patch digest precommitted in the GREEN report and passes same-SHA compile/no-tests before its mapped test fails. |
+
+Local green results are necessary but do not close R3d. Publication evidence, exact-head hosted
+CI, and the fresh terminal review remain pending.
+
 ## Epoch 1
 
 State: FAILED
@@ -393,9 +412,12 @@ sole highest/current terminal `PASSED` epoch at `5/5`, targeting `TERMINAL_NO_FI
 ## Issue #90 capability/ledger reconciliation gate
 
 Issue #90 tracks the corrected scope but is not authorization evidence. After merge, the
-exact PR #91 merge commit is the sole current immutable anchor only when a unique unedited
-authorized-issuer comment attests the live full head SHA/tree, `NO_FINDINGS`, and at least
-two unique fresh OpenAI reviewer run IDs after head creation and before merge. The squash
+exact PR #91 merge commit is the sole current immutable anchor only when a successful
+canonical pull_request workflow run attests the live full head/tree before two separate
+submitted native owner process attestations bind `NO_FINDINGS` and owner-recorded fresh-context
+references/output digests; these are not represented as independently authenticated OpenAI
+artifacts. One authenticated official Codex review remains mandatory, and one unedited
+aggregate binds the workflow-run and immutable review IDs before merge. The squash
 merge has exactly the expected original base parent and the attested head tree. PR #89 is
 retained only as predecessor provenance and has no authority for the corrected M1 capability
 or M2 ledger fields. The epoch history above is immutable evidence for the previously locked
@@ -411,11 +433,16 @@ successor uses revision-bound, fresh independent OpenAI gates instead:
   exact test-only RED and implementation GREEN revisions; a fresh context reviews both
   before merge.
 
-The validator reads canonical execution-plans main from the fixed GitHub API, materializes
-the PR #91 validator blob itself, and rejects direct internal-flag use. M1-06 additionally
+The trusted cruise-preflight launcher authenticates canonical execution-plans main through
+the fixed GitHub API and materializes the PR #91 validator blob; the validator cannot bootstrap
+itself and rejects both direct authorization and direct internal-flag use. M1-06 additionally
 requires docs PR #386 merged at its bound head/tree. M2-01 requires external JSON evidence
-whose producer SHA, canonical Modbus main ancestry, merged PR, and closed issue relationship
-all verify. The exact docs R2 head/tree, predecessor-inclusive closure, and expanded machine
+whose bounded producer IDs act only as selectors. Live GitHub must prove the immutable marked/title
+issue, exact closing same-repo squash PR and issue relation, head/merge tree and base topology,
+canonical-main ancestry, bounded test-only RED ancestor/diff and exact-PR hosted `ci_local` failure,
+exact-head GREEN/checks-job success, official Codex canonical-template zero-inline review, two owner
+fresh `NO_FINDINGS` reviews after GREEN, and the fixed closed conformance report binding exact
+production declarations and nonempty validator-pinned Go tests/PASS. The exact docs R2 head/tree, predecessor-inclusive closure, and expanded machine
 projection are bound, including claim-in-progress, cancelling, atomic all-success-before-seal,
 source-owned CancelOpen, byte/field bounds, and pre-reserved non-wrapping terminal sequences.
 M1-06 and M2-01 remain blocked until docs PR #386 merges at that exact head/tree.
