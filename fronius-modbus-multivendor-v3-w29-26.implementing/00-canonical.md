@@ -20,15 +20,28 @@ authority for the corrected M1 capability or M2 ledger fields.
 
 PR #91 must retain its exact original base/head repository and ref identity. Its squash
 merge must have exactly one parent equal to the expected original base SHA and a tree equal
-to the externally attested PR head tree. Before review, a successful canonical `pull_request`
-workflow run must bind the exact live head and PR base/head identity. One submitted official
+to the externally attested PR head tree. One submitted official
 Codex bot `COMMENTED` review must equal the canonical Codex no-suggestions template for the
 exact ten-character head prefix and have zero inline findings; no severity or arbitrary finding
 text is accepted. Two separate submitted owner reviews then bind that head/tree, `NO_FINDINGS`,
 and owner-attested fresh-process references/output digests; they are process attestations, not
 independently authenticated OpenAI artifacts. One unedited aggregate binds the
-workflow-run ID and immutable submitted review IDs;
+immutable submitted review IDs and a mandatory, non-authoritative same-change-set post-merge
+`push` workflow execution observation on canonical `main` at the exact squash SHA; the aggregate is created only after that run completes, and
 the plan never self-embeds its own head SHA.
+
+Trust model: `owner_plus_authenticated_independent_review_v1`. The authoritative decision is the
+trusted repository owner's exact-tree squash decision plus the official Codex exact-head review;
+owner process attestations are non-independent. The post-merge CI observation is mandatory but
+non-authoritative. Resistance to a malicious or compromised repository owner is out of scope.
+
+PR #91 is also the external bootstrap trust root for the V1 docs candidate: its immutable
+exact-tree owner decision and official exact-head Codex review must precede docs PR #386's merge.
+It anchors the candidate head/tree, normative manifest, policy, semantic-validator and test blobs,
+the normalized V1 semantic projection, and critical invariants including runtime-source authority
+and forbidden caller control. Refreshed same-change-set docs hashes or validator results are not
+independent authority and cannot weaken that bootstrap semantic anchor; docs contain no reference
+to an unknown PR #91 merge SHA.
 
 The ordered `authorized_issues` list in `plan.yaml` is the sole normative execution scope:
 FMV3-M0-01, FMV3-M0-02, FMV3-M0-03, FMV3-M0-06, FMV3-M1-00, FMV3-M1-01,
@@ -37,16 +50,30 @@ FMV3-M2-02, FMV3-M2-03, FMV3-M3-01, FMV3-M3-02, and FMV3-M3-03. Milestone names
 are non-authoritative grouping labels. This amendment corrects FMV3-M1-05, FMV3-M1-06,
 and FMV3-M2-01 without changing the allowlist.
 
-Authorization runs only from a fully clean canonical
-`Project-Helianthus/helianthus-execution-plans` main checkout resolved through the fixed
-GitHub API. A configured remote named `origin` is never main authority and must identify
-the canonical repository exactly. The trusted cruise-preflight launcher authenticates the
-PR #91 merge SHA first, materializes the validator blob directly from that immutable commit,
-verifies its anchored SHA-256, and only then executes the one-use blob with the internal flag.
-The checked-out candidate validator is defense-in-depth and is never the bootstrap trust root.
+Authorization ignores caller Git configuration and objects after validating the supplied path shape.
+The trusted launcher resolves canonical `Project-Helianthus/helianthus-execution-plans` main
+through the fixed GitHub API, fetches that exact SHA from a hardcoded canonical URL into a new
+owner-private checkout, and runs Git with system/global config, hooks, fsmonitor, credential
+helpers, replacements, grafts, and alternates disabled. The launcher and anchored validator both
+accept only the same plan-bound pinned Git and GitHub CLI executable digests, verify candidate
+symlink and opened-inode stability, pass only the exact plan-bound child environment allowlists,
+authenticate the PR #91 merge SHA first, materialize the validator blob directly from that
+immutable commit, verify its anchored SHA-256, and only then execute the one-use blob. The claim owner supplies an
+external owner-only mode-0400 256-bit secret; only its commitment enters the public claim. The
+internal call binds the exact selected open GitHub issue number and one lowercase run UUID. A
+self-consistent caller-supplied executable hash is never sufficient. PR-head validation receives
+no GitHub token and no persisted checkout credential. Hosted Ubuntu exercises the unmodified
+launcher against its platform allowlist before merge and authenticates the real PR91 anchor from
+trusted canonical main after merge. The versioned launcher reference and SHA-256 are bound in the
+PR91 tooling record; the installed external copy must remain byte-identical. The checked-out
+candidate validator is defense-in-depth and is never the bootstrap trust root.
 
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
-`helianthus-modbusreg`. FMV3-M1-05 publishes the public
+`helianthus-modbusreg`. M0-02 and M0-03 each then use their sole destination-initialization
+exception: direct push of exact no-parent commit `bd15e364a749adcca283570f027bfb826198952a`
+with the empty tree `4b825dc642cb6eb9a060e54bf8d69288fbee4904` and no content, solely to establish
+`main` as the legal base for issue #1 / PR #2. All later changes use branch/PR/squash flow.
+FMV3-M1-05 publishes the public
 `OPAQUE_RUNTIME_ACQUISITION_V1` companion, FMV3-M1-06 implements it after M1-05, and
 FMV3-M2-01 consumes the merged M1-06 producer by exact full-SHA pin. Private governance
 creation FMV3-M0-04 and destination bootstraps FMV3-M0-05/FMV3-M0-07 remain deferred.
@@ -54,14 +81,18 @@ creation FMV3-M0-04 and destination bootstraps FMV3-M0-05/FMV3-M0-07 remain defe
 Every authorized issue must prove completion of exactly its direct `depends_on` predecessors.
 Completed FMV3 predecessors use immutable exact live-GitHub bindings for repository, issue and PR
 titles/numbers, closing body and timeline relation, closure time, base/head/merge/tree/topology,
-canonical-main ancestry, and exact-head required checks. M0-01 is the sole no-PR exception because
-repository creation produced no Git object; it instead binds the exact issue closure event and
-unedited completion-attestation comment. Every unresolved direct predecessor must appear exactly
+canonical-main ancestry, exact selected-issue branch and issue-contained PR interval, and exact-head
+required checks bound by immutable check-run ID and completed before merge. M0-01 binds the exact no-object repository
+creation closure and unedited completion-attestation comment. M0-02/M0-03 additionally bind the
+shared exact empty-tree root commit, no-parent topology, message, PR #2 base, and subsequent squash
+completion. Those are the only destination-initialization exceptions. Every unresolved direct predecessor must appear exactly
 once in the bounded external `dependencies` certificate array; exact set equality rejects missing,
 duplicate, extra, and non-direct rows. Each row binds exact repository, issue/PR selectors,
-an anchored issue-spec digest and marker, head/tree/merge SHAs, and the complete dynamic main
-required-check policy, all authenticated live. Every authorization-relevant required check has a
-concrete positive GitHub App ID; legacy context-only and any-app evidence is rejected.
+an anchored issue-spec digest and marker, head/tree/merge SHAs, the complete dynamic main
+required-check policy, and an ordered exact check-run ID for every policy row, all authenticated
+live. Every authorization-relevant required check has a concrete positive GitHub App ID and must
+have completed before the selected PR merge; legacy context-only, any-app, unbound, and post-merge
+rerun evidence is rejected.
 M2-01 retains its producer extension, which must equal its M1-06 dependency row. Stale, unmerged,
 wrong issue/PR, failed-check, wrong-tree/topology, or non-main evidence fails closed.
 M1-05 completion is the exact docs issue #385 with its immutable title and repository, closed by
@@ -71,37 +102,56 @@ head and tree, dynamically ancestral to canonical docs main, with all exact-head
 successful under its concrete app-bound policy, one official Codex exact-head `COMMENTED` review using the
 exact canonical no-suggestions template and zero inline findings, and two owner structured
 `NO_FINDINGS` process attestations submitted after CI. FMV3-M2-01 additionally accepts only external selectors for the
-M1-06 issue, closing PR, merge and RED commit SHAs, failed RED workflow run, official Codex
-review, and exactly two owner reviews; those selector values are not trusted outcome claims.
-Live GitHub must prove the exact immutable issue title and
-`<!-- helianthus-fmv3-m1-06-opaque-runtime-acquisition-v1 -->` marker, canonical same-repo
-main/base/head PR identity, exact issue closure by that PR, reviewed head-tree equality with
-the one-parent squash merge tree and PR base, and canonical-main ancestry. The test-only RED
-commit must be an implementation-head ancestor whose bounded first diff page contains only Go
-tests, fixtures, or the fixed conformance-report path and no production path; diff page two must be
-empty. Its exact `pull_request` run and `checks` check must fail on that RED SHA and PR, and the
-exact `checks` job must fail at `./scripts/ci_local.sh` after successful setup. All dynamically
-required checks must then succeed on the exact implementation head, with the selected GREEN run's
-exact `checks` job succeeding at `./scripts/ci_local.sh`. Eight ordered, production-Go-only mutant
-commits must each be a direct child of GREEN. The GREEN conformance report precommits each
-canonical GitHub patch digest; every selected run must then pass `go test -run ^$ ./...` on the
-mutant before the validator-mapped test fails. One official Codex exact-head review after those mutations must use the exact
+M1-06 issue, sequential harness and closing product PRs, merge and RED commit SHAs, anchored
+RED/GREEN/mutation runs, official Codex review, and exactly two owner reviews; selector values
+are not trusted outcome claims. Live GitHub must prove the exact immutable issue title and
+`<!-- helianthus-fmv3-m1-06-opaque-runtime-acquisition-v1 -->` marker. Under that issue, an
+owner-authored harness PR uses the selected issue branch, opens after that issue, is the sole active PR, adds only the exact plan-anchored dual-mode
+workflow, executable-AST guard, docs-lock validator, and exact merged-docs lock, leaves inherited `ci.yml` and `ci_local.sh` blobs unchanged,
+passes the certificate-bound pre-merge required check runs, with the checks job bound to its exact workflow attempt, job, and check-run IDs, and one clean exact-head Codex review,
+and merges before product work.
+The product PR starts from exactly that harness merge and then proves canonical same-repo
+main/base/head identity, exact issue closure, reviewed head-tree equality with the one-parent
+squash merge tree and PR base, and canonical-main ancestry. The RED commit carries the exact
+pinned subject and is an implementation-head ancestor whose bounded first diff page contains only
+Go tests, fixtures, or the fixed conformance-report path; diff page two is empty. Its exact anchored
+`pull_request` workflow passes the test-only guard and compile/no-tests before the exact M1-06 suite
+fails. All dynamically required checks then succeed on the exact implementation head, and the same
+anchored workflow proves conformance success. RED, GREEN, docs, and mutation completion evidence
+binds immutable app/check-run IDs; harness checks, RED, GREEN, and mutation evidence also bind the exact workflow
+attempt and job IDs, so a later same-name rerun cannot invalidate or replace the certificate. Eight ordered production-Go-only mutant commits are
+direct children of GREEN and retain the exact harness blobs. The GREEN report precommits each
+canonical GitHub patch digest; each anchored mutation run passes executable-AST validation, the
+mapped test on the GREEN parent, and compile/no-tests before that mapped test fails on the mutant.
+One official Codex exact-head review after those mutations must use the exact
 canonical no-suggestions template and have zero inline findings. Two owner `COMMENTED` closed-schema
 `NO_FINDINGS` process attestations after GREEN and mutations must bind the exact RED/head/tree,
 fixed conformance-report blob, validator-pinned case digest, and mutation-evidence digest. The regular committed report
 `.github/fmv3/fmv3-m1-06-conformance-report.json` must use
-`helianthus.fmv3-m1-06-conformance-report.v1`; its closed fixed case set binds deliverability
-exclusions, copy one-winner, fresh non-alias, terminal outcomes, CancelOpen drain/reclaim,
+`helianthus.fmv3-m1-06-conformance-report.v3`; its closed fixed case set binds deliverability
+exclusions, copy one-winner, stale same-key instance cancellation isolation, terminal outcomes,
+membership close/registration race,
 bounds/overflow, sequence exhaustion, and coalesced isolation to exact Go test declarations,
 source blobs, regular modes, nonempty failure/assertion bodies, semantic calls, `PASS`, and the
-exact per-case mutation patch digest. Its
+exact per-case mutation patch digest. Its exact module-root package projection binds fixed
+`GOOS=linux`, `GOARCH=amd64`, `CGO_ENABLED=0`, `GOWORK=off` and the complete sorted
+`GoFiles`/`CompiledGoFiles`/`TestGoFiles` set while every cgo, ignored, external-test, C/C++/assembly,
+SWIG, syso, embed pattern/file, or other non-Go compiled-input category is empty. The trusted premerged guard runs
+`go list -compiled` and `go/types`, binds every symbol by declaration kind, receiver, signature, and exact object identity, and credits a required test call only when its result directly controls a live failing assertion condition.
+Every bound source must be in the same package and root directory,
+must have no explicit or implicit build exclusion, cgo import, or nested module, and test files may
+not redeclare or locally shadow any production contract symbol; every named conformance test has exactly one declaration. Its
 production Go blobs must declare every fixed contract symbol. Missing, stale, fake, failed,
 semantic-no-op, non-direct, or mismatched producer proof fails closed.
 The exact docs R2 commit/tree, complete predecessor-inclusive normative closure, and expanded
-machine projection including `bounded_values` are bound. They require claim-in-progress,
-cancelling, atomic all-success-before-seal, source-owned CancelOpen, byte/field bounds, and
-pre-reserved non-wrapping, non-reused terminal sequences. M1-06 and M2-01 still fail
-authorization until docs PR #386 is merged at that exact head and tree.
+machine projection including `bounded_values` and `downstream_conformance` are bound. They require
+an opaque per-incarnation `AttemptInstance`, atomic membership close and freeze before ledger
+admission, claim-in-progress, cancelling, a nonempty exact ordered all-runtime dependency set,
+source-owned `CancelOpen(AttemptInstance)`, one atomic publish/cancel winner, the closed five-field
+`published_attempt_v1` projection, byte/field bounds, and pre-reserved non-wrapping, non-reused
+terminal sequences. M1-06 and M2-01 CI must lock the merged docs full SHA plus policy and manifest
+hashes and run the eight downstream behavioral rows. Both issues still fail authorization until
+docs PR #386 is merged at that exact head and tree.
 
 The hard stop is immediately before FMV3-M4-01. Gateway work is not authorized. No gateway
 issue, branch, PR, import, or code change is authorized by this action. Repository creation,
@@ -225,10 +275,85 @@ private repository, path, secret, or generated private artifact.
 issues depend on it and cannot start until each destination exists. Each executable issue
 has exactly one repository owner. Cross-repository milestones are coordination groupings
 only; issue dependencies determine readiness.
+Each issue also fixes an integer `complexity` in the 1..10 canonical routing range. The
+anchored launcher materializes the exact-hash `.codex/scripts/model_route.py` and
+`model-routing-policy.json`, selects `docs/architecture` for the public docs repository and
+`developer` otherwise, maps issue gates to the pinned risk vocabulary, and executes the router in
+`openai_only` mode with the issue's exact complexity. Authorization requires a canonical receipt
+bound to issue ID, repository, complexity, risks, plan anchor, router/policy hashes, profile,
+OpenAI model, and effort. The launcher never accepts a caller assertion that `max` is available
+and invokes the pinned router without a runtime-capability override. A route that requires `max`
+therefore remains capability-degraded and blocks claim acquisition until a future plan-anchored
+extension verifies provider-produced immutable execution evidence. Missing, mismatched,
+capability-degraded, or underpowered routing blocks claim acquisition; the PASS line logs the
+receipt digest and resolved profile/model/effort. The receipt is only an enforced routing
+prescription and makes no runtime-capability or remote-model-identity claim.
 
-`plan.yaml` also declares a concise per-repository mutex owned by `cruise-topology` and
-`cruise-preflight`: at most one active issue and one active PR per repository. Validation
-checks this structural contract and the explicit serialization edges, not runtime scheduling.
+`plan.yaml` also declares a per-repository mutex owned by `cruise-topology` and
+`cruise-preflight`: at most one active issue and one active PR per repository. Preflight first
+checks live GitHub state, then acquires exactly one deterministic remote ref per repository under
+`refs/heads/fmv3-claims-v2` in the execution-plans control repository. Integrity ruleset
+`20195126` has no bypass and rejects deletion or non-fast-forward updates; writer ruleset
+`20195127` restricts creation/update to the repository-administrator bypass. Preflight also
+requires authenticated actor `d3vi1`/`16434603` and the plan-anchored HMAC owner commitment for
+ledger `fmv3-pr91-v2`, owner epoch 1, and the external 0400 owner secret. The first `ACQUIRE`
+parents canonical main; every `RENEW`, expired `TAKEOVER`, later `ACQUIRE`, and `RELEASE` is a
+fast-forward child of the exact observed claim SHA with the same tree. Every event has an HMAC over
+its canonical payload and binds state, repository/ref, selected issue ID/number, plan anchor, run
+UUID, owner identity/epoch/commitment, predecessor, authoritative-main SHA, monotonic uint64
+generation, event time, and six-hour expiry. The pinned GitHub CLI obtains lease time from the
+unique authenticated API `Date` header. Every observed tip is checked through the same-tree,
+generation-by-generation HMAC chain to genesis, bounded at 512 events, with exact transition and
+TTL semantics. Held-event creation reserves the final event for `RELEASE`; the owner must then use
+a future anchored epoch rotation instead of overrunning the history budget. Release is exposed only
+through the same authenticated launcher using `--release-claim` with the exact issue number, run
+UUID, plan anchor, private owner secret, and exact acquired claim SHA, and appends a release
+tombstone instead of deleting the ref. Therefore an earlier owner cannot release a renewed or
+successor generation, and delete/recreate cannot reset generation or ownership. A post-claim race
+appends a tombstone only after its exact claim. Any active
+non-PR issue, regardless of title prefix, participates in the mutex, and the sole allowed active
+issue must match the selected issue number, exact anchored title, and marker.
+The returned fence is `(ledger_id, generation, claim_sha, expires_at)`. Claim-ref
+acquire/renew/release always re-read the exact remote ref after `git push`, including
+after a nonzero client result. An exact `target_sha` is reconciled success; every other result or
+unavailable re-read is completion-ambiguous and forces `STOP` without retry pending reconciliation.
+Standalone `--verify-claim` is diagnostic and never authorizes a later mutation. Protected GitHub REST
+mutations run only through `--fenced-gh-api`, which holds a stable kernel loopback-socket process
+lock for the full operation plus an exclusive lock on the 0400 owner-secret inode, verifies the
+exact signed live tip and strict `now < expires_at`, requires one declared issue-bound capability,
+validates its endpoint and security-relevant payload fields from retained in-memory bytes, sends
+only those bytes to the pinned CLI over stdin, and verifies the same fence again before returning.
+Postflight runs after every attempted child-process exit, including interruption or an exception;
+such an outcome remains completion-ambiguous and forces `STOP` without retry. Both checks also re-read the exact
+selected issue and the capability-specific live PR mutex. PR creation requires zero open PRs before
+the mutation and exactly one same-repository `main` PR from the exact selected issue branch after
+it, with title exactly `<issue id>: <anchored what>` and exactly one closing reference to that issue;
+comments and labels permit at most that same exact-title/exact-closing selected PR; repository creation permits none.
+Any competing PR observed in either check makes the operation completion-ambiguous and forces
+`STOP` for reconciliation. Each validator invocation uses a
+fresh private one-shot directory. The allowlist covers only exact-schema comments/labels on the
+exact selected issue, exact-schema PR creation with exactly one closing reference to that issue, and
+FMV3-M0-01 creation of either named repository through one exact public/no-auto-init/issues-enabled/
+other-features-disabled/non-template payload; unrelated same-repository issues, issue edits, extra
+closing references, extra creation fields, and undeclared mutations fail closed. `--renew-claim`
+requires the exact current claim
+SHA and same anchored run, appends a signed `RENEW` or expired `TAKEOVER`, and returns a successor
+fence. GitHub provides no atomic compare-and-swap spanning the control ref and another repository:
+therefore either a nonzero mutation result or a failed post-check means the mutation may have
+completed and forces `STOP` without retry plus operator reconciliation; it is not reported as
+atomic exclusion. Ruleset administrators, GitHub
+and TLS are trusted, possession of the owner secret is owner authority, and loss requires a future
+anchored owner-epoch rotation. The stable lock is host-local; multi-host ownership is not provided,
+and pre-binding the lock port can only deny authorization. Authorization is not a timeless lease.
+Issue branches are created and deleted only through ordinary Git push operations under the active
+repository claim; the REST capability surface does not expose `git/refs`.
+The owner-private canonical checkout fetches the full history reachable from the exact observed
+`main` SHA rather than a depth-one tip, so the immutable PR #91 anchor remains available after later
+canonical commits. Every required-status `contexts` entry must be represented by an app-bound
+`checks` entry with a positive App ID. The two docs owner-process attestations use strict lowercase
+UUID syntax and have independently unique run references and output digests.
+The post-merge workflow checks out and asserts the exact push-event `github.sha`; it never resolves
+the moving `main` name after the run is queued.
 
 ## Standard profiles and vendor overlays
 
@@ -241,6 +366,44 @@ the required Fronius slice is fully covered by qualified standard facts, or
 proves vendor-specific facts. FMV3-M3-01 is the public companion for M3-02/M3-03.
 `STANDARD_ONLY` records public evidence/disposition, passes conformance CI, and creates no
 implementation commit or empty overlay; only `OVERLAY_REQUIRED` invokes overlay TDD/code.
+M3-03 CI always enforces the fixed TCP-import boundary test and the non-TCP neutral-fake
+activation test, including when `STANDARD_ONLY` proves that no overlay package exists. Every
+production overlay and every Fronius production token are confined to `profiles/fronius`. The
+bound minimal neutral adapter has no imports or additional declarations: it contains only the
+zero-argument error-returning `NeutralRuntime` method and the matching activation call. It is
+test-only under `STANDARD_ONLY`; under `OVERLAY_REQUIRED` it is production source inside the
+overlay namespace and a separate non-test implementation source is mandatory. Completion requires
+an exact executable, fail-closed immutable source-directory scanner in the canonical test: it uses
+`runtime.Caller(0)` and `filepath.Dir` to derive the compiled canonical test-source directory,
+then `os.ReadDir`s that absolute directory and parses every direct non-test `.go` file through its
+`filepath.Join(directory, name)` path without excluding build-constrained or implicitly excluded
+filenames. It fails closed on caller, directory/read, parse, unquote, or zero-production-file
+errors, so a production `init` that changes cwd cannot redirect the scan. Its exact path-component
+predicate returns the offending import when it matches the validator's `net`/TCP/Modbus-TCP rule.
+Scanner-only test imports are narrowly admitted; production imports remain unchanged. Completion rejects same-line semicolon import declarations and
+empty, dead, or data-flow-disconnected named tests. The one canonical disposition-bound source is
+`registry/fronius_overlay_test.go` for `STANDARD_ONLY` or
+`profiles/fronius/fronius_overlay_test.go` for `OVERLAY_REQUIRED`; it is in the exact proof
+package/directory and cannot locally redeclare `NeutralRuntime` or `activateFroniusProfile` outside
+the bound proof source. It declares the exact scanner helpers
+`froniusOverlayProductionPackages` and `hasTCPConcreteImport`, plus
+`NeutralRuntime` and `activateFroniusProfile`, whose return comes from a neutral runtime
+operation. The zero-field `neutralRuntimeNoTCP` carries a compile-time assertion and returns a
+sentinel error which the activation test observes. Production overlay sources have no build
+constraints, `init`, or test-only fake/sentinel symbols. Named tests have no explicit or implicit
+build constraints or nested module. The exact unskippable workflow first removes every other
+direct sibling `_test.go` source in that proof package, then performs a standalone production
+`go build` of the exact package target, runs neutral activation first, and runs import-boundary
+second. `STANDARD_ONLY` proves the complete exact PR-base-to-head diff is evidence-only and has
+no production implementation: unchanged base production is trusted, but a cwd mutation cannot
+redirect the immutable source-directory scan, and legitimate immutable base `init` is not banned.
+`OVERLAY_REQUIRED` additionally proves at least one exact-tree
+`profiles/fronius` package plus a RED ancestor whose complete parent-tree-to-RED-tree diff is
+nonempty and test-only. RED evidence proves preparation and build succeed, activation fails, and
+import has no success result; GREEN evidence proves preparation, build, activation, and import
+all succeed. Completion schema `helianthus.fmv3-m3-03-completion.v2` binds selected GREEN and,
+when required, RED runs by exact workflow path/blob, run attempt, job, and check-run IDs; later
+reruns cannot replace either selected attempt. `STANDARD_ONLY` carries no overlay RED evidence.
 Growatt and Huawei packages follow the same evidence rule for any overlay they admit.
 
 An overlay may add or refine raw profile facts. It may not silently override a standard
@@ -336,6 +499,13 @@ independent capability. Endpoint
 recreation and every new acquisition create fresh independent state even when visible
 identity or data match; they cannot alias, remint, reset, or merge prior state, and an
 existing capability remains governed only by its own acquisition/attempt lifecycle.
+Each attempt incarnation has an opaque, unforgeable, non-serializable `AttemptInstance`;
+`AttemptKey` is documentary identity only. Every capability registers against that instance
+before visibility. Ledger admission atomically changes membership from open to closing, blocks
+late registration without exposing a capability or retained open state, drains pre-close
+registrations, and freezes the exact ordered member set. A stale instance cannot cancel a later
+same-key incarnation. `CancelOpen` accepts only the exact closed `AttemptInstance` and returns
+after its registered operations, reclamation, and open members have drained.
 Capabilities move once from `open` to exactly one immutable terminal state: `claimed`,
 `cancelled`, `failed`, or `expired`. Before terminal return the source removes terminal
 state synchronously in source-assigned terminal-sequence order and retains only bounded,
@@ -344,13 +514,27 @@ terminal sequence first. `source_kind: offline_fixture` receives no capability.
 
 `helianthus-modbusreg` pins the full 40-character merged FMV3-M1-06 producer SHA before
 consuming this contract. Its private M2 ledger is independent of M1 capability state.
-Every claim entry moves from `unresolved` to exactly one immutable terminal outcome:
-`claim_succeeded`, `capability_cancelled`, `capability_failed`, `capability_expired`,
-`claim_rejected_terminal`, or `attempt_cancelled`. Attempts permit
-`open -> sealed|cancelled`, `sealed -> publishing|cancelled`, and
-`publishing -> published|publish_failed`; all terminal outcomes are immutable. `Publish()`
-is exactly the one-shot `sealed -> publishing` transition, uses immutable sealed ledger
-state without a mutable DTO, and cannot retry. Finite-positive hard limits cover every
+Every admitted claim moves `unresolved -> claim_in_progress` only while its attempt is
+`open`, then moves exactly once to `claim_succeeded`, `capability_cancelled`,
+`capability_failed`, `capability_expired`, or `claim_rejected_terminal`; only cancellation
+may move a still-`unresolved` claim to `attempt_cancelled`. Attempts permit exactly
+`open -> sealed|cancelling`, `sealed -> publishing|cancelling`,
+`cancelling -> cancelled`, and `publishing -> published|publish_failed`; all terminal
+outcomes are immutable. The predecessor's nonempty, unique, exact ordered dependency set is
+domain-separated and hashed with count and order; permutation, omission, duplication, extras,
+or cardinality mismatch fail before allocation, sequence reservation, or capability CAS.
+Cancellation blocks admission, seal, and publish, waits for every `claim_in_progress` operation
+to finalize, and closes only remaining `unresolved` claims. Seal atomically requires exact
+cardinality, an all-runtime data-bearing set, and every claim `claim_succeeded`; empty,
+fixture-only, mixed, duplicate, omitted, or reordered sets cannot seal. `Publish()` is exactly
+the one-shot `sealed -> publishing` transition and uses immutable sealed ledger state without a
+mutable DTO. Its transactional commit couples the irreversible external effect with
+`publishing -> published`: cancellation wins before commit as `publish_failed` with no external
+effect, while cancellation after commit returns `already_published` without mutation. Neither
+outcome retries. The only public result is `published_attempt_v1` with exactly schema version,
+attempt terminal sequence, dependency-set digest, runtime dependency count, and claim-outcome
+digest; raw keys, instances, identities, evidence, diagnostics, protocol data, and secret canaries
+are absent from fields and bytes. Finite-positive hard limits cover every
 retained attempt state (`open`, `sealed`, `publishing`, `published`, `publish_failed`,
 `cancelled`), every retained claim state, claims per attempt, the checked product of
 retained-attempt and claim limits, and the audit/tombstone ring. Zero, negative,
@@ -442,9 +626,9 @@ but never owns PDU framing.
 ### M0: governance and bootstrap
 
 The existing `Project-Helianthus/.github` governance repository owns one issue that creates
-the two empty public Modbus repositories. Each public destination then owns a separate
-bootstrap issue that depends on governance creation and runs only after that repository
-exists. Private governance creation remains a future `.github` issue FMV3-M0-04; only
+the two empty public Modbus repositories. Each public destination then uses one exact empty-tree
+root commit to establish `main`, followed by its issue branch and squash-merged bootstrap PR.
+That root is the sole direct-push initialization exception per destination. Private governance creation remains a future `.github` issue FMV3-M0-04; only
 after it creates both empty private targets may destination bootstrap issues FMV3-M0-05
 and FMV3-M0-07 run. All three require future explicit authorization. Destination work sets
 license, module identity, ownership, CI, and dependency policy before product code.
@@ -485,8 +669,9 @@ experimental with no supported/enabled claim. Only `PHYSICALLY_QUALIFIED` from
 TCP/Fronius path nor TCP-sufficient M1/M7 work.
 Protocol
 outputs remain uninterpreted words/bytes in received order. After M1-04, the corrective
-path is strictly docs-first: M1-05 documents source-kind, one-shot capability, lifecycle,
-bounded-state, coalesced-dependent, copy/recreation, and lossless-normalization behavior;
+path is strictly docs-first: M1-05 documents source-kind, one-shot capability, per-incarnation
+attempt membership, lifecycle, bounded-state, coalesced-dependent, copy/recreation,
+lossless-normalization, ordered dependency, atomic publication, and closed-projection behavior;
 M1-06 then proves the opaque capability with strict hosted RED/GREEN and fresh independent
 review. M2 starts only with the same FMV3-M1-00 companion merged and M1-06 merged and pinned
 at its full producer SHA, and establishes
@@ -495,8 +680,10 @@ physical `wire_response_id`, linked logical `logical_view_id`/slice provenance,
 explicit word composition, applicable intra-word byte order, string packing/padding, and
 mixed-generation rejection. M2-01 additionally proves the runtime/offline-fixture trust
 split, independent bounded attempt ledger, complete claim/attempt terminal outcomes,
-one-shot immutable seal-then-publish, synchronous fixed-ring reclamation, fixture
-zero-CAS/no-production-sample behavior, and exact normalization round-trip.
+nonempty exact ordered all-runtime seal, one-winner immutable publish/cancel transaction,
+five-field public projection, synchronous fixed-ring reclamation, fixture
+zero-CAS/no-production-sample behavior, exact normalization round-trip, merged-docs hash lock,
+and all eight downstream behavioral rows.
 M3-01 is the public companion for M3-02/M3-03. M3 builds that provenance-qualified evidence packet, implements the minimal standard SunSpec
 family needed by phase 1, then records the Fronius TCP read-only disposition. M3-03 returns
 `STANDARD_ONLY` when M3-01/M3-02 prove the required slice fully standard, or

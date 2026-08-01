@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONDONTWRITEBYTECODE=1
 
-FMV3_DOCS_CANDIDATE_SHA="0dd470495ac69a3a7f30ec235dd0bb83977a99ad"
+FMV3_DOCS_CANDIDATE_SHA="4a4c6f431ae0166e309bee71771c66aebe0d173a"
 FMV3_DOCS_CANDIDATE_REMOTE="https://github.com/Project-Helianthus/helianthus-docs-ebus.git"
 fmv3_docs_temp=""
 cleanup_fmv3_docs_candidate() {
@@ -23,10 +23,15 @@ if [ -z "${FMV3_DOCS_CANDIDATE_ROOT:-}" ]; then
   export FMV3_DOCS_CANDIDATE_ROOT="$fmv3_docs_temp"
 fi
 
-TOKEN_VENV="${TMPDIR:-/tmp}/helianthus-plans-tokenenv"
+VALIDATION_CACHE_ROOT="${HELIANTHUS_VALIDATION_CACHE_ROOT:-${TMPDIR:-/tmp}}"
+TOKEN_VENV="$VALIDATION_CACHE_ROOT/helianthus-plans-tokenenv"
 if [ ! -x "$TOKEN_VENV/bin/python" ]; then
+  if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+    echo "Pinned Python validation dependencies were not pre-provisioned." >&2
+    exit 1
+  fi
   python3 -m venv "$TOKEN_VENV"
-  "$TOKEN_VENV/bin/pip" install -q pyyaml tiktoken >/dev/null
+  "$TOKEN_VENV/bin/pip" install -q 'PyYAML==6.0.2' 'tiktoken==0.11.0' >/dev/null
 fi
 
 "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_msp_r00_l_ledger.py"
@@ -83,14 +88,16 @@ if [ "$fronius_plan_count" -ne 1 ]; then
 fi
 "$TOKEN_VENV/bin/python" "$fronius_plan_dir/validate_plan.py" "$fronius_plan_dir"
 
-NODE_DIR="${TMPDIR:-/tmp}/helianthus-plans-node"
+NODE_DIR="$VALIDATION_CACHE_ROOT/helianthus-plans-node"
 if [ ! -d "$NODE_DIR/node_modules/@anthropic-ai/tokenizer" ]; then
+  if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+    echo "Pinned Node validation dependencies were not pre-provisioned." >&2
+    exit 1
+  fi
   mkdir -p "$NODE_DIR"
-  (
-    cd "$NODE_DIR"
-    npm init -y >/dev/null 2>&1
-    npm install --silent @anthropic-ai/tokenizer >/dev/null 2>&1
-  )
+  cp "$ROOT/scripts/validation-node/package.json" "$NODE_DIR/package.json"
+  cp "$ROOT/scripts/validation-node/package-lock.json" "$NODE_DIR/package-lock.json"
+  npm ci --silent --ignore-scripts --prefix "$NODE_DIR" >/dev/null 2>&1
 fi
 
 ROOT="$ROOT" NODE_PATH="$NODE_DIR/node_modules" "$TOKEN_VENV/bin/python" - <<'PY'

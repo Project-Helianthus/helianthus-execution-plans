@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `76e676f1c0c724d5f26a078253f8ecbb698ca921b02e7ed6053a175b01bc215c`
+Canonical-SHA256: `6b6ec69cbfc38b80aef763b6df602d1d4ed169f8ee22866e0459e3246ef8751f`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -52,18 +52,66 @@ contracts. Public packages, CI, fixtures, docs, and release artifacts must build
 private access. A private discovery must be restated as sanitized, independently
 reviewable public evidence before it can affect a public profile or semantic contract.
 
-The `.github` M0 issue creates the two empty public Modbus repositories. Their destination
-bootstrap issues depend on that governance issue and run only after their repositories
-exist. Private governance creation remains deferred to `.github` issue FMV3-M0-04; only
+The `.github` M0 issue creates the two empty public Modbus repositories. Each destination then
+uses one exact no-parent empty-tree root commit to establish `main` as the legal base for issue
+#1 / PR #2. That root is the sole direct-push initialization exception per destination; the
+bootstrap implementation itself is squash-merged from an issue branch. Private governance
+creation remains deferred to `.github` issue FMV3-M0-04; only
 after it creates both empty targets may destination bootstraps FMV3-M0-05/FMV3-M0-07 run.
 All three require future explicit authorization.
 Milestones group related issues but do not own code. Each issue row names exactly one
 repository. Cross-repository behavior is joined by explicit dependencies and versioned
 contracts, never by one issue editing multiple repositories.
+Every executable issue carries an explicit integer `complexity` from 1 through 10. Preflight
+materializes the plan-pinned model router and policy, executes the exact role/complexity/risk route
+in OpenAI-only mode, and requires an issue/anchor-bound non-degraded prescription receipt before
+claim acquisition. `max` support is never assumed: the launcher flag is supplied only after the
+active owner-trusted orchestration mechanism confirms it can apply that effort. Public docs issues
+route as `docs/architecture`; other authorized issues route as `developer`. Protocol, security,
+concurrency, and recovery gates map to pinned risk overrides.
 
 The machine-readable `repository_mutex` is enforced by `cruise-topology` and
-`cruise-preflight`: per repository, at most one issue and one PR may be active. The
-validator checks only that structural ownership contract and does not simulate scheduling.
+`cruise-preflight`: one protected append-only v2 CAS ref exists per repository, and authorization
+requires exactly the selected issue open with no open PR. A no-bypass integrity ruleset forbids
+claim-ref deletion/non-fast-forward, while a separate writer ruleset restricts creation/update to
+the administrator bypass. The anchored owner actor and HMAC commitment are verified before first
+acquisition and on every signed event. Each acquisition renews or takes over by fast-forwarding
+from the exact observed ref. Release appends a signed tombstone from the exact acquired SHA, so
+history, generation, and ownership cannot reset through deletion. The returned ledger/generation/
+SHA/expiry fence is checked through the 512-event authenticated chain to genesis. The final event
+is reserved for release, after which a future anchored owner-epoch rotation is required. Claim-ref
+mutation re-reads the exact remote ref after every push result: exact target is reconciled
+success, while any other or unavailable result forces completion-ambiguous `STOP` without retry.
+Standalone `--verify-claim` is read-only diagnostic; protected GitHub mutations use `--fenced-gh-api`, which
+holds the stable host-local kernel process lock plus owner-secret inode lock and performs exact
+pre/post verification around one declared issue-bound REST capability with payload checks, using a
+fresh private one-shot validator directory for each check. Every check also re-observes the exact
+selected issue and a capability-specific open-PR mutex: pull creation transitions from zero open
+PRs to exactly one same-repository `main` PR from the selected issue branch with the exact anchored
+issue title and exactly one closing reference; issue comments/labels permit at most that exact PR;
+repository creation permits none. Any competing PR race forces
+completion-ambiguous `STOP` and reconciliation. The fixed allowlist covers exact-schema
+selected-issue comments/labels, exact-schema PR creation with exactly one selected-issue closing
+reference, and the FMV3-M0-01-only exact minimal payload for either named public repository; issue
+edits, extra fields/references, and all other endpoints fail closed. A long-running same-run owner
+uses `--renew-claim` with the exact current SHA to
+append one signed successor. Lease time comes from GitHub's authenticated API `Date` header and
+expiry equality rejects verification. Cross-repository CAS is unavailable, so either a nonzero
+mutation result or a post-check failure forces `STOP` without retry and reconciliation rather than
+claiming that the mutation was atomically prevented.
+Branch publication and deletion use ordinary Git push under the active repository claim; the REST
+allowlist has no `git/refs` capability.
+Mutation payloads are parsed once from retained bytes and supplied to `gh` over stdin, so replacing
+the private pathname cannot alter the authorized request. Postflight executes after every attempted
+mutation subprocess exit, including interrupts and exceptions. The canonical checkout fetches full
+history reachable from the observed `main` SHA so the permanent PR #91 anchor survives later main
+commits. Required-status legacy contexts must all map to app-bound checks, and the two docs owner
+attestations require strict distinct lowercase UUIDs and independently distinct output digests.
+The post-merge anchor job checks out and asserts the immutable push-event SHA rather than resolving
+the moving `main` branch name.
+The
+M1-06 authorization additionally pages immutable GitHub PR history and rejects any PR
+whose open interval overlaps either the harness or product PR interval.
 
 After the public Modbus bootstrap and M0 boundary documentation, bounded public docs issue
 FMV3-M1-00 defines the M1 Modbus protocol/read-only, TCP/RTU, scheduling/recovery, MBAP
@@ -88,9 +136,15 @@ acyclic dependency ancestry to the merged companion.
 PR #89 remains predecessor provenance for the successor lane. PR #91 becomes the sole
 current authorization anchor only after the fixed GitHub API proves its original base/head
 identity, one-parent squash topology, authorized merger, and tree equality with a successful
-canonical `pull_request` workflow run, two separate submitted authorized-issuer native reviews,
-and their unedited aggregate. Each review binds its full SHA/tree, `NO_FINDINGS`, provider, and
-fresh context; the aggregate binds the workflow run and review IDs. Issue #90 tracks scope but is not evidence.
+mandatory non-authoritative same-change-set post-merge canonical-main `push` workflow execution observation at the exact squash SHA, exactly one authenticated official Codex bot review,
+two separate submitted authorized-issuer owner process attestations, and their unedited
+aggregate. Every record binds its full SHA/tree and `NO_FINDINGS`; the owner attestations bind
+fresh OpenAI contexts without masquerading as provider-authenticated artifacts, and the aggregate
+binds the workflow run plus all three review IDs. Issue #90 tracks scope but is not evidence.
+That immutable PR #91 decision/review is the external bootstrap root and must precede docs PR
+#386's merge; it pins the candidate head/tree, normative manifest, policy, validator and tests,
+normalized V1 semantics, and critical no-caller-control/runtime-source invariants. Refreshed docs
+hashes and same-change-set validation are mandatory but not independent authority.
 
 FMV3-M1-05 follows M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` through exact docs
 issue #385 and closing PR #386 evidence. FMV3-M1-06 depends explicitly on both M1-04 and
@@ -98,14 +152,19 @@ M1-05 and requires docs PR #386 merged with the exact bound head and tree.
 FMV3-M2-01 retains its M1-00 companion metadata, records M1-05 as its corrective companion,
 depends on M1-06, and accepts the producer only through an external fail-closed JSON file
 whose bounded issue/PR/commit/run/review IDs are selectors only. Live GitHub must prove the
-immutable marked/title issue; exact same-repo closing squash PR, head/tree/base topology, issue
-closure, and canonical-main ancestry; bounded test-only RED ancestry/diff with empty page two and
-exact-PR hosted `ci_local` failure; exact-head GREEN required-check and `ci_local` success; official
-Codex canonical-template zero-inline review after eight exact-parent production-only mutants whose
-canonical patch digests are precommitted by the GREEN report and whose mapped tests fail only after
-same-SHA compile/no-tests success; two owner `NO_FINDINGS` process attestations after GREEN and mutations;
-and the fixed closed conformance report binding all pinned cases to exact nonempty Go tests/PASS, patch digests,
-and production contract symbols. The exact docs R2 commit/tree, complete predecessor-inclusive
+immutable marked/title issue; a sequential owner-authored harness PR that alone adds the exact
+plan-anchored dual-mode workflow, AST guard, docs-lock validator, and exact merged-docs lock, leaves inherited CI tooling unchanged, passes
+required checks plus one clean exact-head Codex review, merges first, and becomes the exact base
+of the same-repo closing product squash PR; product head/tree/base topology, issue closure, and
+canonical-main ancestry; bounded test-only RED ancestry/diff with exact subject and empty page two;
+anchored exact-PR RED guard/compile success followed by exact-suite failure; exact-head required-check
+GREEN plus anchored conformance success; and eight exact-parent production-only mutants that retain
+the harness blobs, match patch digests precommitted by the GREEN report, pass executable-AST and
+parent-baseline guards, compile, and then fail only their mapped mutant tests. One official Codex
+canonical-template zero-inline product review and two owner `NO_FINDINGS` process attestations follow
+GREEN and all mutations; the fixed closed conformance report binds every pinned case to an exact
+nonempty Go test/PASS, patch digest, and production contract symbol. The exact docs R2 commit/tree,
+complete predecessor-inclusive
 normative closure, and expanded `bounded_values` projection are bound. They require
 claim-in-progress, cancelling, atomic all-success-before-seal, source-owned CancelOpen,
 byte/field bounds, and pre-reserved non-wrapping, non-reused terminal sequences. M1-06 and
@@ -120,8 +179,21 @@ are intended to apply across conforming manufacturers. FMV3-M3-03 records
 cover the required slice; it creates an overlay only under `OVERLAY_REQUIRED` for qualified
 vendor-specific facts. `STANDARD_ONLY` retains Fronius fixtures/live qualification and
 unblocks M4 with public evidence, green conformance CI, and no implementation commit or
-empty overlay. FMV3-M3-01 is the public companion for M3-02/M3-03. Later FMV3-M7-01 is the
-public companion for M7-02/M7-03/M7-04 and closes only after the complete Growatt
+empty overlay. FMV3-M3-01 is the public companion for M3-02/M3-03. M3-03 CI rejects
+TCP-concrete imports, including escaped Go import literals with arbitrary Unicode aliases and
+same-line semicolon import declarations, and
+activates the profile through a non-TCP fake that implements only the neutral runtime interface.
+The bound neutral adapter has no imports or extra declarations: it is test-only for
+`STANDARD_ONLY`, while `OVERLAY_REQUIRED` confines it to `profiles/fronius` and requires a
+separate non-test implementation source. Named tests share the exact neutral-proof package and
+directory, cannot locally redeclare the bound interface, activation, or scan helpers, have no build
+constraints or nested module, and run in an exact unskippable YAML job/step pinned to
+`./profiles/fronius` for `OVERLAY_REQUIRED` or the proof package path for `STANDARD_ONLY`. `STANDARD_ONLY`
+proves a complete evidence-only base/head diff; `OVERLAY_REQUIRED` proves a complete nonempty
+test-only parent/RED diff where the RED parent SHA and tree are exactly the fetched PR base SHA
+and tree, and where RED retains the identical GREEN canonical test-source blob. The fixed
+head/tree assertion is executable after GitHub expression substitution.
+Later FMV3-M7-01 is the public companion for M7-02/M7-03/M7-04 and closes only after the complete Growatt
 candidate/admission contract, qualified facts, criteria, provenance/licensing, unsupported
 disposition, and exact code/document mapping are public and merged. M7-03 consumes that
 companion with no later docs change: `PROFILE_ADMITTED` alone triggers RED/code, while
@@ -203,11 +275,15 @@ non-reconstructing terminal metadata with lowest-sequence-first eviction. Offlin
 receive none.
 
 The private M2 attempt ledger is independent of M1 capability state. Duplicate
-`AttemptKey` is rejected. Claim entries move `unresolved` to exactly one immutable terminal
-outcome: `claim_succeeded`, `capability_cancelled`, `capability_failed`,
-`capability_expired`, `claim_rejected_terminal`, or `attempt_cancelled`. Attempts permit
-`open -> sealed|cancelled`, `sealed -> publishing|cancelled`, and
-`publishing -> published|publish_failed`. `Publish()` is the one-shot
+`AttemptKey` is rejected. Every admitted claim moves `unresolved -> claim_in_progress` only
+while its attempt is `open`, then moves exactly once to `claim_succeeded`,
+`capability_cancelled`, `capability_failed`, `capability_expired`, or
+`claim_rejected_terminal`; cancellation alone may move a still-`unresolved` claim to
+`attempt_cancelled`. Attempts permit exactly `open -> sealed|cancelling`,
+`sealed -> publishing|cancelling`, `cancelling -> cancelled`, and
+`publishing -> published|publish_failed`. Cancellation blocks admission, seal, and publish,
+drains every `claim_in_progress` operation, and closes only remaining `unresolved` claims.
+Seal atomically requires every data-bearing runtime claim to be `claim_succeeded`. `Publish()` is the one-shot
 `sealed -> publishing` transition, reads immutable sealed ledger state, and accepts no
 mutable DTO. Finite-positive limits count all retained attempt and claim states, claims per
 attempt, the checked retained-attempt-limit times claim-limit product, and the

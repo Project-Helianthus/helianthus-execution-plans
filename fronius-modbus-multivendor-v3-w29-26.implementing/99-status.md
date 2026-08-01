@@ -1,6 +1,6 @@
 # Implementing status
 
-Canonical-SHA256: `76e676f1c0c724d5f26a078253f8ecbb698ca921b02e7ed6053a175b01bc215c`
+Canonical-SHA256: `6b6ec69cbfc38b80aef763b6df602d1d4ed169f8ee22866e0459e3246ef8751f`
 
 State: implementing
 Current milestone: M0
@@ -13,9 +13,9 @@ Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
 Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative
 Authorization anchor: PR #91 exact squash merge plus external review attestation required; PR #89 is predecessor provenance only; issue #90 is tracking only
 Canonical main authority: fixed GitHub API for Project-Helianthus/helianthus-execution-plans; origin is identity-only
-External review attestation: successful exact-head canonical pull_request workflow run, one authenticated official Codex review, two owner process attestations, and unedited aggregate binding workflow-run and review IDs
-Docs R2 rebind: complete; exact docs PR #386 head/tree, canonical-main ancestry, exact-head CI, and review chain bound
-Repository creation authorized: yes, through FMV3-M0-01
+External review attestation: owner_plus_authenticated_independent_review_v1; authoritative owner exact-tree decision plus official Codex exact-head review; owner attestations non-independent; mandatory non-authoritative same-change-set post-merge CI observation
+Docs R2 rebind: complete; PR #91 bootstrap precedes docs PR #386 merge and binds exact head/tree, blob closure, normalized V1 semantics, critical invariants, canonical-main ancestry, exact-head CI, and review chain
+Repository creation authorized: yes, through FMV3-M0-01; M0-02/M0-03 bind the sole exact empty-tree root initialization exception per destination
 Private repository action: deferred; creation requires future explicit authorization
 Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
 Gateway work authorized: no; stop before FMV3-M4-01
@@ -32,11 +32,19 @@ correction tracked by issue #90:
 - additive FMV3-M1-05 public companion and FMV3-M1-06 runtime corrective authorized,
   with FMV3-M2-01 depending on the merged corrective producer and retaining the original
   companion history;
-- PR #91 authorization requires a successful exact-head pull_request workflow run, one authenticated official Codex review, two owner exact-head/tree `NO_FINDINGS` process attestations, and an aggregate binding their IDs,
-  canonical-main API resolution, one-parent squash topology, and trusted-launcher materialization
-  of the anchored validator before execution;
+- PR #91 authorization trusts the owner exact-tree squash decision plus one authenticated official Codex review; two owner exact-head/tree `NO_FINDINGS` process attestations are non-independent, and the exact-squash canonical-main push workflow is mandatory but non-authoritative same-change-set execution evidence; resistance to a malicious or compromised repository owner is out of scope,
+  canonical-main API resolution into a fresh owner-private checkout with caller Git config disabled,
+  one-parent squash topology, launcher-and-validator pinned Git/GitHub CLI digests and
+  child-environment allowlists, stable candidate/inode materialization, tokenless PR-head CI,
+  unmodified Ubuntu launcher bootstrap plus post-merge anchor authentication, exact selected issue
+  binding, and one repository-scoped remote Git-ref CAS claim with exact-open-issue post-claim
+  recheck before execution plus private-secret/exact-acquired-SHA release through the same launcher;
+- PR #91 is the external V1 docs bootstrap root before PR #386 merges: it binds the candidate
+  head/tree, manifest, policy, semantic validator/test closure, normalized semantics, and critical
+  runtime-source/no-caller-control invariants; refreshed docs-internal hashes are not independent;
 - direct predecessor completion is fail-closed: completed dependencies use exact static live-GitHub
-  issue/PR/title/relation/tree/topology/check bindings; unresolved direct predecessors require exact-set,
+  issue/PR/title/branch/interval/relation/tree/topology bindings and immutable pre-merge check-run
+  IDs; unresolved direct predecessors require exact-set,
   bounded GitHub-authenticated `dependencies` certificates with no missing, duplicate, or extra rows;
 - the exact docs R2 commit/tree, complete predecessor-inclusive normative closure, canonical-main
   ancestry, successful exact-head required checks, official Codex zero-inline review, and two fresh

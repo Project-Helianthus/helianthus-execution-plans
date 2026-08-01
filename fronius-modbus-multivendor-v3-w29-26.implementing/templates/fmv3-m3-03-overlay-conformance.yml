@@ -1,0 +1,28 @@
+name: FMV3 M3-03 overlay conformance
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout bound head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Assert bound head and tree
+        run: test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}" && test "$(git rev-parse HEAD^{tree})" = "$(git rev-parse "${{ github.event.pull_request.head.sha }}^{tree}")"
+      - name: Prepare isolated Fronius proof package
+        run: find profiles/fronius -maxdepth 1 -type f -name '*_test.go' ! -name 'fronius_overlay_test.go' -delete && test -f profiles/fronius/fronius_overlay_test.go
+      - name: Build Fronius proof package
+        run: go build ./profiles/fronius
+      - name: Run Fronius neutral activation
+        run: go test ./profiles/fronius -run '^TestFroniusOverlayActivatesThroughNeutralRuntime$'
+      - name: Run Fronius import boundary
+        run: go test ./profiles/fronius -run '^TestFroniusOverlayRejectsTCPConcreteImports$'

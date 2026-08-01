@@ -12,23 +12,78 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 jobs:
+  fmv3-anchor-linux-bootstrap:
+    permissions: {}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fetch exact candidate anonymously
+        run: |
+          git init -b main .
+          git remote add origin \
+            https://github.com/Project-Helianthus/helianthus-execution-plans.git
+          git fetch --no-tags --depth=1 origin "$CANDIDATE_SHA"
+          git checkout --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify fixed-path Linux tool fingerprints
+        run: |
+          test "$(command -v git)" = /usr/bin/git
+          test "$(command -v gh)" = /usr/bin/gh
+          printf '%s  %s\n' \
+            f54a87f6253aab09ed7b522bd78ddeab509105b1043076209d89127e55877a48 \
+            /usr/bin/git \
+            56b8bbbb27b066ecb33dbef9a256dc9d1314adaeff0908a752feba6c34053b40 \
+            /usr/bin/gh | sha256sum -c -
+
+      - name: Exercise the unmodified anchored launcher tool bootstrap
+        run: |
+          python3 -m venv "$RUNNER_TEMP/fmv3-launcher"
+          "$RUNNER_TEMP/fmv3-launcher/bin/pip" install \
+            --disable-pip-version-check --require-hashes \
+            -r scripts/requirements-validation-ci.txt
+          "$RUNNER_TEMP/fmv3-launcher/bin/python" scripts/fmv3_anchor_validator.py \
+            . fronius-modbus-multivendor-v3-w29-26.implementing \
+            --self-test-trusted-tools
+        env:
+          GH_TOKEN: ""
+          GITHUB_TOKEN: ""
+
   validate:
+    permissions: {}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Fetch exact candidate anonymously
+        run: |
+          git init -b main .
+          git remote add origin \
+            https://github.com/Project-Helianthus/helianthus-execution-plans.git
+          git fetch --no-tags origin "$CANDIDATE_SHA"
+          git checkout --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+        env:
+          CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Checkout exact FMV3 docs candidate
-        uses: actions/checkout@v4
-        with:
-          repository: Project-Helianthus/helianthus-docs-ebus
-          ref: 0dd470495ac69a3a7f30ec235dd0bb83977a99ad
-          path: .ci/fmv3-docs-candidate
-          fetch-depth: 1
+      - name: Fetch exact FMV3 docs candidate anonymously
+        run: |
+          mkdir -p .ci/fmv3-docs-candidate
+          git -C .ci/fmv3-docs-candidate init -b main .
+          git -C .ci/fmv3-docs-candidate remote add origin \
+            https://github.com/Project-Helianthus/helianthus-docs-ebus.git
+          git -C .ci/fmv3-docs-candidate fetch --no-tags --depth=1 origin \
+            4a4c6f431ae0166e309bee71771c66aebe0d173a
+          git -C .ci/fmv3-docs-candidate checkout --detach FETCH_HEAD
+          test "$(git -C .ci/fmv3-docs-candidate rev-parse HEAD)" = \
+            4a4c6f431ae0166e309bee71771c66aebe0d173a
 
       - name: Normalize FMV3 docs candidate origin
         run: |
@@ -41,40 +96,61 @@ jobs:
         run: git fetch --no-tags origin +refs/pull/66/head:refs/remotes/origin/evidence/aggregate
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
+
+      - name: Install pinned validation dependencies without GitHub credentials
+        run: |
+          python3 -m venv "$RUNNER_TEMP/helianthus-plans-tokenenv"
+          "$RUNNER_TEMP/helianthus-plans-tokenenv/bin/pip" install \
+            --disable-pip-version-check --require-hashes \
+            -r scripts/requirements-validation-ci.txt
+          mkdir -p "$RUNNER_TEMP/helianthus-plans-node"
+          cp scripts/validation-node/package.json \
+            "$RUNNER_TEMP/helianthus-plans-node/package.json"
+          cp scripts/validation-node/package-lock.json \
+            "$RUNNER_TEMP/helianthus-plans-node/package-lock.json"
+          npm ci --ignore-scripts --prefix "$RUNNER_TEMP/helianthus-plans-node"
+        env:
+          GH_TOKEN: ""
+          GITHUB_TOKEN: ""
 
       - name: Validate plans repo
         run: ./scripts/validate_plans_repo.sh
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ""
+          GITHUB_TOKEN: ""
           FMV3_DOCS_CANDIDATE_ROOT: ${{ github.workspace }}/.ci/fmv3-docs-candidate
+          HELIANTHUS_VALIDATION_CACHE_ROOT: ${{ runner.temp }}
 
   modbus-m1-02-remote-attestation:
     if: >-
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.number == 84) ||
       (github.event_name == 'workflow_dispatch' &&
        github.ref == 'refs/heads/main' &&
        inputs.post_merge_sha != '')
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
     steps:
       - name: Checkout reviewed anchor
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
           ref: >-
             ${{ github.event_name == 'workflow_dispatch' &&
                 'main' || github.event.pull_request.head.sha }}
+          persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
 
@@ -82,5 +158,41 @@ jobs:
         run: >-
           ./scripts/validate_modbus_m1_02_remote_attestation.sh
           "${{ inputs.post_merge_sha }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  fmv3-anchor-post-merge:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout canonical main without persisted credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Assert exact push revision
+        run: test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Authenticate merged PR91 through the unmodified launcher
+        run: |
+          python3 -m venv "$RUNNER_TEMP/fmv3-launcher"
+          "$RUNNER_TEMP/fmv3-launcher/bin/pip" install \
+            --disable-pip-version-check --require-hashes \
+            -r scripts/requirements-validation-ci.txt
+          anchor="$(gh api repos/Project-Helianthus/helianthus-execution-plans/pulls/91 --jq .merge_commit_sha)"
+          "$RUNNER_TEMP/fmv3-launcher/bin/python" scripts/fmv3_anchor_validator.py \
+            . fronius-modbus-multivendor-v3-w29-26.implementing \
+            --verify-anchor-only --plan-head-sha "$anchor"
         env:
           GH_TOKEN: ${{ github.token }}

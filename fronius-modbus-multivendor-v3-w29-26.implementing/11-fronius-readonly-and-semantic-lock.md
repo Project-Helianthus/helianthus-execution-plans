@@ -1,6 +1,6 @@
 # Fronius read-only vertical and semantic lock
 
-Canonical-SHA256: `76e676f1c0c724d5f26a078253f8ecbb698ca921b02e7ed6053a175b01bc215c`
+Canonical-SHA256: `6b6ec69cbfc38b80aef763b6df602d1d4ed169f8ee22866e0459e3246ef8751f`
 
 Depends on: `10-architecture-and-repo-boundaries.md`; M1 TCP and M2 profile contracts.
 Scope: Fronius phase-1 evidence, fixtures, profile detection, gateway raw MCP, live hardware proof, canonical PV lock, and public consumer order.
@@ -68,9 +68,13 @@ conformance to record `STANDARD_ONLY` when the required Fronius slice is fully s
 `OVERLAY_REQUIRED` only for qualified vendor-specific facts. Both dispositions retain
 Fronius fixtures and live-qualification scope, exercise every applicable codec order and
 packing case, remain read-only, publish the evidence/disposition, and pass conformance CI
-before unblocking M4. `STANDARD_ONLY` creates no implementation commit and no empty or
-invented overlay. Only `OVERLAY_REQUIRED` invokes `TDD_RED_IF_OVERLAY_REQUIRED`; an admitted overlay states why the standard family is insufficient, which
-model/firmware/gateway evidence admits it, and how conflicts fail closed.
+before unblocking M4. Completion uses `helianthus.fmv3-m3-03-completion.v2`: GREEN is fixed
+to exact `workflow_run_attempt`, `workflow_job_id`, and `workflow_check_run_id`; only
+`OVERLAY_REQUIRED` also supplies exact `red_workflow_run_attempt`, `red_job_id`, and
+`red_check_run_id`. Later reruns do not replace either selected attempt. `STANDARD_ONLY`
+creates no implementation commit and no empty or invented overlay. Only `OVERLAY_REQUIRED`
+invokes `TDD_RED_IF_OVERLAY_REQUIRED`; an admitted overlay states why the standard family is
+insufficient, which model/firmware/gateway evidence admits it, and how conflicts fail closed.
 
 ## Gateway raw-MCP phase
 
