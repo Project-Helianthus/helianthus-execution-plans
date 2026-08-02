@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `6b6ec69cbfc38b80aef763b6df602d1d4ed169f8ee22866e0459e3246ef8751f`
+Canonical-SHA256: `9e7b3b88ada068430a7653d325c7df874a1067f646bcc4195c741b35a04632f0`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -188,7 +188,8 @@ The bound neutral adapter has no imports or extra declarations: it is test-only 
 separate non-test implementation source. Named tests share the exact neutral-proof package and
 directory, cannot locally redeclare the bound interface, activation, or scan helpers, have no build
 constraints or nested module, and run in an exact unskippable YAML job/step pinned to
-`./profiles/fronius` for `OVERLAY_REQUIRED` or the proof package path for `STANDARD_ONLY`. `STANDARD_ONLY`
+the recursive `./profiles/fronius/...` production build for `OVERLAY_REQUIRED` or the exact proof
+package build for `STANDARD_ONLY`; both named tests remain pinned to the exact proof package. `STANDARD_ONLY`
 proves a complete evidence-only base/head diff; `OVERLAY_REQUIRED` proves a complete nonempty
 test-only parent/RED diff where the RED parent SHA and tree are exactly the fetched PR base SHA
 and tree, and where RED retains the identical GREEN canonical test-source blob. The fixed

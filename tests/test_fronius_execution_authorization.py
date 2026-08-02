@@ -6816,6 +6816,14 @@ var _ *net.TCPConn
                 self.assertEqual(workflow["permissions"], {"contents": "read"})
                 self.assertEqual(template.count(b"go test "), 2)
                 self.assertEqual(template.count(b"go build "), 1)
+                expected_build = (
+                    b"go build ./profiles/fronius/..."
+                    if disposition == "OVERLAY_REQUIRED"
+                    else b"go build ./registry"
+                )
+                self.assertIn(expected_build, template)
+                if disposition == "OVERLAY_REQUIRED":
+                    self.assertNotIn(b"go build ./profiles/fronius\n", template)
                 self.assertIn(b"Prepare isolated Fronius proof package", template)
                 self.assertIn(b"Run Fronius neutral activation", template)
                 self.assertIn(b"Run Fronius import boundary", template)

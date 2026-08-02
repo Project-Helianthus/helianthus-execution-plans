@@ -170,19 +170,21 @@ M3_03_WORKFLOW_CONTRACT = {
     "OVERLAY_REQUIRED": {
         "workflow_path": ".github/workflows/fmv3-m3-03-overlay-conformance.yml",
         "template_path": "templates/fmv3-m3-03-overlay-conformance.yml",
-        "sha256": "725f2e51367fbe43cc7cef9bcb52ddc9b3f45eb0931f15783a1199afde3e24c2",
+        "sha256": "f72fc7b1f3fadc78af5b8dd8dd1529936a040d01f456751ff4224d6b47ab2d85",
     },
 }
 M3_03_PROOF_CONTRACT = {
     "STANDARD_ONLY": {
         "directory": "registry",
         "source_path": "registry/fronius_overlay_test.go",
-        "target": "./registry",
+        "build_target": "./registry",
+        "test_target": "./registry",
     },
     "OVERLAY_REQUIRED": {
         "directory": "profiles/fronius",
         "source_path": "profiles/fronius/fronius_overlay_test.go",
-        "target": "./profiles/fronius",
+        "build_target": "./profiles/fronius/...",
+        "test_target": "./profiles/fronius",
     },
 }
 M3_03_PREPARE_STEP_NAME = "Prepare isolated Fronius proof package"
@@ -687,8 +689,9 @@ self-consistent caller-supplied executable hash is never sufficient. PR-head val
 no GitHub token and no persisted checkout credential. Hosted Ubuntu exercises the unmodified
 launcher against its platform allowlist before merge and authenticates the real PR91 anchor from
 trusted canonical main after merge. The versioned launcher reference and SHA-256 are bound in the
-PR91 tooling record; the installed external copy must remain byte-identical. The checked-out
-candidate validator is defense-in-depth and is never the bootstrap trust root.
+PR91 tooling record. Preflight must execute that repo-owned launcher directly from the owner-private
+canonical-main checkout; copied or separately installed launcher executables are forbidden. The
+checked-out candidate validator is defense-in-depth and is never the bootstrap trust root.
 
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
 `helianthus-modbusreg`. M0-02 and M0-03 each then use their sole destination-initialization
@@ -2417,15 +2420,15 @@ def require_m3_03_completion_artifact(
         },
         {
             "name": M3_03_BUILD_STEP_NAME,
-            "run": f"go build {proof_contract['target']}",
+            "run": f"go build {proof_contract['build_target']}",
         },
         {
             "name": M3_03_ACTIVATION_STEP_NAME,
-            "run": f"go test {proof_contract['target']} -run '^TestFroniusOverlayActivatesThroughNeutralRuntime$'",
+            "run": f"go test {proof_contract['test_target']} -run '^TestFroniusOverlayActivatesThroughNeutralRuntime$'",
         },
         {
             "name": M3_03_IMPORT_STEP_NAME,
-            "run": f"go test {proof_contract['target']} -run '^TestFroniusOverlayRejectsTCPConcreteImports$'",
+            "run": f"go test {proof_contract['test_target']} -run '^TestFroniusOverlayRejectsTCPConcreteImports$'",
         },
     ]
     require(workflow_job["steps"] == expected_steps,
@@ -2749,7 +2752,7 @@ def require_m3_03_completion_artifact(
     require(proof_package == ("fronius" if artifact["disposition"] == "OVERLAY_REQUIRED" else "registry"),
             "FMV3-M3-03 neutral runtime proof package is not the fixed proof package")
     proof_directory = PurePosixPath(proof["source_path"]).parent.as_posix()
-    expected_command_target = proof_contract["target"]
+    expected_command_target = proof_contract["test_target"]
     named_test_source_blobs: dict[str, str] = {}
     if proof_is_test_only:
         named_test_source_blobs[proof["source_path"]] = proof["source_blob_sha"]

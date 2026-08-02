@@ -17,10 +17,6 @@ import unittest
 from unittest import mock
 
 
-EXTERNAL_LAUNCHER = Path(
-    "/Users/razvan/.codex/skills/cruise-preflight/scripts/"
-    "fmv3_anchor_validator.py"
-)
 LAUNCHER = Path(__file__).resolve().parents[1] / "scripts" / "fmv3_anchor_validator.py"
 GIT = Path("/usr/bin/git")
 
@@ -1351,12 +1347,19 @@ raise SystemExit(0)
             with self.assertRaisesRegex(launcher.LauncherError, "digest is not pinned"):
                 launcher.trusted_executable((candidate,), "GitHub CLI")
 
-    @unittest.skipUnless(
-        EXTERNAL_LAUNCHER.is_file(),
-        "external cruise-preflight launcher is not installed in this environment",
-    )
-    def test_external_launcher_matches_versioned_reference(self) -> None:
-        self.assertEqual(EXTERNAL_LAUNCHER.read_bytes(), LAUNCHER.read_bytes())
+    def test_runtime_contract_forbids_external_launcher_copy(self) -> None:
+        canonical = (
+            LAUNCHER.parents[1]
+            / "fronius-modbus-multivendor-v3-w29-26.implementing"
+            / "00-canonical.md"
+        ).read_text(encoding="utf-8")
+        normalized = " ".join(canonical.split())
+        self.assertIn(
+            "must execute that repo-owned launcher directly from the owner-private "
+            "canonical-main checkout",
+            normalized,
+        )
+        self.assertNotIn("installed external copy must remain byte-identical", normalized)
 
 
 if __name__ == "__main__":
