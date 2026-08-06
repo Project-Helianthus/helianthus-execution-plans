@@ -44,7 +44,9 @@ PLAN_PATH = "fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml"
 VALIDATOR_PATH = (
     "fronius-modbus-multivendor-v3-w29-26.implementing/validate_plan.py"
 )
+LAUNCHER_PATH = "scripts/fmv3_anchor_validator.py"
 MATERIALIZATION_ENV_PREFIX = "FMV3_ANCHOR_MATERIALIZATION_"
+CANONICAL_REEXEC_ENV_PREFIX = "FMV3_CANONICAL_LAUNCHER_"
 GIT_SOURCE_CANDIDATES = (
     Path("/Library/Developer/CommandLineTools/usr/bin/git"),
     Path("/Applications/Xcode.app/Contents/Developer/usr/bin/git"),
@@ -431,6 +433,123 @@ def load_anchored_validator(
         "anchored validator blob does not match its SHA-256",
     )
     return validator, digest
+
+
+def load_anchored_launcher(
+    tools: TrustedTools, checkout: Path, plan_head_sha: str,
+) -> tuple[bytes, str]:
+    plan_blob = committed_regular_blob(tools, checkout, plan_head_sha, PLAN_PATH)
+    try:
+        plan = yaml.safe_load(plan_blob)
+    except yaml.YAMLError as error:
+        raise LauncherError("anchored plan YAML is invalid") from error
+    authorization = plan.get("execution_authorization") if isinstance(plan, dict) else None
+    anchor = authorization.get("authorization_anchor") if isinstance(authorization, dict) else None
+    tooling = anchor.get("tooling_binding") if isinstance(anchor, dict) else None
+    digest = tooling.get("launcher_reference_sha256") if isinstance(tooling, dict) else None
+    require(
+        isinstance(tooling, dict)
+        and tooling.get("launcher_reference_path") == LAUNCHER_PATH
+        and isinstance(digest, str)
+        and re.fullmatch(r"[0-9a-f]{64}", digest) is not None,
+        "anchored launcher tooling binding is invalid",
+    )
+    launcher = committed_regular_blob(tools, checkout, plan_head_sha, LAUNCHER_PATH)
+    require(
+        hashlib.sha256(launcher).hexdigest() == digest,
+        "anchored launcher blob does not match its SHA-256",
+    )
+    return launcher, digest
+
+
+def consume_canonical_reexec_marker() -> str | None:
+    names = {
+        key: f"{CANONICAL_REEXEC_ENV_PREFIX}{key}"
+        for key in ("PATH", "SHA256", "TOKEN", "TOKEN_FILE")
+    }
+    present = {key: os.environ.get(name) for key, name in names.items()}
+    if not any(value is not None for value in present.values()):
+        return None
+    require(all(isinstance(value, str) and value for value in present.values()),
+            "canonical launcher re-exec marker is incomplete")
+    raw_source = Path(__file__)
+    source = raw_source.resolve()
+    declared = Path(str(present["PATH"])).resolve()
+    token_path = Path(str(present["TOKEN_FILE"]))
+    require(source == declared and source.is_file() and not raw_source.is_symlink(),
+            "canonical launcher re-exec path is invalid")
+    source_metadata = source.stat()
+    token_metadata = os.lstat(token_path)
+    require(
+        source_metadata.st_uid == os.getuid()
+        and stat.S_IMODE(source_metadata.st_mode) == 0o500
+        and stat.S_ISREG(source_metadata.st_mode)
+        and stat.S_ISREG(token_metadata.st_mode)
+        and not stat.S_ISLNK(token_metadata.st_mode)
+        and token_metadata.st_uid == os.getuid()
+        and stat.S_IMODE(token_metadata.st_mode) == 0o400,
+        "canonical launcher re-exec files are not private",
+    )
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    require(digest == present["SHA256"],
+            "canonical launcher re-exec digest mismatch")
+    require(token_path.read_text(encoding="ascii") == present["TOKEN"],
+            "canonical launcher re-exec token mismatch")
+    token_path.unlink()
+    for name in names.values():
+        os.environ.pop(name, None)
+    return digest
+
+
+def require_initial_launcher_source(
+    caller_checkout: Path, launcher: bytes, digest: str,
+) -> None:
+    raw_source = Path(__file__)
+    source = raw_source.resolve()
+    expected = caller_checkout / LAUNCHER_PATH
+    require(source == expected.resolve() and source.is_file()
+            and not raw_source.is_symlink() and not expected.is_symlink(),
+            "initial launcher is not the repo-owned canonical-checkout entrypoint")
+    contents = source.read_bytes()
+    require(contents == launcher and hashlib.sha256(contents).hexdigest() == digest,
+            "initial launcher differs from the authenticated canonical launcher")
+
+
+def execute_canonical_launcher(
+    launcher: bytes, digest: str, root: Path,
+) -> int:
+    require(hashlib.sha256(launcher).hexdigest() == digest,
+            "canonical launcher materialization digest mismatch")
+    invocation = root / "canonical-launcher"
+    invocation.mkdir(mode=0o700)
+    invocation.chmod(0o700)
+    launcher_path = invocation / "fmv3_anchor_validator.py"
+    token_path = invocation / "one-use-token"
+    token = secrets.token_hex(32)
+    launcher_path.write_bytes(launcher)
+    launcher_path.chmod(0o500)
+    token_path.write_text(token, encoding="ascii")
+    token_path.chmod(0o400)
+    environment = {
+        name: os.environ[name]
+        for name in (
+            "HOME", "GH_TOKEN", "GITHUB_TOKEN", "LANG", "LC_ALL",
+            "FMV3_DOCS_CANDIDATE_ROOT", "HELIANTHUS_VALIDATION_CACHE_ROOT",
+        )
+        if os.environ.get(name)
+    }
+    environment["PYTHONNOUSERSITE"] = "1"
+    environment[f"{CANONICAL_REEXEC_ENV_PREFIX}PATH"] = str(launcher_path)
+    environment[f"{CANONICAL_REEXEC_ENV_PREFIX}SHA256"] = digest
+    environment[f"{CANONICAL_REEXEC_ENV_PREFIX}TOKEN"] = token
+    environment[f"{CANONICAL_REEXEC_ENV_PREFIX}TOKEN_FILE"] = str(token_path)
+    result = subprocess.run(
+        [sys.executable, "-I", "-s", str(launcher_path), *sys.argv[1:]],
+        check=False,
+        env=environment,
+    )
+    require(not token_path.exists(), "canonical launcher did not consume its re-exec token")
+    return result.returncode
 
 
 def execute_materialized_validator(
@@ -1290,6 +1409,7 @@ def main() -> int:
     ))
     args = parser.parse_args()
     try:
+        canonical_reexec_digest = consume_canonical_reexec_marker()
         checkout = args.checkout.resolve()
         caller_checkout = checkout
         plan_dir = args.plan_dir.resolve()
@@ -1320,6 +1440,21 @@ def main() -> int:
                 "--is-ancestor",
                 args.plan_head_sha,
                 canonical_main,
+            )
+            launcher, launcher_digest = load_anchored_launcher(
+                tools, checkout, args.plan_head_sha
+            )
+            if canonical_reexec_digest is None:
+                require_initial_launcher_source(
+                    caller_checkout, launcher, launcher_digest,
+                )
+                return execute_canonical_launcher(
+                    launcher, launcher_digest, root,
+                )
+            require(
+                canonical_reexec_digest == launcher_digest
+                and Path(__file__).resolve().read_bytes() == launcher,
+                "re-executed launcher differs from the authenticated anchor",
             )
             validator, digest = load_anchored_validator(
                 tools, checkout, args.plan_head_sha

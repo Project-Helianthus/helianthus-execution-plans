@@ -65,9 +65,12 @@ self-consistent caller-supplied executable hash is never sufficient. PR-head val
 no GitHub token and no persisted checkout credential. Hosted Ubuntu exercises the unmodified
 launcher against its platform allowlist before merge and authenticates the real PR91 anchor from
 trusted canonical main after merge. The versioned launcher reference and SHA-256 are bound in the
-PR91 tooling record. Preflight must execute that repo-owned launcher directly from the owner-private
-canonical-main checkout; copied or separately installed launcher executables are forbidden. The
-checked-out candidate validator is defense-in-depth and is never the bootstrap trust root.
+PR91 tooling record. Preflight accepts its initial bootstrap only at that repo-owned path in the
+owner-private canonical-main checkout and requires byte equality with the authenticated anchor.
+Before validator, claim, or mutation work, it privately materializes and isolatedly re-executes the
+authenticated canonical launcher with a one-use token; copied or separately installed launcher
+executables are forbidden. The checked-out candidate validator is defense-in-depth and is never
+the bootstrap trust root.
 
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
 `helianthus-modbusreg`. M0-02 and M0-03 each then use their sole destination-initialization
@@ -396,7 +399,9 @@ build constraints or nested module. The exact unskippable workflow first removes
 direct sibling `_test.go` source in that proof package, then performs a standalone production
 `go build` of the exact package target for `STANDARD_ONLY` or every package under
 `./profiles/fronius/...` for `OVERLAY_REQUIRED`, runs neutral activation first against the exact
-proof package, and runs import-boundary second against that same package. `STANDARD_ONLY` proves
+proof package, and runs import-boundary second against that same package. The exact Fronius
+namespace rejects nested `go.mod` files and directory segments that the Go recursive wildcard
+would exclude (`vendor`, `testdata`, dot-prefixed, or underscore-prefixed). `STANDARD_ONLY` proves
 the complete exact PR-base-to-head diff is evidence-only and has
 no production implementation: unchanged base production is trusted, but a cwd mutation cannot
 redirect the immutable source-directory scan, and legitimate immutable base `init` is not banned.

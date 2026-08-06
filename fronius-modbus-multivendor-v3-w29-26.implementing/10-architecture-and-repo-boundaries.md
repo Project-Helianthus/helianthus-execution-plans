@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `9e7b3b88ada068430a7653d325c7df874a1067f646bcc4195c741b35a04632f0`
+Canonical-SHA256: `68c3b9a08d90afacd52398742e68314132a157da25b62c07ea93f6eb967dcd8f`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -189,7 +189,9 @@ separate non-test implementation source. Named tests share the exact neutral-pro
 directory, cannot locally redeclare the bound interface, activation, or scan helpers, have no build
 constraints or nested module, and run in an exact unskippable YAML job/step pinned to
 the recursive `./profiles/fronius/...` production build for `OVERLAY_REQUIRED` or the exact proof
-package build for `STANDARD_ONLY`; both named tests remain pinned to the exact proof package. `STANDARD_ONLY`
+package build for `STANDARD_ONLY`; both named tests remain pinned to the exact proof package, and
+the Fronius namespace rejects nested modules plus every directory excluded by the Go recursive
+wildcard. `STANDARD_ONLY`
 proves a complete evidence-only base/head diff; `OVERLAY_REQUIRED` proves a complete nonempty
 test-only parent/RED diff where the RED parent SHA and tree are exactly the fetched PR base SHA
 and tree, and where RED retains the identical GREEN canonical test-source blob. The fixed

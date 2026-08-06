@@ -279,6 +279,7 @@ EXPECTED_TRUSTED_TOOL_POLICY = {
     "linux_bootstrap": "unmodified_launcher_self_test",
     "post_merge_anchor_authentication": "required",
     "authorization_checkout": "owner_private_fresh_canonical_main_fetch",
+    "canonical_launcher_execution": "repo_owned_entrypoint_then_private_authenticated_anchor_reexec_with_one_use_token",
     "git_environment": ["HOME", "LANG", "LC_ALL"],
     "caller_local_git_config": "forbidden",
 }
@@ -689,9 +690,12 @@ self-consistent caller-supplied executable hash is never sufficient. PR-head val
 no GitHub token and no persisted checkout credential. Hosted Ubuntu exercises the unmodified
 launcher against its platform allowlist before merge and authenticates the real PR91 anchor from
 trusted canonical main after merge. The versioned launcher reference and SHA-256 are bound in the
-PR91 tooling record. Preflight must execute that repo-owned launcher directly from the owner-private
-canonical-main checkout; copied or separately installed launcher executables are forbidden. The
-checked-out candidate validator is defense-in-depth and is never the bootstrap trust root.
+PR91 tooling record. Preflight accepts its initial bootstrap only at that repo-owned path in the
+owner-private canonical-main checkout and requires byte equality with the authenticated anchor.
+Before validator, claim, or mutation work, it privately materializes and isolatedly re-executes the
+authenticated canonical launcher with a one-use token; copied or separately installed launcher
+executables are forbidden. The checked-out candidate validator is defense-in-depth and is never
+the bootstrap trust root.
 
 FMV3-M0-01 creates only the two empty public repositories `helianthus-modbus` and
 `helianthus-modbusreg`. M0-02 and M0-03 each then use their sole destination-initialization
@@ -2310,7 +2314,7 @@ def load_issue_authorization_evidence(
 
 
 def require_m3_03_completion_artifact(
-    repository: str, binding: dict[str, Any],
+    repository: str, binding: dict[str, Any], plan_root: Path,
 ) -> None:
     artifact = binding.get("completion_artifact")
     require(isinstance(artifact, dict) and set(artifact) == {
@@ -2370,7 +2374,7 @@ def require_m3_03_completion_artifact(
         github_api(f"repos/{repository}/git/blobs/{workflow_blob_sha}"), workflow_blob_sha,
         "FMV3-M3-03 workflow blob", 1_000_000,
     )
-    template_path = Path(__file__).resolve().parent / workflow_contract["template_path"]
+    template_path = plan_root / workflow_contract["template_path"]
     require(template_path.is_file() and not template_path.is_symlink()
             and hashlib.sha256(template_path.read_bytes()).hexdigest()
             == workflow_contract["sha256"]
@@ -2442,6 +2446,22 @@ def require_m3_03_completion_artifact(
     })
     require(scan["result"] == derived_packages,
             "FMV3-M3-03 package scan does not equal the exact-head Fronius Go package set")
+    wildcard_excluded_parts = {"vendor", "testdata"}
+    require(
+        not any(
+            PurePosixPath(path).parts[:2] == overlay_prefix
+            and (
+                PurePosixPath(path).name == "go.mod"
+                or any(
+                    part in wildcard_excluded_parts
+                    or part.startswith(".") or part.startswith("_")
+                    for part in PurePosixPath(path).parts[2:-1]
+                )
+            )
+            for path in tree
+        ),
+        "FMV3-M3-03 Fronius namespace contains a nested module or wildcard-excluded directory",
+    )
     proof_candidate = artifact.get("neutral_runtime_proof")
     proof_candidate_path = (
         proof_candidate.get("source_path") if isinstance(proof_candidate, dict) else None
@@ -6028,7 +6048,7 @@ def require_direct_dependency_completion(
     issue_deps: dict[str, list[str]],
     issue_repos: dict[str, str],
     issue_specs: dict[str, dict[str, Any]],
-    certificates: list[dict[str, Any]],
+    certificates: list[dict[str, Any]], plan_root: Path,
 ) -> None:
     direct = issue_deps[issue_id]
     static = [dependency for dependency in direct if dependency in COMPLETED_FMV3_DEPENDENCIES]
@@ -6051,7 +6071,7 @@ def require_direct_dependency_completion(
                                         issue_spec=issue_specs[certificate["plan_issue"]])
         if certificate["plan_issue"] == "FMV3-M3-03":
             require_m3_03_completion_artifact(
-                certificate["repository"], certificate,
+                certificate["repository"], certificate, plan_root,
             )
 
 
@@ -6061,7 +6081,7 @@ def require_issue_authorization_dependencies(
     evidence_path: str | None,
     issue_deps: dict[str, list[str]],
     issue_repos: dict[str, str],
-    issue_specs: dict[str, dict[str, Any]],
+    issue_specs: dict[str, dict[str, Any]], plan_root: Path,
 ) -> None:
     require(
         anchor.get("issue_evidence_policy") == EXPECTED_ISSUE_EVIDENCE_POLICY,
@@ -6069,7 +6089,7 @@ def require_issue_authorization_dependencies(
     )
     certificates, producer = load_issue_authorization_evidence(evidence_path, issue_id)
     require_direct_dependency_completion(
-        issue_id, issue_deps, issue_repos, issue_specs, certificates
+        issue_id, issue_deps, issue_repos, issue_specs, certificates, plan_root
     )
     if issue_id in {"FMV3-M1-06", "FMV3-M2-01"}:
         require_docs_candidate_pr_merged(anchor)
@@ -6812,7 +6832,7 @@ def validate_review_repair_semantics(
     )
     require(m3_03.get("completion_evidence_contract") == {
         "schema": "helianthus.fmv3-m3-03-completion.v2",
-        "bind": ["head_sha", "head_tree_sha", "disposition", "fixed_profiles_fronius_namespace_scan", "canonical_disposition_bound_named_test_source_blob", "artifact_named_test_sources_no_init_or_testmain", "complete_go_import_literal_unquote_and_unicode_alias_scan", "executable_fail_closed_runtime_import_scanner", "sealed_transport_neutral_direct_import_allowlist", "semicolon_import_declaration_rejection", "disposition_bound_minimal_neutral_adapter", "overlay_separate_production_implementation_source_without_init_or_test_only_symbols_or_constraints", "zero_field_fake_compile_time_interface_assertion", "sentinel_result_control_flow", "closed_canonical_named_test_bodies", "exact_top_level_permissions_contents_read", "executable_head_and_tree_assertion", "exact_preparation_deletes_all_other_direct_test_sources", "exact_standalone_production_build_before_tests", "activation_first_and_import_second_exact_commands", "conditional_overlay_red_commit_and_same_workflow_blob_run", "overlay_red_matches_green_canonical_test_source_blob", "red_exact_pr_base_parent_and_tree", "red_exact_parent_tree_test_only_diff", "red_preparation_and_build_success_activation_failure_and_no_import_success", "workflow_path_and_blob", "workflow_run_attempt", "workflow_job_id", "workflow_check_run_id", "red_workflow_run_attempt", "red_job_id", "red_check_run_id", "green_preparation_build_activation_and_import_success"],
+        "bind": ["head_sha", "head_tree_sha", "disposition", "fixed_profiles_fronius_namespace_scan", "canonical_disposition_bound_named_test_source_blob", "artifact_named_test_sources_no_init_or_testmain", "complete_go_import_literal_unquote_and_unicode_alias_scan", "executable_fail_closed_runtime_import_scanner", "sealed_transport_neutral_direct_import_allowlist", "semicolon_import_declaration_rejection", "disposition_bound_minimal_neutral_adapter", "overlay_separate_production_implementation_source_without_init_or_test_only_symbols_or_constraints", "zero_field_fake_compile_time_interface_assertion", "sentinel_result_control_flow", "closed_canonical_named_test_bodies", "exact_top_level_permissions_contents_read", "executable_head_and_tree_assertion", "exact_preparation_deletes_all_other_direct_test_sources", "exact_standalone_production_build_before_tests", "overlay_namespace_has_no_nested_modules_or_go_wildcard_exclusions", "activation_first_and_import_second_exact_commands", "conditional_overlay_red_commit_and_same_workflow_blob_run", "overlay_red_matches_green_canonical_test_source_blob", "red_exact_pr_base_parent_and_tree", "red_exact_parent_tree_test_only_diff", "red_preparation_and_build_success_activation_failure_and_no_import_success", "workflow_path_and_blob", "workflow_run_attempt", "workflow_job_id", "workflow_check_run_id", "red_workflow_run_attempt", "red_job_id", "red_check_run_id", "green_preparation_build_activation_and_import_success"],
         "standard_only_requires_empty_fixed_overlay_namespace": True,
         "overlay_required_requires_nonempty_fixed_overlay_namespace": True,
         "overlay_required_requires_live_test_only_red_evidence": True,
@@ -7510,7 +7530,7 @@ def validate(root: Path) -> tuple[int, int]:
     m3_disposition = issues_by_id["FMV3-M3-03"]
     require(m3_disposition.get("tdd_condition") == "OVERLAY_REQUIRED" and m3_disposition.get("standard_only_contract") == {"evidence_and_disposition": "public", "conformance_ci": "green", "implementation_commit": "forbidden", "empty_overlay": "forbidden"} and "TDD_RED_IF_OVERLAY_REQUIRED" in m3_disposition["gates"] and "TDD_RED" not in m3_disposition["gates"], "FMV3-M3-03 conditional overlay TDD mismatch")
     require(m3_disposition.get("m3_03_workflow_contract") == M3_03_WORKFLOW_CONTRACT, "FMV3-M3-03 canonical workflow contract mismatch")
-    require(m3_disposition.get("completion_evidence_contract") == {"schema": "helianthus.fmv3-m3-03-completion.v2", "bind": ["head_sha", "head_tree_sha", "disposition", "fixed_profiles_fronius_namespace_scan", "canonical_disposition_bound_named_test_source_blob", "artifact_named_test_sources_no_init_or_testmain", "complete_go_import_literal_unquote_and_unicode_alias_scan", "executable_fail_closed_runtime_import_scanner", "sealed_transport_neutral_direct_import_allowlist", "semicolon_import_declaration_rejection", "disposition_bound_minimal_neutral_adapter", "overlay_separate_production_implementation_source_without_init_or_test_only_symbols_or_constraints", "zero_field_fake_compile_time_interface_assertion", "sentinel_result_control_flow", "closed_canonical_named_test_bodies", "exact_top_level_permissions_contents_read", "executable_head_and_tree_assertion", "exact_preparation_deletes_all_other_direct_test_sources", "exact_standalone_production_build_before_tests", "activation_first_and_import_second_exact_commands", "conditional_overlay_red_commit_and_same_workflow_blob_run", "overlay_red_matches_green_canonical_test_source_blob", "red_exact_pr_base_parent_and_tree", "red_exact_parent_tree_test_only_diff", "red_preparation_and_build_success_activation_failure_and_no_import_success", "workflow_path_and_blob", "workflow_run_attempt", "workflow_job_id", "workflow_check_run_id", "red_workflow_run_attempt", "red_job_id", "red_check_run_id", "green_preparation_build_activation_and_import_success"], "standard_only_requires_empty_fixed_overlay_namespace": True, "overlay_required_requires_nonempty_fixed_overlay_namespace": True, "overlay_required_requires_live_test_only_red_evidence": True}, "FMV3-M3-03 completion evidence contract mismatch")
+    require(m3_disposition.get("completion_evidence_contract") == {"schema": "helianthus.fmv3-m3-03-completion.v2", "bind": ["head_sha", "head_tree_sha", "disposition", "fixed_profiles_fronius_namespace_scan", "canonical_disposition_bound_named_test_source_blob", "artifact_named_test_sources_no_init_or_testmain", "complete_go_import_literal_unquote_and_unicode_alias_scan", "executable_fail_closed_runtime_import_scanner", "sealed_transport_neutral_direct_import_allowlist", "semicolon_import_declaration_rejection", "disposition_bound_minimal_neutral_adapter", "overlay_separate_production_implementation_source_without_init_or_test_only_symbols_or_constraints", "zero_field_fake_compile_time_interface_assertion", "sentinel_result_control_flow", "closed_canonical_named_test_bodies", "exact_top_level_permissions_contents_read", "executable_head_and_tree_assertion", "exact_preparation_deletes_all_other_direct_test_sources", "exact_standalone_production_build_before_tests", "overlay_namespace_has_no_nested_modules_or_go_wildcard_exclusions", "activation_first_and_import_second_exact_commands", "conditional_overlay_red_commit_and_same_workflow_blob_run", "overlay_red_matches_green_canonical_test_source_blob", "red_exact_pr_base_parent_and_tree", "red_exact_parent_tree_test_only_diff", "red_preparation_and_build_success_activation_failure_and_no_import_success", "workflow_path_and_blob", "workflow_run_attempt", "workflow_job_id", "workflow_check_run_id", "red_workflow_run_attempt", "red_job_id", "red_check_run_id", "green_preparation_build_activation_and_import_success"], "standard_only_requires_empty_fixed_overlay_namespace": True, "overlay_required_requires_nonempty_fixed_overlay_namespace": True, "overlay_required_requires_live_test_only_red_evidence": True}, "FMV3-M3-03 completion evidence contract mismatch")
     m7_disposition = issues_by_id["FMV3-M7-03"]
     growatt_sections = ["complete_candidate_contract", "complete_admission_contract", "qualified_candidate_facts", "admission_criteria", "provenance", "licensing", "unsupported_disposition", "exact_code_doc_mapping"]
     require(issues_by_id["FMV3-M7-01"].get("growatt_contract_sections") == growatt_sections and issues_by_id["FMV3-M7-01"].get("growatt_contract_completion") == "published_and_merged_before_close", "FMV3-M7-01 Growatt contract mismatch")
@@ -8103,6 +8123,7 @@ def main() -> int:
                     anchored_deps,
                     anchored_repos,
                     anchored_issue_specs,
+                    root,
                 )
             if args.authorize_issue is not None and (
                 re.fullmatch(r"FMV3-M[123]-\d{2}", selected_issue_id)

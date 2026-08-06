@@ -6167,11 +6167,11 @@ func interfaceClaim() claimInterface { return interfaceDecoy{} }
                        "completion_artifact": artifact}
             if message is None:
                 VALIDATOR_GLOBALS["require_m3_03_completion_artifact"](
-                    "Project-Helianthus/helianthus-modbusreg", binding)
+                    "Project-Helianthus/helianthus-modbusreg", binding, PLAN)
             else:
                 with self.assertRaises(VALIDATOR_GLOBALS["ValidationError"]) as raised:
                     VALIDATOR_GLOBALS["require_m3_03_completion_artifact"](
-                        "Project-Helianthus/helianthus-modbusreg", binding)
+                        "Project-Helianthus/helianthus-modbusreg", binding, PLAN)
                 self.assertIn(message, str(raised.exception))
         finally:
             namespace.update(saved)
@@ -7163,6 +7163,28 @@ var _ *net.TCPConn
             artifact,
             fixture,
             "OVERLAY_REQUIRED changes production outside profiles/fronius",
+        )
+
+    def test_m3_03_overlay_required_rejects_nested_module_skipped_by_go_wildcard(self) -> None:
+        artifact, fixture = self.m3_03_artifact(
+            overlay_packages=["profiles/fronius", "profiles/fronius/internal"],
+            disposition="OVERLAY_REQUIRED",
+        )
+        self.bind_m3_03_overlay_red_evidence(artifact, fixture)
+        source_sha, source_blob = self.github_blob(
+            b"package internal\nconst nestedImplementation = true\n"
+        )
+        module_sha, module_blob = self.github_blob(
+            b"module example.invalid/hidden\n\ngo 1.24\n"
+        )
+        fixture["tree"]["profiles/fronius/internal/impl.go"] = source_sha
+        fixture["tree"]["profiles/fronius/internal/go.mod"] = module_sha
+        fixture["blobs"][source_sha] = source_blob
+        fixture["blobs"][module_sha] = module_blob
+        self.assert_m3_03_artifact(
+            artifact,
+            fixture,
+            "nested module or wildcard-excluded directory",
         )
 
     def test_m3_03_completion_artifact_accepts_overlay_with_live_red_evidence(self) -> None:

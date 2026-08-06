@@ -553,7 +553,19 @@ audit_path.write_text(json.dumps(audit), encoding="utf-8")
                 "--mutation-input", str(mutation_input),
             ]
             try:
-                self.assertEqual(launcher.main(), 0)
+                launcher_bytes = LAUNCHER.read_bytes()
+                launcher_digest = hashlib.sha256(launcher_bytes).hexdigest()
+                with (
+                    mock.patch.object(
+                        launcher, "consume_canonical_reexec_marker",
+                        return_value=launcher_digest,
+                    ),
+                    mock.patch.object(
+                        launcher, "load_anchored_launcher",
+                        return_value=(launcher_bytes, launcher_digest),
+                    ),
+                ):
+                    self.assertEqual(launcher.main(), 0)
             finally:
                 launcher.EXPECTED_BASE_SHA = original_base
                 launcher.CANONICAL_FETCH_URL = original_fetch_url
@@ -698,6 +710,10 @@ audit_path.write_text(json.dumps(audit), encoding="utf-8")
             try:
                 with (
                     mock.patch.object(
+                        launcher, "consume_canonical_reexec_marker",
+                        return_value="f" * 64,
+                    ),
+                    mock.patch.object(
                         launcher, "materialize_trusted_tools", return_value=tools
                     ),
                     mock.patch.object(
@@ -717,6 +733,10 @@ audit_path.write_text(json.dumps(audit), encoding="utf-8")
                     mock.patch.object(
                         launcher, "load_anchored_validator",
                         return_value=(b"validator", "e" * 64),
+                    ),
+                    mock.patch.object(
+                        launcher, "load_anchored_launcher",
+                        return_value=(LAUNCHER.read_bytes(), "f" * 64),
                     ),
                     mock.patch.object(
                         launcher, "execute_materialized_validator",
@@ -1355,11 +1375,75 @@ raise SystemExit(0)
         ).read_text(encoding="utf-8")
         normalized = " ".join(canonical.split())
         self.assertIn(
-            "must execute that repo-owned launcher directly from the owner-private "
-            "canonical-main checkout",
+            "accepts its initial bootstrap only at that repo-owned path in the "
+            "owner-private canonical-main checkout and requires byte equality with "
+            "the authenticated anchor",
             normalized,
         )
+        self.assertIn("isolatedly re-executes the authenticated canonical launcher", normalized)
         self.assertNotIn("installed external copy must remain byte-identical", normalized)
+
+    def test_initial_launcher_rejects_a_copied_external_entrypoint(self) -> None:
+        launcher = load_launcher()
+        contents = LAUNCHER.read_bytes()
+        digest = hashlib.sha256(contents).hexdigest()
+        launcher.require_initial_launcher_source(LAUNCHER.parents[1], contents, digest)
+        with tempfile.TemporaryDirectory() as temporary:
+            external_checkout = Path(temporary)
+            (external_checkout / "scripts").mkdir()
+            copied = external_checkout / launcher.LAUNCHER_PATH
+            copied.write_bytes(contents)
+            with self.assertRaisesRegex(
+                launcher.LauncherError,
+                "not the repo-owned canonical-checkout entrypoint",
+            ):
+                launcher.require_initial_launcher_source(
+                    external_checkout, contents, digest,
+                )
+
+    def test_canonical_reexec_marker_rejects_modified_materialization(self) -> None:
+        launcher = load_launcher()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            root.chmod(0o700)
+            source = root / "launcher.py"
+            token_path = root / "token"
+            source.write_bytes(b"canonical launcher")
+            source.chmod(0o500)
+            token_path.write_text("one-use", encoding="ascii")
+            token_path.chmod(0o400)
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            prefix = launcher.CANONICAL_REEXEC_ENV_PREFIX
+            marker = {
+                f"{prefix}PATH": str(source),
+                f"{prefix}SHA256": digest,
+                f"{prefix}TOKEN": "one-use",
+                f"{prefix}TOKEN_FILE": str(token_path),
+            }
+            original_file = launcher.__file__
+            try:
+                launcher.__file__ = str(source)
+                with mock.patch.dict(os.environ, marker, clear=False):
+                    source.chmod(0o600)
+                    source.write_bytes(b"modified launcher")
+                    source.chmod(0o500)
+                    with self.assertRaisesRegex(
+                        launcher.LauncherError, "re-exec digest mismatch"
+                    ):
+                        launcher.consume_canonical_reexec_marker()
+                source.chmod(0o600)
+                source.write_bytes(b"canonical launcher")
+                source.chmod(0o500)
+                token_path.chmod(0o600)
+                token_path.write_text("one-use", encoding="ascii")
+                token_path.chmod(0o400)
+                with mock.patch.dict(os.environ, marker, clear=False):
+                    self.assertEqual(
+                        launcher.consume_canonical_reexec_marker(), digest
+                    )
+                    self.assertFalse(token_path.exists())
+            finally:
+                launcher.__file__ = original_file
 
 
 if __name__ == "__main__":

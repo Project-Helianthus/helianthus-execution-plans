@@ -42,7 +42,7 @@ execution_authorization:
     - FMV3-M3-01
     - FMV3-M3-02
     - FMV3-M3-03
-  authorized_issue_contract_sha256: 5e1c8399e9e1049dfd426853160132026058a3e14d68189d13d8774fe9f3fe3b
+  authorized_issue_contract_sha256: dfca23a879738e62b31794d60f815172e3050a18483a7c673ac1440d029001ce
   authorization_anchor:
     required: true
     record_type: github_merged_pr_v1
@@ -122,11 +122,11 @@ execution_authorization:
         required_semantics: [claim_in_progress, cancelling, closed_attempt_instance_membership_before_ledger_admission, nonempty_exact_ordered_runtime_dependency_set_before_seal, CancelOpen_closed_AttemptInstance_linearization, atomic_publish_cancel_winner, closed_published_projection, downstream_docs_lock_and_behavioral_conformance, byte_and_field_bounds, reserved_non_wrapping_terminal_sequences]
     tooling_binding:
       validator_path: fronius-modbus-multivendor-v3-w29-26.implementing/validate_plan.py
-      validator_sha256: 982383a381a49ae6502aea1f770470db319ce3356ad1306c4cdc4127b39ceb5e
+      validator_sha256: 237b3fabc49ec51ab4ce4374a4212dce5a4dfcd2ba6098ca451e26491b469870
       workflow_path: .github/workflows/ci.yml
       workflow_sha256: 2ae21cb1ce1a7b5fbc9270dd8a67e83bc0f06fc93e8a4d3ecb8e8613bb2671c7
       launcher_reference_path: scripts/fmv3_anchor_validator.py
-      launcher_reference_sha256: 57604043ca90f09291bccb0afaa755b86adcf3176406308e5b37f7b8799be3db
+      launcher_reference_sha256: b212fc072401c97bc4479a72e84ebc29a51a5a36add5bdc982d1ef78a62fe887
       authorization_execution: materialized_from_pr91_anchor
       trusted_tool_policy:
         schema: helianthus.fmv3-trusted-tool-policy.v1
@@ -143,6 +143,7 @@ execution_authorization:
         linux_bootstrap: unmodified_launcher_self_test
         post_merge_anchor_authentication: required
         authorization_checkout: owner_private_fresh_canonical_main_fetch
+        canonical_launcher_execution: repo_owned_entrypoint_then_private_authenticated_anchor_reexec_with_one_use_token
         git_environment: [HOME, LANG, LC_ALL]
         caller_local_git_config: forbidden
     pull_request_identity:
@@ -203,7 +204,7 @@ execution_authorization:
     direct_dependency_completion: exact_static_live_github_bindings_for_completed_predecessors_plus_bounded_github_authenticated_certificate_bound_to_anchored_issue_spec_for_future_direct_predecessors
     stop_before_issue: FMV3-M4-01
     gateway_work_authorized: false
-    amendment_surfaces_sha256: c1ada83ae528d08ae260d4628cb92d2680dd103ace555bf469c830846f8b0782
+    amendment_surfaces_sha256: b7428bc45105f7934ebd77b16bd5e916df3beaf4301e4998598830592e33904d
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]
@@ -229,7 +230,7 @@ target_repos:
   - Project-Helianthus/helianthus-execution-plans
 knowledge_repo: Project-Helianthus/helianthus-docs-ebus
 canonical_file: 00-canonical.md
-canonical_sha256: 9e7b3b88ada068430a7653d325c7df874a1067f646bcc4195c741b35a04632f0
+canonical_sha256: 68c3b9a08d90afacd52398742e68314132a157da25b62c07ea93f6eb967dcd8f
 split_index: 01-index.md
 started_on: '2026-07-14'
 current_milestone: M0
@@ -1326,7 +1327,7 @@ issues:
       STANDARD_ONLY: {workflow_path: .github/workflows/fmv3-m3-03-conformance.yml, template_path: templates/fmv3-m3-03-conformance.yml, sha256: b74eb7d1c46c25c67c31e4ac796c03889018779412095b335d2f9d58e589e3ad}
       OVERLAY_REQUIRED: {workflow_path: .github/workflows/fmv3-m3-03-overlay-conformance.yml, template_path: templates/fmv3-m3-03-overlay-conformance.yml, sha256: f72fc7b1f3fadc78af5b8dd8dd1529936a040d01f456751ff4224d6b47ab2d85}
     standard_only_contract: {evidence_and_disposition: public, conformance_ci: green, implementation_commit: forbidden, empty_overlay: forbidden}
-    completion_evidence_contract: {schema: helianthus.fmv3-m3-03-completion.v2, bind: [head_sha, head_tree_sha, disposition, fixed_profiles_fronius_namespace_scan, canonical_disposition_bound_named_test_source_blob, artifact_named_test_sources_no_init_or_testmain, complete_go_import_literal_unquote_and_unicode_alias_scan, executable_fail_closed_runtime_import_scanner, sealed_transport_neutral_direct_import_allowlist, semicolon_import_declaration_rejection, disposition_bound_minimal_neutral_adapter, overlay_separate_production_implementation_source_without_init_or_test_only_symbols_or_constraints, zero_field_fake_compile_time_interface_assertion, sentinel_result_control_flow, closed_canonical_named_test_bodies, exact_top_level_permissions_contents_read, executable_head_and_tree_assertion, exact_preparation_deletes_all_other_direct_test_sources, exact_standalone_production_build_before_tests, activation_first_and_import_second_exact_commands, conditional_overlay_red_commit_and_same_workflow_blob_run, overlay_red_matches_green_canonical_test_source_blob, red_exact_pr_base_parent_and_tree, red_exact_parent_tree_test_only_diff, red_preparation_and_build_success_activation_failure_and_no_import_success, workflow_path_and_blob, workflow_run_attempt, workflow_job_id, workflow_check_run_id, red_workflow_run_attempt, red_job_id, red_check_run_id, green_preparation_build_activation_and_import_success], standard_only_requires_empty_fixed_overlay_namespace: true, overlay_required_requires_nonempty_fixed_overlay_namespace: true, overlay_required_requires_live_test_only_red_evidence: true}
+    completion_evidence_contract: {schema: helianthus.fmv3-m3-03-completion.v2, bind: [head_sha, head_tree_sha, disposition, fixed_profiles_fronius_namespace_scan, canonical_disposition_bound_named_test_source_blob, artifact_named_test_sources_no_init_or_testmain, complete_go_import_literal_unquote_and_unicode_alias_scan, executable_fail_closed_runtime_import_scanner, sealed_transport_neutral_direct_import_allowlist, semicolon_import_declaration_rejection, disposition_bound_minimal_neutral_adapter, overlay_separate_production_implementation_source_without_init_or_test_only_symbols_or_constraints, zero_field_fake_compile_time_interface_assertion, sentinel_result_control_flow, closed_canonical_named_test_bodies, exact_top_level_permissions_contents_read, executable_head_and_tree_assertion, exact_preparation_deletes_all_other_direct_test_sources, exact_standalone_production_build_before_tests, overlay_namespace_has_no_nested_modules_or_go_wildcard_exclusions, activation_first_and_import_second_exact_commands, conditional_overlay_red_commit_and_same_workflow_blob_run, overlay_red_matches_green_canonical_test_source_blob, red_exact_pr_base_parent_and_tree, red_exact_parent_tree_test_only_diff, red_preparation_and_build_success_activation_failure_and_no_import_success, workflow_path_and_blob, workflow_run_attempt, workflow_job_id, workflow_check_run_id, red_workflow_run_attempt, red_job_id, red_check_run_id, green_preparation_build_activation_and_import_success], standard_only_requires_empty_fixed_overlay_namespace: true, overlay_required_requires_nonempty_fixed_overlay_namespace: true, overlay_required_requires_live_test_only_red_evidence: true}
     disposition_contract:
       allowed: [STANDARD_ONLY, OVERLAY_REQUIRED]
       completion_is_progress: true
