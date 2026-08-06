@@ -1496,6 +1496,96 @@ raise SystemExit(0)
         )
         safe_load.assert_not_called()
 
+    def test_main_initial_bootstrap_selects_unbound_load_then_reexecutes(self) -> None:
+        launcher = load_launcher()
+        launcher_bytes = b"authenticated launcher bytes"
+        launcher_digest = hashlib.sha256(launcher_bytes).hexdigest()
+        tools = launcher.TrustedTools(
+            (Path("/trusted/git"), "1" * 64),
+            (Path("/trusted/gh"), "2" * 64),
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary) / "caller"
+            plan_dir = checkout / Path(launcher.PLAN_PATH).parent
+            plan_dir.mkdir(parents=True)
+            canonical_checkout = Path(temporary) / "canonical"
+            original_argv = sys.argv
+            sys.argv = [
+                str(LAUNCHER),
+                str(checkout),
+                str(plan_dir),
+                "--verify-anchor-only",
+                "--plan-head-sha",
+                "a" * 40,
+            ]
+            try:
+                with (
+                    mock.patch.object(
+                        launcher, "consume_canonical_reexec_marker", return_value=None,
+                    ),
+                    mock.patch.object(
+                        launcher, "materialize_trusted_tools", return_value=tools,
+                    ),
+                    mock.patch.object(
+                        launcher, "materialize_canonical_checkout",
+                        return_value=canonical_checkout,
+                    ),
+                    mock.patch.object(
+                        launcher, "require_canonical_checkout", return_value="b" * 40,
+                    ),
+                    mock.patch.object(launcher, "authenticate_anchor"),
+                    mock.patch.object(launcher, "git"),
+                    mock.patch.object(
+                        launcher, "load_anchored_launcher",
+                        return_value=(launcher_bytes, launcher_digest),
+                    ) as anchored_launcher,
+                    mock.patch.object(launcher, "require_initial_launcher_source"),
+                    mock.patch.object(
+                        launcher, "execute_canonical_launcher", return_value=0,
+                    ) as execute_reexec,
+                ):
+                    self.assertEqual(launcher.main(), 0)
+            finally:
+                sys.argv = original_argv
+
+        self.assertFalse(
+            anchored_launcher.call_args.kwargs["verify_plan_binding"]
+        )
+        execute_reexec.assert_called_once()
+
+    def test_isolated_anchor_load_accepts_matching_launcher_digest(self) -> None:
+        launcher = load_launcher()
+        launcher_bytes = b"authenticated launcher bytes"
+        launcher_digest = hashlib.sha256(launcher_bytes).hexdigest()
+        plan = {
+            "execution_authorization": {
+                "authorization_anchor": {
+                    "tooling_binding": {
+                        "launcher_reference_path": launcher.LAUNCHER_PATH,
+                        "launcher_reference_sha256": launcher_digest,
+                    }
+                }
+            }
+        }
+        tools = launcher.TrustedTools(
+            (Path("/trusted/git"), "1" * 64),
+            (Path("/trusted/gh"), "2" * 64),
+        )
+        with mock.patch.object(
+            launcher,
+            "committed_regular_blob",
+            side_effect=(launcher_bytes, json.dumps(plan).encode("ascii")),
+        ):
+            loaded, digest = launcher.load_anchored_launcher(
+                tools,
+                Path("/canonical/checkout"),
+                "a" * 40,
+                verify_plan_binding=True,
+            )
+
+        self.assertEqual(loaded, launcher_bytes)
+        self.assertEqual(digest, launcher_digest)
+
     def test_isolated_anchor_load_rejects_launcher_digest_mismatch(self) -> None:
         launcher = load_launcher()
         launcher_bytes = b"authenticated launcher bytes"
