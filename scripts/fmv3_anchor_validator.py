@@ -443,8 +443,18 @@ def load_anchored_validator(
 
 
 def load_anchored_launcher(
-    tools: TrustedTools, checkout: Path, plan_head_sha: str,
+    tools: TrustedTools,
+    checkout: Path,
+    plan_head_sha: str,
+    *,
+    verify_plan_binding: bool,
 ) -> tuple[bytes, str]:
+    launcher = committed_regular_blob(
+        tools, checkout, plan_head_sha, LAUNCHER_PATH
+    )
+    launcher_digest = hashlib.sha256(launcher).hexdigest()
+    if not verify_plan_binding:
+        return launcher, launcher_digest
     plan_blob = committed_regular_blob(tools, checkout, plan_head_sha, PLAN_PATH)
     plan = safe_load_yaml(plan_blob, "anchored plan YAML")
     authorization = plan.get("execution_authorization") if isinstance(plan, dict) else None
@@ -458,9 +468,8 @@ def load_anchored_launcher(
         and re.fullmatch(r"[0-9a-f]{64}", digest) is not None,
         "anchored launcher tooling binding is invalid",
     )
-    launcher = committed_regular_blob(tools, checkout, plan_head_sha, LAUNCHER_PATH)
     require(
-        hashlib.sha256(launcher).hexdigest() == digest,
+        launcher_digest == digest,
         "anchored launcher blob does not match its SHA-256",
     )
     return launcher, digest
@@ -1484,7 +1493,10 @@ def main() -> int:
                 canonical_main,
             )
             launcher, launcher_digest = load_anchored_launcher(
-                tools, checkout, args.plan_head_sha
+                tools,
+                checkout,
+                args.plan_head_sha,
+                verify_plan_binding=canonical_reexec_digest is not None,
             )
             if canonical_reexec_digest is None:
                 require_initial_launcher_source(

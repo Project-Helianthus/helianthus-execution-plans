@@ -1460,6 +1460,39 @@ raise SystemExit(0)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(canary.exists())
 
+    def test_initial_anchor_load_does_not_parse_yaml_before_isolated_reexec(self) -> None:
+        launcher = load_launcher()
+        launcher_bytes = b"authenticated launcher bytes"
+        tools = launcher.TrustedTools(
+            (Path("/trusted/git"), "1" * 64),
+            (Path("/trusted/gh"), "2" * 64),
+        )
+        with (
+            mock.patch.object(
+                launcher, "committed_regular_blob", return_value=launcher_bytes,
+            ) as committed_blob,
+            mock.patch.object(
+                launcher, "safe_load_yaml",
+                side_effect=AssertionError("YAML parser reached before isolated re-exec"),
+            ) as safe_load,
+        ):
+            loaded, digest = launcher.load_anchored_launcher(
+                tools,
+                Path("/canonical/checkout"),
+                "a" * 40,
+                verify_plan_binding=False,
+            )
+
+        self.assertEqual(loaded, launcher_bytes)
+        self.assertEqual(digest, hashlib.sha256(launcher_bytes).hexdigest())
+        committed_blob.assert_called_once_with(
+            tools,
+            Path("/canonical/checkout"),
+            "a" * 40,
+            launcher.LAUNCHER_PATH,
+        )
+        safe_load.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

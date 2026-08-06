@@ -126,7 +126,7 @@ execution_authorization:
       workflow_path: .github/workflows/ci.yml
       workflow_sha256: 2ae21cb1ce1a7b5fbc9270dd8a67e83bc0f06fc93e8a4d3ecb8e8613bb2671c7
       launcher_reference_path: scripts/fmv3_anchor_validator.py
-      launcher_reference_sha256: 16698ec65640791b8d16349c78717bb689f71c49373dcc2c27de28b2067e6334
+      launcher_reference_sha256: d35abe298abb604b04300fce4246efd792e70c71da7e1c4eddf6a8328d079744
       authorization_execution: materialized_from_pr91_anchor
       trusted_tool_policy:
         schema: helianthus.fmv3-trusted-tool-policy.v1
@@ -204,7 +204,7 @@ execution_authorization:
     direct_dependency_completion: exact_static_live_github_bindings_for_completed_predecessors_plus_bounded_github_authenticated_certificate_bound_to_anchored_issue_spec_for_future_direct_predecessors
     stop_before_issue: FMV3-M4-01
     gateway_work_authorized: false
-    amendment_surfaces_sha256: 14afb1d69db0ff84865d639472fcf4055fd1d3889b4f0f9463195f97f2864e00
+    amendment_surfaces_sha256: 6abe2a2f4a1b36ce914d6b44d68c929801dc171906b59b93bb5227d4c1b406f1
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]
