@@ -563,9 +563,12 @@ audit_path.write_text(json.dumps(audit), encoding="utf-8")
                     mock.patch.object(
                         launcher, "load_anchored_launcher",
                         return_value=(launcher_bytes, launcher_digest),
-                    ),
+                    ) as anchored_launcher,
                 ):
                     self.assertEqual(launcher.main(), 0)
+                    self.assertTrue(
+                        anchored_launcher.call_args.kwargs["verify_plan_binding"]
+                    )
             finally:
                 launcher.EXPECTED_BASE_SHA = original_base
                 launcher.CANONICAL_FETCH_URL = original_fetch_url
@@ -1492,6 +1495,41 @@ raise SystemExit(0)
             launcher.LAUNCHER_PATH,
         )
         safe_load.assert_not_called()
+
+    def test_isolated_anchor_load_rejects_launcher_digest_mismatch(self) -> None:
+        launcher = load_launcher()
+        launcher_bytes = b"authenticated launcher bytes"
+        plan = {
+            "execution_authorization": {
+                "authorization_anchor": {
+                    "tooling_binding": {
+                        "launcher_reference_path": launcher.LAUNCHER_PATH,
+                        "launcher_reference_sha256": "0" * 64,
+                    }
+                }
+            }
+        }
+        tools = launcher.TrustedTools(
+            (Path("/trusted/git"), "1" * 64),
+            (Path("/trusted/gh"), "2" * 64),
+        )
+        with mock.patch.object(
+            launcher,
+            "committed_regular_blob",
+            side_effect=(launcher_bytes, json.dumps(plan).encode("ascii")),
+        ) as committed_blob:
+            with self.assertRaisesRegex(
+                launcher.LauncherError,
+                "anchored launcher blob does not match its SHA-256",
+            ):
+                launcher.load_anchored_launcher(
+                    tools,
+                    Path("/canonical/checkout"),
+                    "a" * 40,
+                    verify_plan_binding=True,
+                )
+
+        self.assertEqual(committed_blob.call_count, 2)
 
 
 if __name__ == "__main__":
