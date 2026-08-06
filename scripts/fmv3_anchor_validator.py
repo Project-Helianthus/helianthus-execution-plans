@@ -23,8 +23,6 @@ import tempfile
 import time
 from typing import Any, Callable
 
-import yaml
-
 
 PLAN_REPOSITORY = "Project-Helianthus/helianthus-execution-plans"
 CANONICAL_REMOTES = {
@@ -104,6 +102,18 @@ class TrustedTools:
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise LauncherError(message)
+
+
+def safe_load_yaml(source: str | bytes, label: str) -> Any:
+    """Import PyYAML only after the caller has authenticated the plan anchor."""
+    try:
+        import yaml
+    except ImportError as error:
+        raise LauncherError(f"{label} requires PyYAML") from error
+    try:
+        return yaml.safe_load(source)
+    except yaml.YAMLError as error:
+        raise LauncherError(f"{label} is invalid") from error
 
 
 def run(
@@ -406,10 +416,7 @@ def load_anchored_validator(
     tools: TrustedTools, checkout: Path, plan_head_sha: str
 ) -> tuple[bytes, str]:
     plan_blob = committed_regular_blob(tools, checkout, plan_head_sha, PLAN_PATH)
-    try:
-        plan = yaml.safe_load(plan_blob)
-    except yaml.YAMLError as error:
-        raise LauncherError("anchored plan YAML is invalid") from error
+    plan = safe_load_yaml(plan_blob, "anchored plan YAML")
     require(isinstance(plan, dict), "anchored plan is not a mapping")
     authorization = plan.get("execution_authorization")
     anchor = authorization.get("authorization_anchor") if isinstance(authorization, dict) else None
@@ -439,10 +446,7 @@ def load_anchored_launcher(
     tools: TrustedTools, checkout: Path, plan_head_sha: str,
 ) -> tuple[bytes, str]:
     plan_blob = committed_regular_blob(tools, checkout, plan_head_sha, PLAN_PATH)
-    try:
-        plan = yaml.safe_load(plan_blob)
-    except yaml.YAMLError as error:
-        raise LauncherError("anchored plan YAML is invalid") from error
+    plan = safe_load_yaml(plan_blob, "anchored plan YAML")
     authorization = plan.get("execution_authorization") if isinstance(plan, dict) else None
     anchor = authorization.get("authorization_anchor") if isinstance(authorization, dict) else None
     tooling = anchor.get("tooling_binding") if isinstance(anchor, dict) else None
@@ -465,7 +469,7 @@ def load_anchored_launcher(
 def consume_canonical_reexec_marker() -> str | None:
     names = {
         key: f"{CANONICAL_REEXEC_ENV_PREFIX}{key}"
-        for key in ("PATH", "SHA256", "TOKEN", "TOKEN_FILE")
+        for key in ("PATH", "SHA256", "TOKEN_SHA256", "TOKEN_FILE", "TOKEN_FD")
     }
     present = {key: os.environ.get(name) for key, name in names.items()}
     if not any(value is not None for value in present.values()):
@@ -476,25 +480,47 @@ def consume_canonical_reexec_marker() -> str | None:
     source = raw_source.resolve()
     declared = Path(str(present["PATH"])).resolve()
     token_path = Path(str(present["TOKEN_FILE"]))
+    try:
+        token_fd = int(str(present["TOKEN_FD"]))
+    except ValueError as error:
+        raise LauncherError("canonical launcher re-exec descriptor is invalid") from error
     require(source == declared and source.is_file() and not raw_source.is_symlink(),
             "canonical launcher re-exec path is invalid")
+    require(sys.flags.isolated == 1 and sys.flags.no_user_site == 1,
+            "canonical launcher re-exec is not isolated")
     source_metadata = source.stat()
+    source_parent_metadata = source.parent.stat()
     token_metadata = os.lstat(token_path)
+    descriptor_metadata = os.fstat(token_fd)
     require(
         source_metadata.st_uid == os.getuid()
         and stat.S_IMODE(source_metadata.st_mode) == 0o500
         and stat.S_ISREG(source_metadata.st_mode)
+        and source_parent_metadata.st_uid == os.getuid()
+        and stat.S_ISDIR(source_parent_metadata.st_mode)
+        and stat.S_IMODE(source_parent_metadata.st_mode) == 0o700
         and stat.S_ISREG(token_metadata.st_mode)
         and not stat.S_ISLNK(token_metadata.st_mode)
         and token_metadata.st_uid == os.getuid()
         and stat.S_IMODE(token_metadata.st_mode) == 0o400,
         "canonical launcher re-exec files are not private",
     )
+    require(stat.S_ISFIFO(descriptor_metadata.st_mode),
+            "canonical launcher re-exec descriptor is not a one-shot pipe")
     digest = hashlib.sha256(source.read_bytes()).hexdigest()
     require(digest == present["SHA256"],
             "canonical launcher re-exec digest mismatch")
-    require(token_path.read_text(encoding="ascii") == present["TOKEN"],
-            "canonical launcher re-exec token mismatch")
+    try:
+        token = os.read(token_fd, 33)
+        require(len(token) == 32 and os.read(token_fd, 1) == b"",
+                "canonical launcher re-exec token is invalid")
+    finally:
+        os.close(token_fd)
+    require(
+        hashlib.sha256(token).hexdigest() == present["TOKEN_SHA256"]
+        and token_path.read_bytes() == token,
+        "canonical launcher re-exec token mismatch",
+    )
     token_path.unlink()
     for name in names.values():
         os.environ.pop(name, None)
@@ -502,7 +528,7 @@ def consume_canonical_reexec_marker() -> str | None:
 
 
 def require_initial_launcher_source(
-    caller_checkout: Path, launcher: bytes, digest: str,
+    tools: TrustedTools, caller_checkout: Path, launcher: bytes, digest: str,
 ) -> None:
     raw_source = Path(__file__)
     source = raw_source.resolve()
@@ -513,6 +539,7 @@ def require_initial_launcher_source(
     contents = source.read_bytes()
     require(contents == launcher and hashlib.sha256(contents).hexdigest() == digest,
             "initial launcher differs from the authenticated canonical launcher")
+    require_canonical_checkout(tools, caller_checkout)
 
 
 def execute_canonical_launcher(
@@ -528,8 +555,14 @@ def execute_canonical_launcher(
     token = secrets.token_hex(32)
     launcher_path.write_bytes(launcher)
     launcher_path.chmod(0o500)
-    token_path.write_text(token, encoding="ascii")
+    token_bytes = bytes.fromhex(token)
+    token_path.write_bytes(token_bytes)
     token_path.chmod(0o400)
+    token_read_fd, token_write_fd = os.pipe()
+    try:
+        os.write(token_write_fd, token_bytes)
+    finally:
+        os.close(token_write_fd)
     environment = {
         name: os.environ[name]
         for name in (
@@ -541,13 +574,20 @@ def execute_canonical_launcher(
     environment["PYTHONNOUSERSITE"] = "1"
     environment[f"{CANONICAL_REEXEC_ENV_PREFIX}PATH"] = str(launcher_path)
     environment[f"{CANONICAL_REEXEC_ENV_PREFIX}SHA256"] = digest
-    environment[f"{CANONICAL_REEXEC_ENV_PREFIX}TOKEN"] = token
+    environment[f"{CANONICAL_REEXEC_ENV_PREFIX}TOKEN_SHA256"] = hashlib.sha256(
+        token_bytes
+    ).hexdigest()
     environment[f"{CANONICAL_REEXEC_ENV_PREFIX}TOKEN_FILE"] = str(token_path)
-    result = subprocess.run(
-        [sys.executable, "-I", "-s", str(launcher_path), *sys.argv[1:]],
-        check=False,
-        env=environment,
-    )
+    environment[f"{CANONICAL_REEXEC_ENV_PREFIX}TOKEN_FD"] = str(token_read_fd)
+    try:
+        result = subprocess.run(
+            [sys.executable, "-I", "-s", str(launcher_path), *sys.argv[1:]],
+            check=False,
+            env=environment,
+            pass_fds=(token_read_fd,),
+        )
+    finally:
+        os.close(token_read_fd)
     require(not token_path.exists(), "canonical launcher did not consume its re-exec token")
     return result.returncode
 
@@ -915,7 +955,9 @@ def build_routing_receipt(
     router_path.chmod(0o500)
     policy_path.write_bytes(policy)
     policy_path.chmod(0o400)
-    plan = yaml.safe_load((plan_dir / "plan.yaml").read_text(encoding="utf-8"))
+    plan = safe_load_yaml(
+        (plan_dir / "plan.yaml").read_text(encoding="utf-8"), "routing plan YAML"
+    )
     matches = [
         issue for issue in plan.get("issues", [])
         if isinstance(issue, dict) and issue.get("id") == issue_id
@@ -1446,7 +1488,7 @@ def main() -> int:
             )
             if canonical_reexec_digest is None:
                 require_initial_launcher_source(
-                    caller_checkout, launcher, launcher_digest,
+                    tools, caller_checkout, launcher, launcher_digest,
                 )
                 return execute_canonical_launcher(
                     launcher, launcher_digest, root,
@@ -1579,9 +1621,10 @@ def main() -> int:
                             validator, digest, validator_arguments,
                             tools.git, tools.gh, root, claim_owner_secret,
                         )
-                    plan = yaml.safe_load((plan_dir / "plan.yaml").read_text(
-                        encoding="utf-8"
-                    ))
+                    plan = safe_load_yaml(
+                        (plan_dir / "plan.yaml").read_text(encoding="utf-8"),
+                        "authorization plan YAML",
+                    )
                     matching = [
                         issue for issue in plan.get("issues", [])
                         if isinstance(issue, dict)

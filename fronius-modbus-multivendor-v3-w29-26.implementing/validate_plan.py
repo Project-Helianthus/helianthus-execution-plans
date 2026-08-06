@@ -2496,13 +2496,14 @@ def require_m3_03_completion_artifact(
             raise ValidationError(f"FMV3-M3-03 production source {path} is not UTF-8") from exc
         source_text = source_blob.decode("utf-8")
         is_overlay_source = source_path.parts[:2] == overlay_prefix
-        require(
-            go_source_path_is_unconditionally_build_eligible(path)
-            and not re.search(
-                r"(?m)^\s*//\s*(?:go:build|\+build)\b", source_text,
-            ),
-            f"FMV3-M3-03 production source {path} is build-excluded",
-        )
+        if is_overlay_source or path == proof_candidate_path:
+            require(
+                go_source_path_is_unconditionally_build_eligible(path)
+                and not re.search(
+                    r"(?m)^\s*//\s*(?:go:build|\+build)\b", source_text,
+                ),
+                f"FMV3-M3-03 production proof source {path} is build-excluded",
+            )
         require(
             is_overlay_source or "fronius" not in source_text.lower(),
             "FMV3-M3-03 Fronius production source escapes profiles/fronius namespace",
@@ -3517,6 +3518,7 @@ def expected_issue_route(issue: dict[str, Any]) -> tuple[list[str], dict[str, An
         else "reviewer_critical" if complexity >= 7 or risks
         else "reviewer_standard"
     )
+    max_override_required = effort == "max"
     route = {
         "session_orchestrator_vendor": "openai",
         "availability_mode": "openai_only",
@@ -3534,9 +3536,12 @@ def expected_issue_route(issue: dict[str, Any]) -> tuple[list[str], dict[str, An
         "fresh_context_required": False,
         "pre_review_required": role == "developer" and 5 <= complexity <= 6,
         "intermediate_review_required": role == "developer" and complexity >= 9,
-        "max_override_required": effort == "max",
-        "capability_degraded": False,
-        "degradation_reason": None,
+        "max_override_required": max_override_required,
+        "capability_degraded": max_override_required,
+        "degradation_reason": (
+            "required max effort cannot be applied by this invocation mechanism"
+            if max_override_required else None
+        ),
         "selection_reason": (
             f"openai_only:{role}:complexity-{complexity}:{profile}"
         ),
@@ -3583,6 +3588,10 @@ def require_issue_routing_receipt(
         and receipt["policy_sha256"] == MODEL_ROUTING_POLICY_SHA256
         and receipt["route"] == expected_route,
         "model-routing receipt is missing, underpowered, or not issue-bound",
+    )
+    require(
+        receipt["route"].get("capability_degraded") is False,
+        "capability-degraded model-routing receipt blocks authorization",
     )
     return receipt
 

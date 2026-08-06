@@ -122,11 +122,11 @@ execution_authorization:
         required_semantics: [claim_in_progress, cancelling, closed_attempt_instance_membership_before_ledger_admission, nonempty_exact_ordered_runtime_dependency_set_before_seal, CancelOpen_closed_AttemptInstance_linearization, atomic_publish_cancel_winner, closed_published_projection, downstream_docs_lock_and_behavioral_conformance, byte_and_field_bounds, reserved_non_wrapping_terminal_sequences]
     tooling_binding:
       validator_path: fronius-modbus-multivendor-v3-w29-26.implementing/validate_plan.py
-      validator_sha256: 237b3fabc49ec51ab4ce4374a4212dce5a4dfcd2ba6098ca451e26491b469870
+      validator_sha256: 9f1adb38e441fa4219e904ef092bb14e93ccf94468c2c651ed0236593460122e
       workflow_path: .github/workflows/ci.yml
       workflow_sha256: 2ae21cb1ce1a7b5fbc9270dd8a67e83bc0f06fc93e8a4d3ecb8e8613bb2671c7
       launcher_reference_path: scripts/fmv3_anchor_validator.py
-      launcher_reference_sha256: b212fc072401c97bc4479a72e84ebc29a51a5a36add5bdc982d1ef78a62fe887
+      launcher_reference_sha256: 16698ec65640791b8d16349c78717bb689f71c49373dcc2c27de28b2067e6334
       authorization_execution: materialized_from_pr91_anchor
       trusted_tool_policy:
         schema: helianthus.fmv3-trusted-tool-policy.v1
@@ -204,7 +204,7 @@ execution_authorization:
     direct_dependency_completion: exact_static_live_github_bindings_for_completed_predecessors_plus_bounded_github_authenticated_certificate_bound_to_anchored_issue_spec_for_future_direct_predecessors
     stop_before_issue: FMV3-M4-01
     gateway_work_authorized: false
-    amendment_surfaces_sha256: b7428bc45105f7934ebd77b16bd5e916df3beaf4301e4998598830592e33904d
+    amendment_surfaces_sha256: 14afb1d69db0ff84865d639472fcf4055fd1d3889b4f0f9463195f97f2864e00
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]

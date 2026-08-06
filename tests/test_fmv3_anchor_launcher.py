@@ -1387,7 +1387,15 @@ raise SystemExit(0)
         launcher = load_launcher()
         contents = LAUNCHER.read_bytes()
         digest = hashlib.sha256(contents).hexdigest()
-        launcher.require_initial_launcher_source(LAUNCHER.parents[1], contents, digest)
+        tools = launcher.TrustedTools(
+            (Path("/trusted/git"), "1" * 64),
+            (Path("/trusted/gh"), "2" * 64),
+        )
+        with mock.patch.object(launcher, "require_canonical_checkout") as canonical:
+            launcher.require_initial_launcher_source(
+                tools, LAUNCHER.parents[1], contents, digest
+            )
+            canonical.assert_called_once_with(tools, LAUNCHER.parents[1])
         with tempfile.TemporaryDirectory() as temporary:
             external_checkout = Path(temporary)
             (external_checkout / "scripts").mkdir()
@@ -1398,10 +1406,10 @@ raise SystemExit(0)
                 "not the repo-owned canonical-checkout entrypoint",
             ):
                 launcher.require_initial_launcher_source(
-                    external_checkout, contents, digest,
+                    tools, external_checkout, contents, digest,
                 )
 
-    def test_canonical_reexec_marker_rejects_modified_materialization(self) -> None:
+    def test_canonical_reexec_marker_rejects_environment_only_forgery(self) -> None:
         launcher = load_launcher()
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -1417,33 +1425,40 @@ raise SystemExit(0)
             marker = {
                 f"{prefix}PATH": str(source),
                 f"{prefix}SHA256": digest,
-                f"{prefix}TOKEN": "one-use",
+                f"{prefix}TOKEN_SHA256": hashlib.sha256(b"one-use").hexdigest(),
                 f"{prefix}TOKEN_FILE": str(token_path),
             }
             original_file = launcher.__file__
             try:
                 launcher.__file__ = str(source)
                 with mock.patch.dict(os.environ, marker, clear=False):
-                    source.chmod(0o600)
-                    source.write_bytes(b"modified launcher")
-                    source.chmod(0o500)
                     with self.assertRaisesRegex(
-                        launcher.LauncherError, "re-exec digest mismatch"
+                        launcher.LauncherError, "marker is incomplete"
                     ):
                         launcher.consume_canonical_reexec_marker()
-                source.chmod(0o600)
-                source.write_bytes(b"canonical launcher")
-                source.chmod(0o500)
-                token_path.chmod(0o600)
-                token_path.write_text("one-use", encoding="ascii")
-                token_path.chmod(0o400)
-                with mock.patch.dict(os.environ, marker, clear=False):
-                    self.assertEqual(
-                        launcher.consume_canonical_reexec_marker(), digest
-                    )
-                    self.assertFalse(token_path.exists())
             finally:
                 launcher.__file__ = original_file
+
+    def test_launcher_bootstrap_does_not_import_sibling_yaml(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            scripts = checkout / "scripts"
+            scripts.mkdir()
+            copied = scripts / "fmv3_anchor_validator.py"
+            copied.write_bytes(LAUNCHER.read_bytes())
+            canary = checkout / "yaml-imported"
+            (scripts / "yaml.py").write_text(
+                f"from pathlib import Path\nPath({str(canary)!r}).write_text('owned')\n",
+                encoding="ascii",
+            )
+            result = subprocess.run(
+                [sys.executable, str(copied), "--help"],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse(canary.exists())
 
 
 if __name__ == "__main__":

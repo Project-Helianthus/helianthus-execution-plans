@@ -325,15 +325,15 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
         require_receipt = VALIDATOR_GLOBALS["require_issue_routing_receipt"]
         namespace = require_receipt.__globals__
         issue = next(
-            item for item in PLAN_DATA["issues"] if item["id"] == "FMV3-M2-01"
+            item for item in PLAN_DATA["issues"] if item["id"] == "FMV3-M0-03"
         )
         anchor = "1" * 40
         encoded, digest = routing_receipt(issue, anchor)
         receipt = require_receipt(encoded, digest, issue, anchor)
-        self.assertEqual(receipt["route"]["primary_profile"], "developer_critical")
-        self.assertEqual(receipt["route"]["reasoning_effort"], "max")
+        self.assertEqual(receipt["route"]["primary_profile"], "developer_restricted")
+        self.assertEqual(receipt["route"]["reasoning_effort"], "high")
         raw = json.loads(base64.b64decode(encoded))
-        raw["route"]["model"] = "gpt-5.6-terra"
+        raw["route"]["model"] = "gpt-5.6-luna"
         weakened = json.dumps(
             raw, sort_keys=True, separators=(",", ":"), ensure_ascii=True,
         ).encode("ascii")
@@ -360,6 +360,22 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
                 issue,
                 anchor,
             )
+
+    def test_max_required_routing_receipt_blocks_authorization(self) -> None:
+        require_receipt = VALIDATOR_GLOBALS["require_issue_routing_receipt"]
+        namespace = require_receipt.__globals__
+        issue = next(
+            item for item in PLAN_DATA["issues"] if item["id"] == "FMV3-M2-01"
+        )
+        anchor = "1" * 40
+        encoded, digest = routing_receipt(issue, anchor)
+        raw = json.loads(base64.b64decode(encoded))
+        self.assertTrue(raw["route"]["max_override_required"])
+        self.assertTrue(raw["route"]["capability_degraded"])
+        with self.assertRaisesRegex(
+            namespace["ValidationError"], "capability-degraded"
+        ):
+            require_receipt(encoded, digest, issue, anchor)
 
     def test_model_routing_receipt_is_mandatory(self) -> None:
         require_receipt = VALIDATOR_GLOBALS["require_issue_routing_receipt"]
@@ -1570,6 +1586,20 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
             route_receipt, route_receipt_sha256 = routing_receipt(
                 anchored_selected_spec, anchor_sha
             )
+            route_payload = json.loads(base64.b64decode(route_receipt))
+            if route_payload["route"].get("max_override_required") is True:
+                # Downstream authorization fixtures model the future provider-evidence
+                # extension so they can exercise gates after the production fail-close.
+                route_payload["route"]["capability_degraded"] = False
+                route_payload["route"]["degradation_reason"] = None
+                route_raw = json.dumps(
+                    route_payload,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=True,
+                ).encode("ascii")
+                route_receipt = base64.b64encode(route_raw).decode("ascii")
+                route_receipt_sha256 = hashlib.sha256(route_raw).hexdigest()
             tooling = anchored_plan["execution_authorization"][
                 "authorization_anchor"
             ]["tooling_binding"]
@@ -1987,6 +2017,7 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
                     "CLAIM_OWNER_SECRET",
                     "acquire_repository_claim",
                     "require_repository_claim_control",
+                    "expected_issue_route",
                 )
             }
             saved_argv = sys.argv
@@ -2040,6 +2071,16 @@ class FroniusExecutionAuthorizationTests(unittest.TestCase):
                 "claim_sha": "f" * 40, "expires_at": "2026-08-01T06:00:00Z",
             }
             namespace["require_repository_claim_control"] = lambda *_args: None
+            def test_expected_issue_route(issue: dict[str, object]):
+                risks, route = saved["expected_issue_route"](issue)
+                if route.get("max_override_required") is True:
+                    route = {
+                        **route,
+                        "capability_degraded": False,
+                        "degradation_reason": None,
+                    }
+                return risks, route
+            namespace["expected_issue_route"] = test_expected_issue_route
             namespace["TRUSTED_GIT_EXECUTABLE"] = Path("/usr/bin/git")
             try:
                 sys.argv = command[1:]
@@ -6535,6 +6576,17 @@ var _ *net.TCPConn
         fixture["tree"]["profiles/fronius/implementation.go"] = implementation_sha
         fixture["blobs"][implementation_sha] = implementation_blob
         self.assert_m3_03_artifact(artifact, fixture, "is build-excluded")
+
+    def test_m3_03_completion_artifact_allows_preexisting_platform_source(self) -> None:
+        artifact, fixture = self.m3_03_artifact()
+        platform_sha, platform_blob = self.github_blob(
+            b"//go:build linux\n\npackage registry\nconst platformOnly = true\n"
+        )
+        platform_path = "registry/platform_linux.go"
+        fixture["tree"][platform_path] = platform_sha
+        fixture["base_tree"][platform_path] = platform_sha
+        fixture["blobs"][platform_sha] = platform_blob
+        self.assert_m3_03_artifact(artifact, fixture)
 
     def test_m3_03_completion_artifact_rejects_tcp_in_neutral_proof_source(self) -> None:
         artifact, fixture = self.m3_03_artifact()
