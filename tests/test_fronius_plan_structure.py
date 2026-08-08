@@ -51,7 +51,7 @@ FMV3-M2-03|M2|Project-Helianthus/helianthus-modbusreg|FMV3-M1-00,FMV3-M2-01,FMV3
 FMV3-M3-01|M3|Project-Helianthus/helianthus-docs-ebus|FMV3-M0-06,FMV3-M2-01
 FMV3-M3-02|M3|Project-Helianthus/helianthus-modbusreg|FMV3-M1-02,FMV3-M2-03,FMV3-M3-01
 FMV3-M3-03|M3|Project-Helianthus/helianthus-modbusreg|FMV3-M3-02
-FMV3-M4-01|M4|Project-Helianthus/helianthus-ebusgateway|FMV3-M1-02,FMV3-M3-03
+FMV3-M4-01|M4|Project-Helianthus/helianthus-ebusgateway|FMV3-M0-06,FMV3-M1-02,FMV3-M3-03
 FMV3-M4-02|M4|Project-Helianthus/helianthus-ebusgateway|FMV3-M4-01
 FMV3-M4-03|M4|Project-Helianthus/helianthus-ha-addon|FMV3-M4-01
 FMV3-M4-04|M4|Project-Helianthus/helianthus-ebusgateway|FMV3-M4-02,FMV3-M4-03
@@ -182,6 +182,13 @@ class FroniusPlanStructureTests(unittest.TestCase):
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)
+
+    def test_gateway_transport_and_raw_mcp_are_doc_gated(self) -> None:
+        document = self.document(PLAN_DIR)
+        by_id = {issue["id"]: issue for issue in document["issues"]}
+        for issue_id in ("FMV3-M4-01", "FMV3-M4-02"):
+            self.assertIn("doc_gate", by_id[issue_id]["gates"])
+        self.assertIn("FMV3-M0-06", by_id["FMV3-M4-01"]["depends_on"])
 
     def test_rejects_missing_issue_acceptance(self) -> None:
         def mutate(document: dict[str, Any]) -> None:

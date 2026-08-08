@@ -104,6 +104,10 @@ semantics, configure and recover the add-on path, run a real read-only Fronius s
 publish sanitized applicability evidence. These are retained roadmap nodes, not current
 work.
 
+The public endpoint-ownership and bounded raw/profile MCP contract belongs to
+`FMV3-M0-06`. It must be current before `FMV3-M4-01` or `FMV3-M4-02` merges; both code
+issues carry `doc_gate`. `FMV3-M4-05` remains a separate post-smoke evidence publication.
+
 The live smoke records `GO`, `NO_GO`, or `STOP`. `FMV3-M4-05` packages any of those
 outcomes so failed or stopped work remains reviewable. The result informs explicit
 GitHub triage and operator direction; it does not release or authorize an M5 issue.

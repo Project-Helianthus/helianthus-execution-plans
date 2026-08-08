@@ -27,7 +27,7 @@ do not create, start, or approve work.
 | FMV3-M3-01 | M3 | Project-Helianthus/helianthus-docs-ebus | FMV3-M0-06, FMV3-M2-01 |
 | FMV3-M3-02 | M3 | Project-Helianthus/helianthus-modbusreg | FMV3-M1-02, FMV3-M2-03, FMV3-M3-01 |
 | FMV3-M3-03 | M3 | Project-Helianthus/helianthus-modbusreg | FMV3-M3-02 |
-| FMV3-M4-01 | M4 | Project-Helianthus/helianthus-ebusgateway | FMV3-M1-02, FMV3-M3-03 |
+| FMV3-M4-01 | M4 | Project-Helianthus/helianthus-ebusgateway | FMV3-M0-06, FMV3-M1-02, FMV3-M3-03 |
 | FMV3-M4-02 | M4 | Project-Helianthus/helianthus-ebusgateway | FMV3-M4-01 |
 | FMV3-M4-03 | M4 | Project-Helianthus/helianthus-ha-addon | FMV3-M4-01 |
 | FMV3-M4-04 | M4 | Project-Helianthus/helianthus-ebusgateway | FMV3-M4-02, FMV3-M4-03 |

@@ -153,7 +153,7 @@ issues:
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: []
     title: Publish layer, ownership, licensing, evidence, and public-private direction contracts
-    acceptance: Public documentation defines layer ownership, standard versus vendor profiles, clean-room evidence intake, public-to-private dependency direction, and write deferral.
+    acceptance: Public documentation defines layer ownership, standard versus vendor profiles, clean-room evidence intake, public-to-private dependency direction, write deferral, gateway Modbus endpoint ownership, and the bounded read-only raw/profile MCP contract before gateway implementation.
     gates: [doc_gate, licensing]
     rollback: Revert before downstream use or publish a versioned correction after dependent contracts exist.
   - id: FMV3-M1-00
@@ -263,10 +263,10 @@ issues:
   - id: FMV3-M4-01
     milestone: M4
     repo: Project-Helianthus/helianthus-ebusgateway
-    depends_on: [FMV3-M1-02, FMV3-M3-03]
+    depends_on: [FMV3-M0-06, FMV3-M1-02, FMV3-M3-03]
     title: Compose one owned Modbus TCP endpoint behind the gateway adapter interface
     acceptance: Integration and fake-adapter tests prove one gateway endpoint owner, fair unit scheduling, safe compatible coalescing, unchanged wire, logical-view, sample, poll, dependency, source-time, and validity provenance, mixed-generation rejection, disable, and cancellation without gateway-owned canonical freshness.
-    gates: [TDD_RED, CI, transport_gate, operability]
+    gates: [TDD_RED, CI, doc_gate, transport_gate, operability]
     rollback: Disable the Modbus endpoint configuration and restart without changing eBUS behavior.
   - id: FMV3-M4-02
     milestone: M4
@@ -274,7 +274,7 @@ issues:
     depends_on: [FMV3-M4-01]
     title: Expose bounded raw Modbus and profile-observation MCP tools
     acceptance: MCP tests expose sanitized bounded read-only data, detector and activation evidence, profile identity, source validity and time, wire-response and logical-view slices, sample and poll identity, normalization provenance, limits, and exact replay while rejecting writes and unbounded ranges.
-    gates: [TDD_RED, CI, security, MCP_first]
+    gates: [TDD_RED, CI, doc_gate, security, MCP_first]
     rollback: Disable the MCP tools while retaining internal read-only polling and diagnostics.
   - id: FMV3-M4-03
     milestone: M4

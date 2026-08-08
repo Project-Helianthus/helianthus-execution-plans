@@ -384,6 +384,15 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
             _require(predecessor in _ancestors(successor, issue_map), f"{name} ordering is not present in the DAG")
 
     _require(plan["review_policy"] == EXPECTED_REVIEW_POLICY, "review policy changed")
+
+    for issue_id in ("FMV3-M4-01", "FMV3-M4-02"):
+        issue = issue_map[issue_id]
+        _require("doc_gate" in issue["gates"], f"{issue_id} must retain doc_gate")
+        _require(
+            "FMV3-M0-06" in _ancestors(issue_id, issue_map),
+            f"{issue_id} must remain downstream of the public gateway/MCP contract",
+        )
+
     hard_stop = plan["hard_stop"]
     _require(hard_stop == {
         "after_issue": "FMV3-M3-03",
