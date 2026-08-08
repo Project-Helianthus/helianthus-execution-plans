@@ -49,6 +49,10 @@ Lifecycle labels are descriptive:
 
 These labels do not grant permission or change repository state.
 
+Legacy `.draft` directories are archived planning history. Repository validation does
+not execute their validators or treat their machine-oriented fields as current workflow
+state.
+
 ## Validation
 
 Run:
@@ -70,6 +74,11 @@ Validators must not:
 - scan arbitrary implementation source to prove product behavior;
 - trigger post-merge work;
 - duplicate long implementation contracts as Python strings.
+
+The execution-plans repository must not carry active admission or release manifests,
+authorization or release tokens, trust-anchor validators, remote review attestations,
+or post-merge proof checkers. Historical references to retired mechanisms must be
+plainly labeled as archived and have no effect on issue readiness, review, or merge.
 
 ## Review policy
 

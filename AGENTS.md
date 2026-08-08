@@ -12,6 +12,9 @@ contract IDs/versions, rollback intent, and hard stops.
 - Do not add post-merge jobs or product execution services.
 - Do not validate a plan by querying GitHub, checking out another repository, or scanning
   arbitrary implementation source.
+- Do not encode issue readiness, review, or merge in admission/release manifests,
+  authorization or release tokens, trust anchors, remote review attestations, or
+  post-merge proofs.
 - Keep implementation proof in the code repository that owns the behavior.
 
 Normal agents read the merged `main` plan, identify a ready DAG node, and then use the
@@ -23,6 +26,9 @@ authoritative for code work.
 Prefer concise Markdown. Add only a small `plan.yaml` when structured IDs, dependencies,
 repository boundaries, contract versions, ordering assertions, or a hard stop need local
 machine validation.
+
+Legacy `.draft` directories are archives. Their validators and machine-oriented fields
+are not active repository gates and must not be used as workflow authority.
 
 An active structured plan normally contains:
 

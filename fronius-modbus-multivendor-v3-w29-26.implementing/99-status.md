@@ -31,6 +31,18 @@ It does not query GitHub, inspect another checkout, scan arbitrary implementatio
 or cause post-merge actions. Product proof remains in code repositories through
 interfaces/types, golden fixtures, conformance tests, and compatibility tests.
 
+## Archived Modbus M1 process history
+
+Before the simplified process, this repository carried executable Modbus M1 admission,
+remote-review, release, and post-merge proof machinery. That machinery and its
+CI-discovered tests are retired. The former records referenced docs PR `#376` at merge
+`711a556fee344c6fe7f1ecf3253fcdb3f5f22d06`, Modbus runtime PR `#6` at reviewed head
+`0aac61ddad62f664b47900334c48803587183fa3`, and execution-plans PR `#84`.
+
+Those references are historical facts only. Current state comes from the merged plan and
+current GitHub/code-repository state; no trust anchor, review attestation, release token,
+or post-merge proof is required or consulted.
+
 ## Review
 
 Review has no arbitrary round cap. Fresh exact-HEAD review continues while P0-P2 findings

@@ -29,9 +29,13 @@ UniqueKeyLoader.add_constructor(
     unique_mapping,
 )
 root = Path(sys.argv[1])
-plans = sorted(root.glob("*.*/plan.yaml"))
+plans = sorted(
+    path
+    for state in ("locked", "implementing", "maintenance")
+    for path in root.glob(f"*.{state}/plan.yaml")
+)
 if not plans:
-    raise SystemExit("no plan.yaml files found")
+    raise SystemExit("no active plan.yaml files found")
 for current in plans:
     value = yaml.load(current.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
     if not isinstance(value, dict):

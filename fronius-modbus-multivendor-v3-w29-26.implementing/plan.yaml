@@ -154,7 +154,7 @@ issues:
     depends_on: [FMV3-M0-04]
     title: Bootstrap the generic private eeBUS output-binding repository
     acceptance: Private access, licensing, CI, and a public-contract-only dependency boundary exist, with PV as the first capability rather than repository scope.
-    gates: [governance, licensing, security]
+    gates: [governance, licensing, CI, security]
     rollback: Remove an unused bootstrap or disable access before distributing any artifact.
   - id: FMV3-M0-07
     milestone: M0
@@ -162,7 +162,7 @@ issues:
     depends_on: [FMV3-M0-04]
     title: Bootstrap the generic private Matter output-binding repository
     acceptance: Private access, licensing, CI, and a public-contract-only dependency boundary exist independently of the eeBUS binding.
-    gates: [governance, licensing, security]
+    gates: [governance, licensing, CI, security]
     rollback: Remove an unused bootstrap or disable access before distributing any artifact.
   - id: FMV3-M0-06
     milestone: M0
@@ -481,6 +481,6 @@ issues:
     repo: Project-Helianthus/helianthus-matter-binding-private
     depends_on: [FMV3-M8-01]
     title: Add PV as the first Matter capability slice
-    acceptance: Conformance tests preserve identity, units, quality, stale and unavailable behavior, and keep Matter progress independent of M6 and the locked PV contract.
+    acceptance: Conformance tests preserve identity, units, quality, stale and unavailable behavior; every Matter claim consumes PUBLIC_GRAPHQL_M2M_V1 as its sole ingress and cannot change or bypass the locked PV contract; Matter delivery remains independent of M6.
     gates: [TDD_RED, CI, consumer_parity, hardware_optional]
     rollback: Disable the PV capability while retaining the generic binding kernel.

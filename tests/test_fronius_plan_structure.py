@@ -194,6 +194,38 @@ class FroniusPlanStructureTests(unittest.TestCase):
 
         self.assert_document_rejected(mutate, "gates must be a nonempty list")
 
+    def test_private_bootstraps_require_ci(self) -> None:
+        document = self.document(PLAN_DIR)
+        for issue_id in ("FMV3-M0-05", "FMV3-M0-07"):
+            self.assertIn("CI", self.issue(document, issue_id)["gates"])
+
+    def test_rejects_private_bootstrap_without_ci(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            self.issue(document, "FMV3-M0-05")["gates"].remove("CI")
+
+        self.assert_document_rejected(mutate, "private bootstrap must retain its CI gate")
+
+    def test_matter_pv_slice_is_m6_independent_and_contract_bound(self) -> None:
+        document = self.document(PLAN_DIR)
+        issues = {row["id"]: row for row in document["issues"]}
+        ancestors = VALIDATOR._ancestors("FMV3-M8-02", issues)
+        self.assertFalse(any(issue_id.startswith("FMV3-M6-") for issue_id in ancestors))
+        acceptance = issues["FMV3-M8-02"]["acceptance"]
+        self.assertIn("PUBLIC_GRAPHQL_M2M_V1", acceptance)
+        self.assertIn("sole ingress", acceptance)
+        self.assertIn("cannot change or bypass the locked PV contract", acceptance)
+
+    def test_rejects_matter_pv_slice_without_contract_boundary(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            self.issue(document, "FMV3-M8-02")["acceptance"] = (
+                "Conformance tests preserve Matter PV values."
+            )
+
+        self.assert_document_rejected(
+            mutate,
+            "must retain sole public ingress and locked PV contract acceptance",
+        )
+
     def test_rejects_missing_issue_rollback(self) -> None:
         def mutate(document: dict[str, Any]) -> None:
             self.issue(document, "FMV3-M2-03")["rollback"] = ""

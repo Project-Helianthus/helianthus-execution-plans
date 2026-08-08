@@ -1,5 +1,10 @@
 # Status
 
+> **Archived and non-executable.** This superseded draft, its embedded machine fields,
+> generated hashes, validator, reports, attestations, and authorization language are
+> retained only as historical context. Active repository validation does not read or run
+> them, and they provide no issue-readiness, review, merge, or post-merge authority.
+
 <!-- DISPLAY_HASHES_BEGIN -->
 Canonical-SHA256: `10fba769cda75189fd563b0b8667d0d3f358764d69de808ebc82ad2b9b725c92`
 Pre-Execution-Matrix-SHA256: `0e548c3ec3627807a72abd22cfc3961888daed6becb5141c9b197b7b686b043a`

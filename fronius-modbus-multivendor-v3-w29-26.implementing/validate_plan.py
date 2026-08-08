@@ -352,6 +352,25 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
         _require(len(gates) == len(set(gates)), f"{issue_id} has duplicate gates")
     _validate_graph(issue_map)
 
+    for bootstrap_id in ("FMV3-M0-05", "FMV3-M0-07"):
+        _require(
+            "CI" in issue_map[bootstrap_id]["gates"],
+            f"{bootstrap_id} private bootstrap must retain its CI gate",
+        )
+
+    m8 = issue_map["FMV3-M8-02"]
+    _require(
+        not any(issue_id.startswith("FMV3-M6-") for issue_id in _ancestors(m8["id"], issue_map)),
+        "FMV3-M8-02 must remain independent of M6",
+    )
+    m8_acceptance = m8["acceptance"]
+    _require(
+        "PUBLIC_GRAPHQL_M2M_V1" in m8_acceptance
+        and "sole ingress" in m8_acceptance
+        and "cannot change or bypass the locked PV contract" in m8_acceptance,
+        "FMV3-M8-02 must retain sole public ingress and locked PV contract acceptance",
+    )
+
     ordering_rows = _rows(plan["ordering"], "ordering", {"id", "sequence"})
     ordering_ids = _unique_ids(ordering_rows, "ordering")
     ordering = {row["id"]: tuple(row["sequence"]) for row in ordering_rows}

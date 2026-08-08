@@ -92,11 +92,16 @@ The Matter repository follows the same one-way dependency rule:
 2. `FMV3-M8-00` publishes the public Matter binding companion;
 3. `FMV3-M8-01` implements a generic private binding from exactly
    `PUBLIC_GRAPHQL_M2M_V1`;
-4. `FMV3-M8-02` adds PV as the first capability slice.
+4. `FMV3-M8-02` adds PV as the first capability slice while every Matter claim continues
+   to consume `PUBLIC_GRAPHQL_M2M_V1` as its sole ingress and remains conformant to the
+   locked PV contract without changing or bypassing it.
 
 The binding rejects alternate ingress from Modbus, registry internals, gateway internals,
 or undocumented network paths. Rollback disables the private capability without changing
 the public API.
+
+M8 has no dependency on M6. The two private bindings may progress independently after
+their shared M5 public-contract prerequisites are satisfied.
 
 ## Public-private rule
 
