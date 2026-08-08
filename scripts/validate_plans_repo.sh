@@ -4,6 +4,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONDONTWRITEBYTECODE=1
 
+if ! python3 -c 'import yaml' >/dev/null 2>&1; then
+    echo "PyYAML is required. Follow the local setup in README.md using requirements-dev.txt." >&2
+    exit 2
+fi
+
 python3 - "$ROOT" <<'PY'
 from pathlib import Path
 import sys

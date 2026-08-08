@@ -55,11 +55,17 @@ state.
 
 ## Validation
 
-Run:
+Set up the repository-owned development dependency in a disposable environment, then
+run the gate:
 
 ```bash
-./scripts/validate_plans_repo.sh
+python3 -m venv /tmp/helianthus-execution-plans-venv
+/tmp/helianthus-execution-plans-venv/bin/python -m pip install -r requirements-dev.txt
+PATH="/tmp/helianthus-execution-plans-venv/bin:$PATH" ./scripts/validate_plans_repo.sh
 ```
+
+The validation script never installs dependencies or accesses the network. If PyYAML is
+not available in the selected interpreter, it exits with the setup instruction above.
 
 Repository CI is one read-only job. It parses local YAML with duplicate-key rejection,
 runs local structural/semantic validators, and runs the unit-test suite. Validators may

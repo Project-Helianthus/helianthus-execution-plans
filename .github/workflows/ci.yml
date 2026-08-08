@@ -23,7 +23,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install YAML parser
-        run: python -m pip install PyYAML
+        run: python -m pip install -r requirements-dev.txt
 
       - name: Validate repository
         run: ./scripts/validate_plans_repo.sh
