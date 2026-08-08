@@ -155,6 +155,10 @@ class ExecutionPlanProcessTests(unittest.TestCase):
             "token envelope",
             "symbolic routing contract",
             "sole next-ready row",
+            "sole current and initial ready row",
+            "sole current ready row",
+            "sole initial ready row",
+            "mint CLEAN token",
             "digest-bound completion token",
             "token-authoritative",
         ):

@@ -237,7 +237,7 @@ issues:
   - security
   - tdd
 - id: MSP-DOCS-E2R-AGGREGATE
-  title: Aggregate v2 publication evidence and mint CLEAN token
+  title: Aggregate v2 publication evidence and verify repository-local checks
   repo: helianthus-execution-plans
   milestone: RECOVERY_RECONCILIATION
   depends_on:
