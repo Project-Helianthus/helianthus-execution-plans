@@ -183,6 +183,8 @@ M3_03_PROOF_CONTRACT = {
     "OVERLAY_REQUIRED": {
         "directory": "profiles/fronius",
         "source_path": "profiles/fronius/fronius_overlay_test.go",
+        "activation_path": "profiles/fronius/activation.go",
+        "implementation_path": "profiles/fronius/overlay.go",
         "build_target": "./profiles/fronius/...",
         "test_target": "./profiles/fronius",
     },
@@ -2478,12 +2480,15 @@ def require_m3_03_completion_artifact(
         require(not proof_is_test_only
                 and PurePosixPath(proof_candidate_path).parts[:2] == overlay_prefix,
                 "FMV3-M3-03 OVERLAY_REQUIRED neutral adapter must be production overlay source")
-    overlay_implementation_paths = [
+    overlay_production_paths = [
         path for path in tree
         if path.endswith(".go") and not path.endswith("_test.go")
         and PurePosixPath(path).parts[:2] == overlay_prefix
-        and path != proof_candidate_path
     ]
+    overlay_implementation_paths = [
+        path for path in overlay_production_paths if path != proof_candidate_path
+    ]
+    overlay_source_blobs: dict[str, bytes] = {}
     for path, blob_sha in tree.items():
         source_path = PurePosixPath(path)
         if not path.endswith(".go") or path.endswith("_test.go"):
@@ -2519,6 +2524,7 @@ def require_m3_03_completion_artifact(
                 "or a dependency outside the sealed transport-neutral allowlist",
             )
         if is_overlay_source:
+            overlay_source_blobs[path] = source_blob
             production_code = go_code_projection(source_text)
             require(
                 not re.search(r"(?m)^\s*func\s+(?:\([^\n]*\)\s*)?init\s*\(", production_code)
@@ -2741,14 +2747,6 @@ def require_m3_03_completion_artifact(
     )
     proof_code = go_code_projection(proof_blob.decode("utf-8"))
     normalized_proof = " ".join(proof_code.split())
-    minimal_neutral_adapter = (
-        r"package\s+[A-Za-z_][A-Za-z0-9_]*\s+"
-        r"type\s+NeutralRuntime\s+interface\s*\{\s*"
-        r"([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*error\s*\}\s*"
-        r"func\s+activateFroniusProfile\s*\(\s*runtime\s+NeutralRuntime\s*\)\s*error\s*\{\s*"
-        r"return\s+runtime\.([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\}"
-    )
-    proof_match = re.search(minimal_neutral_adapter, normalized_proof)
     if proof_is_test_only:
         interface_match = re.search(
             r"type\s+NeutralRuntime\s+interface\s*\{\s*"
@@ -2764,10 +2762,44 @@ def require_m3_03_completion_artifact(
                 and interface_match.group(1) == activation_match.group(1),
                 "FMV3-M3-03 test-only activation is not the exact minimal neutral adapter")
     else:
-        require(proof_match is not None and proof_match.group(1) == proof_match.group(2)
-                and re.fullmatch(minimal_neutral_adapter, normalized_proof) is not None
-                and go_import_paths(proof_blob.decode("utf-8")) == set(),
-                "FMV3-M3-03 production activation is not the exact minimal neutral adapter")
+        delegated_neutral_adapter = (
+            r"package\s+fronius\s+"
+            r"type\s+NeutralRuntime\s+interface\s*\{\s*"
+            r"([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*error\s*\}\s*"
+            r"func\s+activateFroniusProfile\s*\(\s*runtime\s+NeutralRuntime\s*\)\s*error\s*\{\s*"
+            r"return\s+activateFroniusReadOnlyOverlay\s*\(\s*runtime\s*\)\s*\}"
+        )
+        proof_match = re.fullmatch(delegated_neutral_adapter, normalized_proof)
+        implementation_path = proof_contract["implementation_path"]
+        implementation_blob = overlay_source_blobs.get(implementation_path)
+        require(
+            proof_candidate_path == proof_contract["activation_path"]
+            and proof_match is not None
+            and set(overlay_production_paths) == {
+                proof_contract["activation_path"], implementation_path,
+            }
+            and set(overlay_implementation_paths) == {implementation_path}
+            and implementation_blob is not None,
+            "FMV3-M3-03 production overlay is not the exact activation plus implementation pair",
+        )
+        implementation_text = implementation_blob.decode("utf-8")
+        normalized_implementation = " ".join(
+            go_code_projection(implementation_text).split()
+        )
+        exact_implementation = (
+            r"package\s+fronius\s+"
+            r"func\s+activateFroniusReadOnlyOverlay\s*\(\s*runtime\s+NeutralRuntime\s*\)\s*error\s*\{\s*"
+            r"return\s+runtime\.([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\}"
+        )
+        implementation_match = re.fullmatch(
+            exact_implementation, normalized_implementation,
+        )
+        require(
+            implementation_match is not None
+            and proof_match.group(1) == implementation_match.group(1)
+            and go_import_paths(implementation_text) == set(),
+            "FMV3-M3-03 production implementation is not the exact transport-neutral runtime delegation",
+        )
     proof_package_match = re.match(
         r"^\s*package\s+([A-Za-z_][A-Za-z0-9_]*)\b", proof_code,
     )

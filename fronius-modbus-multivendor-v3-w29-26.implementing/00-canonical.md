@@ -372,11 +372,14 @@ proves vendor-specific facts. FMV3-M3-01 is the public companion for M3-02/M3-03
 implementation commit or empty overlay; only `OVERLAY_REQUIRED` invokes overlay TDD/code.
 M3-03 CI always enforces the fixed TCP-import boundary test and the non-TCP neutral-fake
 activation test, including when `STANDARD_ONLY` proves that no overlay package exists. Every
-production overlay and every Fronius production token are confined to `profiles/fronius`. The
-bound minimal neutral adapter has no imports or additional declarations: it contains only the
-zero-argument error-returning `NeutralRuntime` method and the matching activation call. It is
-test-only under `STANDARD_ONLY`; under `OVERLAY_REQUIRED` it is production source inside the
-overlay namespace and a separate non-test implementation source is mandatory. Completion requires
+production overlay and every Fronius production token are confined to `profiles/fronius`. Under
+`STANDARD_ONLY`, the test-only minimal neutral adapter has no imports or additional declarations
+and calls the zero-argument error-returning `NeutralRuntime` method directly. Under
+`OVERLAY_REQUIRED`, the only production files are `activation.go` and `overlay.go`:
+`activateFroniusProfile` in the former must delegate to `activateFroniusReadOnlyOverlay` in the
+latter, whose only behavior is the same neutral runtime call. Neither file has imports or extra
+declarations. The fixed activation test therefore executes the separate production implementation;
+unused stubs, additional production sources, and TCP-gated branches or literals fail closed. Completion requires
 an exact executable, fail-closed immutable source-directory scanner in the canonical test: it uses
 `runtime.Caller(0)` and `filepath.Dir` to derive the compiled canonical test-source directory,
 then `os.ReadDir`s that absolute directory and parses every direct non-test `.go` file through its

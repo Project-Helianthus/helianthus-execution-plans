@@ -6041,6 +6041,14 @@ func interfaceClaim() claimInterface { return interfaceDecoy{} }
             self.assertIn("open pull request before development starts", result.stderr)
 
     @staticmethod
+    def m3_03_overlay_implementation_source() -> bytes:
+        return (
+            b"package fronius\n"
+            b"func activateFroniusReadOnlyOverlay(runtime NeutralRuntime) error { "
+            b"return runtime.Read() }\n"
+        )
+
+    @staticmethod
     def m3_03_test_source(*, import_body: bytes | None = None,
                           activation_body: bytes | None = None) -> dict[str, bytes]:
         import_body = import_body or (
@@ -6141,10 +6149,17 @@ func interfaceClaim() claimInterface { return interfaceDecoy{} }
             else self.github_blob(
                 f"package {package_name}\n".encode("ascii")
                 + b"type NeutralRuntime interface { Read() error }\n"
-                b"func activateFroniusProfile(runtime NeutralRuntime) error { return runtime.Read() }\n"
+                b"func activateFroniusProfile(runtime NeutralRuntime) error { "
+                b"return activateFroniusReadOnlyOverlay(runtime) }\n"
             )
         )
+        implementation_path = "profiles/fronius/overlay.go"
+        implementation_sha, implementation_blob = self.github_blob(
+            self.m3_03_overlay_implementation_source()
+        )
         blobs = {workflow_sha: workflow_blob, proof_sha: proof_blob, test_sha: test_blob}
+        if disposition == "OVERLAY_REQUIRED":
+            blobs[implementation_sha] = implementation_blob
         tests = []
         for name in ("TestFroniusOverlayRejectsTCPConcreteImports",
                      "TestFroniusOverlayActivatesThroughNeutralRuntime"):
@@ -6172,6 +6187,8 @@ func interfaceClaim() claimInterface { return interfaceDecoy{} }
         tree_map = {workflow_path: workflow_sha,
                     test_path: tests[0]["source_blob_sha"],
                     proof_path: proof_sha}
+        if disposition == "OVERLAY_REQUIRED":
+            tree_map[implementation_path] = implementation_sha
         base_tree = {workflow_path: workflow_sha}
         red_tree = {
             workflow_path: workflow_sha,
@@ -6272,11 +6289,6 @@ func interfaceClaim() claimInterface { return interfaceDecoy{} }
             "red_check_run_id": 721,
             "red_test_name": "TestFroniusOverlayActivatesThroughNeutralRuntime",
         }
-        source_sha, source_blob = self.github_blob(
-            b"package fronius\nconst enabled = true\n"
-        )
-        fixture["tree"]["profiles/fronius/overlay.go"] = source_sha
-        fixture["blobs"][source_sha] = source_blob
         fixture["api"].update({
             f"repos/{repository}/commits/{'c' * 40}": {
                 "sha": "c" * 40,
@@ -7245,6 +7257,7 @@ var _ *net.TCPConn
             "red_check_run_id": 721,
             "red_test_name": "TestFroniusOverlayActivatesThroughNeutralRuntime",
         }
+        fixture["tree"].pop("profiles/fronius/overlay.go")
         self.assert_m3_03_artifact(artifact, fixture, "lacks exact RED evidence or a production overlay")
 
     def test_m3_03_standard_only_rejects_production_change_outside_overlay(self) -> None:
@@ -7306,9 +7319,6 @@ var _ *net.TCPConn
             "red_check_run_id": 721,
             "red_test_name": "TestFroniusOverlayActivatesThroughNeutralRuntime",
         }
-        source_sha, source_blob = self.github_blob(b"package fronius\nconst enabled = true\n")
-        fixture["tree"]["profiles/fronius/overlay.go"] = source_sha
-        fixture["blobs"][source_sha] = source_blob
         repository = "Project-Helianthus/helianthus-modbusreg"
         fixture["api"].update({
             f"repos/{repository}/commits/{'c' * 40}": {
@@ -7347,6 +7357,42 @@ var _ *net.TCPConn
             ],
         }]
         self.assert_m3_03_artifact(artifact, fixture)
+
+    def test_m3_03_completion_artifact_rejects_unused_overlay_stub(self) -> None:
+        artifact, fixture = self.m3_03_artifact(
+            overlay_packages=["profiles/fronius"], disposition="OVERLAY_REQUIRED"
+        )
+        self.bind_m3_03_overlay_red_evidence(artifact, fixture)
+        source_sha, source_blob = self.github_blob(
+            b"package fronius\nconst enabled = true\n"
+        )
+        fixture["tree"]["profiles/fronius/overlay.go"] = source_sha
+        fixture["blobs"][source_sha] = source_blob
+        self.assert_m3_03_artifact(
+            artifact,
+            fixture,
+            "production implementation is not the exact transport-neutral runtime delegation",
+        )
+
+    def test_m3_03_completion_artifact_rejects_tcp_gated_overlay_logic(self) -> None:
+        artifact, fixture = self.m3_03_artifact(
+            overlay_packages=["profiles/fronius"], disposition="OVERLAY_REQUIRED"
+        )
+        self.bind_m3_03_overlay_red_evidence(artifact, fixture)
+        source_sha, source_blob = self.github_blob(
+            b"package fronius\n"
+            b"func activateFroniusReadOnlyOverlay(runtime NeutralRuntime) error {\n"
+            b" transport := \"tcp\"\n"
+            b" if transport == \"tcp\" { return runtime.Read() }\n"
+            b" return runtime.Read()\n}\n"
+        )
+        fixture["tree"]["profiles/fronius/overlay.go"] = source_sha
+        fixture["blobs"][source_sha] = source_blob
+        self.assert_m3_03_artifact(
+            artifact,
+            fixture,
+            "production implementation is not the exact transport-neutral runtime delegation",
+        )
 
     def test_m3_03_overlay_red_rejects_testmain_or_compile_decoy_source(self) -> None:
         for label, decoy in {
@@ -7390,12 +7436,9 @@ var _ *net.TCPConn
             "red_check_run_id": 721,
             "red_test_name": "TestFroniusOverlayActivatesThroughNeutralRuntime",
         }
-        source_sha, source_blob = self.github_blob(
-            b"package fronius\nconst enabled = true\n"
-        )
-        fixture["tree"]["profiles/fronius/overlay.go"] = source_sha
-        fixture["blobs"][source_sha] = source_blob
-        fixture["red_tree"]["profiles/fronius/overlay.go"] = source_sha
+        fixture["red_tree"]["profiles/fronius/overlay.go"] = fixture["tree"][
+            "profiles/fronius/overlay.go"
+        ]
         repository = "Project-Helianthus/helianthus-modbusreg"
         fixture["api"].update({
             f"repos/{repository}/commits/{'c' * 40}": {
@@ -7449,11 +7492,6 @@ var _ *net.TCPConn
             "red_check_run_id": 721,
             "red_test_name": "TestFroniusOverlayActivatesThroughNeutralRuntime",
         }
-        source_sha, source_blob = self.github_blob(
-            b"package fronius\nconst enabled = true\n"
-        )
-        fixture["tree"]["profiles/fronius/overlay.go"] = source_sha
-        fixture["blobs"][source_sha] = source_blob
         repository = "Project-Helianthus/helianthus-modbusreg"
         fixture["api"].update({
             f"repos/{repository}/commits/{'c' * 40}": {

@@ -1,6 +1,6 @@
 # Implementing status
 
-Canonical-SHA256: `68c3b9a08d90afacd52398742e68314132a157da25b62c07ea93f6eb967dcd8f`
+Canonical-SHA256: `49688ec3e29b92a643b655dd4771f564568d0be08d1d53d7de4fdb9d0eb499de`
 
 State: implementing
 Current milestone: M0

@@ -1,6 +1,6 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `68c3b9a08d90afacd52398742e68314132a157da25b62c07ea93f6eb967dcd8f`
+Canonical-SHA256: `49688ec3e29b92a643b655dd4771f564568d0be08d1d53d7de4fdb9d0eb499de`
 
 Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
 Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
@@ -183,9 +183,12 @@ empty overlay. FMV3-M3-01 is the public companion for M3-02/M3-03. M3-03 CI reje
 TCP-concrete imports, including escaped Go import literals with arbitrary Unicode aliases and
 same-line semicolon import declarations, and
 activates the profile through a non-TCP fake that implements only the neutral runtime interface.
-The bound neutral adapter has no imports or extra declarations: it is test-only for
-`STANDARD_ONLY`, while `OVERLAY_REQUIRED` confines it to `profiles/fronius` and requires a
-separate non-test implementation source. Named tests share the exact neutral-proof package and
+For `STANDARD_ONLY`, the bound neutral adapter is test-only, import-free, and calls the neutral
+runtime directly. `OVERLAY_REQUIRED` admits exactly `profiles/fronius/activation.go` and
+`profiles/fronius/overlay.go`: the former delegates `activateFroniusProfile` to the latter's
+`activateFroniusReadOnlyOverlay`, whose exact implementation performs the neutral runtime call.
+The activation test traverses both production functions, and extra production sources, unused
+stubs, imports, or TCP-gated branches/literals fail closed. Named tests share the exact neutral-proof package and
 directory, cannot locally redeclare the bound interface, activation, or scan helpers, have no build
 constraints or nested module, and run in an exact unskippable YAML job/step pinned to
 the recursive `./profiles/fronius/...` production build for `OVERLAY_REQUIRED` or the exact proof

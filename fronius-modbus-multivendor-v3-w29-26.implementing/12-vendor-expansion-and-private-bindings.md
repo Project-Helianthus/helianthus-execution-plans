@@ -1,6 +1,6 @@
 # Vendor expansion and private bindings
 
-Canonical-SHA256: `68c3b9a08d90afacd52398742e68314132a157da25b62c07ea93f6eb967dcd8f`
+Canonical-SHA256: `49688ec3e29b92a643b655dd4771f564568d0be08d1d53d7de4fdb9d0eb499de`
 
 Depends on: `10-architecture-and-repo-boundaries.md`; locked public semantic contracts for private bindings; M1/M2 shared contracts and FMV3-M3-03 for profile expansion.
 Scope: SunSpec, Growatt, Huawei SmartLogger/S-Dongle, EMMA deferral, generic private eeBUS and Matter outputs, and licensing direction.
