@@ -73,12 +73,12 @@ PY
 - Unique IDs: `43`
 - Missing predecessor references: `[]`
 - Cycles: `[]`
-- Current ready set: `["MSP-DOCS-API-SCHEMA"]`
+- Historical ready set: `["MSP-DOCS-API-SCHEMA"]`
 - Model-lane mismatches: `[]`
 - Dormant conditional cleanup row with `MSP-055` cross-repo blocker:
   `MSP-DOCS-CANDIDATE-CLEANUP`
 
-`MSP-R00-L` and `DOCS-VERIFY` are complete. The current ready set contains only
+`MSP-R00-L` and `DOCS-VERIFY` were recorded complete. The historical ready set contained only
 `MSP-DOCS-API-SCHEMA` in `helianthus-docs-eebus`. `MSP-R00` remains completed
 locally with no code acceptance and no runtime successor unlock. The serialized
 documentation chain then runs API-SCHEMA -> PLATFORM -> E2 -> CLEAN before

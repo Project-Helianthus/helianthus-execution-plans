@@ -3,7 +3,7 @@
 Status: `PASS`
 Date: `2026-07-10`
 Plan state: `locked`
-Cruise phase: `RECOVERY_RECONCILIATION`
+Historical cruise phase: `RECOVERY_RECONCILIATION`
 Amendment: `external-only-documentation`
 
 ## Basis

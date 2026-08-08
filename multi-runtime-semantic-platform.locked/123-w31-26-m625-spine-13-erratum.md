@@ -14,11 +14,11 @@ map is `92-m0-issue-matrix.yaml`.
 ## Current Control
 
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
-Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-0625-S13-DOCS`
-Current milestone: `MSP-0625-S13-DOCS`
-LAB acceptance state: `accepted`
-Selected batch: `MSP-0625-S13-DOCS`
+Historical release record: `released_chain_redeployed`
+Historical cruise phase: `MSP-0625-S13-DOCS`
+Historical milestone: `MSP-0625-S13-DOCS`
+Historical LAB state: `accepted`
+Historical batch: `MSP-0625-S13-DOCS`
 Accepted through: `Base M6.25 LAB remains accepted after released-chain redeploy, but stable-MCP/M6.25 final closure is held by the bounded SPINE 1.3 erratum; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 
@@ -145,8 +145,8 @@ gate.
 ## Coverage
 
 Plan validation must prove the 75-row exact-ID DAG, every old edge, the exact
-five-row erratum chain, the additional final predecessor, the DOCS initial and
-current ready set, the exact issue references, public baseline and hashes,
+five-row erratum chain, the additional final predecessor, the historically selected DOCS
+row, the exact issue references, public baseline and hashes,
 bounded provenance and exclusions, unchanged tool suffixes, fail-closed
 no-write behavior, public/raw separation, and preservation of the historical
 `100-topology-audit.md`. Implementation repositories must also prove

@@ -58,17 +58,18 @@ EEBUS-G01 fake-peer harness slice remain preserved evidence. They do not let
 M3 close without MSP-R00-L, DOCS-VERIFY, the AD-DOCS-01 documentation chain,
 and MSP-03D-R.
 
-## Current Ready Row
+## Historical checkpoint
 
-M0-M6 history is accepted. Current release-proof and dispatch state is:
+M0-M6 history was recorded as accepted at this checkpoint. The values below are
+historical and do not select current work:
 
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
-Release-proof control: `released_chain_redeployed`
-S13 completion proof: `published_evidence_verified`
-Cruise phase: `MSP-065-LIVE-R1`
-Current milestone: `MSP-065-LIVE-R1`
-LAB acceptance state: `accepted`
-Selected batch: `MSP-065-LIVE-R1`
+Historical release record: `released_chain_redeployed`
+Historical S13 record: `published_evidence_verified`
+Historical cruise phase: `MSP-065-LIVE-R1`
+Historical milestone: `MSP-065-LIVE-R1`
+Historical LAB state: `accepted`
+Historical batch: `MSP-065-LIVE-R1`
 Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 
@@ -346,8 +347,8 @@ The live completion chain now requires the two preserved
 Record 122 marks PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER,
 GW-MCP, and DOCS-P completed and published. LAB operational acceptance used
 terminal quarantine, does not claim auto-rollback, and promotes no mutable
-leaf. The generated control projection above is authoritative for LAB state
-and dispatch. SHIP PR23 and docs-eebus PR95 are non-DAG hardening, never
+leaf. Current LAB and dispatch state must be read from GitHub and the owning
+repositories. SHIP PR23 and docs-eebus PR95 are non-DAG hardening, never
 predecessors.
 
 Record 123 keeps `lab_release_proof=released_chain_redeployed` and the base
@@ -388,14 +389,14 @@ This plan is locked when:
 - accepted-through text records the base M6.25 LAB as accepted after
   released-chain redeploy, the bounded SPINE 1.3 hold on final closure, and
   zero promoted leaves;
-- the generated release-proof projection selects only
-  `MSP-0625-S13-DOCS` while preserving released base LAB proof;
+- the historical checkpoint selected `MSP-0625-S13-DOCS` while preserving the
+  recorded base LAB result;
 - every old edge remains exact and only the final erratum token is appended to
   the existing `MSP-065-LIVE-R1` predecessors;
 - the M6.25 code path, tool set, authorization, durable mutation FSM, recovery,
   and anti-leak contract are frozen;
 - historical framework/synthetic rows cannot unlock live rows;
-- M9 requires `MSP-085-LIVE-R1` and its JCS digest-bound completion-token claim
+- M9 depends on `MSP-085-LIVE-R1` and owning-repository evidence
   with `promoted_leaf_count > 0`;
 - AD-DOCS-01 rows are serialized and the dormant cleanup row is not treated as
   initially ready or as a normal required predecessor;

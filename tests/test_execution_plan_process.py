@@ -56,7 +56,9 @@ class ExecutionPlanProcessTests(unittest.TestCase):
         plan = load_unique_yaml(MSP / "plan.yaml")
         self.assertEqual("guidance_only", plan["process_model"]["authority"])
         self.assertEqual("none", plan["process_model"]["post_merge_effects"])
-        self.assertEqual("guidance_only", plan["successor_unlocks"])
+        self.assertNotIn("initial_ready_set", plan)
+        self.assertNotIn("successor_unlocks", plan)
+        self.assertNotIn("successor_unlock_condition", plan)
 
     def test_msp_dependency_map_is_closed_and_acyclic(self) -> None:
         matrix = load_unique_yaml(MSP / "92-m0-issue-matrix.yaml")
@@ -98,6 +100,27 @@ class ExecutionPlanProcessTests(unittest.TestCase):
                 "- id: MSP-X\n  depends_on: []\n  depends_on: [MSP-Y]\n",
                 Loader=UniqueKeyLoader,
             )
+
+    def test_msp_has_no_operative_dispatch_or_authorization_surface(self) -> None:
+        text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(MSP.iterdir())
+            if path.suffix in {".md", ".yaml"}
+        )
+        for forbidden in (
+            "required_at_dispatch",
+            "routing_contract:",
+            "routing_policy:",
+            "unlock_predicate:",
+            "initial_ready_set:",
+            "successor_unlocks:",
+            "successor_unlock_condition:",
+            "## Current Ready Row",
+            "authoritative for LAB acceptance and current dispatch",
+            "generated control projection above is authoritative",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, text)
 
 
 if __name__ == "__main__":

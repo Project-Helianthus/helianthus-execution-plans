@@ -8,15 +8,13 @@ process_model:
   post_merge_effects: none
   legacy_control_terms: historical_predecessor_evidence_only
 baseline: Gateway 0.4.0
-cruise_phase: MSP-065-LIVE-R1
-current_milestone: MSP-065-LIVE-R1
+historical_cruise_phase: MSP-065-LIVE-R1
+historical_milestone: MSP-065-LIVE-R1
 amendment_count: 9
 amended_on: '2026-07-30'
 amendment: M6.25 bounded SPINE 1.3 erratum
 accepted_through: M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves
 dirty_rescue_candidate: false
-successor_unlocks: guidance_only
-successor_unlock_condition: M6.25 SPINE 1.3 erratum and live DAG complete through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
 historical_lab_release_record: released_chain_redeployed
 historical_s13_completion_record: published_evidence_verified
 msp_r00_status: completed_local_no_code_acceptance
@@ -30,7 +28,7 @@ purpose: 'Structured dependency map for the eeBUS raw-first
 '
 serialization:
   rule: one_active_pr_per_repo
-  memory_guard: serial_execution_for_all_eebusreg_and_docs_rows_unless_initial_ready_set_says_otherwise
+  memory_guard: serial_execution_for_all_eebusreg_and_docs_rows
   recovery_sequence:
   - MSP-R00
   - MSP-R00-L
@@ -102,9 +100,7 @@ serialization:
   - MSP-085-LIVE-R1
   - MSP-09A
   - MSP-09B
-  initial_ready_set:
-  - MSP-065-LIVE-R1
-  dirty_code_unlocks_successors: false
+  dirty_code_does_not_satisfy_dependencies: true
   conditional_rows:
   - MSP-DOCS-CANDIDATE-CLEANUP
   pr_required_evidence:
@@ -510,7 +506,7 @@ issues:
   acceptance_state: completed_local_no_code_acceptance
   issue: "Project-Helianthus/helianthus-eebusreg#14"
   architecture_review: pass
-  successor_unlocks: false
+  satisfies_no_successor_dependency: true
   coordination_note: hand only the public-safe redacted ledger candidate to MSP-R00-L;
     the local rescue branch, source bundle, raw HMAC mapping, private paths, and any
     local commit SHA remain unpublished
@@ -627,10 +623,6 @@ issues:
   - schema docs are canonical in docs-eebus/api and are not copied into helianthus-eebusreg
   depends_on:
   - DOCS-VERIFY
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-DOCS-PLATFORM
   title: Add cross-runtime platform contracts and ownership manifest
   repo: helianthus-docs-ebus
@@ -659,10 +651,6 @@ issues:
   depends_on:
   - MSP-R00-L
   - MSP-DOCS-API-SCHEMA
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-DOCS-E2
   title: Move eeBUS protocol, architecture, and API docs to docs-eebus
   repo: helianthus-docs-eebus
@@ -693,10 +681,6 @@ issues:
   - E2 links only merged active platform pages
   depends_on:
   - MSP-DOCS-PLATFORM
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-DOCS-E2R-PLATFORM
   title: Introduce backward-compatible publication-contract v2 validator
   repo: helianthus-docs-ebus
@@ -711,10 +695,6 @@ issues:
   tdd_mode: strict_red_green
   smoke_scope: hermetic_validator
   acceptance_state: accepted
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
   depends_on:
   - MSP-DOCS-E2
 - id: MSP-DOCS-E2R-PUBLISH
@@ -731,10 +711,6 @@ issues:
   tdd_mode: strict_red_green
   smoke_scope: hermetic_validator
   acceptance_state: accepted
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
   depends_on:
   - MSP-DOCS-E2R-PLATFORM
 - id: MSP-DOCS-E2R-AGGREGATE
@@ -751,10 +727,6 @@ issues:
   tdd_mode: strict_red_green
   smoke_scope: hermetic_validator
   acceptance_state: accepted
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
   issue_ref: "Project-Helianthus/helianthus-execution-plans#64"
   depends_on:
   - MSP-DOCS-E2R-PUBLISH
@@ -791,10 +763,6 @@ issues:
     and creates cleanup
   depends_on:
   - MSP-DOCS-E2R-AGGREGATE
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-DOCS-CANDIDATE-CLEANUP
   title: Withdraw abandoned eeBUS candidate docs
   repo: helianthus-docs-eebus
@@ -830,10 +798,6 @@ issues:
     and expiry checks
   depends_on:
   - MSP-DOCS-E2R-PUBLISH
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-03D-R
   title: Reconcile G17 and G19 from clean main
   repo: helianthus-eebusreg
@@ -863,10 +827,6 @@ issues:
   depends_on:
   - MSP-DOCS-CLEAN
   - MSP-03C
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
   evidence_inputs:
   - MSP-03D-G01
 - id: MSP-035
@@ -889,10 +849,6 @@ issues:
     unfrozen
   depends_on:
   - MSP-03D-R
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-04A
   title: Implement internal persistent store/schema only
   repo: helianthus-eebusreg
@@ -913,10 +869,6 @@ issues:
   - no public raw view, lifecycle facade, listener, or trust mutation is exposed
   depends_on:
   - MSP-035
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-036
   title: Export immutable raw snapshot/view fields
   repo: helianthus-eebusreg
@@ -937,10 +889,6 @@ issues:
   - no lifecycle authority, trust/pairing mutation, or availability guarantee is exported
   depends_on:
   - MSP-04A
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-DOCS-API-CANDIDATE
   title: Stage the exact-head eeBUS Go public API candidate
   repo: helianthus-docs-eebus
@@ -973,10 +921,6 @@ issues:
   depends_on:
   - MSP-036
   - MSP-DOCS-E2
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-055
   title: Add disabled read-only lifecycle facade
   repo: helianthus-eebusreg
@@ -1009,10 +953,6 @@ issues:
   depends_on:
   - MSP-036
   - MSP-DOCS-API-CANDIDATE
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-DOCS-API-FREEZE
   title: Freeze active eeBUS Go public API documentation
   repo: helianthus-docs-eebus
@@ -1044,10 +984,6 @@ issues:
   - candidate is promoted to active version only after exact-match verification
   depends_on:
   - MSP-055
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-04B
   title: Implement first-trust and admin-local boundary
   repo: helianthus-eebusreg
@@ -1068,10 +1004,6 @@ issues:
   - public trust/pairing mutations remain absent
   depends_on:
   - MSP-DOCS-API-FREEZE
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-04C
   title: Implement restore, revocation, quarantine, and repair
   repo: helianthus-eebusreg
@@ -1091,10 +1023,6 @@ issues:
   - quarantine/backoff persists across restart
   depends_on:
   - MSP-04B
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-045
   title: Freeze trust and admin state model
   repo: helianthus-eebusreg
@@ -1114,10 +1042,6 @@ issues:
   - state changes after this point require explicit contract migration
   depends_on:
   - MSP-04C
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05A
   title: Add disabled eeBUS config scaffold
   repo: helianthus-ebusgateway
@@ -1137,10 +1061,6 @@ issues:
   - no helianthus-eebusreg import is introduced
   depends_on:
   - MSP-045
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-DOCS-05P
   title: Freeze the production activation, provider, listener-scope, and config mapping contract
   repo: helianthus-docs-eebus
@@ -1163,10 +1083,6 @@ issues:
   depends_on:
   - MSP-05A
   - MSP-045
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05P-SHIP
   title: Add scoped SHIP listener and independently gated mDNS publication
   repo: helianthus-ship-go
@@ -1188,10 +1104,6 @@ issues:
   - shutdown closes listener and publication exactly once without races
   depends_on:
   - MSP-DOCS-05P
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05P-EEBUS
   title: Thread listener and discovery policy through eebus-go
   repo: helianthus-eebus-go
@@ -1213,10 +1125,6 @@ issues:
   - fake-peer tests prove scoped startup with discovery both enabled and disabled
   depends_on:
   - MSP-05P-SHIP
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05P-REG-API-V2
   title: Add an explicit bind-address runtime API without breaking v1
   repo: helianthus-eebusreg
@@ -1238,10 +1146,6 @@ issues:
   - no dependency-specific public types escape the runtime facade
   depends_on:
   - MSP-05P-EEBUS
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05P-REG-ID
   title: Install host-bound protected runtime identity material
   repo: helianthus-eebusreg
@@ -1263,10 +1167,6 @@ issues:
   - key material is host-bound or explicitly excluded from backup
   depends_on:
   - MSP-05P-REG-API-V2
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05P-REG-RUNTIME
   title: Replace production runtime stubs with the scoped SHIP service
   repo: helianthus-eebusreg
@@ -1288,10 +1188,6 @@ issues:
   - startup failure and shutdown leave no socket, goroutine, publication, or partial state mutation
   depends_on:
   - MSP-05P-REG-ID
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05P-REG-API-V1-CLEANUP
   title: Collapse the unreleased exact-address runtime API into the initial v1 surface
   repo: helianthus-eebusreg
@@ -1313,10 +1209,6 @@ issues:
   - the active v1 API reference and manifest are regenerated from the final exact source commit with an explicit pre-release correction record
   depends_on:
   - MSP-05P-REG-RUNTIME
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05A-R1
   title: Map gateway eeBUS config exactly onto the production runtime API
   repo: helianthus-ebusgateway
@@ -1338,10 +1230,6 @@ issues:
   - disabled default performs no construction, filesystem access, goroutine, socket, or mDNS operation
   depends_on:
   - MSP-05P-REG-API-V1-CLEANUP
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05B-PLAN-R1
   title: Correct the M5 gateway lifecycle prerequisite and sidecar contract
   repo: helianthus-execution-plans
@@ -1366,10 +1254,6 @@ issues:
   - MSP-05A-R1
   - MSP-05P-REG-RUNTIME
   - MSP-DOCS-05P
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05A-R2
   title: Harden gateway process-exit boundary and canonicalize eeBUS remotes
   repo: helianthus-ebusgateway
@@ -1393,10 +1277,6 @@ issues:
   - no sidecar lifecycle, socket, discovery, trust, MCP, GraphQL, semantic, or eBUS transport behavior is added
   depends_on:
   - MSP-05B-PLAN-R1
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-05B
   title: Add disabled-by-default EEBusRuntimeAdapter sidecar
   repo: helianthus-ebusgateway
@@ -1424,10 +1304,6 @@ issues:
   - MSP-05A-R2
   - MSP-05P-REG-RUNTIME
   - MSP-DOCS-05P
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-06
   title: Add read-only eebus.v1 MCP tools
   repo: helianthus-ebusgateway
@@ -1448,10 +1324,6 @@ issues:
   - no mutation tools or ebus.v1/GraphQL/HA deltas appear
   depends_on:
   - MSP-05B
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-PLAN
   title: Publish forward-only M6.25 raw SPINE feature acquisition amendment
   repo: helianthus-execution-plans
@@ -1473,10 +1345,6 @@ issues:
   - M9 requires MSP-085-LIVE-R1 and promoted_leaf_count greater than zero
   depends_on:
   - MSP-06
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-DOCS-E
   title: Freeze M6.25 SPINE function-data, runtime, and API contract
   repo: helianthus-docs-eebus
@@ -1497,10 +1365,6 @@ issues:
   - exact five M6.25 tool suffixes remain under the single unreleased eebus.v1 namespace
   depends_on:
   - MSP-0625-PLAN
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-SPINE
   title: Add atomic correlated SPINE round-trip
   repo: helianthus-spine-go
@@ -1523,10 +1387,6 @@ issues:
   - ship-go remains unchanged
   depends_on:
   - MSP-0625-DOCS-E
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-EEBUS
   title: Add exact full READ/WRITE feature executor
   repo: helianthus-eebus-go
@@ -1547,10 +1407,6 @@ issues:
   - partial, selectors, filterDelete, and invoke emit zero frames
   depends_on:
   - MSP-0625-SPINE
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-REG-EXEC
   title: Add RawFeatureRuntimeV1 typed acquisition executor
   repo: helianthus-eebusreg
@@ -1572,10 +1428,6 @@ issues:
   - JCS request and result hashes are deterministic
   depends_on:
   - MSP-0625-EEBUS
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-REG-MUT
   title: Add durable bounded mutation coordinator
   repo: helianthus-eebusreg
@@ -1603,10 +1455,6 @@ issues:
   - outcome_unknown converges by readback without blind resend
   depends_on:
   - MSP-0625-REG-EXEC
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-GW-ROUTER
   title: Add EEBusCommandRouter policy boundary
   repo: helianthus-ebusgateway
@@ -1628,10 +1476,6 @@ issues:
   - existing eBUS routing and consumers do not drift
   depends_on:
   - MSP-0625-REG-MUT
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-GW-MCP
   title: Register exact M6.25 eebus.v1 tools
   tool_suffixes:
@@ -1661,10 +1505,6 @@ issues:
   - no v2, aliases, candidate_ref, semantics, GraphQL, Portal, or HA surface appears
   depends_on:
   - MSP-0625-GW-ROUTER
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-LAB
   title: Prove live typed acquisition and bounded rollback
   repo: helianthus-docs-eebus
@@ -1687,10 +1527,6 @@ issues:
   - public, ebus.v1, semantic, GraphQL, Portal, and HA anti-leak checks pass
   depends_on:
   - MSP-0625-GW-MCP
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-DOCS-P
   title: Cross-seed thin public acquisition methodology
   repo: helianthus-docs-ebus
@@ -1711,10 +1547,6 @@ issues:
   - this row does not block MSP-0625-SPINE
   depends_on:
   - MSP-0625-DOCS-E
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-S13-DOCS
   title: Freeze bounded SPINE 1.3 READ erratum and public baseline
   repo: helianthus-docs-eebus
@@ -1750,10 +1582,6 @@ issues:
   depends_on:
   - MSP-0625-LAB
   - MSP-0625-DOCS-P
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-S13-SPINE
   title: Apply bounded SPINE 1.3 model and function-data corrections
   repo: helianthus-spine-go
@@ -1792,10 +1620,6 @@ issues:
   - no update-engine behavior, write path, transport, SHIP, or public/raw boundary changes
   depends_on:
   - MSP-0625-S13-DOCS
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-S13-EEBUS
   title: Adopt bounded SPINE 1.3 erratum in exact feature READ execution
   repo: helianthus-eebus-go
@@ -1817,10 +1641,6 @@ issues:
   - no SPINE 1.4, upstream dev wholesale merge, semantic mapping, or consumer behavior enters scope
   depends_on:
   - MSP-0625-S13-SPINE
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-S13-REG
   title: Reconcile raw typed READ results with the SPINE 1.3 erratum
   repo: helianthus-eebusreg
@@ -1843,10 +1663,6 @@ issues:
   - no raw identity or restricted preimage enters public evidence
   depends_on:
   - MSP-0625-S13-EEBUS
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-0625-S13-GW-LAB
   title: Integrate and prove the bounded SPINE 1.3 READ erratum
   repo: helianthus-ebusgateway
@@ -1875,10 +1691,6 @@ issues:
   - candidate_ref, semantics, GraphQL, Portal, Home Assistant, and consumer promotion remain prohibited
   depends_on:
   - MSP-0625-S13-REG
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-065
   title: Preserve historical synchronized evidence recorder framework
   repo: helianthus-ebusgateway
@@ -1898,10 +1710,6 @@ issues:
   - replay uses captured timestamps and regenerates redacted hashes
   depends_on:
   - MSP-06
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-07
   title: Preserve historical synthetic draft candidate fact graph
   repo: helianthus-ebusgateway
@@ -1921,10 +1729,6 @@ issues:
   - negative states remain withheld raw/debug only
   depends_on:
   - MSP-065
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-08
   title: Preserve historical synthetic multi-runtime coexistence
   repo: helianthus-ebusgateway
@@ -1944,10 +1748,6 @@ issues:
   - existing GraphQL/HA/MCP outputs do not drift
   depends_on:
   - MSP-07
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-085
   title: Preserve historical zero-leaf promotion closure
   repo: helianthus-ebusgateway
@@ -1967,10 +1767,6 @@ issues:
   - mutable leaves satisfy lab lease and rollback requirements
   depends_on:
   - MSP-08
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-065-LIVE-R1
   title: Complete live synchronized evidence recorder revision 1
   repo: helianthus-ebusgateway
@@ -1993,10 +1789,6 @@ issues:
   - MSP-0625-LAB
   - MSP-0625-DOCS-P
   - MSP-0625-S13-GW-LAB
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-07-LIVE-R1
   title: Build live draft candidate fact graph revision 1
   repo: helianthus-ebusgateway
@@ -2017,10 +1809,6 @@ issues:
   - negative states remain withheld raw/debug only
   depends_on:
   - MSP-065-LIVE-R1
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-08-LIVE-R1
   title: Prove live multi-runtime coexistence revision 1
   repo: helianthus-ebusgateway
@@ -2041,10 +1829,6 @@ issues:
   - existing GraphQL, Portal, HA, and MCP outputs do not drift
   depends_on:
   - MSP-07-LIVE-R1
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-085-LIVE-R1
   title: Lock live per-leaf promotion dossiers revision 1
   repo: helianthus-ebusgateway
@@ -2062,27 +1846,9 @@ issues:
   acceptance:
   - every promoted leaf has direct live evidence and a locked dossier
   - mutable leaves satisfy lab lease and verified rollback requirements
-  - completion token carries a JCS digest-bound machine-checkable promoted_leaf_count greater than zero
-  acceptance_contract:
-    schema: helianthus.m625-live-promotion
-    version: 1
-    milestone_id: MSP-085-LIVE-R1
-    canonicalization: RFC8785_JCS
-    digest: SHA-256
-    digest_bound_fields:
-    - milestone_id
-    - promoted_leaf_count
-    - promotion_dossier_root
-    - evidence_root
-    promoted_leaf_count:
-      type: integer
-      exclusive_minimum: 0
+  - owning-repository evidence contains at least one promoted leaf
   depends_on:
   - MSP-08-LIVE-R1
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-09A
   title: Add GraphQL for promoted leaves
   repo: helianthus-ebusgateway
@@ -2102,16 +1868,6 @@ issues:
   - schema/value before-after artifacts show no unrelated drift
   depends_on:
   - MSP-085-LIVE-R1
-  unlock_predicate:
-    accepted_predecessor: MSP-085-LIVE-R1
-    digest_bound: true
-    field: promoted_leaf_count
-    operator: greater_than
-    value: 0
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-09B
   title: Add Portal promoted-leaf support
   repo: helianthus-ebusgateway
@@ -2132,16 +1888,6 @@ issues:
   depends_on:
   - MSP-09A
   - MSP-085-LIVE-R1
-  unlock_predicate:
-    accepted_predecessor: MSP-085-LIVE-R1
-    digest_bound: true
-    field: promoted_leaf_count
-    operator: greater_than
-    value: 0
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-09C
   title: Add Home Assistant promoted-entity support
   repo: helianthus-ha-integration
@@ -2163,16 +1909,6 @@ issues:
   - MSP-09A
   - MSP-09B
   - MSP-085-LIVE-R1
-  unlock_predicate:
-    accepted_predecessor: MSP-085-LIVE-R1
-    digest_bound: true
-    field: promoted_leaf_count
-    operator: greater_than
-    value: 0
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
 - id: MSP-09D
   title: Add add-on configuration for promoted eeBUS runtime
   repo: helianthus-ha-addon
@@ -2194,17 +1930,3 @@ issues:
   - MSP-09A
   - MSP-09C
   - MSP-085-LIVE-R1
-  unlock_predicate:
-    accepted_predecessor: MSP-085-LIVE-R1
-    digest_bound: true
-    field: promoted_leaf_count
-    operator: greater_than
-    value: 0
-  routing_contract:
-    resolver: canonical_resolver
-    policy_digest: canonical_policy_digest
-    forbidden_tier: Ultra
-routing_policy:
-  resolver: canonical
-  policy_digest: required_at_dispatch
-  forbidden_tier: highest_reserved_tier

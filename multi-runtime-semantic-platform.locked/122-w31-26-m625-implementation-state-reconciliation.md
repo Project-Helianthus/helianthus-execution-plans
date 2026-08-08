@@ -27,11 +27,11 @@ They add no predecessor, completion token, or successor unlock.
 ## LAB Release-Proof Control
 
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
-Release-proof control: `released_chain_redeployed`
-Cruise phase: `MSP-065-LIVE-R1`
-Current milestone: `MSP-065-LIVE-R1`
-LAB acceptance state: `accepted`
-Selected batch: `MSP-065-LIVE-R1`
+Historical release record: `released_chain_redeployed`
+Historical cruise phase: `MSP-065-LIVE-R1`
+Historical milestone: `MSP-065-LIVE-R1`
+Historical LAB state: `accepted`
+Historical batch: `MSP-065-LIVE-R1`
 Accepted through: `M6.25 LAB accepted/completed after released-chain redeploy; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 

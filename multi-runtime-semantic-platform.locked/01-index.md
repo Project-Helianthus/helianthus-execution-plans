@@ -4,12 +4,12 @@ Source: [00-canonical.md](./00-canonical.md)
 
 
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
-Release-proof control: `released_chain_redeployed`
-S13 completion proof: `published_evidence_verified`
-Cruise phase: `MSP-065-LIVE-R1`
-Current milestone: `MSP-065-LIVE-R1`
-LAB acceptance state: `accepted`
-Selected batch: `MSP-065-LIVE-R1`
+Historical release record: `released_chain_redeployed`
+Historical S13 record: `published_evidence_verified`
+Historical cruise phase: `MSP-065-LIVE-R1`
+Historical milestone: `MSP-065-LIVE-R1`
+Historical LAB state: `accepted`
+Historical batch: `MSP-065-LIVE-R1`
 Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 
@@ -18,8 +18,7 @@ multi-runtime native protocol gateway. M5 and M6 are complete, and the
 forward-only amendment adds canonical typed SPINE function-data READ/WRITE
 before the live M6.5-M8.5 chain. Amendment 122 records the published base
 M6.25 implementation. Amendment 123 preserves accepted LAB proof while adding
-a bounded SPINE 1.3 erratum; the generated projection above records current
-dispatch.
+a bounded SPINE 1.3 erratum; the projection above is historical context only.
 Substantive eeBUS documentation remains external to code repositories.
 
 This directory is guidance, not an authorization runtime. The issue matrix carries

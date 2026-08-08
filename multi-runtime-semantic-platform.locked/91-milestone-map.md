@@ -3,12 +3,12 @@
 Status: `Locked`
 Baseline: `Gateway 0.4.0`
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
-Release-proof control: `released_chain_redeployed`
-S13 completion proof: `published_evidence_verified`
-Cruise phase: `MSP-065-LIVE-R1`
-Current milestone: `MSP-065-LIVE-R1`
-LAB acceptance state: `accepted`
-Selected batch: `MSP-065-LIVE-R1`
+Historical release record: `released_chain_redeployed`
+Historical S13 record: `published_evidence_verified`
+Historical cruise phase: `MSP-065-LIVE-R1`
+Historical milestone: `MSP-065-LIVE-R1`
+Historical LAB state: `accepted`
+Historical batch: `MSP-065-LIVE-R1`
 Accepted through: `M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves`
 <!-- M625_RELEASE_PROJECTION_END -->
 Amendment: `M6.25 bounded SPINE 1.3 erratum`
@@ -60,9 +60,9 @@ passes exact-match, candidate-state, expiry, and no-active-cleanup gates, and
 MSP-DOCS-API-FREEZE runs before MSP-04B. M4.5 and M5A are now complete.
 
 PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER, GW-MCP, and DOCS-P
-are completed and published. The generated release-proof projection above is
-authoritative for LAB acceptance and current dispatch. Record 123 preserves the
-released LAB proof but selects only `MSP-0625-S13-DOCS`.
+were recorded as completed and published. Current LAB acceptance and dispatch state
+must be read from GitHub and the owning repositories. Record 123 historically selected
+`MSP-0625-S13-DOCS`.
 M6.25 serializes spine-go, eebus-go, eebusreg, and gateway code by repository.
 `MSP-0625-DOCS-P` may proceed after `MSP-0625-DOCS-E` without blocking
 `MSP-0625-SPINE`. The strict erratum chain begins only after both

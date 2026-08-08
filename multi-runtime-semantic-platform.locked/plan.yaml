@@ -7,7 +7,7 @@ process_model:
   execution: normal_issue_branch_pr_ci_review_squash_merge
   post_merge_effects: none
   legacy_control_terms: historical_predecessor_evidence_only
-cruise_phase: MSP-065-LIVE-R1
+historical_cruise_phase: MSP-065-LIVE-R1
 amendment_count: 9
 amended_on: 2026-07-30
 amendment: M6.25 bounded SPINE 1.3 erratum
@@ -33,7 +33,7 @@ canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-04-12
 locked_on: 2026-07-10
-current_milestone: MSP-065-LIVE-R1
+historical_milestone: MSP-065-LIVE-R1
 historical_lab_release_record: released_chain_redeployed
 historical_s13_completion_record: published_evidence_verified
 accepted_adversarial_rounds: 5
@@ -41,10 +41,6 @@ accepted_through: M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepte
 m3_status: closed
 msp_03d_status: closed
 dirty_rescue_candidate: false
-successor_unlocks: guidance_only
-successor_unlock_condition: M6.25 SPINE 1.3 erratum and live DAG complete through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
-initial_ready_set:
-  - MSP-065-LIVE-R1
