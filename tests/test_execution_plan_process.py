@@ -40,6 +40,21 @@ def load_unique_yaml(path: Path) -> object:
 
 
 class ExecutionPlanProcessTests(unittest.TestCase):
+    def test_msp_active_surface_is_minimal(self) -> None:
+        self.assertEqual(
+            {
+                "00-canonical.md",
+                "01-index.md",
+                "10-architecture-and-delivery.md",
+                "90-issue-map.md",
+                "91-milestone-map.md",
+                "92-m0-issue-matrix.yaml",
+                "99-status.md",
+                "plan.yaml",
+            },
+            {path.name for path in MSP.iterdir() if path.is_file()},
+        )
+
     def test_retired_authorization_runtimes_are_absent(self) -> None:
         retired = (
             "scripts/aggregate_completion_token.py",
@@ -75,6 +90,14 @@ class ExecutionPlanProcessTests(unittest.TestCase):
         self.assertEqual(golden, graph)
         for row in rows:
             self.assertNotIn("requires_completion_tokens", row)
+            self.assertTrue(
+                {
+                    "routing_contract",
+                    "unlock_predicate",
+                    "completion_token_contract",
+                    "conditional",
+                }.isdisjoint(row)
+            )
             self.assertTrue(set(row.get("depends_on", ())).issubset(by_id))
 
         visiting: set[str] = set()
@@ -118,6 +141,12 @@ class ExecutionPlanProcessTests(unittest.TestCase):
             "## Current Ready Row",
             "authoritative for LAB acceptance and current dispatch",
             "generated control projection above is authoritative",
+            "completion token is required",
+            "token envelope",
+            "symbolic routing contract",
+            "sole next-ready row",
+            "digest-bound completion token",
+            "token-authoritative",
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)

@@ -101,8 +101,6 @@ serialization:
   - MSP-09A
   - MSP-09B
   dirty_code_does_not_satisfy_dependencies: true
-  conditional_rows:
-  - MSP-DOCS-CANDIDATE-CLEANUP
   pr_required_evidence:
   - doc_gate_result
   - rollback_ledger_entry
@@ -200,10 +198,10 @@ issues:
   - required control-plane fields exist
   - repo serialization and predecessor edges are explicit
   depends_on: []
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-00B
-  title: Lock model routing lanes
+  title: Record historical model selection context
   repo: helianthus-execution-plans
   milestone: M0
   complexity: 4
@@ -211,8 +209,8 @@ issues:
   doc_gate: none
   transport_gate: none
   security_gate: none
-  rollback_ledger: revert routing table only
-  review_ledger: routing consistency review
+  rollback_ledger: revert model-selection context only
+  review_ledger: model-selection consistency review
   tdd_mode: not_applicable_historical
   smoke_scope: model-lane grep
   acceptance_state: accepted
@@ -221,7 +219,7 @@ issues:
   - every issue complexity maps to its declared lane
   depends_on:
   - MSP-00A
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-00C
   title: Define eebus-transport-gate v0
@@ -242,7 +240,7 @@ issues:
   - eBUS T01..T88 applicability is explicit
   depends_on:
   - MSP-00A
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-01A
   title: Add platform docs ownership ADR
@@ -263,7 +261,7 @@ issues:
   - summary-only non-owning page rule is documented
   depends_on:
   - MSP-00A
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-01B
   title: Bootstrap helianthus-docs-eebus
@@ -284,7 +282,7 @@ issues:
   - platform contracts are linked, not duplicated
   depends_on:
   - MSP-01A
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-01C
   title: Add eeBUS provenance and publication policy
@@ -305,7 +303,7 @@ issues:
   - promoted claim table format is documented
   depends_on:
   - MSP-01B
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-020
   title: Bootstrap helianthus-eebusreg raw runtime repo
@@ -331,7 +329,7 @@ issues:
   - MSP-01A
   - MSP-01B
   - MSP-01C
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-02A
   title: Draft raw runtime identity contract
@@ -359,7 +357,7 @@ issues:
   - MSP-01B
   - MSP-01C
   - MSP-020
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-02B
   title: Draft snapshot envelope and evidence object
@@ -380,7 +378,7 @@ issues:
   - replay and hash inputs are documented
   depends_on:
   - MSP-02A
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-02C
   title: Draft raw correlation and promotion dossier policy
@@ -402,7 +400,7 @@ issues:
   depends_on:
   - MSP-01A
   - MSP-02B
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-03A
   title: Spike eebus-go v0.7.0 internal facade
@@ -423,7 +421,7 @@ issues:
   - public API exposes no enbility, SHIP, or SPINE types
   depends_on:
   - MSP-02C
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-03B
   title: Prove local and container toolchain boundaries
@@ -444,7 +442,7 @@ issues:
   - actual build container proof recorded
   depends_on:
   - MSP-03A
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-03C
   title: Prove HA runtime networking
@@ -466,7 +464,7 @@ issues:
   depends_on:
   - MSP-03A
   - MSP-03B
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-03D-G01
   title: Preserve merged fake-peer harness evidence
@@ -481,14 +479,14 @@ issues:
   review_ledger: fake-peer harness review
   tdd_mode: not_applicable_historical
   smoke_scope: EEBUS-G01 fake peer only
-  acceptance_state: accepted_partial_no_successor_unlock
+  acceptance_state: accepted_partial_no_dependency_satisfaction
   acceptance:
   - EEBUS-G01 fake peer is accepted
   - MSP-03D and M3 remain open
   - no feature graph, reconnect, G17, or G19 acceptance is claimed
   depends_on:
   - MSP-03C
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-R00
   title: Recovery reconciliation ledger and source-only bundle
@@ -528,7 +526,7 @@ issues:
   - full-fidelity material is encrypted outside git with mode 0600 or discarded
   - a redacted ledger candidate is produced for MSP-R00-L
   depends_on: []
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-R00-L
   title: Review and publish the redacted recovery ledger
@@ -557,7 +555,7 @@ issues:
     timestamps, byte counts, deterministic IDs, and raw hashes are not published
   - MSP-03D-R remains blocked until this row merges
   depends_on: []
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
   evidence_inputs:
   - Project-Helianthus/helianthus-eebusreg#14
@@ -595,7 +593,7 @@ issues:
   - docs-eebus cross-seeding back to docs-ebus is checked
   - gateway import remains blocked until canonical docs and eebusreg contracts merge
   depends_on: []
-  routing_evidence:
+  historical_model_context:
     recorded: historical_observed
 - id: MSP-DOCS-API-SCHEMA
   title: Freeze eeBUS Go public API schema inputs
@@ -612,7 +610,7 @@ issues:
   smoke_scope: schema validation, canonical normalization, and golden positive/negative
     fixtures
   acceptance_state: accepted
-  readiness_note: ready after execution-plans PR
+  historical_note: recorded after the execution-plans PR
   acceptance:
   - helianthus.eebus.api-surface.v1 schema is merged in helianthus-docs-eebus/api
   - deterministic extraction and normalization rules are canonical before extractor
@@ -641,7 +639,7 @@ issues:
   acceptance:
   - language-neutral cross-runtime envelopes, hash/auth binding, shared registry boundary,
     and promotion/consumer rules live under docs/platform
-  - docs/platform/manifests/eebus-doc-ownership.yaml is machine-readable and authoritative
+  - docs/platform/manifests/eebus-doc-ownership.yaml is machine-readable and canonical
   - manifest states planned, candidate, active, and withdrawn have the required expiry
     and output semantics
   - every owner/source pair is globally unique
@@ -759,8 +757,8 @@ issues:
   - the API manifest is a CI artifact, never code-local documentation
   - path-safety and canonical_source gates are mirrored in docs-eebus and docs-ebus
     owned roots
-  - break-glass restoration requires explicit owner approval, blocks all successors,
-    and creates cleanup
+  - break-glass restoration requires explicit owner approval and a normal cleanup issue
+    before dependent work continues
   depends_on:
   - MSP-DOCS-E2R-AGGREGATE
 - id: MSP-DOCS-CANDIDATE-CLEANUP
@@ -778,22 +776,14 @@ issues:
   smoke_scope: candidate expiry, source-PR abandoned, stable-output exclusion, and
     docs-main green check
   acceptance_state: dormant_conditional
-  conditional:
-    activates_when: candidate expires or source PR closes unmerged
-    initially_ready: false
-    required_predecessor_for_normal_successors: false
-    preempts_same_repo_successors: true
-    blocks_cross_repo_source_rows:
-    - MSP-055
   acceptance:
-  - row is ignored by normal topology readiness until activated
-  - activation preempts every same-repo successor
-  - activation blocks the bound MSP-055 source PR even if its manifest still exact-matches
+  - create or select this cleanup issue only when current GitHub state shows that the candidate expired or its source PR closed unmerged
+  - resolve the cleanup before merging the bound MSP-055 source PR or dependent docs work
   - affected candidate entries move to withdrawn
   - candidate artifacts are removed from hidden candidate areas
   - stable navigation, search, sitemap, versioned bundles, and release bundles stay
     clean
-  - docs main is restored green before same-repo successors resume
+  - docs main is restored green before dependent work resumes
   - MSP-055 remains blocked until a fresh candidate cycle merges and passes candidate-state
     and expiry checks
   depends_on:
@@ -821,7 +811,7 @@ issues:
   - first post-access SPINE data is captured in redacted JSON
   - canonical evidence includes exact repo, branch, commit, commands, hashes, topology,
     timestamps, tool versions, trust preconditions, replay fixtures, denied-access
-    negative, reconnect-failure negative, operator_live_proof, and ci_replay_authority
+    negative, reconnect-failure negative, operator_live_proof, and ci_replay_source
   - public artifacts leak no device identity
   - owner accepts both G17 and G19
   depends_on:
@@ -902,22 +892,22 @@ issues:
   review_ledger: exact-head candidate manifest, provenance, and pre-merge ordering
     review
   tdd_mode: docs_schema_red_green
-  smoke_scope: candidate hiding, attestation verification, exact-head match, and source-push
+  smoke_scope: candidate hiding, source-artifact verification, exact-head match, and source-push
     invalidation
   acceptance_state: accepted
   acceptance:
   - after MSP-036, the single MSP-055 source PR may be prepared on an org-owned branch
-    and pinned at an immutable candidate-ready head, but it remains unmerged
-  - the normalized Go AST/API manifest and GitHub OIDC DSSE/in-toto attestation bind
+    and pinned at an immutable source head, but it remains unmerged
+  - the normalized Go AST/API manifest and CI source record bind
     exactly to that source head
   - docs-eebus commits and merges the candidate manifest copy, provenance, and hidden
     candidate API pages before the source PR may merge
   - the manifest records state candidate and expires_at from trusted GitHub timestamps
   - candidate content is excluded from stable navigation, search, sitemap, versioned
     bundles, release bundles, and README links
-  - any source push invalidates the candidate, re-blocks MSP-055, and requires a new
+  - any source push invalidates the candidate and requires a new
     candidate preparation cycle
-  - an abandoned or expired source PR activates MSP-DOCS-CANDIDATE-CLEANUP
+  - an abandoned or expired source PR requires a normal MSP-DOCS-CANDIDATE-CLEANUP issue
   depends_on:
   - MSP-036
   - MSP-DOCS-E2
@@ -940,7 +930,7 @@ issues:
   - the same single source issue, branch, and PR prepared for MSP-DOCS-API-CANDIDATE
     is used; no second eebusreg PR is opened
   - the merge gate verifies that the merged docs-eebus candidate manifest and provenance
-    exactly match the current source head and attestation
+    exactly match the current source head and CI artifact
   - the merge gate requires manifest state candidate, expires_at later than trusted
     gate evaluation time, and no active MSP-DOCS-CANDIDATE-CLEANUP row
   - candidate state withdrawn or expired blocks merge even when source head and manifest
@@ -963,7 +953,7 @@ issues:
   transport_gate: none
   security_gate: required
   rollback_ledger: revert candidate promotion and keep active version unchanged
-  review_ledger: API freeze provenance, attestation, and exact-match review
+  review_ledger: API freeze provenance, source-artifact, and exact-match review
   tdd_mode: docs_schema_red_green
   smoke_scope: compile examples, compare Go AST/API manifest, and promote active API
     version
@@ -974,7 +964,7 @@ issues:
   - no force-push occurs after docs preparation
   - examples compile against the exact merged source commit
   - Go AST/API manifest exactly matches the candidate manifest copy committed in docs-eebus
-  - eebusreg CI produces a normalized manifest and GitHub OIDC DSSE/in-toto attestation
+  - eebusreg CI produces a normalized manifest and source commit record
   - predicate verification binds issuer, workflow identity, org repo, ref, immutable
     head SHA, run id, run attempt, extractor version, schema version, clean checkout,
     and manifest digest
@@ -1239,17 +1229,17 @@ issues:
   doc_gate: none
   transport_gate: none
   security_gate: none
-  rollback_ledger: revert this control-plane correction before MSP-05A-R2 dispatch; never rewrite completed source history
-  review_ledger: independent M5B pre-review plus fresh maximum-effort DAG validation
+  rollback_ledger: revert this control-plane correction before MSP-05A-R2 work; never rewrite completed source history
+  review_ledger: independent M5B pre-review plus fresh DAG validation
   tdd_mode: plan_preflight
   smoke_scope: deterministic topology, exact predecessor edges, rollback accuracy, and no transport-gate-v0 drift
   acceptance_state: accepted
   acceptance:
-  - the locked DAG inserts MSP-05A-R2 before MSP-05B and names MSP-05A-R2 as the sole next-ready row
+  - the locked DAG inserts MSP-05A-R2 before MSP-05B
   - the MSP-05B rollback retains the merged eebusreg dependency and the inert MSP-05A-R1 mapper/state
   - runtime Start is classified as synchronous acquisition and worker launch only, with no sustained-readiness claim
   - the disabled MSP-05B path requires zero resolver, New, Start, and Shutdown calls
-  - 93-eebus-transport-gate-v0.md remains semantically unchanged
+  - the public eeBUS transport-gate contract remains semantically unchanged
   depends_on:
   - MSP-05A-R1
   - MSP-05P-REG-RUNTIME
@@ -1341,7 +1331,7 @@ issues:
   acceptance:
   - 100-topology-audit.md is byte-identical to the protected anchor
   - M0-M6 history remains valid and M6.25 is additive
-  - historical framework and synthetic rows cannot unlock the live chain
+  - historical framework and synthetic rows do not satisfy live-chain dependencies
   - M9 requires MSP-085-LIVE-R1 and promoted_leaf_count greater than zero
   depends_on:
   - MSP-06
