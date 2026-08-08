@@ -1,3 +1,4 @@
+schema_version: 1
 slug: multi-runtime-semantic-platform
 title: Helianthus Multi-Runtime Semantic Platform
 state: locked
@@ -6,13 +7,7 @@ process_model:
   readiness_source: current_github_and_implementation_repo_state
   execution: normal_issue_branch_pr_ci_review_squash_merge
   post_merge_effects: none
-  legacy_control_terms: historical_predecessor_evidence_only
-historical_cruise_phase: MSP-065-LIVE-R1
-amendment_count: 9
-amended_on: 2026-07-30
-amendment: M6.25 bounded SPINE 1.3 erratum
-source_discussion: eeBUS-VR940f-raw-first-adversarial-plan-2026-07-08
-target_repos:
+repositories:
   - helianthus-execution-plans
   - helianthus-docs-ebus
   - helianthus-docs-eebus
@@ -24,23 +19,14 @@ target_repos:
   - helianthus-eebus-go
   - helianthus-ha-integration
   - helianthus-ha-addon
-knowledge_repo: helianthus-docs-ebus
-platform_docs_owner: helianthus-docs-ebus/docs/platform
-protocol_knowledge_repo: helianthus-docs-eebus
-protocol_native_docs_repo: helianthus-docs-eebus
-cross_seed_target_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
-split_index: 01-index.md
-started_on: 2026-04-12
-locked_on: 2026-07-10
-historical_milestone: MSP-065-LIVE-R1
-historical_lab_release_record: released_chain_redeployed
-historical_s13_completion_record: published_evidence_verified
-accepted_adversarial_rounds: 5
-accepted_through: M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves
-m3_status: closed
-msp_03d_status: closed
-dirty_rescue_candidate: false
-msp_r00_status: completed_local_no_code_acceptance
-msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
-msp_r00_architecture_review: pass
+dependency_map: 92-m0-issue-matrix.yaml
+historical_archive: multi-runtime-semantic-platform-history.draft
+historical_checkpoint: MSP-065-LIVE-R1
+continuation: reconcile current GitHub state before selecting the first incomplete dependency-ready row
+review_policy:
+  blocking_severities: [P0, P1, P2]
+  merge_verdict: NO_BLOCKING_FINDINGS
+  exact_head: true
+  round_cap: none
+  nonblocking_severities: [P3, P4]

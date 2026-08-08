@@ -77,6 +77,10 @@ class ExecutionPlanProcessTests(unittest.TestCase):
 
     def test_msp_dependency_map_is_closed_and_acyclic(self) -> None:
         matrix = load_unique_yaml(MSP / "92-m0-issue-matrix.yaml")
+        self.assertEqual(
+            {"schema_version", "plan", "process_model", "repositories", "issues"},
+            set(matrix),
+        )
         rows = matrix["issues"]
         by_id = {row["id"]: row for row in rows}
         self.assertEqual(len(rows), len(by_id))
@@ -89,6 +93,10 @@ class ExecutionPlanProcessTests(unittest.TestCase):
         self.assertEqual(101, sum(len(row["depends_on"]) for row in graph))
         self.assertEqual(golden, graph)
         for row in rows:
+            self.assertEqual(
+                {"id", "title", "repo", "milestone", "depends_on", "gates"},
+                set(row),
+            )
             self.assertNotIn("requires_completion_tokens", row)
             self.assertTrue(
                 {
@@ -99,6 +107,8 @@ class ExecutionPlanProcessTests(unittest.TestCase):
                 }.isdisjoint(row)
             )
             self.assertTrue(set(row.get("depends_on", ())).issubset(by_id))
+            self.assertTrue(row["gates"])
+            self.assertTrue(all(isinstance(gate, str) for gate in row["gates"]))
 
         visiting: set[str] = set()
         visited: set[str] = set()
