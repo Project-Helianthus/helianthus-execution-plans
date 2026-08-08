@@ -1613,8 +1613,10 @@ def require_issue_closed_by_pull_request(
     label: str,
 ) -> None:
     references = github_closing_issue_references(repository, pull_request_number)
-    require((repository, issue_number) in references,
-            f"{label} is absent from pull request closingIssuesReferences")
+    require(
+        references == {(repository, issue_number)},
+        f"{label} pull request closingIssuesReferences is not the exact selected issue",
+    )
     closed_at = parse_github_time(issue.get("closed_at"), f"{label} issue closed_at")
     merged_at = parse_github_time(
         pull_request.get("merged_at"), f"{label} pull request merged_at"
@@ -2508,7 +2510,8 @@ def require_m3_03_completion_artifact(
             is_overlay_source or "fronius" not in source_text.lower(),
             "FMV3-M3-03 Fronius production source escapes profiles/fronius namespace",
         )
-        if is_overlay_source:
+        is_direct_proof_source = source_path.parent.as_posix() == proof_contract["directory"]
+        if is_overlay_source or is_direct_proof_source:
             require(
                 imports_are_transport_neutral(imports, test_source=False)
                 and not any(is_tcp_concrete_import(import_path) for import_path in imports),
@@ -3200,7 +3203,7 @@ def require_pull_request_completion(plan_issue: str, binding: dict[str, Any],
             f"{label} destination initialization seed is not the exact empty-tree root",
         )
     require(isinstance(pr.get("body"), str)
-            and re.search(rf"(?im)^\s*(?:[-*]\s*)?(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#{issue_number}\s*[.]?\s*$", pr["body"]),
+            and pull_request_body_closing_refs(pr["body"]) == [f"#{issue_number}"],
             f"{label} PR does not close the exact issue")
     require_issue_closed_by_pull_request(
         repository, issue_number, issue, pr_number, pr, label,
@@ -6012,7 +6015,7 @@ def require_static_dependency_completion(issue_id: str, binding: dict[str, Any])
                 and github_repository_identity(pr.get("head", {}).get("repo"), repository),
                 "FMV3-M1-05 docs closing PR #386 identity mismatch")
         require(isinstance(pr.get("body"), str)
-                and re.search(r"(?im)^\s*(?:[-*]\s*)?(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#385\s*[.]?\s*$", pr["body"]),
+                and pull_request_body_closing_refs(pr["body"]) == ["#385"],
                 "FMV3-M1-05 docs PR #386 does not close exact issue #385")
         require_issue_closed_by_pull_request(
             repository, issue_number, issue, pr_number, pr, "FMV3-M1-05",

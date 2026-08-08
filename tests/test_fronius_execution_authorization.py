@@ -3949,6 +3949,21 @@ func TestCoalescedDependentIsolation(t *testing.T) {
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("does not close exact issue #385", result.stderr)
 
+    def test_m1_06_rejects_m1_05_additional_body_closing_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing)
+            responses = self.m1_admission_responses(implementing, anchor)
+            responses.update(self.docs_candidate_responses(merged=True))
+            responses[
+                "repos/Project-Helianthus/helianthus-docs-ebus/pulls/386"
+            ]["body"] = "Closes #385.\n\nCloses #999."
+            result = self.authorize(
+                implementing, anchor, "FMV3-M1-06", github_responses=responses
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("does not close exact issue #385", result.stderr)
+
     def test_m1_06_rejects_m1_05_missing_timeline_relation(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             implementing, anchor = self.published_plan(temp)
@@ -4022,7 +4037,35 @@ func TestCoalescedDependentIsolation(t *testing.T) {
                 implementing, anchor, "FMV3-M1-06", github_responses=responses
             )
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("absent from pull request closingIssuesReferences", result.stderr)
+            self.assertIn(
+                "closingIssuesReferences is not the exact selected issue", result.stderr
+            )
+
+    def test_m1_06_rejects_m1_05_additional_graphql_closing_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            implementing, anchor = self.published_plan(temp)
+            anchor = self.publish_amendment_reference(implementing)
+            responses = self.m1_admission_responses(implementing, anchor)
+            responses.update(self.docs_candidate_responses(merged=True))
+            endpoint = (
+                "graphql/closing-issues/Project-Helianthus/"
+                "helianthus-docs-ebus/386/FIRST"
+            )
+            responses[endpoint]["data"]["repository"]["pullRequest"][
+                "closingIssuesReferences"
+            ]["nodes"].append({
+                "number": 999,
+                "repository": {
+                    "nameWithOwner": "Project-Helianthus/helianthus-docs-ebus"
+                },
+            })
+            result = self.authorize(
+                implementing, anchor, "FMV3-M1-06", github_responses=responses
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(
+                "closingIssuesReferences is not the exact selected issue", result.stderr
+            )
 
     def test_m2_01_requires_external_producer_merge_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -6588,6 +6631,20 @@ var _ *net.TCPConn
         fixture["blobs"][platform_sha] = platform_blob
         self.assert_m3_03_artifact(artifact, fixture)
 
+    def test_m3_03_completion_artifact_rejects_unsealed_platform_import(self) -> None:
+        artifact, fixture = self.m3_03_artifact()
+        platform_sha, platform_blob = self.github_blob(
+            b"//go:build linux\n\npackage registry\n"
+            b'import "crypto/sha256"\nvar _ = sha256.Size\n'
+        )
+        platform_path = "registry/platform_linux.go"
+        fixture["tree"][platform_path] = platform_sha
+        fixture["base_tree"][platform_path] = platform_sha
+        fixture["blobs"][platform_sha] = platform_blob
+        self.assert_m3_03_artifact(
+            artifact, fixture, "outside the sealed transport-neutral allowlist"
+        )
+
     def test_m3_03_completion_artifact_rejects_tcp_in_neutral_proof_source(self) -> None:
         artifact, fixture = self.m3_03_artifact()
         proof_sha, proof_blob = self.github_blob(
@@ -7516,6 +7573,43 @@ var _ *net.TCPConn
                 endpoint = f"repos/{dependency['repository']}/pulls/{dependency['github_pull_request_number']}"
                 responses[endpoint]["merged"] = False
             self.assert_m2_02_dynamic_mutation_rejected(temp, mutate, "wrong or unmerged issue/PR")
+
+    def test_dynamic_certificate_rejects_additional_body_closing_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            def mutate(
+                dependency: dict[str, object], responses: dict[str, object]
+            ) -> None:
+                endpoint = (
+                    f"repos/{dependency['repository']}/pulls/"
+                    f"{dependency['github_pull_request_number']}"
+                )
+                responses[endpoint]["body"] += "\n\nCloses #999."
+
+            self.assert_m2_02_dynamic_mutation_rejected(
+                temp, mutate, "PR does not close the exact issue"
+            )
+
+    def test_dynamic_certificate_rejects_additional_graphql_closing_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            def mutate(
+                dependency: dict[str, object], responses: dict[str, object]
+            ) -> None:
+                endpoint = (
+                    f"graphql/closing-issues/{dependency['repository']}/"
+                    f"{dependency['github_pull_request_number']}/FIRST"
+                )
+                responses[endpoint]["data"]["repository"]["pullRequest"][
+                    "closingIssuesReferences"
+                ]["nodes"].append({
+                    "number": 999,
+                    "repository": {"nameWithOwner": dependency["repository"]},
+                })
+
+            self.assert_m2_02_dynamic_mutation_rejected(
+                temp,
+                mutate,
+                "closingIssuesReferences is not the exact selected issue",
+            )
 
     def test_dynamic_certificate_rejects_pr_branch_not_bound_to_issue(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

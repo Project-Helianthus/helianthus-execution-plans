@@ -3,6 +3,13 @@
 
 from __future__ import annotations
 
+import sys
+
+if __name__ == "__main__" and not (
+    sys.flags.isolated == 1 and sys.flags.no_user_site == 1
+):
+    raise SystemExit("FMV3 launcher must start in Python isolated mode (-I -s)")
+
 import argparse
 import base64
 import errno
@@ -18,7 +25,6 @@ import signal
 import socket
 import stat
 import subprocess
-import sys
 import tempfile
 import time
 from typing import Any, Callable

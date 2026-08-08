@@ -1455,13 +1455,47 @@ raise SystemExit(0)
                 encoding="ascii",
             )
             result = subprocess.run(
-                [sys.executable, str(copied), "--help"],
+                [sys.executable, "-I", "-s", str(copied), "--help"],
                 check=False,
                 capture_output=True,
                 text=True,
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertFalse(canary.exists())
+
+    def test_launcher_rejects_nonisolated_execution_before_sibling_json_import(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            scripts = checkout / "scripts"
+            scripts.mkdir()
+            copied = scripts / "fmv3_anchor_validator.py"
+            copied.write_bytes(LAUNCHER.read_bytes())
+            canary = checkout / "json-imported"
+            (scripts / "json.py").write_text(
+                f"from pathlib import Path\nPath({str(canary)!r}).write_text('owned')\n",
+                encoding="ascii",
+            )
+            result = subprocess.run(
+                [sys.executable, str(copied), "--help"],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("must start in Python isolated mode", result.stderr)
+            self.assertFalse(canary.exists())
+
+    def test_ci_invokes_launcher_in_isolated_mode(self) -> None:
+        workflow = (LAUNCHER.parents[1] / ".github/workflows/ci.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertEqual(
+            workflow.count(
+                '"$RUNNER_TEMP/fmv3-launcher/bin/python" -I -s '
+                "scripts/fmv3_anchor_validator.py"
+            ),
+            2,
+        )
 
     def test_initial_anchor_load_does_not_parse_yaml_before_isolated_reexec(self) -> None:
         launcher = load_launcher()

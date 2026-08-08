@@ -51,7 +51,7 @@ jobs:
           "$RUNNER_TEMP/fmv3-launcher/bin/pip" install \
             --disable-pip-version-check --require-hashes \
             -r scripts/requirements-validation-ci.txt
-          "$RUNNER_TEMP/fmv3-launcher/bin/python" scripts/fmv3_anchor_validator.py \
+          "$RUNNER_TEMP/fmv3-launcher/bin/python" -I -s scripts/fmv3_anchor_validator.py \
             . fronius-modbus-multivendor-v3-w29-26.implementing \
             --self-test-trusted-tools
         env:
@@ -191,7 +191,7 @@ jobs:
             --disable-pip-version-check --require-hashes \
             -r scripts/requirements-validation-ci.txt
           anchor="$(gh api repos/Project-Helianthus/helianthus-execution-plans/pulls/91 --jq .merge_commit_sha)"
-          "$RUNNER_TEMP/fmv3-launcher/bin/python" scripts/fmv3_anchor_validator.py \
+          "$RUNNER_TEMP/fmv3-launcher/bin/python" -I -s scripts/fmv3_anchor_validator.py \
             . fronius-modbus-multivendor-v3-w29-26.implementing \
             --verify-anchor-only --plan-head-sha "$anchor"
         env:
