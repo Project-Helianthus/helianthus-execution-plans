@@ -18,21 +18,27 @@ Dirty rescue candidate: `false`
 Successor unlocks: `only through the M6.25 and live-completion chain`
 Baseline: `Gateway 0.4.0`
 
-## AD-DOCS-02 Architecture Gates
+## Current execution process
 
-AD-DOCS-02 preserves AD-DOCS-01 historical evidence and inserts a serial,
-token-authoritative publication remediation before CLEAN:
+This plan is human-readable guidance. Agents inspect current GitHub state and execute
+normal issue, branch, PR, CI, review, and squash-merge cycles in dependency order.
+Nothing in this repository authorizes execution or changes readiness automatically.
+
+The historical text below uses terms such as completion token, release proof,
+attestation, integrity hash, authority, and unlock. Those terms record how earlier work
+was described; they now mean ordinary predecessor evidence only. They do not name an
+active runtime, token, attestation, hash chain, or post-merge mechanism.
+
+## Historical AD-DOCS-02 architecture gates
+
+AD-DOCS-02 preserved AD-DOCS-01 historical evidence and recorded this serial
+publication-remediation dependency chain before CLEAN:
 `MSP-DOCS-E2 -> MSP-DOCS-E2R-PLATFORM -> MSP-DOCS-E2R-PUBLISH ->
 MSP-DOCS-E2R-AGGREGATE -> MSP-DOCS-CLEAN -> MSP-03D-R`.
 
-Only verified completion tokens authorize this chain. MSP-R00 issue/14 and
-MSP-03D-G01 remain evidence inputs, never token producers. Publication contract
-v2 uses closed publication entry kinds, separate channel eligibility from exact
-membership, absence constraints, a channel registry, and hermetic git-object
-proof; process attestations do not substitute for technical proof. See
-`105-ad-docs-02-amendment.md`, the immutable historical M5 record
-`106-ad-docs-02-integrity.json`, and the generated current integrity/readiness
-projection `107-ad-docs-02-topology-audit.md`.
+The predecessor edges now live in `92-m0-issue-matrix.yaml` as `depends_on` values.
+MSP-R00 issue/14 and MSP-03D-G01 remain evidence inputs. Publication-contract details
+are verified in their implementation repositories, not by this plan repository.
 
 ## Summary
 
@@ -59,7 +65,7 @@ Successor record 122 reconciles the published PLAN, DOCS-E, SPINE, EEBUS,
 REG-EXEC, REG-MUT, GW-ROUTER, GW-MCP, and DOCS-P rows without changing any
 completion-token edge. LAB used terminal quarantine and claims neither
 automatic rollback nor mutable-leaf promotion. The generated release-proof
-projection above is authoritative for current LAB state.
+projection above is a historical LAB snapshot.
 
 Successor record 123 preserves that accepted base LAB and its
 `released_chain_redeployed` proof while holding stable-MCP/M6.25 final closure
@@ -591,7 +597,7 @@ snapshots, and MCP/debug compatibility prove no unapproved drift.
   native registry, semantic projection, MCP, GraphQL, Portal, or Home
   Assistant.
 - If an issue needs two layers, split it.
-- Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
+- `92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes from GitHub and the owning code repositories.
 - Do not promote any semantic field to consumers without raw evidence and
   provenance.
 - Do not rename or generalize eBUS public API namespaces until compatibility

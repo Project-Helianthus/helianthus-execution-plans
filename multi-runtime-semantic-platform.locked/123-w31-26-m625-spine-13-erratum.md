@@ -4,15 +4,12 @@ Date: `2026-07-30`
 Status: `Locked additive successor amendment`
 Depends on: `122-w31-26-m625-implementation-state-reconciliation.md`
 
-Current routing, readiness, and completion-token authority is
-`92-m0-issue-matrix.yaml` plus generated
-`107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the
-immutable historical M5 integrity record.
+`92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes
+from GitHub and the owning code repositories.
 
 This successor record is additive. Records 100 through 122 remain historical;
-`100-topology-audit.md` and `106-ad-docs-02-integrity.json` remain immutable.
-The generated current topology audit at `107-ad-docs-02-topology-audit.md`
-continues to project the active matrix.
+`100-topology-audit.md` remains a historical snapshot. The current dependency
+map is `92-m0-issue-matrix.yaml`.
 
 ## Current Control
 
@@ -151,8 +148,8 @@ Plan validation must prove the 75-row exact-ID DAG, every old edge, the exact
 five-row erratum chain, the additional final predecessor, the DOCS initial and
 current ready set, the exact issue references, public baseline and hashes,
 bounded provenance and exclusions, unchanged tool suffixes, fail-closed
-no-write behavior, public/raw separation, and byte-identical immutable
-`100-topology-audit.md` and `106-ad-docs-02-integrity.json`. It must also prove
+no-write behavior, public/raw separation, and preservation of the historical
+`100-topology-audit.md`. Implementation repositories must also prove
 the exact 49-target terminal-result coverage, non-regression of all 26 prior
 successes, removal of the identified factory/cardinality mismatch classes,
 exact classification of residual errors, and the no-fabricated-label rule.

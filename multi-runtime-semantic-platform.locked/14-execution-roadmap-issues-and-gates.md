@@ -1,6 +1,5 @@
 # Execution Roadmap, Issues, And Gates
 
-Canonical-SHA256: `5c60f6ba2004791a11af9ca5ae7f6ba1a8ebab4d9e99df69bc3c2f60c39be3bd`
 
 Depends on:
 All previous chunks.
@@ -20,7 +19,7 @@ Each issue must have a testable gate. If implementers cannot prove the gate
 without subjective judgment, the issue is not ready for locked execution.
 
 Coverage:
-Covers the executable milestone order, recovery reconciliation, M0 control
+Covers the milestone order, recovery reconciliation, M0 planning context,
 plane, doc gates, transport/security gates, and consumer promotion gates.
 
 ## Required Row Contract
@@ -30,12 +29,13 @@ Every row in `92-m0-issue-matrix.yaml` must include:
 - issue id, repo, milestone, complexity from 1 to 10, and exactly one routing
   authority: a symbolic routing contract for active work or historical routing
   evidence for terminal work;
-- authoritative completion-token edges, including explicit empty lists;
+- ordinary `depends_on` edges, including explicit empty lists;
 - canonical docs owner and doc-gate result;
 - transport and security gate classification;
 - rollback ledger, review ledger, TDD mode, smoke scope, and acceptance list.
 
-Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
+The matrix is a dependency guide only. Actual readiness is determined from current GitHub
+state and the owning code repository; this plan has no execution authority.
 
 ## Locked Milestone Order
 
@@ -400,4 +400,4 @@ This plan is locked when:
 - AD-DOCS-01 rows are serialized and the dormant cleanup row is not treated as
   initially ready or as a normal required predecessor;
 - all future dependencies are explicit and acyclic;
-- the canonical SHA-256 is synchronized through the index and split chunks.
+- the canonical plan and split chunks describe the same dependency order.

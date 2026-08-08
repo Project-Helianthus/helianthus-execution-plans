@@ -2,7 +2,6 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `5c60f6ba2004791a11af9ca5ae7f6ba1a8ebab4d9e99df69bc3c2f60c39be3bd`
 
 <!-- M625_RELEASE_PROJECTION_BEGIN -->
 Release-proof control: `released_chain_redeployed`
@@ -23,10 +22,14 @@ a bounded SPINE 1.3 erratum; the generated projection above records current
 dispatch.
 Substantive eeBUS documentation remains external to code repositories.
 
+This directory is guidance, not an authorization runtime. The issue matrix carries
+ordinary dependency edges; current execution state comes from GitHub and the owning code
+repositories. Legacy token, proof, attestation, hash, authority, and unlock wording is
+historical only.
+
 ## Split Rules
 
 - The canonical source of truth is [00-canonical.md](./00-canonical.md).
-- Each chunk repeats the canonical hash for drift detection.
 - Each chunk is reviewable in isolation and declares:
   - `Depends on`
   - `Scope`
@@ -62,12 +65,10 @@ Substantive eeBUS documentation remains external to code repositories.
 
 - [90-issue-map.md](./90-issue-map.md) is the human-readable locked issue map.
 - [91-milestone-map.md](./91-milestone-map.md) is the locked milestone DAG.
-- [92-m0-issue-matrix.yaml](./92-m0-issue-matrix.yaml) is the machine-readable
-  control-plane matrix with every row's complexity, routing contract or historical
-  routing evidence, completion-token dependencies, docs owner/gate, transport/security gate, rollback ledger,
+- [92-m0-issue-matrix.yaml](./92-m0-issue-matrix.yaml) is the small structured
+  dependency map with every row's complexity, routing context, predecessor dependencies,
+  docs owner/gate, transport/security gate, rollback ledger,
   review ledger, TDD mode, smoke scope, and acceptance.
-
-Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
 - [93-eebus-transport-gate-v0.md](./93-eebus-transport-gate-v0.md) defines the
   eeBUS transport/protocol gate and exact G17/G18/G19 meanings.
 - [94-m1-docs-bootstrap-evidence.md](./94-m1-docs-bootstrap-evidence.md)

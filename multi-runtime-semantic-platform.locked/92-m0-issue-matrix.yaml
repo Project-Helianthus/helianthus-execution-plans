@@ -2,6 +2,11 @@
 schema_version: 2
 status: locked
 plan: multi-runtime-semantic-platform
+process_model:
+  authority: guidance_only
+  readiness_source: current_github_and_implementation_repo_state
+  post_merge_effects: none
+  legacy_control_terms: historical_predecessor_evidence_only
 baseline: Gateway 0.4.0
 cruise_phase: MSP-065-LIVE-R1
 current_milestone: MSP-065-LIVE-R1
@@ -10,14 +15,14 @@ amended_on: '2026-07-30'
 amendment: M6.25 bounded SPINE 1.3 erratum
 accepted_through: M6.25 stable MCP and the bounded SPINE 1.3 erratum are accepted after released-chain redeploy, live 49-READ non-regression, and restart-persistence proof; zero promoted leaves
 dirty_rescue_candidate: false
-successor_unlocks: true
+successor_unlocks: guidance_only
 successor_unlock_condition: M6.25 SPINE 1.3 erratum and live DAG complete through MSP-085-LIVE-R1 and promoted_leaf_count is greater than zero before M9
-lab_release_proof: released_chain_redeployed
-s13_completion_proof: published_evidence_verified
+historical_lab_release_record: released_chain_redeployed
+historical_s13_completion_record: published_evidence_verified
 msp_r00_status: completed_local_no_code_acceptance
 msp_r00_issue: "Project-Helianthus/helianthus-eebusreg#14"
 msp_r00_architecture_review: pass
-purpose: 'Machine-readable locked control-plane matrix for the eeBUS raw-first
+purpose: 'Structured dependency map for the eeBUS raw-first
   plan after five accepted adversarial rounds, the forward-only M6.25 typed
   SPINE function-data amendment, the append-only mutation correction, and the
   bounded SPINE 1.3 erratum.
@@ -198,7 +203,7 @@ issues:
   acceptance:
   - required control-plane fields exist
   - repo serialization and predecessor edges are explicit
-  requires_completion_tokens: []
+  depends_on: []
   routing_evidence:
     recorded: historical_observed
 - id: MSP-00B
@@ -218,7 +223,7 @@ issues:
   acceptance:
   - only approved GPT lanes appear
   - every issue complexity maps to its declared lane
-  requires_completion_tokens:
+  depends_on:
   - MSP-00A
   routing_evidence:
     recorded: historical_observed
@@ -239,7 +244,7 @@ issues:
   acceptance:
   - eebus-transport-gate v0 cases are enumerated
   - eBUS T01..T88 applicability is explicit
-  requires_completion_tokens:
+  depends_on:
   - MSP-00A
   routing_evidence:
     recorded: historical_observed
@@ -260,7 +265,7 @@ issues:
   acceptance:
   - platform contracts live under docs/platform
   - summary-only non-owning page rule is documented
-  requires_completion_tokens:
+  depends_on:
   - MSP-00A
   routing_evidence:
     recorded: historical_observed
@@ -281,7 +286,7 @@ issues:
   acceptance:
   - repo scope is eeBUS-native only
   - platform contracts are linked, not duplicated
-  requires_completion_tokens:
+  depends_on:
   - MSP-01A
   routing_evidence:
     recorded: historical_observed
@@ -302,7 +307,7 @@ issues:
   acceptance:
   - vendor_restricted quarantine is explicit
   - promoted claim table format is documented
-  requires_completion_tokens:
+  depends_on:
   - MSP-01B
   routing_evidence:
     recorded: historical_observed
@@ -323,7 +328,7 @@ issues:
   acceptance:
   - public packages are limited to raw runtime/evidence plumbing
   - no enbility, SHIP, SPINE, gateway, trust-store, or listener code exists
-  requires_completion_tokens:
+  depends_on:
   - MSP-00A
   - MSP-00B
   - MSP-00C
@@ -350,7 +355,7 @@ issues:
   - contract is versioned and reviewable
   - unknown eeBUS and SPINE fields stay unknown
   - no semantic registry fork language appears
-  requires_completion_tokens:
+  depends_on:
   - MSP-00A
   - MSP-00B
   - MSP-00C
@@ -377,7 +382,7 @@ issues:
   acceptance:
   - ref identity includes runtime, contract, tool/scope, mask tier, auth scope
   - replay and hash inputs are documented
-  requires_completion_tokens:
+  depends_on:
   - MSP-02A
   routing_evidence:
     recorded: historical_observed
@@ -398,7 +403,7 @@ issues:
   acceptance:
   - Leaf Promotion Dossier required fields are explicit
   - negative terminal states remain withheld
-  requires_completion_tokens:
+  depends_on:
   - MSP-01A
   - MSP-02B
   routing_evidence:
@@ -420,7 +425,7 @@ issues:
   acceptance:
   - pinned v0.7.0 module evidence exists
   - public API exposes no enbility, SHIP, or SPINE types
-  requires_completion_tokens:
+  depends_on:
   - MSP-02C
   routing_evidence:
     recorded: historical_observed
@@ -441,7 +446,7 @@ issues:
   acceptance:
   - GOWORK=off and GOTOOLCHAIN=local proof recorded
   - actual build container proof recorded
-  requires_completion_tokens:
+  depends_on:
   - MSP-03A
   routing_evidence:
     recorded: historical_observed
@@ -462,7 +467,7 @@ issues:
   acceptance:
   - LAN-side mDNS and TCP reachability evidence exists
   - negative Avahi/DBus/manual-endpoint cases are recorded
-  requires_completion_tokens:
+  depends_on:
   - MSP-03A
   - MSP-03B
   routing_evidence:
@@ -485,7 +490,7 @@ issues:
   - EEBUS-G01 fake peer is accepted
   - MSP-03D and M3 remain open
   - no feature graph, reconnect, G17, or G19 acceptance is claimed
-  requires_completion_tokens:
+  depends_on:
   - MSP-03C
   routing_evidence:
     recorded: historical_observed
@@ -526,7 +531,7 @@ issues:
     PEM, tokens, trust stores, raw SKI, raw SHIPID, raw IP/MAC address, or raw serial
   - full-fidelity material is encrypted outside git with mode 0600 or discarded
   - a redacted ledger candidate is produced for MSP-R00-L
-  requires_completion_tokens: []
+  depends_on: []
   routing_evidence:
     recorded: historical_observed
 - id: MSP-R00-L
@@ -555,7 +560,7 @@ issues:
     keys, credentials, trust stores, device identities, raw paths, volume, sizes,
     timestamps, byte counts, deterministic IDs, and raw hashes are not published
   - MSP-03D-R remains blocked until this row merges
-  requires_completion_tokens: []
+  depends_on: []
   routing_evidence:
     recorded: historical_observed
   evidence_inputs:
@@ -593,7 +598,7 @@ issues:
   - issue template compliance is checked
   - docs-eebus cross-seeding back to docs-ebus is checked
   - gateway import remains blocked until canonical docs and eebusreg contracts merge
-  requires_completion_tokens: []
+  depends_on: []
   routing_evidence:
     recorded: historical_observed
 - id: MSP-DOCS-API-SCHEMA
@@ -620,7 +625,7 @@ issues:
     ordering, and exclusion behavior
   - formatting, internal, and unexported implementation noise is excluded
   - schema docs are canonical in docs-eebus/api and are not copied into helianthus-eebusreg
-  requires_completion_tokens:
+  depends_on:
   - DOCS-VERIFY
   routing_contract:
     resolver: canonical_resolver
@@ -651,7 +656,7 @@ issues:
   - combined-ref PR CI and main-branch expiry CI are specified with clean clones,
     explicit refs, pinned tools, and no absolute paths
   - platform pages merge first without forward links to unmerged eeBUS pages
-  requires_completion_tokens:
+  depends_on:
   - MSP-R00-L
   - MSP-DOCS-API-SCHEMA
   routing_contract:
@@ -686,7 +691,7 @@ issues:
   - candidate API pages are excluded from stable navigation, search, sitemap, versioned
     bundles, and release bundles
   - E2 links only merged active platform pages
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-PLATFORM
   routing_contract:
     resolver: canonical_resolver
@@ -710,7 +715,7 @@ issues:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-E2
 - id: MSP-DOCS-E2R-PUBLISH
   title: Migrate accepted documentation manifest to publication-contract v2
@@ -730,7 +735,7 @@ issues:
     resolver: canonical_resolver
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-E2R-PLATFORM
 - id: MSP-DOCS-E2R-AGGREGATE
   title: Aggregate v2 publication evidence and mint CLEAN token
@@ -751,7 +756,7 @@ issues:
     policy_digest: canonical_policy_digest
     forbidden_tier: Ultra
   issue_ref: "Project-Helianthus/helianthus-execution-plans#64"
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-E2R-PUBLISH
 - id: MSP-DOCS-CLEAN
   title: Enforce external-only documentation in helianthus-eebusreg
@@ -784,7 +789,7 @@ issues:
     owned roots
   - break-glass restoration requires explicit owner approval, blocks all successors,
     and creates cleanup
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-E2R-AGGREGATE
   routing_contract:
     resolver: canonical_resolver
@@ -823,7 +828,7 @@ issues:
   - docs main is restored green before same-repo successors resume
   - MSP-055 remains blocked until a fresh candidate cycle merges and passes candidate-state
     and expiry checks
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-E2R-PUBLISH
   routing_contract:
     resolver: canonical_resolver
@@ -855,7 +860,7 @@ issues:
     negative, reconnect-failure negative, operator_live_proof, and ci_replay_authority
   - public artifacts leak no device identity
   - owner accepts both G17 and G19
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-CLEAN
   - MSP-03C
   routing_contract:
@@ -882,7 +887,7 @@ issues:
   - raw identity, snapshot envelope, and evidence object are frozen only
   - trust, lifecycle authority, availability guarantees, and admin semantics remain
     unfrozen
-  requires_completion_tokens:
+  depends_on:
   - MSP-03D-R
   routing_contract:
     resolver: canonical_resolver
@@ -906,7 +911,7 @@ issues:
   - internal persistent store schema exists
   - migration and conformance tests pass
   - no public raw view, lifecycle facade, listener, or trust mutation is exposed
-  requires_completion_tokens:
+  depends_on:
   - MSP-035
   routing_contract:
     resolver: canonical_resolver
@@ -930,7 +935,7 @@ issues:
   - only versioned immutable raw snapshot/view fields are public
   - no semantic device ID is exported
   - no lifecycle authority, trust/pairing mutation, or availability guarantee is exported
-  requires_completion_tokens:
+  depends_on:
   - MSP-04A
   routing_contract:
     resolver: canonical_resolver
@@ -965,7 +970,7 @@ issues:
   - any source push invalidates the candidate, re-blocks MSP-055, and requires a new
     candidate preparation cycle
   - an abandoned or expired source PR activates MSP-DOCS-CANDIDATE-CLEANUP
-  requires_completion_tokens:
+  depends_on:
   - MSP-036
   - MSP-DOCS-E2
   routing_contract:
@@ -1001,7 +1006,7 @@ issues:
   - outbound sockets require explicit config plus pre-seeded trust or allowlist
   - no public trust or pairing mutation exists
   - feature graph completeness starts here and may continue in M6
-  requires_completion_tokens:
+  depends_on:
   - MSP-036
   - MSP-DOCS-API-CANDIDATE
   routing_contract:
@@ -1037,7 +1042,7 @@ issues:
     merge
   - source push invalidates the candidate and requires re-preparation
   - candidate is promoted to active version only after exact-match verification
-  requires_completion_tokens:
+  depends_on:
   - MSP-055
   routing_contract:
     resolver: canonical_resolver
@@ -1061,7 +1066,7 @@ issues:
   - first-trust and OOB confirmation are admin-local gated
   - no trust-store write occurs before OOB fingerprint confirmation
   - public trust/pairing mutations remain absent
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-API-FREEZE
   routing_contract:
     resolver: canonical_resolver
@@ -1084,7 +1089,7 @@ issues:
   acceptance:
   - clone/rollback cannot reach PAIRED_TRUSTED
   - quarantine/backoff persists across restart
-  requires_completion_tokens:
+  depends_on:
   - MSP-04B
   routing_contract:
     resolver: canonical_resolver
@@ -1107,7 +1112,7 @@ issues:
   acceptance:
   - gateway and MCP can consume trust state without ad hoc security decisions
   - state changes after this point require explicit contract migration
-  requires_completion_tokens:
+  depends_on:
   - MSP-04C
   routing_contract:
     resolver: canonical_resolver
@@ -1130,7 +1135,7 @@ issues:
   acceptance:
   - default config opens no eeBUS socket
   - no helianthus-eebusreg import is introduced
-  requires_completion_tokens:
+  depends_on:
   - MSP-045
   routing_contract:
     resolver: canonical_resolver
@@ -1155,7 +1160,7 @@ issues:
   - reject wildcard or ambiguous listener scope and independently gate mDNS publication
   - define lossless gateway-to-runtime mapping and fail-closed handling for legacy certificate, key, and trust-store paths
   - preserve pairing closed and disabled-by-default behavior through every prerequisite
-  requires_completion_tokens:
+  depends_on:
   - MSP-05A
   - MSP-045
   routing_contract:
@@ -1181,7 +1186,7 @@ issues:
   - mDNS publication is controlled independently from listener startup
   - the existing public constructor remains source and behavior compatible
   - shutdown closes listener and publication exactly once without races
-  requires_completion_tokens:
+  depends_on:
   - MSP-DOCS-05P
   routing_contract:
     resolver: canonical_resolver
@@ -1206,7 +1211,7 @@ issues:
   - startup failures propagate without partial publication or retained goroutines
   - existing constructors and default behavior remain compatible
   - fake-peer tests prove scoped startup with discovery both enabled and disabled
-  requires_completion_tokens:
+  depends_on:
   - MSP-05P-SHIP
   routing_contract:
     resolver: canonical_resolver
@@ -1231,7 +1236,7 @@ issues:
   - v2 accepts one explicit non-wildcard listen address and rejects ambiguous scope
   - discovery and pairing policy are explicit and default closed
   - no dependency-specific public types escape the runtime facade
-  requires_completion_tokens:
+  depends_on:
   - MSP-05P-EEBUS
   routing_contract:
     resolver: canonical_resolver
@@ -1256,7 +1261,7 @@ issues:
   - wrong-host restore, cloned state, symlink, traversal, or weak permissions fail before socket or mDNS activity
   - secrets do not appear in environment, argv, logs, snapshots, or public errors
   - key material is host-bound or explicitly excluded from backup
-  requires_completion_tokens:
+  depends_on:
   - MSP-05P-REG-API-V2
   routing_contract:
     resolver: canonical_resolver
@@ -1281,7 +1286,7 @@ issues:
   - the socket binds only the configured address and no mDNS record appears while discovery is disabled
   - unknown peers cannot persist trust while pairing is closed
   - startup failure and shutdown leave no socket, goroutine, publication, or partial state mutation
-  requires_completion_tokens:
+  depends_on:
   - MSP-05P-REG-ID
   routing_contract:
     resolver: canonical_resolver
@@ -1306,7 +1311,7 @@ issues:
   - ConfigV2, NewV2, PairingPolicyV2, the legacy ListenPort-only shape, and every stale v2 API claim are absent
   - no tagged release or external consumer depends on the superseded shapes, and the gateway does not import the module before this correction merges
   - the active v1 API reference and manifest are regenerated from the final exact source commit with an explicit pre-release correction record
-  requires_completion_tokens:
+  depends_on:
   - MSP-05P-REG-RUNTIME
   routing_contract:
     resolver: canonical_resolver
@@ -1331,7 +1336,7 @@ issues:
   - missing state root, wildcard, ambiguous scope, unsupported legacy paths, or non-closed pairing fail before runtime construction
   - the remote allowlist maps losslessly and an empty allowlist stays explicit
   - disabled default performs no construction, filesystem access, goroutine, socket, or mDNS operation
-  requires_completion_tokens:
+  depends_on:
   - MSP-05P-REG-API-V1-CLEANUP
   routing_contract:
     resolver: canonical_resolver
@@ -1357,7 +1362,7 @@ issues:
   - runtime Start is classified as synchronous acquisition and worker launch only, with no sustained-readiness claim
   - the disabled MSP-05B path requires zero resolver, New, Start, and Shutdown calls
   - 93-eebus-transport-gate-v0.md remains semantically unchanged
-  requires_completion_tokens:
+  depends_on:
   - MSP-05A-R1
   - MSP-05P-REG-RUNTIME
   - MSP-DOCS-05P
@@ -1386,7 +1391,7 @@ issues:
   - remote SKIs are emitted as lowercase ascending values while nil versus explicit empty is preserved and duplicates remain case-insensitively rejected
   - cleanup reached through newly returned errors is bounded, idempotent, race-free, and preserves error causes
   - no sidecar lifecycle, socket, discovery, trust, MCP, GraphQL, semantic, or eBUS transport behavior is added
-  requires_completion_tokens:
+  depends_on:
   - MSP-05B-PLAN-R1
   routing_contract:
     resolver: canonical_resolver
@@ -1415,7 +1420,7 @@ issues:
   - runtime Start proves synchronous acquisition and worker launch only; no sustained gateway-readiness monitor or claim is introduced
   - eBUS transport/router/registry code paths are unchanged
   - disabled default leaves eBUS CI and transport matrix unchanged
-  requires_completion_tokens:
+  depends_on:
   - MSP-05A-R2
   - MSP-05P-REG-RUNTIME
   - MSP-DOCS-05P
@@ -1441,7 +1446,7 @@ issues:
   - snapshot auth/mask binding tests pass
   - reconnect durability passes
   - no mutation tools or ebus.v1/GraphQL/HA deltas appear
-  requires_completion_tokens:
+  depends_on:
   - MSP-05B
   routing_contract:
     resolver: canonical_resolver
@@ -1466,7 +1471,7 @@ issues:
   - M0-M6 history remains valid and M6.25 is additive
   - historical framework and synthetic rows cannot unlock the live chain
   - M9 requires MSP-085-LIVE-R1 and promoted_leaf_count greater than zero
-  requires_completion_tokens:
+  depends_on:
   - MSP-06
   routing_contract:
     resolver: canonical_resolver
@@ -1490,7 +1495,7 @@ issues:
   - raw means canonical typed SPINE function-data and never arbitrary frames or headers
   - full READ and full WRITE only; partial, selectors, filterDelete, and invoke are rejected
   - exact five M6.25 tool suffixes remain under the single unreleased eebus.v1 namespace
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-PLAN
   routing_contract:
     resolver: canonical_resolver
@@ -1516,7 +1521,7 @@ issues:
   - success, send failure, timeout, cancellation, disconnect, and late reply clean callbacks
   - connection-generation-bound monotonic keys and tombstones prevent late-reply ABA reuse
   - ship-go remains unchanged
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-DOCS-E
   routing_contract:
     resolver: canonical_resolver
@@ -1540,7 +1545,7 @@ issues:
   - exact feature and function selection is deterministic
   - only full READ and full WRITE requests are emitted
   - partial, selectors, filterDelete, and invoke emit zero frames
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-SPINE
   routing_contract:
     resolver: canonical_resolver
@@ -1565,7 +1570,7 @@ issues:
   - features.data.get returns canonical typed data plus a bound read_token
   - stale token or session binding emits zero frames
   - JCS request and result hashes are deterministic
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-EEBUS
   routing_contract:
     resolver: canonical_resolver
@@ -1596,7 +1601,7 @@ issues:
   - probe TTL survives restart and rollback conflict quarantines writes
   - rollback_intent restart reacquires the lease and verifies current value before rollback dispatch
   - outcome_unknown converges by readback without blind resend
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-REG-EXEC
   routing_contract:
     resolver: canonical_resolver
@@ -1621,7 +1626,7 @@ issues:
   - no entity adapter or MCP handler writes directly
   - public denial precedes provider, router, runtime, connection, and remote contact
   - existing eBUS routing and consumers do not drift
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-REG-MUT
   routing_contract:
     resolver: canonical_resolver
@@ -1654,7 +1659,7 @@ issues:
   - write and rollback require owner-authorized AF_UNIX
   - integrated public denial causes zero provider, router, runtime, connection, and remote contact
   - no v2, aliases, candidate_ref, semantics, GraphQL, Portal, or HA surface appears
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-GW-ROUTER
   routing_contract:
     resolver: canonical_resolver
@@ -1680,7 +1685,7 @@ issues:
   - restart during probe TTL still rolls back or quarantines on conflict
   - public denial at the registered tool boundary proves zero provider, router, runtime, connection, and remote contact
   - public, ebus.v1, semantic, GraphQL, Portal, and HA anti-leak checks pass
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-GW-MCP
   routing_contract:
     resolver: canonical_resolver
@@ -1704,7 +1709,7 @@ issues:
   - only language-neutral acquisition and evidence methodology is cross-seeded
   - no protocol-native duplication or restricted material is published
   - this row does not block MSP-0625-SPINE
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-DOCS-E
   routing_contract:
     resolver: canonical_resolver
@@ -1742,7 +1747,7 @@ issues:
   - the exact five M6.25 tool suffixes and candidate_ref prohibition remain unchanged
   - erratum execution is READ-only and every existing no-write stop remains fail-closed
   - base M6.25 LAB remains accepted while stable-MCP/M6.25 final closure is held by this erratum
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-LAB
   - MSP-0625-DOCS-P
   routing_contract:
@@ -1785,7 +1790,7 @@ issues:
   - d5f89c, a6cb072, the relevant 4f986b selector, and only the identifier value-type portion of 9970150 are covered by focused tests
   - '9970150 eebus:key/update-engine changes, duplicate 9f07e2a/06d9bf0 cherry-picks, upstream dev wholesale merge, and SPINE 1.4 remain excluded'
   - no update-engine behavior, write path, transport, SHIP, or public/raw boundary changes
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-S13-DOCS
   routing_contract:
     resolver: canonical_resolver
@@ -1810,7 +1815,7 @@ issues:
   - existing exact feature and function selection consumes the corrected SPINE 1.3 types without a new executor or namespace
   - erratum tests perform READ only and authorize no WRITE, partial operation, selector, filterDelete, or invoke
   - no SPINE 1.4, upstream dev wholesale merge, semantic mapping, or consumer behavior enters scope
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-S13-SPINE
   routing_contract:
     resolver: canonical_resolver
@@ -1836,7 +1841,7 @@ issues:
   - existing runtime_epoch, connection_generation, read-token, JCS, and public-redaction invariants remain exact
   - RawMutationRuntimeV1, mutation FSM, write authorization, and every no-write stop remain unchanged and fail-closed
   - no raw identity or restricted preimage enters public evidence
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-S13-EEBUS
   routing_contract:
     resolver: canonical_resolver
@@ -1868,7 +1873,7 @@ issues:
   - public evidence is aggregate and commitment-only; raw identity remains owner-local and absent from public output
   - every WRITE, SET, rollback dispatch, and mutation probe remains stopped with zero remote mutation
   - candidate_ref, semantics, GraphQL, Portal, Home Assistant, and consumer promotion remain prohibited
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-S13-REG
   routing_contract:
     resolver: canonical_resolver
@@ -1891,7 +1896,7 @@ issues:
   acceptance:
   - existing read-only eBUS surfaces only
   - replay uses captured timestamps and regenerates redacted hashes
-  requires_completion_tokens:
+  depends_on:
   - MSP-06
   routing_contract:
     resolver: canonical_resolver
@@ -1914,7 +1919,7 @@ issues:
   acceptance:
   - no candidate fact reaches consumers
   - negative states remain withheld raw/debug only
-  requires_completion_tokens:
+  depends_on:
   - MSP-065
   routing_contract:
     resolver: canonical_resolver
@@ -1937,7 +1942,7 @@ issues:
   acceptance:
   - eBUS promoted leaves remain authoritative
   - existing GraphQL/HA/MCP outputs do not drift
-  requires_completion_tokens:
+  depends_on:
   - MSP-07
   routing_contract:
     resolver: canonical_resolver
@@ -1960,7 +1965,7 @@ issues:
   acceptance:
   - every promoted leaf has a locked dossier
   - mutable leaves satisfy lab lease and rollback requirements
-  requires_completion_tokens:
+  depends_on:
   - MSP-08
   routing_contract:
     resolver: canonical_resolver
@@ -1984,7 +1989,7 @@ issues:
   - direct M6.25 typed values feed synchronized capture
   - existing read-only eBUS surfaces are used without a new capture path
   - replay uses captured timestamps and regenerates public-safe hashes
-  requires_completion_tokens:
+  depends_on:
   - MSP-0625-LAB
   - MSP-0625-DOCS-P
   - MSP-0625-S13-GW-LAB
@@ -2010,7 +2015,7 @@ issues:
   - candidate values derive from direct synchronized observations
   - no candidate fact reaches consumers
   - negative states remain withheld raw/debug only
-  requires_completion_tokens:
+  depends_on:
   - MSP-065-LIVE-R1
   routing_contract:
     resolver: canonical_resolver
@@ -2034,7 +2039,7 @@ issues:
   - live eBUS and eeBUS coexist with separate raw surfaces
   - eBUS promoted leaves remain authoritative
   - existing GraphQL, Portal, HA, and MCP outputs do not drift
-  requires_completion_tokens:
+  depends_on:
   - MSP-07-LIVE-R1
   routing_contract:
     resolver: canonical_resolver
@@ -2058,7 +2063,7 @@ issues:
   - every promoted leaf has direct live evidence and a locked dossier
   - mutable leaves satisfy lab lease and verified rollback requirements
   - completion token carries a JCS digest-bound machine-checkable promoted_leaf_count greater than zero
-  completion_token_contract:
+  acceptance_contract:
     schema: helianthus.m625-live-promotion
     version: 1
     milestone_id: MSP-085-LIVE-R1
@@ -2072,7 +2077,7 @@ issues:
     promoted_leaf_count:
       type: integer
       exclusive_minimum: 0
-  requires_completion_tokens:
+  depends_on:
   - MSP-08-LIVE-R1
   routing_contract:
     resolver: canonical_resolver
@@ -2095,10 +2100,10 @@ issues:
   acceptance:
   - GraphQL exposes promoted leaves only
   - schema/value before-after artifacts show no unrelated drift
-  requires_completion_tokens:
+  depends_on:
   - MSP-085-LIVE-R1
   unlock_predicate:
-    completion_token: MSP-085-LIVE-R1
+    accepted_predecessor: MSP-085-LIVE-R1
     digest_bound: true
     field: promoted_leaf_count
     operator: greater_than
@@ -2124,11 +2129,11 @@ issues:
   acceptance:
   - Portal does not display candidate/conflict/withheld as stable
   - Portal can show raw/debug provenance for operators
-  requires_completion_tokens:
+  depends_on:
   - MSP-09A
   - MSP-085-LIVE-R1
   unlock_predicate:
-    completion_token: MSP-085-LIVE-R1
+    accepted_predecessor: MSP-085-LIVE-R1
     digest_bound: true
     field: promoted_leaf_count
     operator: greater_than
@@ -2154,12 +2159,12 @@ issues:
   acceptance:
   - HA entity ids, classes, units, and availability are stable
   - no candidate, conflict, or withheld entity is exposed
-  requires_completion_tokens:
+  depends_on:
   - MSP-09A
   - MSP-09B
   - MSP-085-LIVE-R1
   unlock_predicate:
-    completion_token: MSP-085-LIVE-R1
+    accepted_predecessor: MSP-085-LIVE-R1
     digest_bound: true
     field: promoted_leaf_count
     operator: greater_than
@@ -2185,12 +2190,12 @@ issues:
   acceptance:
   - add-on preserves trust store semantics
   - default remains disabled and safe
-  requires_completion_tokens:
+  depends_on:
   - MSP-09A
   - MSP-09C
   - MSP-085-LIVE-R1
   unlock_predicate:
-    completion_token: MSP-085-LIVE-R1
+    accepted_predecessor: MSP-085-LIVE-R1
     digest_bound: true
     field: promoted_leaf_count
     operator: greater_than

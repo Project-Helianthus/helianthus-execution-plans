@@ -4,13 +4,11 @@ Date: `2026-07-30`
 Status: `Published completion reconciliation`
 Depends on: `123-w31-26-m625-spine-13-erratum.md`
 
-Current routing, readiness, and completion-token authority is
-`92-m0-issue-matrix.yaml` plus generated
-`107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the
-immutable historical M5 integrity record.
+`92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes
+from GitHub and the owning code repositories.
 
 This record is additive. Records 100 through 123 remain historical;
-`100-topology-audit.md` and `106-ad-docs-02-integrity.json` remain immutable.
+`100-topology-audit.md` remains a historical snapshot.
 The base LAB control remains exactly
 `lab_release_proof=released_chain_redeployed`. S13 completion is represented by
 the independent `s13_completion_proof=published_evidence_verified` control.

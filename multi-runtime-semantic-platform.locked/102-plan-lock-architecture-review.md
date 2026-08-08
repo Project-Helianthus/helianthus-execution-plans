@@ -44,7 +44,7 @@ Amendment verdict: `PASS`
 - Dormant conditional rows: MSP-DOCS-CANDIDATE-CLEANUP is not initially ready
   and is not a normal predecessor.
 - Unapproved model references in active plan contracts: none.
-- Canonical SHA-256 drift: none.
+- Canonical/split dependency drift: none observed in the historical review.
 - Plan validator: PASS.
 
 ## Residual Risks

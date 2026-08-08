@@ -19,7 +19,7 @@ without rewriting M0-M6. One active PR per repo remains mandatory.
 
 ## Active Control Surface
 
-Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
+`92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes from GitHub and the owning code repositories.
 This page deliberately does not duplicate active routing contracts, provider or
 model selections, or completion-token edges. The live matrix is the only
 source that can authorize a successor; its 107 audit is a deterministic,

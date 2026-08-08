@@ -3,7 +3,7 @@
 Date: 2026-07-18
 Decision: NO-GO for direct MSP-05B; GO after one combined gateway prerequisite.
 
-Routing and completion-token authority is exclusively 92-m0-issue-matrix.yaml plus 106-ad-docs-02-integrity.json.
+`92-m0-issue-matrix.yaml` records historical dependency order and does not authorize execution.
 
 ## Trigger
 

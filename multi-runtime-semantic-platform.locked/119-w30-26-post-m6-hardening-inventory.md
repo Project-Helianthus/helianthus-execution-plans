@@ -3,7 +3,7 @@
 Date: `2026-07-26`
 Classification: `Historical implementation beyond the original plan`
 
-Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
+`92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes from GitHub and the owning code repositories.
 
 This inventory records public-safe categories only. It does not move the
 original milestone boundaries and does not disclose raw identity, endpoint,

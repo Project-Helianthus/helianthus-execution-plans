@@ -18,29 +18,31 @@ Dirty rescue candidate: `false`
 Successor unlocks: `only through the M6.25 and live-completion chain`
 Baseline: `Gateway 0.4.0`
 
+## Process status
+
+The current plan is guidance only. `92-m0-issue-matrix.yaml` records dependency order;
+GitHub and each implementation repository record actual issue, PR, CI, review, and merge
+state. Historical completion-token, release-proof, attestation, integrity, authority, and
+unlock language below has no runtime or authorization effect.
+
 ## Current Position
 
 Successor record 123 adds a bounded SPINE 1.3 erratum after record 122's
 published M6.25 implementation reconciliation. M0-M6 history remains valid;
-`100-topology-audit.md` remains the immutable AD-DOCS-01 snapshot.
-`106-ad-docs-02-integrity.json` remains the unchanged AD-DOCS-02 integrity
-record, while `107-ad-docs-02-topology-audit.md` is regenerated from the active
-matrix. Candidate cleanup still fails closed and consumed evidence is corrected
-only by a forward fix.
-
-Current routing, readiness, and completion-token authority is `92-m0-issue-matrix.yaml` plus generated `107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the immutable historical M5 integrity record.
+`100-topology-audit.md` remains a historical AD-DOCS-01 snapshot. Candidate cleanup
+and consumed-evidence corrections are handled by normal forward fixes.
 
 The plan remains locked after five accepted adversarial rounds. M5 and M6 are
 complete. Base M6.25 LAB remains accepted after released-chain redeploy. The
 current gap is the bounded SPINE 1.3 erratum needed before stable-MCP/M6.25
 final closure; the selected row is `MSP-0625-S13-DOCS`.
 
-Record 121 remains authoritative for recovery and authorization. Record 122
+Record 121 remains historical recovery context. Record 122
 leaves the DAG and exact five M6.25 tool names unchanged while recording
 completed/published PLAN, DOCS-E, SPINE, EEBUS, REG-EXEC, REG-MUT, GW-ROUTER,
 GW-MCP, and DOCS-P. LAB operational acceptance used terminal quarantine, has
-no auto-rollback claim, and promotes no mutable leaf. The generated
-release-proof projection above is authoritative for current LAB state.
+no auto-rollback claim, and promotes no mutable leaf. Current LAB state must be checked
+in the owning implementation repositories.
 
 Record 123 adds the exact docs-eebus#96 -> spine-go#15 -> eebus-go#23 ->
 eebusreg#103 -> ebusgateway#762 chain. Its DOCS row requires accepted
@@ -70,7 +72,7 @@ The final plan-lock architecture review is recorded in
 
 ## Ready Rows
 
-The generated release-proof projection is the sole selected-batch authority.
+The selected batch shown above is historical guidance and must be verified against current GitHub state.
 
 ## Completed Recovery Publication
 

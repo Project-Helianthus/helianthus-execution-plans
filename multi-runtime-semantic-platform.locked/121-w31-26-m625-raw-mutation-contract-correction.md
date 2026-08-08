@@ -9,10 +9,8 @@ This amendment corrects the pre-release M6.25 mutation contract before
 `118-w30-26-m625-raw-spine-feature-acquisition.md` remains immutable history,
 and this file is authoritative wherever the two conflict.
 
-Current routing, readiness, and completion-token authority is
-`92-m0-issue-matrix.yaml` plus generated
-`107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the
-immutable historical M5 integrity record.
+`92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes
+from GitHub and the owning code repositories.
 
 ## Scope
 

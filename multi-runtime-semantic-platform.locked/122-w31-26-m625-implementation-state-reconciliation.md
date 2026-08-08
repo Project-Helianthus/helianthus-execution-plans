@@ -5,11 +5,9 @@ Status: `Uncommitted successor reconciliation draft`
 Depends on: `121-w31-26-m625-raw-mutation-contract-correction.md`
 
 This successor record reconciles published implementation evidence without
-rewriting records 103 through 121, `100-topology-audit.md`, or the immutable
-`106-ad-docs-02-integrity.json` record. Current routing, readiness, and
-completion-token authority is `92-m0-issue-matrix.yaml` plus generated
-`107-ad-docs-02-topology-audit.md`; `106-ad-docs-02-integrity.json` is the
-immutable historical M5 integrity record.
+rewriting records 103 through 121 or the historical `100-topology-audit.md`.
+`92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes
+from GitHub and the owning code repositories.
 
 ## Published Completion Receipts
 
@@ -41,7 +39,7 @@ LAB operational acceptance used terminal quarantine where recovery could not
 prove a safe restored value. It makes no auto-rollback claim and promotes no mutable leaf.
 At draft creation, release proof remained pending until the fully released
 SHIP -> eebusreg -> gateway chain could be redeployed and recorded. The
-generated projection above is authoritative for current state.
+generated projection above is a historical state snapshot.
 
 The single final control is `lab_release_proof` in `plan.yaml`. Run
 `python3 scripts/validate_ad_docs_02.py --set-lab-release-proof released_chain_redeployed`
