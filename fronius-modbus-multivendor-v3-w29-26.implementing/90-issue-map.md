@@ -1,7 +1,9 @@
 # Issue map
 
-This is the human-readable mirror of `plan.yaml`. It records 46 future code-repository
-issue nodes. Rows do not create, start, or approve work.
+This is the human-readable dependency mirror of `plan.yaml`. It records 46 future
+code-repository issue nodes. Each YAML issue also carries one bounded functional
+acceptance statement, its applicable gates, and one rollback or fallback statement. Rows
+do not create, start, or approve work.
 
 | ID | Milestone | Repository | Depends on |
 |---|---|---|---|
@@ -52,6 +54,7 @@ issue nodes. Rows do not create, start, or approve work.
 | FMV3-M8-01 | M8 | Project-Helianthus/helianthus-matter-binding-private | FMV3-M0-07, FMV3-M8-00 |
 | FMV3-M8-02 | M8 | Project-Helianthus/helianthus-matter-binding-private | FMV3-M8-01 |
 
-The exact titles remain in `plan.yaml`; architecture and rollback intent are explained in
-the surrounding Markdown files. The hard stop is after `FMV3-M3-03` and before
-`FMV3-M4-01`.
+The exact titles and issue-level acceptance, gates, and rollback remain adjacent to each
+node in `plan.yaml`; protocol details and outcome-gate semantics are summarized in
+`11-fronius-readonly-and-semantic-lock.md` and `13-roadmap-gates-and-risks.md`. The hard
+stop is after `FMV3-M3-03` and before `FMV3-M4-01`.

@@ -35,6 +35,22 @@ gateway, semantic, Portal, HA, eeBUS, or Matter primitive is outside scope and r
 new plan. Raw diagnostic surfaces remain bounded, authenticated where externally exposed,
 and separate from stable semantic APIs.
 
+## Declarative outcome gates
+
+Issue completion and gate satisfaction are separate. Each gate records exactly `GO`,
+`NO_GO`, or `STOP`; only `GO` releases the listed successors. `NO_GO` and `STOP` preserve
+the evidence record but satisfy no outcome gate.
+
+| Gate | Evidence retained by | Successors released only by GO |
+|---|---|---|
+| Live smoke (`FMV3-M4-04`) | `FMV3-M4-04`, then packaging in `FMV3-M4-05` | `FMV3-M5-01`, `FMV3-M5-02`, `FMV3-M5-03`, `FMV3-M5-04`, `FMV3-M5-09`, `FMV3-M5-05`, `FMV3-M5-06`, `FMV3-M5-07`, `FMV3-M5-08` |
+| Semantic lock (`FMV3-M5-03`) | `FMV3-M5-03` | `FMV3-M5-09`, `FMV3-M5-05`, `FMV3-M5-06`, `FMV3-M5-07`, `FMV3-M5-08`, `FMV3-M6-00`, `FMV3-M6-01`, `FMV3-M6-02`, `FMV3-M6-03`, `FMV3-M8-00`, `FMV3-M8-01`, `FMV3-M8-02` |
+
+For live smoke, evidence packaging remains reachable after any outcome. The ordinary DAG
+still requires `FMV3-M4-05` before M5, so `GO` never bypasses the evidence lane. The
+semantic candidate `FMV3-M5-04` remains before and outside its lock gate so failed review
+can be remediated without pretending downstream release occurred.
+
 ## Review gate
 
 There is no arbitrary review-round cap.
@@ -107,5 +123,7 @@ No rollback in one layer silently rewrites another layer's contract or historica
 The plan is internally consistent when it retains exactly 46 unique issue IDs and 9
 unique milestones; all repositories are known; every dependency exists; the DAG is
 acyclic; issue and milestone Markdown mirrors agree with YAML; retained contract IDs and
-versions are exact; declared ordering is reachable; M3-03 remains transport-neutral; and
-the hard stop remains after M3-03 and before M4-01 with gateway work blocked.
+versions are exact; every issue has acceptance, gates, and rollback; outcome gates retain
+their evidence and successor sets with GO as the sole release outcome; declared ordering
+is reachable; M3-03 remains transport-neutral; and the hard stop remains after M3-03 and
+before M4-01 with gateway work blocked.

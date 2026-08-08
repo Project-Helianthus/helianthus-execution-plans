@@ -21,6 +21,66 @@ assert SPEC is not None and SPEC.loader is not None
 VALIDATOR = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(VALIDATOR)
 
+ACCEPTED_ISSUE_GRAPH = tuple(
+    (
+        cells[0],
+        cells[1],
+        cells[2],
+        tuple(cells[3].split(",")) if cells[3] else (),
+    )
+    for cells in (
+        line.split("|")
+        for line in """
+FMV3-M0-01|M0|Project-Helianthus/.github|
+FMV3-M0-02|M0|Project-Helianthus/helianthus-modbus|FMV3-M0-01
+FMV3-M0-03|M0|Project-Helianthus/helianthus-modbusreg|FMV3-M0-01
+FMV3-M0-04|M0|Project-Helianthus/.github|FMV3-M0-01
+FMV3-M0-05|M0|Project-Helianthus/helianthus-eebus-binding-private|FMV3-M0-04
+FMV3-M0-07|M0|Project-Helianthus/helianthus-matter-binding-private|FMV3-M0-04
+FMV3-M0-06|M0|Project-Helianthus/helianthus-docs-ebus|
+FMV3-M1-00|M1|Project-Helianthus/helianthus-docs-ebus|FMV3-M0-02,FMV3-M0-06
+FMV3-M1-01|M1|Project-Helianthus/helianthus-modbus|FMV3-M0-02,FMV3-M1-00
+FMV3-M1-02|M1|Project-Helianthus/helianthus-modbus|FMV3-M1-01
+FMV3-M1-03|M1|Project-Helianthus/helianthus-modbus|FMV3-M1-02
+FMV3-M1-04|M1|Project-Helianthus/helianthus-modbus|FMV3-M1-02,FMV3-M1-03
+FMV3-M1-05|M1|Project-Helianthus/helianthus-docs-ebus|FMV3-M1-04
+FMV3-M1-06|M1|Project-Helianthus/helianthus-modbus|FMV3-M1-04,FMV3-M1-05
+FMV3-M2-01|M2|Project-Helianthus/helianthus-modbusreg|FMV3-M0-03,FMV3-M1-00,FMV3-M1-01,FMV3-M1-06
+FMV3-M2-02|M2|Project-Helianthus/helianthus-modbusreg|FMV3-M1-00,FMV3-M2-01
+FMV3-M2-03|M2|Project-Helianthus/helianthus-modbusreg|FMV3-M1-00,FMV3-M2-01,FMV3-M2-02
+FMV3-M3-01|M3|Project-Helianthus/helianthus-docs-ebus|FMV3-M0-06,FMV3-M2-01
+FMV3-M3-02|M3|Project-Helianthus/helianthus-modbusreg|FMV3-M1-02,FMV3-M2-03,FMV3-M3-01
+FMV3-M3-03|M3|Project-Helianthus/helianthus-modbusreg|FMV3-M3-02
+FMV3-M4-01|M4|Project-Helianthus/helianthus-ebusgateway|FMV3-M1-02,FMV3-M3-03
+FMV3-M4-02|M4|Project-Helianthus/helianthus-ebusgateway|FMV3-M4-01
+FMV3-M4-03|M4|Project-Helianthus/helianthus-ha-addon|FMV3-M4-01
+FMV3-M4-04|M4|Project-Helianthus/helianthus-ebusgateway|FMV3-M4-02,FMV3-M4-03
+FMV3-M4-05|M4|Project-Helianthus/helianthus-docs-ebus|FMV3-M3-01,FMV3-M4-04
+FMV3-M5-01|M5|Project-Helianthus/helianthus-ebusreg|FMV3-M5-02
+FMV3-M5-02|M5|Project-Helianthus/helianthus-docs-ebus|FMV3-M4-05
+FMV3-M5-03|M5|Project-Helianthus/helianthus-execution-plans|FMV3-M5-04
+FMV3-M5-04|M5|Project-Helianthus/helianthus-ebusgateway|FMV3-M5-01,FMV3-M5-02
+FMV3-M5-09|M5|Project-Helianthus/helianthus-docs-ebus|FMV3-M5-03
+FMV3-M5-05|M5|Project-Helianthus/helianthus-ebusgateway|FMV3-M5-09
+FMV3-M5-06|M5|Project-Helianthus/helianthus-ebusgateway|FMV3-M5-05
+FMV3-M5-07|M5|Project-Helianthus/helianthus-ha-integration|FMV3-M5-06
+FMV3-M5-08|M5|Project-Helianthus/helianthus-ha-addon|FMV3-M5-06,FMV3-M5-07
+FMV3-M6-00|M6|Project-Helianthus/helianthus-docs-ebus|FMV3-M5-08
+FMV3-M6-01|M6|Project-Helianthus/helianthus-eebus-binding-private|FMV3-M0-05,FMV3-M6-00
+FMV3-M6-02|M6|Project-Helianthus/helianthus-eebus-binding-private|FMV3-M6-01
+FMV3-M6-03|M6|Project-Helianthus/helianthus-docs-ebus|FMV3-M6-02
+FMV3-M7-01|M7|Project-Helianthus/helianthus-docs-ebus|FMV3-M0-06,FMV3-M1-04,FMV3-M2-03,FMV3-M5-09
+FMV3-M7-02|M7|Project-Helianthus/helianthus-modbusreg|FMV3-M1-04,FMV3-M2-03,FMV3-M3-03,FMV3-M7-01
+FMV3-M7-03|M7|Project-Helianthus/helianthus-modbusreg|FMV3-M7-02
+FMV3-M7-04|M7|Project-Helianthus/helianthus-modbusreg|FMV3-M7-03
+FMV3-M7-05|M7|Project-Helianthus/helianthus-modbusreg|FMV3-M7-04
+FMV3-M8-00|M8|Project-Helianthus/helianthus-docs-ebus|FMV3-M5-08
+FMV3-M8-01|M8|Project-Helianthus/helianthus-matter-binding-private|FMV3-M0-07,FMV3-M8-00
+FMV3-M8-02|M8|Project-Helianthus/helianthus-matter-binding-private|FMV3-M8-01
+""".strip().splitlines()
+    )
+)
+
 
 class FroniusPlanStructureTests(unittest.TestCase):
     def copy_plan(self, root: Path) -> Path:
@@ -53,11 +113,92 @@ class FroniusPlanStructureTests(unittest.TestCase):
     def issue(self, document: dict[str, Any], issue_id: str) -> dict[str, Any]:
         return next(row for row in document["issues"] if row["id"] == issue_id)
 
+    def issue_graph(self, document: dict[str, Any]) -> tuple[tuple[Any, ...], ...]:
+        return tuple(
+            (
+                row["id"],
+                row["milestone"],
+                row["repo"],
+                tuple(row["depends_on"]),
+            )
+            for row in document["issues"]
+        )
+
+    def assert_issue_graph_locked(self, document: dict[str, Any]) -> None:
+        self.assertEqual(
+            self.issue_graph(document),
+            ACCEPTED_ISSUE_GRAPH,
+            "accepted issue graph changed",
+        )
+
     def test_accepts_current_plan(self) -> None:
         self.assertEqual(
             VALIDATOR.validate_plan(PLAN_DIR),
             {"issues": 46, "milestones": 9, "contracts": 7},
         )
+
+    def test_exact_accepted_issue_graph_is_locked(self) -> None:
+        self.assert_issue_graph_locked(self.document(PLAN_DIR))
+
+    def test_graph_lock_rejects_owner_drift(self) -> None:
+        document = self.document(PLAN_DIR)
+        self.issue(document, "FMV3-M4-03")["repo"] = "Project-Helianthus/helianthus-ebusgateway"
+        with self.assertRaisesRegex(AssertionError, "accepted issue graph changed"):
+            self.assert_issue_graph_locked(document)
+
+    def test_graph_lock_rejects_required_edge_removal(self) -> None:
+        document = self.document(PLAN_DIR)
+        self.issue(document, "FMV3-M1-04")["depends_on"].remove("FMV3-M1-03")
+        with self.assertRaisesRegex(AssertionError, "accepted issue graph changed"):
+            self.assert_issue_graph_locked(document)
+
+    def test_graph_lock_rejects_evidence_lane_bypass(self) -> None:
+        document = self.document(PLAN_DIR)
+        self.issue(document, "FMV3-M5-02")["depends_on"] = ["FMV3-M4-04"]
+        with self.assertRaisesRegex(AssertionError, "accepted issue graph changed"):
+            self.assert_issue_graph_locked(document)
+
+    def test_outcome_gates_release_successors_only_on_go(self) -> None:
+        document = self.document(PLAN_DIR)
+        for gate in document["outcome_gates"]:
+            self.assertEqual(gate["release_outcome"], "GO")
+            self.assertEqual(gate["non_release_outcomes"], ["NO_GO", "STOP"])
+            for outcome in gate["allowed_outcomes"]:
+                released = gate["gated_successors"] if outcome == gate["release_outcome"] else []
+                if outcome == "GO":
+                    self.assertTrue(released)
+                else:
+                    self.assertEqual(released, [])
+
+    def test_rejects_outcome_gate_release_drift(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            document["outcome_gates"][0]["release_outcome"] = "NO_GO"
+
+        self.assert_document_rejected(mutate, "outcome gate declarations changed")
+
+    def test_rejects_outcome_gate_successor_removal(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            document["outcome_gates"][1]["gated_successors"].remove("FMV3-M8-02")
+
+        self.assert_document_rejected(mutate, "outcome gate declarations changed")
+
+    def test_rejects_missing_issue_acceptance(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            self.issue(document, "FMV3-M2-03")["acceptance"] = ""
+
+        self.assert_document_rejected(mutate, "acceptance must be nonempty")
+
+    def test_rejects_missing_issue_gates(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            self.issue(document, "FMV3-M2-03")["gates"] = []
+
+        self.assert_document_rejected(mutate, "gates must be a nonempty list")
+
+    def test_rejects_missing_issue_rollback(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            self.issue(document, "FMV3-M2-03")["rollback"] = ""
+
+        self.assert_document_rejected(mutate, "rollback must be nonempty")
 
     def test_validation_is_read_only(self) -> None:
         before = {

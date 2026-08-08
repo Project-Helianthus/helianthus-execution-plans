@@ -28,6 +28,24 @@ The code repository owns interfaces, types, lifecycle behavior, bounds, and test
 these contracts. This repository retains names, versions, owners, and dependency order
 only.
 
+The M1 functional floor is explicit in each issue's acceptance criteria:
+
+- protocol code admits only FC03 holding-register reads, FC04 input-register reads, and
+  bounded FC2B/MEI0E device identification, keeping FC03 and FC04 provenance distinct;
+- TCP has one fair bounded scheduler and transaction allocator per socket, isolates unit
+  and profile state, coalesces only compatible reads, replays each dependent's exact
+  logical slice, and prevents abandoned or late responses from crossing connection
+  generations through bounded tombstone recovery;
+- RTU shares protocol types but proves serial scheduling, CRC, silent intervals,
+  abandonment, and timeout or cancellation quarantine independently;
+- TCP and RTU conformance cover the complete read allowlist, malformed responses,
+  exceptions, segmentation, reconnect, late-response handling, and recovery with no
+  unexpected fail or xpass;
+- opaque runtime acquisition and its registry consumer preserve wire-response,
+  logical-view, sample, generation, normalization, and source provenance through bounded
+  one-shot lifecycle, cancellation, exhaustion, and deterministic non-reconstructing
+  tombstone reclamation.
+
 RTU fixture conformance may complete without physical hardware, but RTU remains disabled
 and experimental. Only `RTU_PHYSICAL_QUALIFICATION_V1` supports an enabled or supported
 physical RTU claim. That condition does not block TCP-sufficient Fronius work.
@@ -86,6 +104,10 @@ semantics, configure and recover the add-on path, run a real read-only Fronius s
 publish sanitized applicability evidence. These are retained roadmap nodes, not current
 work.
 
+The live smoke records `GO`, `NO_GO`, or `STOP`. `FMV3-M4-05` packages any of those
+outcomes so failed or stopped work remains reviewable, but only `GO` satisfies the live
+gate and releases its declared M5 successors after normal DAG prerequisites complete.
+
 ## Deferred M5 semantic promotion
 
 M5 preserves this order:
@@ -100,6 +122,10 @@ M5 preserves this order:
 
 Raw Portal diagnostics remain bounded and separate from semantic GraphQL. Home Assistant
 consumes GraphQL, not raw register or unstable MCP representations.
+
+The semantic lock also records `GO`, `NO_GO`, or `STOP`. Only `GO` releases the listed
+GraphQL, public rollout, eeBUS, and Matter successors; `NO_GO` and `STOP` preserve the
+candidate and review evidence for remediation without satisfying the gate.
 
 ## Proof location
 

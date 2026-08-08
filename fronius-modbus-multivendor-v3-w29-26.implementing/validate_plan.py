@@ -48,6 +48,7 @@ ROOT_KEYS = {
     "review_policy",
     "hard_stop",
     "transport_neutral_boundary",
+    "outcome_gates",
     "ordering",
     "milestones",
     "issues",
@@ -138,6 +139,35 @@ EXPECTED_REVIEW_POLICY = {
         "verifiable_fix_criterion",
     ],
     "theoretical_out_of_threat_model_is_p2": False,
+}
+
+EXPECTED_OUTCOME_GATES = {
+    "live_smoke": {
+        "id": "live_smoke",
+        "gate_issue": "FMV3-M4-04",
+        "allowed_outcomes": ["GO", "NO_GO", "STOP"],
+        "release_outcome": "GO",
+        "non_release_outcomes": ["NO_GO", "STOP"],
+        "evidence_issues": ["FMV3-M4-04", "FMV3-M4-05"],
+        "gated_successors": [
+            "FMV3-M5-01", "FMV3-M5-02", "FMV3-M5-03", "FMV3-M5-04",
+            "FMV3-M5-09", "FMV3-M5-05", "FMV3-M5-06", "FMV3-M5-07",
+            "FMV3-M5-08",
+        ],
+    },
+    "semantic_lock": {
+        "id": "semantic_lock",
+        "gate_issue": "FMV3-M5-03",
+        "allowed_outcomes": ["GO", "NO_GO", "STOP"],
+        "release_outcome": "GO",
+        "non_release_outcomes": ["NO_GO", "STOP"],
+        "evidence_issues": ["FMV3-M5-03"],
+        "gated_successors": [
+            "FMV3-M5-09", "FMV3-M5-05", "FMV3-M5-06", "FMV3-M5-07",
+            "FMV3-M5-08", "FMV3-M6-00", "FMV3-M6-01", "FMV3-M6-02",
+            "FMV3-M6-03", "FMV3-M8-00", "FMV3-M8-01", "FMV3-M8-02",
+        ],
+    },
 }
 
 REQUIRED_FILES = {
@@ -299,7 +329,11 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     _require(tuple(milestone_ids) == EXPECTED_MILESTONES, "expected milestones M0 through M8")
     _require(all(isinstance(row["title"], str) and row["title"] for row in milestones), "milestone titles must be nonempty")
 
-    issues = _rows(plan["issues"], "issues", {"id", "milestone", "repo", "depends_on", "title"})
+    issues = _rows(
+        plan["issues"],
+        "issues",
+        {"id", "milestone", "repo", "depends_on", "title", "acceptance", "gates", "rollback"},
+    )
     issue_ids = _unique_ids(issues, "issue")
     _require(tuple(issue_ids) == EXPECTED_ISSUE_IDS, "the retained 46 issue IDs changed")
     issue_map = {row["id"]: row for row in issues}
@@ -310,6 +344,12 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
         _require(issue["milestone"] == issue_id.split("-")[1], f"{issue_id} milestone mirror is invalid")
         _require(issue["repo"] in KNOWN_REPOSITORIES, f"{issue_id} has unknown repository")
         _require(isinstance(issue["title"], str) and issue["title"], f"{issue_id} title must be nonempty")
+        _require(isinstance(issue["acceptance"], str) and issue["acceptance"], f"{issue_id} acceptance must be nonempty")
+        _require(isinstance(issue["rollback"], str) and issue["rollback"], f"{issue_id} rollback must be nonempty")
+        gates = issue["gates"]
+        _require(isinstance(gates, list) and gates, f"{issue_id} gates must be a nonempty list")
+        _require(all(isinstance(gate, str) and gate for gate in gates), f"{issue_id} gates must be nonempty strings")
+        _require(len(gates) == len(set(gates)), f"{issue_id} has duplicate gates")
     _validate_graph(issue_map)
 
     ordering_rows = _rows(plan["ordering"], "ordering", {"id", "sequence"})
@@ -320,6 +360,39 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     for name, sequence in ordering.items():
         for predecessor, successor in zip(sequence, sequence[1:]):
             _require(predecessor in _ancestors(successor, issue_map), f"{name} ordering is not present in the DAG")
+
+    outcome_gate_rows = _rows(
+        plan["outcome_gates"],
+        "outcome_gates",
+        {
+            "id", "gate_issue", "allowed_outcomes", "release_outcome",
+            "non_release_outcomes", "evidence_issues", "gated_successors",
+        },
+    )
+    outcome_gate_ids = _unique_ids(outcome_gate_rows, "outcome gate")
+    outcome_gates = {row["id"]: row for row in outcome_gate_rows}
+    _require(outcome_gates == EXPECTED_OUTCOME_GATES, "outcome gate declarations changed")
+    _require(len(outcome_gate_ids) == 2, "expected live-smoke and semantic-lock outcome gates")
+    for gate in outcome_gate_rows:
+        gate_id = gate["id"]
+        gate_issue = gate["gate_issue"]
+        allowed = gate["allowed_outcomes"]
+        release = gate["release_outcome"]
+        non_release = gate["non_release_outcomes"]
+        evidence = gate["evidence_issues"]
+        successors = gate["gated_successors"]
+        _require(gate_issue in issue_map, f"{gate_id} has unknown gate issue")
+        _require(isinstance(allowed, list) and allowed, f"{gate_id} allowed outcomes must be nonempty")
+        _require(len(allowed) == len(set(allowed)), f"{gate_id} has duplicate allowed outcomes")
+        _require(release in allowed, f"{gate_id} release outcome must be allowed")
+        _require(non_release == [value for value in allowed if value != release], f"{gate_id} non-release outcomes are invalid")
+        _require(isinstance(evidence, list) and gate_issue in evidence, f"{gate_id} evidence must retain its gate issue")
+        _require(all(value in issue_map for value in evidence), f"{gate_id} has unknown evidence issue")
+        _require(isinstance(successors, list) and successors, f"{gate_id} successors must be nonempty")
+        _require(len(successors) == len(set(successors)), f"{gate_id} has duplicate successors")
+        for successor in successors:
+            _require(successor in issue_map, f"{gate_id} has unknown gated successor")
+            _require(gate_issue in _ancestors(successor, issue_map), f"{gate_id} successor is not downstream of its gate issue")
 
     _require(plan["review_policy"] == EXPECTED_REVIEW_POLICY, "review policy changed")
     _require(plan["hard_stop"] == {

@@ -17,9 +17,10 @@ post-merge side effects.
 
 The machine-readable surface is intentionally small:
 
-- `plan.yaml` contains the 46 issue nodes, 9 milestones, repository set, dependency
-  edges, retained domain contract IDs and versions, ordering constraints, review policy,
-  the M3-03 transport-neutral boundary, and the hard stop;
+- `plan.yaml` contains the 46 issue nodes with concise acceptance, applicable gates, and
+  rollback, plus 9 milestones, repository ownership, dependency edges, two declarative
+  outcome gates, retained domain contract IDs and versions, ordering constraints, review
+  policy, the M3-03 transport-neutral boundary, and the hard stop;
 - `validate_plan.py` reads local files and checks only structural and semantic
   consistency;
 - the Markdown files explain architecture, acceptance intent, rollback, and risks for
