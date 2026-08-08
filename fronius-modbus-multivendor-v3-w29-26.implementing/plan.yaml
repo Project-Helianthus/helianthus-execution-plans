@@ -313,7 +313,7 @@ issues:
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M4-05]
     title: Publish the public canonical PV contract before semantic implementation
-    acceptance: After an M4-04 GO and packaged M4-05 evidence, public documentation defines the proposed schema, meanings, source-validity boundary, freshness, compatibility, evidence, and private-consumer boundary before semantic implementation.
+    acceptance: When current GitHub state, packaged M4-05 evidence, and operator triage support a canonical proposal, public documentation defines the proposed schema, meanings, source-validity boundary, freshness, compatibility, evidence, and private-consumer boundary before semantic implementation.
     gates: [doc_gate, licensing, live_smoke]
     rollback: Revise an unpublished candidate or correct and deprecate published documentation compatibly.
   - id: FMV3-M5-03

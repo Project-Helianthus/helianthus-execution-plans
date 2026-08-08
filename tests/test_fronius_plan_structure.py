@@ -179,6 +179,7 @@ class FroniusPlanStructureTests(unittest.TestCase):
             "release_outcome:",
             "gated_successors:",
             "outcome_gates:",
+            "After an M4-04 GO",
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)
@@ -189,6 +190,17 @@ class FroniusPlanStructureTests(unittest.TestCase):
         for issue_id in ("FMV3-M4-01", "FMV3-M4-02"):
             self.assertIn("doc_gate", by_id[issue_id]["gates"])
         self.assertIn("FMV3-M0-06", by_id["FMV3-M4-01"]["depends_on"])
+
+    def test_rejects_gateway_contract_scope_removal(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            self.issue(document, "FMV3-M0-06")["acceptance"] = (
+                "Public documentation defines only generic repository boundaries."
+            )
+
+        self.assert_document_rejected(
+            mutate,
+            "FMV3-M0-06 must retain public gateway/MCP contract term",
+        )
 
     def test_rejects_missing_issue_acceptance(self) -> None:
         def mutate(document: dict[str, Any]) -> None:

@@ -393,6 +393,17 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
             f"{issue_id} must remain downstream of the public gateway/MCP contract",
         )
 
+    docs_acceptance = issue_map["FMV3-M0-06"]["acceptance"]
+    for required_term in (
+        "gateway Modbus endpoint ownership",
+        "bounded read-only raw/profile MCP contract",
+        "before gateway implementation",
+    ):
+        _require(
+            required_term in docs_acceptance,
+            f"FMV3-M0-06 must retain public gateway/MCP contract term: {required_term}",
+        )
+
     hard_stop = plan["hard_stop"]
     _require(hard_stop == {
         "after_issue": "FMV3-M3-03",
