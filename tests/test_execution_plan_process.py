@@ -8,6 +8,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 MSP = ROOT / "multi-runtime-semantic-platform.locked"
+MSP_GRAPH_GOLDEN = ROOT / "tests/golden/msp-dependency-graph.yaml"
 
 
 class ExecutionPlanProcessTests(unittest.TestCase):
@@ -34,6 +35,14 @@ class ExecutionPlanProcessTests(unittest.TestCase):
         rows = matrix["issues"]
         by_id = {row["id"]: row for row in rows}
         self.assertEqual(len(rows), len(by_id))
+        graph = [
+            {"id": row["id"], "depends_on": row.get("depends_on", [])}
+            for row in rows
+        ]
+        golden = yaml.safe_load(MSP_GRAPH_GOLDEN.read_text(encoding="utf-8"))
+        self.assertEqual(75, len(graph))
+        self.assertEqual(101, sum(len(row["depends_on"]) for row in graph))
+        self.assertEqual(golden, graph)
         for row in rows:
             self.assertNotIn("requires_completion_tokens", row)
             self.assertTrue(set(row.get("depends_on", ())).issubset(by_id))
