@@ -1,0 +1,251 @@
+- id: MSP-00A
+  depends_on: []
+- id: MSP-00B
+  depends_on:
+  - MSP-00A
+- id: MSP-00C
+  depends_on:
+  - MSP-00A
+- id: MSP-01A
+  depends_on:
+  - MSP-00A
+- id: MSP-01B
+  depends_on:
+  - MSP-01A
+- id: MSP-01C
+  depends_on:
+  - MSP-01B
+- id: MSP-020
+  depends_on:
+  - MSP-00A
+  - MSP-00B
+  - MSP-00C
+  - MSP-01A
+  - MSP-01B
+  - MSP-01C
+- id: MSP-02A
+  depends_on:
+  - MSP-00A
+  - MSP-00B
+  - MSP-00C
+  - MSP-01A
+  - MSP-01B
+  - MSP-01C
+  - MSP-020
+- id: MSP-02B
+  depends_on:
+  - MSP-02A
+- id: MSP-02C
+  depends_on:
+  - MSP-01A
+  - MSP-02B
+- id: MSP-03A
+  depends_on:
+  - MSP-02C
+- id: MSP-03B
+  depends_on:
+  - MSP-03A
+- id: MSP-03C
+  depends_on:
+  - MSP-03A
+  - MSP-03B
+- id: MSP-03D-G01
+  depends_on:
+  - MSP-03C
+- id: MSP-R00
+  depends_on: []
+- id: MSP-R00-L
+  depends_on: []
+- id: DOCS-VERIFY
+  depends_on: []
+- id: MSP-DOCS-API-SCHEMA
+  depends_on:
+  - DOCS-VERIFY
+- id: MSP-DOCS-PLATFORM
+  depends_on:
+  - MSP-R00-L
+  - MSP-DOCS-API-SCHEMA
+- id: MSP-DOCS-E2
+  depends_on:
+  - MSP-DOCS-PLATFORM
+- id: MSP-DOCS-E2R-PLATFORM
+  depends_on:
+  - MSP-DOCS-E2
+- id: MSP-DOCS-E2R-PUBLISH
+  depends_on:
+  - MSP-DOCS-E2R-PLATFORM
+- id: MSP-DOCS-E2R-AGGREGATE
+  depends_on:
+  - MSP-DOCS-E2R-PUBLISH
+- id: MSP-DOCS-CLEAN
+  depends_on:
+  - MSP-DOCS-E2R-AGGREGATE
+- id: MSP-DOCS-CANDIDATE-CLEANUP
+  depends_on:
+  - MSP-DOCS-E2R-PUBLISH
+- id: MSP-03D-R
+  depends_on:
+  - MSP-DOCS-CLEAN
+  - MSP-03C
+- id: MSP-035
+  depends_on:
+  - MSP-03D-R
+- id: MSP-04A
+  depends_on:
+  - MSP-035
+- id: MSP-036
+  depends_on:
+  - MSP-04A
+- id: MSP-DOCS-API-CANDIDATE
+  depends_on:
+  - MSP-036
+  - MSP-DOCS-E2
+- id: MSP-055
+  depends_on:
+  - MSP-036
+  - MSP-DOCS-API-CANDIDATE
+- id: MSP-DOCS-API-FREEZE
+  depends_on:
+  - MSP-055
+- id: MSP-04B
+  depends_on:
+  - MSP-DOCS-API-FREEZE
+- id: MSP-04C
+  depends_on:
+  - MSP-04B
+- id: MSP-045
+  depends_on:
+  - MSP-04C
+- id: MSP-05A
+  depends_on:
+  - MSP-045
+- id: MSP-DOCS-05P
+  depends_on:
+  - MSP-05A
+  - MSP-045
+- id: MSP-05P-SHIP
+  depends_on:
+  - MSP-DOCS-05P
+- id: MSP-05P-EEBUS
+  depends_on:
+  - MSP-05P-SHIP
+- id: MSP-05P-REG-API-V2
+  depends_on:
+  - MSP-05P-EEBUS
+- id: MSP-05P-REG-ID
+  depends_on:
+  - MSP-05P-REG-API-V2
+- id: MSP-05P-REG-RUNTIME
+  depends_on:
+  - MSP-05P-REG-ID
+- id: MSP-05P-REG-API-V1-CLEANUP
+  depends_on:
+  - MSP-05P-REG-RUNTIME
+- id: MSP-05A-R1
+  depends_on:
+  - MSP-05P-REG-API-V1-CLEANUP
+- id: MSP-05B-PLAN-R1
+  depends_on:
+  - MSP-05A-R1
+  - MSP-05P-REG-RUNTIME
+  - MSP-DOCS-05P
+- id: MSP-05A-R2
+  depends_on:
+  - MSP-05B-PLAN-R1
+- id: MSP-05B
+  depends_on:
+  - MSP-05A-R2
+  - MSP-05P-REG-RUNTIME
+  - MSP-DOCS-05P
+- id: MSP-06
+  depends_on:
+  - MSP-05B
+- id: MSP-0625-PLAN
+  depends_on:
+  - MSP-06
+- id: MSP-0625-DOCS-E
+  depends_on:
+  - MSP-0625-PLAN
+- id: MSP-0625-SPINE
+  depends_on:
+  - MSP-0625-DOCS-E
+- id: MSP-0625-EEBUS
+  depends_on:
+  - MSP-0625-SPINE
+- id: MSP-0625-REG-EXEC
+  depends_on:
+  - MSP-0625-EEBUS
+- id: MSP-0625-REG-MUT
+  depends_on:
+  - MSP-0625-REG-EXEC
+- id: MSP-0625-GW-ROUTER
+  depends_on:
+  - MSP-0625-REG-MUT
+- id: MSP-0625-GW-MCP
+  depends_on:
+  - MSP-0625-GW-ROUTER
+- id: MSP-0625-LAB
+  depends_on:
+  - MSP-0625-GW-MCP
+- id: MSP-0625-DOCS-P
+  depends_on:
+  - MSP-0625-DOCS-E
+- id: MSP-0625-S13-DOCS
+  depends_on:
+  - MSP-0625-LAB
+  - MSP-0625-DOCS-P
+- id: MSP-0625-S13-SPINE
+  depends_on:
+  - MSP-0625-S13-DOCS
+- id: MSP-0625-S13-EEBUS
+  depends_on:
+  - MSP-0625-S13-SPINE
+- id: MSP-0625-S13-REG
+  depends_on:
+  - MSP-0625-S13-EEBUS
+- id: MSP-0625-S13-GW-LAB
+  depends_on:
+  - MSP-0625-S13-REG
+- id: MSP-065
+  depends_on:
+  - MSP-06
+- id: MSP-07
+  depends_on:
+  - MSP-065
+- id: MSP-08
+  depends_on:
+  - MSP-07
+- id: MSP-085
+  depends_on:
+  - MSP-08
+- id: MSP-065-LIVE-R1
+  depends_on:
+  - MSP-0625-LAB
+  - MSP-0625-DOCS-P
+  - MSP-0625-S13-GW-LAB
+- id: MSP-07-LIVE-R1
+  depends_on:
+  - MSP-065-LIVE-R1
+- id: MSP-08-LIVE-R1
+  depends_on:
+  - MSP-07-LIVE-R1
+- id: MSP-085-LIVE-R1
+  depends_on:
+  - MSP-08-LIVE-R1
+- id: MSP-09A
+  depends_on:
+  - MSP-085-LIVE-R1
+- id: MSP-09B
+  depends_on:
+  - MSP-09A
+  - MSP-085-LIVE-R1
+- id: MSP-09C
+  depends_on:
+  - MSP-09A
+  - MSP-09B
+  - MSP-085-LIVE-R1
+- id: MSP-09D
+  depends_on:
+  - MSP-09A
+  - MSP-09C
+  - MSP-085-LIVE-R1

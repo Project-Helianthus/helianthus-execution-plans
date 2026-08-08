@@ -1,279 +1,108 @@
 # Architecture and repository boundaries
 
-Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
+## Layer ownership
 
-Depends on: Operator brief dated 2026-07-14 and root/repository `AGENTS.md` contracts.
-Scope: Public layer ownership, endpoint/runtime behavior, standard and vendor profile ownership, canonical metadata, and public/private dependency direction.
-Idempotence contract: Reapplying these boundaries creates no additional repository, owner, scheduler, profile catalog, semantic ID, or binding direction.
-Falsifiability gate: Reject this chunk if any required behavior has two owners, an import points upward/private-to-public, a profile owns endpoint lifecycle, or a decoded value cannot be traced to bounded raw evidence.
-Coverage: Decisions D01-D05, D07-D08, D11-D13; issues M0, M1, M2; risks R01-R03, R05, R07-R08.
+The dependency direction remains transport -> profile registry -> gateway adapter ->
+canonical semantics -> public consumers -> private output bindings.
 
-## Claim register
-
-**Proven**
-
-- `Project-Helianthus/.github` is the existing governance repository that can own
-  organization-level repository creation.
-- The two planned public Modbus repositories and two planned private binding
-  repositories have no local checkout at draft time.
-- Existing public gateway, registry, docs, HA integration, and add-on checkouts are
-  available for later issue-specific work.
-
-**Hypothesis**
-
-- The transport/profile split remains sufficient when more vendors and both TCP and
-  RTU are active concurrently.
-
-**Unknown**
-
-- Final module paths, initial maintainers, and repository settings until the M0
-  bootstrap issues execute.
-
-## Normative boundaries
-
-| Layer | Owner | Owns | Must not own |
+| Layer | Repository | Owns | Does not own |
 |---|---|---|---|
-| Transport/runtime | `Project-Helianthus/helianthus-modbus` | TCP, RTU, endpoint owner, queues, fairness, coalescing, deadlines, cancellation, backoff, reconnect, limits, metrics, source-issued opaque one-shot acquisition capability | Vendor detection, register meaning, attempt publication, PV semantics, private bindings |
-| Modbus protocol | `Project-Helianthus/helianthus-modbus` | ADU/PDU types, FC03/FC04 register reads, FC2B/MEI0E Device Identification, exceptions, uninterpreted words/bytes, correlation | Signedness, scale, units, source validity, canonical values, writes in this plan |
-| Profile registry | `Project-Helianthus/helianthus-modbusreg` | Catalog, profile API, signedness/scale codecs, source-observation validity/timestamps, bounded shared attempt ledger, detector, fixtures, standard families, vendor overlays | Sockets, serial ownership, capability issuance, retries, canonical quality/freshness/IDs, consumers |
-| Canonical semantics | `Project-Helianthus/helianthus-ebusreg` | Protocol-independent identity, quantities, quality, freshness, counters, versions, compatibility | Modbus addresses, vendor probes, endpoint lifecycle |
-| Gateway protocol adapter | `Project-Helianthus/helianthus-ebusgateway/internal/modbusadapter` | Implements the existing protocol-agnostic adapter interface, composes Modbus runtime/profile registry, converts to neutral gateway DTOs | Any second gateway Modbus importer, canonical policy, or new repository |
-| Public composition/API | Gateway core outside the local Modbus adapter | Configuration, adapter interface, raw MCP service, projection, semantic MCP, externally routable machine-to-machine GraphQL contract, Portal | Direct `modbus`/`modbusreg` imports, defining profile facts, canonical meaning locally, or raw registers in GraphQL |
-| Public consumers | HA integration and add-on | Stable public API consumption, packaging, configuration, recovery | Raw register interpretation or profile selection |
-| Private output bindings | Private eeBUS and Matter repos | Mapping locked canonical device classes from exactly packaged `PUBLIC_GRAPHQL_M2M_V1` to licensed output protocols | Modbus/modbusreg/gateway internals, undocumented ingress, or upstream public ownership |
+| Organization governance | `Project-Helianthus/.github` | Repository policy and creation | Protocol or product code |
+| Modbus protocol/runtime | `Project-Helianthus/helianthus-modbus` | PDU types, codecs, TCP/RTU, endpoint lifecycle, bounds, recovery | Vendor profiles or canonical PV meaning |
+| Profile registry | `Project-Helianthus/helianthus-modbusreg` | Profiles, codecs, detection, observations, provenance, fixtures | Sockets, gateway lifecycle, canonical PV IDs |
+| Gateway adapter | `Project-Helianthus/helianthus-ebusgateway` | Runtime composition, raw MCP, semantic MCP, GraphQL, Portal | Modbus framing or private binding protocols |
+| Canonical semantics | `Project-Helianthus/helianthus-ebusreg` | Protocol-independent PV identities, quantities, quality, freshness | Transport or vendor detection |
+| HA consumer | `Project-Helianthus/helianthus-ha-integration` | Stable GraphQL consumption and entities | Raw registers or profile logic |
+| Add-on | `Project-Helianthus/helianthus-ha-addon` | Configuration, packaging, health, rollback | API or profile semantics |
+| Public knowledge | `Project-Helianthus/helianthus-docs-ebus` | Contracts, evidence, mappings, retained unknowns | Runtime enforcement |
+| Private eeBUS output | `Project-Helianthus/helianthus-eebus-binding-private` | Generic eeBUS output from the public M2M API | Modbus input, canonical meaning, vendor detection |
+| Private Matter output | `Project-Helianthus/helianthus-matter-binding-private` | Generic Matter output from the public M2M API | Modbus input, canonical meaning, vendor detection |
+| Plan record | `Project-Helianthus/helianthus-execution-plans` | Cross-repository IDs, DAG, boundaries, and stop decisions | Product execution or runtime proof |
 
-The import graph is acyclic. `modbusreg` may import `modbus`. Inside the gateway, exactly
-only `internal/modbusadapter` may import `modbus` and `modbusreg`; it implements the
-existing protocol-agnostic adapter interface. Gateway core, semantic, MCP, GraphQL, and
-Portal packages import that interface or neutral gateway DTOs only and are tested with a
-fake adapter. Adapter integration tests exercise the real modules. No new repository is
-created for this boundary. Private bindings may import or consume published public
-contracts. Public packages, CI, fixtures, docs, and release artifacts must build without
-private access. A private discovery must be restated as sanitized, independently
-reviewable public evidence before it can affect a public profile or semantic contract.
+There is one shared profile repository, not a repository per inverter vendor. The
+private repositories are generic bindings and remain downstream of public, stable
+contracts.
 
-The `.github` M0 issue creates the two empty public Modbus repositories. Their destination
-bootstrap issues depend on that governance issue and run only after their repositories
-exist. Private governance creation remains deferred to `.github` issue FMV3-M0-04; only
-after it creates both empty targets may destination bootstraps FMV3-M0-05/FMV3-M0-07 run.
-All three require future explicit authorization.
-Milestones group related issues but do not own code. Each issue row names exactly one
-repository. Cross-repository behavior is joined by explicit dependencies and versioned
-contracts, never by one issue editing multiple repositories.
+## Import direction
 
-The machine-readable `repository_mutex` is enforced by `cruise-topology` and
-`cruise-preflight`: per repository, at most one issue and one PR may be active. The
-validator checks only that structural ownership contract and does not simulate scheduling.
+Allowed high-level imports follow ownership:
 
-After the public Modbus bootstrap and M0 boundary documentation, bounded public docs issue
-FMV3-M1-00 defines the M1 Modbus protocol/read-only, TCP/RTU, scheduling/recovery, MBAP
-response matching without an echoed request offset, socket-lifetime tombstones and
-generation-changing rollover, RTU response-latency plus bus-idle quarantine, and
-transport-write linearization. Its exact ordered abnormal result set is `provable_zero`,
-`partial_write`, `indeterminate_error`, `cancellation_race`, `ambiguous_completion`. Only
-`provable_zero` avoids abandonment; the other four are possibly transmitted and force TCP
-tombstone/close/reconnect/new-generation handling plus RTU quarantine/resynchronization or
-endpoint recovery before a successor. Separate `full_transmit_success` enters `response_wait`.
-TCP wait timeout/cancellation tombstones the ID, drops late response, and forbids same-socket
-reuse until normal rollover; RTU wait timeout/cancellation enters existing quarantine/resync.
-The same issue also publishes physical `wire_response_id` and per-observation linked
-`logical_view_id`/slice identity, unequal-overlap replay and incompatible-coalescing
-mutations, the named `RTU_PHYSICAL_QUALIFICATION_V1` evidence/dispositions, and the complete
-M2 source-observation/provenance, detector activation lifecycle, hardware qualification,
-coherence, and fixture/mutation contracts. It is one docs issue/PR merged before any M1 or
-M2 implementation. FMV3-M1-01 through FMV3-M1-04 and FMV3-M2-01 through FMV3-M2-03 all
-carry `doc_gate: required` and `companion_issue: FMV3-M1-00`; each has direct or explicit
-acyclic dependency ancestry to the merged companion.
+```text
+helianthus-modbusreg -> helianthus-modbus
+helianthus-ebusgateway -> helianthus-modbusreg + helianthus-modbus
+helianthus-ebusgateway -> helianthus-ebusreg
+helianthus-ha-integration -> public GraphQL
+private bindings -> PUBLIC_GRAPHQL_M2M_V1
+```
 
-PR #89 adds a successor lane without rewriting those contracts; issue #88 tracks its scope
-but is not authorization evidence. FMV3-M1-05 follows
-M1-04 and publishes `OPAQUE_RUNTIME_ACQUISITION_V1` in the public docs repository.
-FMV3-M1-06 depends explicitly on both M1-04 and M1-05. FMV3-M2-01 retains its M1-00
-companion metadata, records M1-05 as its corrective companion, depends on M1-06, and pins
-the full 40-character merged M1-06 SHA before RED. The docs head, test-only RED revisions,
-and implementation heads are each reviewed in fresh independent OpenAI contexts; unresolved
-findings block merge.
+Forbidden directions include:
 
-## Profile families
+- public repositories importing either private binding;
+- `helianthus-modbus` importing a vendor profile or canonical semantic package;
+- `helianthus-modbusreg` owning sockets, serial ports, or gateway lifecycle;
+- private bindings importing Modbus, registry internals, or gateway internals;
+- Home Assistant consuming raw registers or unstable MCP schemas;
+- the execution-plan repository acting as a product execution service or change broker.
 
-SunSpec is modeled as a standard family because its model identities and data meanings
-are intended to apply across conforming manufacturers. FMV3-M3-03 records
-`STANDARD_ONLY` when qualified Fronius evidence and the minimal standard implementation
-cover the required slice; it creates an overlay only under `OVERLAY_REQUIRED` for qualified
-vendor-specific facts. `STANDARD_ONLY` retains Fronius fixtures/live qualification and
-unblocks M4 with public evidence, green conformance CI, and no implementation commit or
-empty overlay. FMV3-M3-01 is the public companion for M3-02/M3-03. Later FMV3-M7-01 is the
-public companion for M7-02/M7-03/M7-04 and closes only after the complete Growatt
-candidate/admission contract, qualified facts, criteria, provenance/licensing, unsupported
-disposition, and exact code/document mapping are public and merged. M7-03 consumes that
-companion with no later docs change: `PROFILE_ADMITTED` alone triggers RED/code, while
-`NO_ADMISSIBLE_PROFILE` preserves the pre-published evidence and unsupported disposition
-without implementation, catalog entry, or support claim. Overlays remain isolated and versioned inside
-`helianthus-modbusreg`, never separate repositories or transport code.
+## Contract flow
 
-The registry permits one selected primary profile per identity domain plus overlays that
-declare compatibility with that exact primary/profile version. If two candidates assign
-different meanings to the same raw source, both remain inactive until evidence resolves
-the ambiguity. Overlay precedence is explicit data; package import order is never a
-selection rule.
+Contract work follows docs -> producer -> consumer:
 
-Catalog activation is also explicit. `experimental_opt_in` is the only state available to
-a fixture-only profile; it is disabled by default and requires operator opt-in while still
-passing every detector and compatibility gate. `auto_eligible` requires a matching
-hardware qualification record bound to the profile version and exact
-model/gateway/firmware-or-software/transport tuple. Missing, mismatched, revoked, or
-disabled qualification safely prevents or demotes automatic activation. Experimental
-opt-in is not a support claim and cannot bypass semantic lock.
+1. public companion documentation establishes the ID, version, ownership, and
+   compatibility intent;
+2. the producer implements interfaces and types and proves them with repository-local
+   fixtures and conformance tests;
+3. consumers pin a compatible producer/API version and prove compatibility in their own
+   tests;
+4. durable findings return to public documentation.
 
-Each versioned profile codec explicitly declares `word_order` as high-word-first,
-low-word-first, or not-applicable; applicable `byte_order_within_word` as high-byte-first,
-low-byte-first, or not-applicable; and for strings the encoding, byte traversal, fixed
-length, pad byte, pad side, and trim policy. The codec version and selected descriptor are
-provenance fields. Opposing order and packing fixtures must fail when a profile omits or
-misstates the applicable declaration.
+The plan DAG records this order. It does not replace normal code-repository issue and PR
+workflow.
 
-## Detection contract
+## Modbus runtime boundary
 
-Detection inputs are endpoint/unit identity, catalog version, static applicability
-metadata, and a bounded transcript of read-only probes. Candidate order and probe order
-are deterministic. Each profile declares supported model identifiers, firmware/software
-constraints, gateway constraints, required and discriminating reads, maximum ranges,
-expected response classes, activation state, and required qualification-record match.
+`helianthus-modbus` serves all profile families. TCP is the first Fronius acquisition
+path. RTU uses the same public runtime contract but remains disabled and experimental
+until `RTU_PHYSICAL_QUALIFICATION_V1` version 1 is satisfied by physical evidence in the
+runtime repository. Missing RTU hardware does not block TCP-sufficient Fronius work.
 
-Outcomes are `selected`, `no_match`, `ambiguous`, `unsupported_version`,
-`insufficient_evidence`, or `probe_failed`. Only `selected` activates decode. Timeout,
-malformed response, illegal address, changed identity, budget exhaustion, and partial
-required evidence cannot be interpreted as a positive match. No write operation can be
-used for detection. Manual selection may remove candidates but still runs all required
-version, gateway, and read-evidence checks.
+The retained M1 contract identifiers are:
 
-## Source observation and canonical value contracts
+- `OPAQUE_RUNTIME_ACQUISITION_V1` version 1;
+- `helianthus.modbus.opaque-runtime-acquisition` version 1;
+- `published_attempt_v1` schema version 1;
+- `helianthus.fmv3-m1-06-conformance-report.v3` version 3.
 
-The Modbus protocol output is uninterpreted 16-bit words/bytes in received order. It does
-not compose registers, reorder bytes, unpack strings, or trim padding. Signedness, scale,
-enum, unit, multi-register word composition, applicable intra-word byte order, and string
-packing/padding interpretation belong only to `modbusreg` codecs. Their output is a source
-observation envelope, not an unqualified scalar and not a canonical value. Required fields
-are decoded value, source validity, observation/receipt timestamps, profile/detector/codec
-versions, raw type, signedness, unit, scale, access, declared word/byte order and string
-packing/padding or explicit not-applicable values, `sample_id`,
-`poll_generation_id`, `dependency_set_id`, complete dependency membership, and raw
-provenance. Every physical request/range response has a `wire_response_id`; every dependent
-logical observation has a linked `logical_view_id`, logical offset/count, and exact slice
-offset/count within that wire response.
-Provenance records the documentary notation and the explicit one-based-to-zero-based
-normalization when the source document uses one-based register numbers. FC03 holding and
-FC04 input sources at the same numeric offset are never equal identities. `sample_id`
-binds the exact response set admitted for one decode; validation/re-read responses remain
-in its coherence transcript and response/sample IDs are not reused across attempts.
+Their implementation detail and proof remain in `helianthus-modbus` and
+`helianthus-modbusreg`, not in this plan.
 
-Runtime acquisition origin is carried by behavior, not by a forgeable serialized field.
-Only a deliverable runtime source issues an opaque non-serializable capability. Its
-one-shot compare-and-swap state is shared across capability value copies and endpoint
-recreation, so copied views racing the same capability produce exactly one winner.
-Coalescing never shares the capability itself: every dependent logical view receives an
-independent capability. Non-deliverable runtime acquisitions and offline fixtures receive
-none.
+## Fronius transport-neutral boundary
 
-The M2 attempt ledger owns pointer state shared by every view of an attempt. Hard limits
-bound open attempts and claims per attempt; duplicate `AttemptKey` is rejected. The only
-publication path seals one immutable attempt set and then invokes `Publish()` from the
-sealed ledger state, with no mutable DTO accepted. Offline fixtures are explicitly
-untrusted, execute zero capability CAS operations, and cannot mint a production
-`sample_id`. The versioned normalization record round-trips exactly, including unknown
-extension fields, rather than retaining only the normalized address.
+`FMV3-M3-03` may use Modbus TCP traces and fixtures to decide Fronius phase-1
+applicability. It may not make Fronius profile behavior depend on TCP-specific types or
+endpoint state. The two allowed outcomes are:
 
-All members of a decode dependency set must carry one `poll_generation_id`; the harness
-and gateway reject mixed generations. Profiles also declare coherence as one response
-where possible or as a bounded multi-response window with a validation/bounded re-read
-recipe. If a member is absent/invalid, the window expires, or validation detects mutation
-and the bounded re-read cannot repair it, no new source observation is committed. The
-gateway propagates source validity/timestamps and sample, generation, dependency, and
-response identity unchanged. Torn-read mutation is a required fixture.
+- `STANDARD_ONLY`: minimal SunSpec is sufficient, so no vendor overlay is added;
+- `OVERLAY_REQUIRED`: evidence requires a read-only Fronius overlay implemented against
+  the transport-neutral registry/runtime boundary.
 
-`ebusreg` alone maps source validity/timestamps to canonical quality and owns freshness
-deadlines, last-good retention, stale/unavailable transitions, expiry, counter rollover,
-reset, and canonical compatibility. Profiles and gateway code cannot define competing
-canonical timers or quality transitions.
+The completion record retains schema `helianthus.fmv3-m3-03-completion.v2` version 2.
+Code-repository interfaces, compile-time boundaries, golden fixtures, and conformance
+tests prove the result. This plan validates only the ownership and DAG facts.
 
-## Scheduler and endpoint ownership
+## Semantic promotion boundary
 
-One `helianthus-modbus` runtime owns each physical endpoint. TCP pool keys exclude unit ID
-so units sharing a gateway also share bounded endpoint resources and endpoint scheduling.
-On each individual TCP connection/socket, one MBAP transaction-ID allocator and one
-in-flight correlation map own requests for every unit ID. Normal FC03/FC04 responses do not
-echo the requested offset, so correlation matches active connection generation and
-transaction ID plus echoed unit/function and applicable expected byte count; the requested
-zero-based PDU offset remains provenance only. Unit/profile lifecycle and decode state
-remains isolated even though the allocator/map is connection-wide. RTU serializes the bus
-and honors its framing/timing rules under the same request envelope.
+Raw and profile observations precede canonical semantics. Canonical PV documentation and
+types precede candidate semantic MCP. A separate plan decision locks the tested semantic
+MCP version. `PUBLIC_GRAPHQL_M2M_V1` documentation then precedes GraphQL implementation,
+Portal, Home Assistant, add-on packaging, and private bindings.
 
-Scheduling requirements are:
+Consumers do not drive semantic shape. Published IDs remain stable across rollback;
+disabled data becomes unavailable rather than being silently remapped.
 
-- bounded endpoint, queue, in-flight, read-range, response, retry, and memory budgets;
-- weighted or round-robin fairness with a stated starvation bound;
-- coalescing only when unit, logical table, authorization scope, poll generation, and
-  operation deadlines are compatible; unequal overlapping reads may share one physical
-  wire response only when every dependent logical view replays its exact words/provenance;
-- one absolute deadline covering queue, connect, I/O, retry, and backoff;
-- transport-write linearization with exactly the ordered abnormal `provable_zero`, `partial_write`,
-  `indeterminate_error`, `cancellation_race`, `ambiguous_completion` results; only
-  `provable_zero` avoids abandonment and the other four are possibly transmitted;
-- separate `full_transmit_success` transition to `response_wait` for TCP and RTU, never
-  classified as `ambiguous_completion`;
-- cancellation/timeout during TCP response wait that releases waiters, tombstones the
-  transaction ID, drops late response, and forbids same-socket reuse until normal rollover;
-- TCP possibly-transmitted completion that tombstones the ID, closes the connection to
-  prevent stream desynchronization, increments generation on reconnect, and rejects the
-  old generation;
-- controlled close/reconnect at tombstone exhaustion, with generation increment before any
-  tombstoned ID reuse and rejection of every old-socket/generation frame; successful
-  non-abandoned correlation remains under the bounded allocator/no-in-flight-collision rules;
-- timeout/cancellation during RTU response wait after full transmit that blocks every successor
-  until a bounded endpoint-declared response-latency interval plus bus-idle resynchronization
-  quarantine completes, discards every quarantine frame, and disables/recovers a
-  nonquiescent endpoint;
-- each RTU possibly-transmitted result, `partial_write`, `indeterminate_error`,
-  `cancellation_race`, and `ambiguous_completion`, entering that same quarantine/resynchronization
-  or endpoint recovery before any successor;
-- bounded exponential reconnect with jitter and observable reset conditions;
-- one `wire_response_id` bound to physical request ID, endpoint, unit, function/table,
-  physical zero-based PDU range/count, and transport generation, plus one linked
-  `logical_view_id`, logical range/count, and exact slice offset/count for every dependent
-  observation;
-- metrics for wait, queue, coalescing, response classes, timeout, retry, reconnect,
-  cancellation, source-observation gaps, and endpoint resource use.
+## Plan-repository behavior
 
-FMV3-M1-02 through FMV3-M1-04 deterministically cover the exact abnormal results
-`provable_zero`, `partial_write`, `indeterminate_error`, `cancellation_race`, and
-`ambiguous_completion` in that order, separately from `full_transmit_success -> response_wait`.
-TCP tests also cover concurrent units, same-socket tombstone reuse, late response drop,
-close/reconnect rollover, and old-generation rejection; FMV3-M1-03 follows M1-02 and RTU
-tests cover all four possibly-transmitted triggers, full-transmit timeout/cancellation,
-late same-shape discard,
-quarantine completion, failed quiescence, and endpoint recovery before a successor. Profiles submit read intents
-and decode complete results. They never dial, open serial ports, allocate/correlate MBAP IDs,
-schedule recurring work, retry, sleep, reconnect, or lock endpoints. Runtime correlation uses
-protocol identity only and owns no profile semantics.
-
-RTU conformance records exactly `PHYSICALLY_QUALIFIED` or
-`FIXTURE_ONLY_NO_HARDWARE` against `RTU_PHYSICAL_QUALIFICATION_V1`. The physical disposition
-requires adapter/transceiver identity, baud and topology, measured physical silent
-intervals, and timeout/cancellation quarantine traces. Without that evidence, RTU remains
-default-disabled and experimental with no enabled or supported claim; fixture conformance
-may close, and no missing RTU hardware blocks TCP/Fronius or TCP-sufficient M1/M7 work.
-
-## Safety and licensing boundary
-
-Phase 1 allowlists exactly FC03 Read Holding Registers, FC04 Read Input Registers, and
-FC2B/MEI0E Read Device Identification. The protocol runtime owns MEI conformity, object,
-segmentation/more-follows, bounds, exception, and malformed-response behavior on TCP/RTU;
-profile code may request these operations but cannot frame them. No generic write primitive is hidden for later
-use. Write support requires a separate plan covering authorization, interlocks, device
-capability, value validation, confirmation, audit, timeout uncertainty, and recovery.
-
-M0 governance creates public repositories before public destination bootstrap; deferred
-private issues create their repositories only under future explicit authorization and then
-record private licenses before code. Evidence intake records source,
-license/permission, transformation, applicability, and sanitization. Any unresolved IP
-or provenance question blocks the affected profile without blocking unrelated profiles.
+All validation is local and read-only. The validator parses YAML, checks graph and mirror
+consistency, and exits. It has no network client, no repository checkout logic, and no
+product-source scanner. CI performs that same validation and unit tests in one read-only
+job. A merge here creates no issue, branch, PR, repository, deployment, or follow-up job.

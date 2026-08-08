@@ -1,96 +1,60 @@
 # Implementing status
 
-Canonical-SHA256: `5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba`
+Plan state: `implementing`
 
-State: implementing
-Current milestone: M0
-Review epoch: 3
-Review state: PASSED
-Accepted adversarial rounds: 5/5
-Review target: TERMINAL_NO_FINDINGS
-Lock authorized: yes, for plan publication only
-Implementation authorized: yes, for the pre-gateway M0-M3 issue allowlist only
-Authorization scope authority: exact authorized_issues allowlist; milestone labels are non-authoritative
-Authorization anchor: PR #89 merge commit required; issue #88 is tracking only
-Repository creation authorized: yes, through FMV3-M0-01
-Private repository action: deferred; creation requires future explicit authorization
-Commit/push authorized: yes, for the plan package and authorized pre-gateway issues only
-Gateway work authorized: no; stop before FMV3-M4-01
-Private creation/bootstrap authorized: no; FMV3-M0-04, FMV3-M0-05, and FMV3-M0-07 deferred
+Machine-readable inventory:
 
-This package supersedes `fronius-modbus-eebus-bridge-w28-26.draft` as execution
-intent while preserving that directory unchanged as forensic history.
+- issues: 46
+- milestones: 9
+- retained domain contracts: 7
+- current-cycle last issue: `FMV3-M3-03`
+- hard stop: immediately before `FMV3-M4-01`
+- gateway work: blocked
 
-Completed through terminal epoch 3 R5 plus the PR #89 amendment tracked by issue #88:
+## Current meaning
 
-- canonical and four isolated implementation chunks authored;
-- 46-issue one-repository DAG and nine milestone groupings authored;
-- additive FMV3-M1-05 public companion and FMV3-M1-06 runtime corrective authorized,
-  with FMV3-M2-01 depending on the merged corrective producer and retaining the original
-  companion history;
-- strict hosted RED/GREEN, full producer-SHA pin, source trust split, bounded
-  seal-before-publish lifecycle, lossless normalization, and fresh revision-bound
-  adversarial gates are explicit;
-- R1 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and eleven
-  preserved CLOSED findings;
-- R2 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and seven
-  preserved CLOSED findings;
-- R3 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and R3-F01
-  through R3-F05 CLOSED;
-- R4 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and R4-F01
-  through R4-F05 CLOSED;
-- R5 snapshot records reviewer verdict `FINDINGS`, integration `CLOSED`, and R5-F01
-  CLOSED after adding the missing FMV3-M5-05 security gate without changing its GraphQL design;
-- epoch 1 transitioned to `FAILED` only after R5 integration closure and is archived
-  immutably with its R1-R5 findings and concessions preserved;
-- epoch 2 R1 records reviewer verdict `FINDINGS`, integration `CLOSED`, and E2-R1-F01
-  through E2-R1-F03 CLOSED for TCP connection correlation, reused M2 public docs ancestry,
-  and fail-closed confidential external GraphQL;
-- epoch 2 R2 records reviewer verdict `FINDINGS`, integration `CLOSED`, and E2-R2-F01
-  through E2-R2-F03 CLOSED for socket-lifetime TCP tombstones/generation rollover, the
-  serialized PUBLIC_GRAPHQL_M2M_V1 docs gate, and RTU abandonment quarantine/recovery;
-- epoch 2 R3 records reviewer verdict `FINDINGS`, integration `CLOSED`, and exact
-  E2-R3-F01 through E2-R3-F06 CLOSED for transport-write linearization, profile doc gates,
-  conditional profile TDD, repository serialization/mutex, myVaillant GO, and generic
-  exact review finding metadata;
-- epoch 2 R4 records reviewer verdict `FINDINGS`, integration `CLOSED`, and exact
-  E2-R4-F01 through E2-R4-F03 CLOSED for the five-result transport parity contract,
-  pre-published Growatt admission documentation, and live Fronius myVaillant GO evidence;
-- epoch 2 R5 records reviewer verdict `FINDINGS`, integration `CLOSED`, and exact
-  E2-R5-F01 through E2-R5-F03 CLOSED for terminal `PASSED` review semantics, separate
-  full-transmit response-wait behavior, and the repaired claim register;
-- epoch 2 transitioned to `FAILED` only after R5 integration closure and is archived
-  immutably at snapshot `987d594f721af943fc65f6f47e5f48d8d3b72011b656fd2db79dd13adceb4796`;
-- epoch 3 R1 records reviewer verdict `FINDINGS` against snapshot
-  `d0e23922b27030b241688dec85d5e79f28de4d6730e6964511e71b6ff10b1c36`, integration
-  `CLOSED`, and exact E3-R1-F01 through E3-R1-F05 closure for semantic MCP-before-lock
-  ordering, physical wire/per-observation logical-view coalescing identity, fail-closed EMMA
-  discrimination, RTU physical qualification disposition, and sole secured Matter ingress;
-- epoch 3 R2 records reviewer verdict `FINDINGS` against snapshot
-  `19f83175eaffc54e6e6ea5bb0f8282d0c6400e9c440ceacc80cbf5b75725f07b`, integration
-  `CLOSED`, and E3-R2-F01 closure for public licensed SmartLogger/S-Dongle admission packets,
-  conditional positive fixtures/code, and fail-closed non-admission;
-- epoch 3 R3 records reviewer verdict `FINDINGS` against snapshot
-  `3dcfab8e8c094d8be6010caa50015100163741e460ce109c5b32ab6154eccf30`, integration
-  `CLOSED`, and E3-R3-F01/F02 closure through public eeBUS/Matter companion issues,
-  sanitized post-lab knowledge publication or STOP, and consistent active review state;
-- epoch 3 R4 records reviewer verdict `FINDINGS` against snapshot
-  `ddc3962b53f4ce8d5d29a737c501cd4eab2e30ccd2e3e4bab12a16113c95a58e`, integration
-  `CLOSED`, and E3-R4-F01 closure through runtime-owned FC2B/MEI0E identity and M7 detector
-  operation admission gates;
-- epoch 3 R5 records `NO_FINDINGS` against snapshot
-  `320f9383d26b640a423ad5902cad90643dc42e18d2c76544f6293d46253866ea`, with no finding IDs
-  and integration `NOT_REQUIRED`;
-- epoch 3 is the sole terminal `PASSED` epoch at 5/5, targeting `TERMINAL_NO_FINDINGS`;
-- structural validator remains bounded and does not simulate runtime behavior.
+`implementing` is a lifecycle label for the cross-repository roadmap. It is not a grant
+of permission and does not start work. Agents read the merged `main` plan and then use
+normal issue/branch/PR workflow in the code repository that owns the selected issue.
 
-Terminal review closure did not itself lock the plan. The operator separately authorized
-lock and publication on 2026-07-14. The merge commit of PR #89 is the sole immutable anchor
-for the amended pre-gateway allowlist; issue #88 tracks M1-05/M1-06 and the M2-01 change but
-is not authorization evidence. The hard stop remains before FMV3-M4-01; gateway and private
-binding work remain unauthorized.
+The current cycle retains M0-M3 planning and stops after the Fronius disposition. M4-M8
+remain non-executable roadmap context until a later operator decision.
 
-Not performed:
+## Simplified validation
 
-- semantic lock, gateway implementation, or private binding implementation;
-- any issue outside the explicit M0-M3 pre-gateway allowlist.
+The active validator is local, read-only, and structural/semantic. It checks YAML parsing
+and duplicate keys, unique IDs, known repositories, dependency existence, DAG acyclicity,
+Markdown mirrors, contract IDs/versions, declared order, review-policy invariants, the
+M3-03 boundary, and the hard stop.
+
+It does not query GitHub, inspect another checkout, scan arbitrary implementation source,
+or cause post-merge actions. Product proof remains in code repositories through
+interfaces/types, golden fixtures, conformance tests, and compatibility tests.
+
+## Archived Modbus M1 process history
+
+Before the simplified process, this repository carried executable Modbus M1 admission,
+remote-review, release, and post-merge proof machinery. That machinery and its
+CI-discovered tests are retired. The former records referenced docs PR `#376` at merge
+`711a556fee344c6fe7f1ecf3253fcdb3f5f22d06`, Modbus runtime PR `#6` at reviewed head
+`0aac61ddad62f664b47900334c48803587183fa3`, and execution-plans PR `#84`.
+
+Those references are historical facts only. Current state comes from the merged plan and
+current GitHub/code-repository state; no trust anchor, review attestation, release token,
+or post-merge proof is required or consulted.
+
+## Review
+
+Review has no arbitrary round cap. Fresh exact-HEAD review continues while P0-P2 findings
+exist. Merge requires `NO_BLOCKING_FINDINGS` on exact HEAD and all prior P0-P2 resolved or
+independently validated as by design. P3/P4 are triaged and nonblocking; duplicates do not
+reopen; one independent opinion resolves a by-design dispute.
+
+## Stop condition
+
+No gateway issue, branch, PR, import, code change, deployment, or add-on change is started
+by this plan cycle. The first blocked node is `FMV3-M4-01`; all later gateway work remains
+behind it.
+
+Crossing the stop requires a separate operator decision after merged M1-M3 code-repository
+evidence has been reviewed.

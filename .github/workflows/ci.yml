@@ -3,14 +3,10 @@ name: CI
 on:
   pull_request:
   push:
-    branches:
-      - main
-  workflow_dispatch:
-    inputs:
-      post_merge_sha:
-        description: Exact helianthus-modbus PR #6 squash merge SHA
-        required: false
-        type: string
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   validate:
@@ -19,52 +15,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - name: Fetch aggregate review evidence history
-        run: git fetch --no-tags origin +refs/pull/66/head:refs/remotes/origin/evidence/aggregate
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+      - name: Install YAML parser
+        run: python -m pip install -r requirements-dev.txt
 
-      - name: Validate plans repo
+      - name: Validate repository
         run: ./scripts/validate_plans_repo.sh
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-  modbus-m1-02-remote-attestation:
-    if: >-
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.number == 84) ||
-      (github.event_name == 'workflow_dispatch' &&
-       github.ref == 'refs/heads/main' &&
-       inputs.post_merge_sha != '')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout reviewed anchor
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: >-
-            ${{ github.event_name == 'workflow_dispatch' &&
-                'main' || github.event.pull_request.head.sha }}
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Validate Modbus M1-02 remote attestation
-        run: >-
-          ./scripts/validate_modbus_m1_02_remote_attestation.sh
-          "${{ inputs.post_merge_sha }}"
-        env:
-          GH_TOKEN: ${{ github.token }}

@@ -1,76 +1,75 @@
 # AGENTS
 
-This repository is the canonical home for locked Helianthus execution plans.
+This repository is the human-readable planning layer for cross-repository Helianthus
+work. It records architecture, issue IDs, dependencies, repository ownership, retained
+contract IDs/versions, rollback intent, and hard stops.
 
-## Dual-AI Reciprocity
+## Boundary
 
-- `ORCHESTRATOR` and `CO_PILOT` are portable roles. The current workspace default is Claude as orchestrator and Codex as co-pilot, but plan review must remain valid when the bindings are swapped.
-- Use the co-pilot only for adversarial planning, review, and second-opinion reasoning. Do not spend Claude MCP or any equivalent co-pilot runtime on file reads, globs, grep, polling, or routine repository inspection.
-- If the preferred co-pilot is unavailable, throttled, or not integrated, the active orchestrator must fall back to fresh-context agents on the available runtime and keep the same planning and supervision contract.
+- Do not implement product behavior in this repository.
+- Do not use a plan merge to create or mutate repositories, issues, branches, commits,
+  pull requests, deployments, or runtime state.
+- Do not add post-merge jobs or product execution services.
+- Do not validate a plan by querying GitHub, checking out another repository, or scanning
+  arbitrary implementation source.
+- Do not encode issue readiness, review, or merge in admission/release manifests,
+  authorization or release tokens, trust anchors, remote review attestations, or
+  post-merge proofs.
+- Keep implementation proof in the code repository that owns the behavior.
 
-## Scope
+Normal agents read the merged `main` plan, identify a ready DAG node, and then use the
+normal issue/branch/PR workflow in that node's repository. Repository-local rules remain
+authoritative for code work.
 
-Use this repository for workstreams that are:
+## Plan format
 
-- cross-repo
-- milestone-driven
-- architecture-affecting
-- protocol-affecting
-- API-affecting
+Prefer concise Markdown. Add only a small `plan.yaml` when structured IDs, dependencies,
+repository boundaries, contract versions, ordering assertions, or a hard stop need local
+machine validation.
 
-Small one-repo bugfixes do not need a locked plan here unless the owner asks for
-it explicitly.
+Legacy `.draft` directories are archives. Their validators and machine-oriented fields
+are not active repository gates and must not be used as workflow authority.
 
-## Discussions First
+An active structured plan normally contains:
 
-Plans do not appear in the repository before lock.
-
-The expected flow is:
-
-1. open a Discussion
-2. attack the plan with adversarial reviews
-3. add deep research when the problem is architectural, protocol-facing, or API-facing
-4. promote the plan into `slug.locked/` via PR
-5. rename to `slug.implementing/` when the first code PR opens
-6. rename to `slug.maintenance/` when the main wave is merged
-
-## Required Plan Contract
-
-Every active plan directory must contain:
-
-- `plan.yaml`
 - `00-canonical.md`
 - `01-index.md`
-- `10-*.md`
+- focused `10-*.md` architecture/roadmap files
 - `90-issue-map.md`
 - `91-milestone-map.md`
 - `99-status.md`
+- `plan.yaml`
+- a small read-only `validate_plan.py`
 
-Every chunk file under `10-*.md` must:
+Do not mirror long Markdown contracts into Python. Validators are structural/semantic:
+YAML parsing and duplicate keys, unique IDs, known repositories, dependency existence,
+DAG acyclicity, human-readable mirror agreement, retained contract IDs/versions, declared
+ordering, repository boundaries, and hard stops.
 
-- stay below `10000` tokens on GPT-5-family and Claude tokenizers
-- be reviewable in isolation
-- declare `Depends on`
-- declare `Scope`
-- declare `Idempotence contract`
-- declare `Falsifiability gate`
-- declare `Coverage`
+## Review
 
-## Proof Quality
+There is no arbitrary review-round cap.
 
-Plans should make only claims that reviewers can try to falsify.
+- Continue fresh exact-HEAD review while P0-P2 findings exist.
+- Merge only on fresh exact-HEAD `NO_BLOCKING_FINDINGS` with all prior P0-P2 resolved or
+  independently validated as by design.
+- Triage P3/P4 as fix, backlog, or by design; they are nonblocking and do not force
+  another round.
+- Duplicate findings do not reopen.
+- Give a disputed by-design decision one independent opinion.
+- Keep review inside acceptance criteria and the declared threat model.
+- Require every P2 to state a concrete reachable scenario, wrong behavior, relevant
+  impact, and a verifiable fix criterion.
+- Do not classify theoretical out-of-threat-model possibilities as P2.
 
-Use:
+## Documentation ownership
 
-- `Proven`
-- `Hypothesis`
-- `Unknown`
+This repository owns planning intent. Reusable protocol, topology, runtime, or API
+knowledge belongs in `Project-Helianthus/helianthus-docs-ebus` or the corresponding
+protocol documentation repository. Interfaces, types, golden fixtures, conformance tests,
+and compatibility tests belong in producer and consumer code repositories.
 
-Do not hide uncertainty inside confident prose.
+## Validation
 
-## Knowledge Capture
-
-If a plan is implemented and produces reusable protocol, topology, runtime, or
-API knowledge, that knowledge belongs in `helianthus-docs-ebus`.
-
-The plan repo tracks execution intent. The docs repo tracks durable knowledge.
+Run `./scripts/validate_plans_repo.sh`. It must stay local and read-only. CI may contain
+only the small read-only validation job and must have no post-merge effects.

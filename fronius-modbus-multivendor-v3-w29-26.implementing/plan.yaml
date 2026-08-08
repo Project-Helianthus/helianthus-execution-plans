@@ -1,1057 +1,470 @@
+schema_version: 1
 slug: fronius-modbus-multivendor-v3-w29-26
-title: Fronius-first Modbus runtime, multi-profile registry, and private output bindings
+title: Fronius-first Modbus and multi-vendor PV roadmap
 state: implementing
-lock_authorized: true
-execution_authorization:
-  authorized_on: '2026-07-30'
-  availability_mode: openai_only
-  scope: pre_gateway_transport_docs_registry
-  scope_authority: authorized_issues_only
-  selection_policy: fail_closed
-  preflight_enforcement: validate_plan.py --authorize-issue <ID>
-  milestone_labels_non_authoritative: [M0, M1, M2, M3]
-  authorized_issues:
-    - FMV3-M0-01
-    - FMV3-M0-02
-    - FMV3-M0-03
-    - FMV3-M0-06
-    - FMV3-M1-00
-    - FMV3-M1-01
-    - FMV3-M1-02
-    - FMV3-M1-03
-    - FMV3-M1-04
-    - FMV3-M1-05
-    - FMV3-M1-06
-    - FMV3-M2-01
-    - FMV3-M2-02
-    - FMV3-M2-03
-    - FMV3-M3-01
-    - FMV3-M3-02
-    - FMV3-M3-03
-  authorized_issue_contract_sha256: 13e3f2c1bf9551992ee56f2b00fa54594d73d41d22b7e189b12ff8cf32c22c60
-  authorization_anchor:
-    required: true
-    record_type: github_merged_pr_v1
-    authorization_pr: https://github.com/Project-Helianthus/helianthus-execution-plans/pull/89
-    plan_repo: Project-Helianthus/helianthus-execution-plans
-    plan_path: fronius-modbus-multivendor-v3-w29-26.implementing/plan.yaml
-    authorized_issuer: d3vi1
-    allowed_author_associations: [MEMBER, OWNER]
-    merge_requirement: exact_pr_merge_commit_is_anchor_and_ancestor_of_origin_main
-    bind: [plan_head_sha, authorized_issue_contract_sha256, amendment_surfaces_sha256, authorized_issue]
-    added_issues: [FMV3-M1-05, FMV3-M1-06]
-    amended_issues: [FMV3-M2-01]
-    stop_before_issue: FMV3-M4-01
-    gateway_work_authorized: false
-    amendment_surfaces_sha256: f492b2a3031989cef8e8d5b35437d7c79fcfa9b933f66c26d860f9b98f50a555
-  repository_creation_authorized: true
-  repository_creation_targets:
-    public: [helianthus-modbus, helianthus-modbusreg]
-    private: []
-  private_repository_creation: deferred_requires_future_explicit_authorization
-  implementation_authorized: true
-  issue_commit_push_authorized: true
-  deferred_issues: [FMV3-M0-04, FMV3-M0-05, FMV3-M0-07]
-  stop_before_issue: FMV3-M4-01
-  gateway_work_authorized: false
-source_discussion: operator-brief-2026-07-14-fronius-modbus-multivendor-v3
-target_repos:
-  - Project-Helianthus/.github
-  - Project-Helianthus/helianthus-modbus
-  - Project-Helianthus/helianthus-modbusreg
-  - Project-Helianthus/helianthus-ebusgateway
-  - Project-Helianthus/helianthus-ebusreg
-  - Project-Helianthus/helianthus-ha-integration
-  - Project-Helianthus/helianthus-ha-addon
-  - Project-Helianthus/helianthus-docs-ebus
-  - Project-Helianthus/helianthus-eebus-binding-private
-  - Project-Helianthus/helianthus-matter-binding-private
-  - Project-Helianthus/helianthus-execution-plans
-knowledge_repo: Project-Helianthus/helianthus-docs-ebus
-canonical_file: 00-canonical.md
-canonical_sha256: 5652dbd2a3849fa7ddf04a074a7ee18790a1a4d37ffd5a6511679995f1c7ebba
-split_index: 01-index.md
-started_on: '2026-07-14'
-current_milestone: M0
-supersedes: fronius-modbus-eebus-bridge-w28-26.draft
-availability_mode: openai_only
-accepted_adversarial_rounds: 5
-repository_mutex:
-  scope: per_repository
-  owners: [cruise-topology, cruise-preflight]
-  max_active_issues: 1
-  max_active_prs: 1
-  validation: structural_contract_only
-review_epoch:
-  rounds_per_epoch: 5
-  current_epoch: 3
-  states: [IN_PROGRESS, FAILED, PASSED]
-  terminal_condition: R5_NO_FINDINGS
-  terminal_target: TERMINAL_NO_FINDINGS
-  r5_findings_action: CLOSE_FAILED_ARCHIVE_AND_OPEN_NEXT_R1
-  passed_contract:
-    accepted_rounds: 5
-    accepted_round_numbers: [1, 2, 3, 4, 5]
-    r5_reviewer_verdict: NO_FINDINGS
-    r5_integration_state: NOT_REQUIRED
-    r5_finding_ids: []
-    current_target: TERMINAL_NO_FINDINGS
-    zero_in_progress_allowed: true
-    requires_highest_current_epoch: true
-    lock_requires_separate_operator_action: true
-  finding_id_policy:
-    comparison: exact_review_table_order
-    uniqueness: global
-    no_findings: []
-  history_contract:
-    maximum_in_progress: 1
-    in_progress_required_unless_passed: true
-    passed_allows_zero_in_progress: true
-    exactly_one_passed_if_terminal: true
-    current_is_highest: true
-    closed_epochs_immutable: true
-    preserve_rounds_and_findings: true
-  epochs:
-    - number: 1
-      state: FAILED
-      accepted_rounds: 5
-      current_target: ARCHIVED
-      archive: IMMUTABLE
-      snapshot: 467616a20c8527e71b3cd57e8f9fa2fa47f30f64ef00a0e71b233bbde6c22355
-      summary: Epoch 1 R5 returned FINDINGS; R5-F01 integration closed before the epoch transitioned to FAILED.
-      evidence:
-        - Epoch 1 R1-R5 reviewer verdicts, finding rows, and concessions remain preserved in 92-adversarial-review.md.
-        - R5-F01 closed by adding the missing security gate to FMV3-M5-05 without changing PUBLIC_GRAPHQL_M2M_V1.
-      rounds:
-        - number: 1
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [R1-F01, R1-F02, R1-F03, R1-F04, R1-F05, R1-F06, R1-F07, R1-F08, R1-F09, R1-F10, R1-F11]
-        - number: 2
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [R2-F01, R2-F02, R2-F03, R2-F04, R2-F05, R2-F06, R2-F07]
-        - number: 3
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [R3-F01, R3-F02, R3-F03, R3-F04, R3-F05]
-        - number: 4
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [R4-F01, R4-F02, R4-F03, R4-F04, R4-F05]
-        - number: 5
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [R5-F01]
-    - number: 2
-      state: FAILED
-      accepted_rounds: 5
-      current_target: ARCHIVED
-      archive: IMMUTABLE
-      snapshot: 987d594f721af943fc65f6f47e5f48d8d3b72011b656fd2db79dd13adceb4796
-      summary: Epoch 2 R5 returned FINDINGS; E2-R5-F01 through E2-R5-F03 integration closed before the epoch transitioned to FAILED.
-      evidence:
-        - Epoch 2 R1-R5 reviewer verdicts, finding rows, and concessions remain preserved in 92-adversarial-review.md.
-        - E2-R5-F01 through E2-R5-F03 closed the terminal review-state, full-transmit response-wait, and claim-register gaps without authorizing lock or product work.
-      rounds:
-        - number: 1
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E2-R1-F01, E2-R1-F02, E2-R1-F03]
-        - number: 2
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E2-R2-F01, E2-R2-F02, E2-R2-F03]
-        - number: 3
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E2-R3-F01, E2-R3-F02, E2-R3-F03, E2-R3-F04, E2-R3-F05, E2-R3-F06]
-        - number: 4
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E2-R4-F01, E2-R4-F02, E2-R4-F03]
-        - number: 5
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E2-R5-F01, E2-R5-F02, E2-R5-F03]
-    - number: 3
-      state: PASSED
-      accepted_rounds: 5
-      current_target: TERMINAL_NO_FINDINGS
-      rounds:
-        - number: 1
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E3-R1-F01, E3-R1-F02, E3-R1-F03, E3-R1-F04, E3-R1-F05]
-          snapshot: d0e23922b27030b241688dec85d5e79f28de4d6730e6964511e71b6ff10b1c36
-        - number: 2
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E3-R2-F01]
-          snapshot: 19f83175eaffc54e6e6ea5bb0f8282d0c6400e9c440ceacc80cbf5b75725f07b
-        - number: 3
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E3-R3-F01, E3-R3-F02]
-          snapshot: 3dcfab8e8c094d8be6010caa50015100163741e460ce109c5b32ab6154eccf30
-        - number: 4
-          reviewer_verdict: FINDINGS
-          integration_state: CLOSED
-          finding_ids: [E3-R4-F01]
-          snapshot: ddc3962b53f4ce8d5d29a737c501cd4eab2e30ccd2e3e4bab12a16113c95a58e
-        - number: 5
-          reviewer_verdict: NO_FINDINGS
-          integration_state: NOT_REQUIRED
-          finding_ids: []
-          snapshot: 320f9383d26b640a423ad5902cad90643dc42e18d2c76544f6293d46253866ea
-review_scope:
-  - implementability
-  - correctness/data integrity
-  - protocol interoperability
-  - security/safety
-  - licensing/IP boundary
-  - operability/recovery
-  - testability
-  - dependency/DAG feasibility
 
-decisions:
-  - id: D01
-    status: accepted
-    decision: One public helianthus-modbus owns Modbus protocol, TCP and RTU transports, endpoint scheduling, limits, and recovery; the exact ordered abnormal transport-write result set is provable_zero, partial_write, indeterminate_error, cancellation_race, ambiguous_completion, only provable_zero avoids abandonment, every other abnormal result forces TCP close/reconnect handling and RTU quarantine/recovery, full_transmit_success separately enters response_wait with TCP tombstone/late-drop or RTU quarantine on wait timeout/cancellation, and unit/profile state remains isolated. RTU remains default-disabled experimental fixture-only capability until RTU_PHYSICAL_QUALIFICATION_V1 passes; absent hardware creates no enabled/supported claim and blocks no TCP-sufficient M1, Fronius, or M7 work.
-  - id: D02
-    status: accepted
-    decision: One public helianthus-modbusreg owns standard and vendor profile families; no repository is created per vendor.
-  - id: D03
-    status: accepted
-    decision: SunSpec is a standard profile family; public evidence companion FMV3-M3-01 governs M3-02/M3-03, Fronius uses STANDARD_ONLY with public evidence and no implementation commit or empty overlay when qualified evidence proves the slice fully standard, and OVERLAY_REQUIRED alone triggers overlay RED/code work; FMV3-M7-01 pre-publishes the complete Growatt candidate/admission contract and governs M7-02/M7-03/M7-04, PROFILE_ADMITTED alone triggers RED/code, and NO_ADMISSIBLE_PROFILE preserves the pre-published public evidence and unsupported disposition without code, catalog, or support claim.
-  - id: D04
-    status: accepted
-    decision: Fronius phase 1 is Modbus TCP read-only, with no write function, write probe, or control API.
-  - id: D05
-    status: accepted
-    decision: Profile detection is deterministic, bounded, read-only, version-aware, and fail-closed; fixture-only profiles are default-disabled experimental opt-in, and automatic eligibility requires a matching hardware qualification record.
-  - id: D06
-    status: accepted
-    decision: Raw MCP and live Fronius evidence precede canonical PV docs and semantic implementation; candidate Fronius-to-canonical mapping and semantic MCP then pass golden and live tests before a separate lock pins that exact MCP version, after which promotion serializes through one public GraphQL companion-doc issue, GraphQL whose credential-bearing external channel is authenticated/confidential with verified server identity, a GraphQL-only semantic Portal plus authenticated bounded raw Portal diagnostics, Home Assistant, and packaged rollout.
-  - id: D07
-    status: accepted
-    decision: Private eeBUS and Matter repositories are generic output bindings and start implementation only after the completed public consumer and packaged rollout; both consume exactly PUBLIC_GRAPHQL_M2M_V1 by authenticated bounded query/polling with compatible version enforcement, noninteractive least privilege, confidential transport, verified server identity, and credential lifecycle/recovery, and reject plaintext, untrusted identity, subscriptions, Modbus/modbusreg/gateway-internal imports, and undocumented network paths. eeBUS additionally owns minimum SHIP/SPINE discovery and trust lifecycle; this plan creates no public eeBUS repository.
-  - id: D08
-    status: accepted
-    decision: Public repositories, CI, builds, tests, and documentation never depend on private repositories or private artifacts.
-  - id: D09
-    status: accepted
-    decision: Huawei facts are re-derived with provenance and branch-specific applicability; v49 and v52 are parallel branches, EMMA semantics remain deferred, M7-01 inventories or individually marks unavailable its gateway/model/software/version discriminators, and EMMA or insufficiently distinguished endpoints can only return no_match or insufficient_evidence and never activate SmartLogger/S-Dongle or Huawei automatic eligibility.
-  - id: D10
-    status: accepted
-    decision: Milestones group work; the issue DAG is authoritative, TCP precedes RTU in helianthus-modbus, FMV3-M7-01 waits for the critical docs lane through FMV3-M5-09 before serialized M7 profile work, Growatt NO_ADMISSIBLE_PROFILE still releases Huawei without a conditional GO gate, and topology/preflight enforce at most one active issue and one active PR per repository.
-  - id: D11
-    status: accepted
-    decision: Gateway package internal/modbusadapter implements the existing protocol-agnostic adapter interface and is the only gateway package allowed to import helianthus-modbus or helianthus-modbusreg; gateway core tests use a fake adapter.
-  - id: D12
-    status: accepted
-    decision: Every physical read response has a wire_response_id bound to its physical request/range, and every dependent logical observation has a linked logical_view_id plus exact slice identity; raw dependency identity also includes endpoint, unit, function/table, logical zero-based PDU offset/count, sample identity, and recorded documentary address normalization. Versioned modbusreg codec/provenance fields own multi-register word order, applicable intra-word byte order, string packing and padding, while profile-declared coherence rejects unrecoverable torn multi-response reads.
-  - id: D13
-    status: accepted
-    decision: FMV3-M1-05 documents and FMV3-M1-06 implements OPAQUE_RUNTIME_ACQUISITION_V1 as an additive successor to M1-04 before M2-01. Runtime sources alone issue non-serializable one-shot capabilities backed by shared state across value copies and endpoint recreation; offline fixtures and non-deliverable acquisitions receive no capability. M2-01 pins the merged M1-06 producer SHA, keeps runtime and fixture trust distinct, owns bounded attempt/claim state in a shared ledger pointer, seals an immutable attempt set before Publish(), and preserves the complete normalization record losslessly.
+repositories:
+  Project-Helianthus/.github: organization governance
+  Project-Helianthus/helianthus-modbus: protocol and transport producer
+  Project-Helianthus/helianthus-modbusreg: profile and observation producer
+  Project-Helianthus/helianthus-ebusgateway: gateway consumer
+  Project-Helianthus/helianthus-ebusreg: canonical semantic producer
+  Project-Helianthus/helianthus-ha-integration: Home Assistant consumer
+  Project-Helianthus/helianthus-ha-addon: deployment consumer
+  Project-Helianthus/helianthus-docs-ebus: public contract documentation
+  Project-Helianthus/helianthus-eebus-binding-private: generic private eeBUS binding
+  Project-Helianthus/helianthus-matter-binding-private: generic private Matter binding
+  Project-Helianthus/helianthus-execution-plans: cross-repository decision record
+
+contracts:
+  - id: OPAQUE_RUNTIME_ACQUISITION_V1
+    version: 1
+  - id: helianthus.modbus.opaque-runtime-acquisition
+    version: 1
+  - id: published_attempt_v1
+    version: 1
+  - id: helianthus.fmv3-m1-06-conformance-report.v3
+    version: 3
+  - id: helianthus.fmv3-m3-03-completion.v2
+    version: 2
+  - id: RTU_PHYSICAL_QUALIFICATION_V1
+    version: 1
+  - id: PUBLIC_GRAPHQL_M2M_V1
+    version: 1
+
+review_policy:
+  blocking_severities: [P0, P1, P2]
+  merge_verdict: NO_BLOCKING_FINDINGS
+  exact_head_review: required
+  repeat_while_blocking_findings_exist: true
+  prior_blocking_findings: resolved_or_independently_validated_by_design
+  nonblocking_severities: [P3, P4]
+  nonblocking_triage: [fix, backlog, by_design]
+  nonblocking_requires_another_round: false
+  duplicate_findings_reopen: false
+  by_design_independent_opinions: 1
+  scope: acceptance_criteria_and_declared_threat_model
+  p2_evidence:
+    - concrete_reachable_scenario
+    - wrong_behavior
+    - relevant_impact
+    - verifiable_fix_criterion
+  theoretical_out_of_threat_model_is_p2: false
+
+hard_stop:
+  after_issue: FMV3-M3-03
+  before_issue: FMV3-M4-01
+  gateway_work: blocked
+
+transport_neutral_boundary:
+  issue: FMV3-M3-03
+  evidence_transport: Modbus TCP
+  production_scope: transport-neutral read-only profile logic
+  allowed_dispositions: [STANDARD_ONLY, OVERLAY_REQUIRED]
+  proof_owner: Project-Helianthus/helianthus-modbusreg
+
+ordering:
+  - id: modbus_foundation
+    sequence: [FMV3-M1-00, FMV3-M1-01, FMV3-M1-02, FMV3-M1-04]
+  - id: runtime_contract_producer_consumer
+    sequence: [FMV3-M1-05, FMV3-M1-06, FMV3-M2-01]
+  - id: fronius_first
+    sequence: [FMV3-M3-01, FMV3-M3-02, FMV3-M3-03, FMV3-M4-01]
+  - id: semantic_promotion
+    sequence: [FMV3-M5-02, FMV3-M5-01, FMV3-M5-04, FMV3-M5-03, FMV3-M5-09, FMV3-M5-05, FMV3-M5-06, FMV3-M5-07, FMV3-M5-08]
+  - id: eebus_binding
+    sequence: [FMV3-M6-00, FMV3-M6-01, FMV3-M6-02, FMV3-M6-03]
+  - id: vendor_expansion
+    sequence: [FMV3-M7-01, FMV3-M7-02, FMV3-M7-03, FMV3-M7-04, FMV3-M7-05]
+  - id: matter_binding
+    sequence: [FMV3-M8-00, FMV3-M8-01, FMV3-M8-02]
 
 milestones:
   - id: M0
     title: Governance, repository bootstraps, and boundary documentation
-    depends_on: []
-    exit_gate: Governance has created the four planned repositories, destination bootstraps have run after creation, and public/private import direction is documented.
   - id: M1
     title: helianthus-modbus foundation
-    depends_on: [M0]
-    exit_gate: The original bounded public Modbus companion remains merged and protocol core plus TCP/RTU conformance are green. After M1-04, FMV3-M1-05 must merge the OPAQUE_RUNTIME_ACQUISITION_V1 docs companion before strict hosted RED/GREEN implementation in M1-06; fresh independent review must accept the exact docs, RED, and GREEN revisions. RTU fixture conformance may close as default-disabled experimental FIXTURE_ONLY_NO_HARDWARE; only RTU_PHYSICAL_QUALIFICATION_V1 permits an enabled/supported RTU claim, and its absence blocks no TCP-sufficient work.
   - id: M2
     title: helianthus-modbusreg framework
-    depends_on: [M0]
-    exit_gate: The reused FMV3-M1-00 companion remains merged, and M2-01 starts only after M1-06 merges and the consumer pins its full 40-character producer SHA. Profile API, exact wire-response/logical-view/sample identity and provenance, runtime-versus-fixture trust, shared ledger-owned bounded attempt/claim state, duplicate AttemptKey rejection, sealed immutable publication, exact normalization round-trip, detector lifecycle, and conformance harness are stable under strict hosted RED/GREEN and fresh independent review.
   - id: M3
-    title: Minimal SunSpec family, Fronius applicability, and fixtures
-    depends_on: [M2]
-    exit_gate: Companion FMV3-M3-01 governs the minimal standard SunSpec family and Fronius disposition; STANDARD_ONLY records public evidence with green conformance CI and no implementation commit or empty overlay, while only OVERLAY_REQUIRED triggers overlay RED/code work.
+    title: Minimal SunSpec family and Fronius applicability
   - id: M4
     title: Gateway raw MCP integration and live read-only proof
-    depends_on: [M3]
-    exit_gate: The gateway-local adapter boundary, raw MCP replay, and coherent sample identity pass; FMV3-M4-04 records outcome GO and FMV3-M4-05 packages its sanitized evidence before M5 can progress.
   - id: M5
     title: Canonical PV semantic lock and public consumer promotion
-    depends_on: [M4]
-    exit_gate: Public canonical docs and semantic implementation precede FMV3-M5-04 candidate mapping plus golden/live semantic MCP tests; FMV3-M5-03 then locks that exact MCP version with GO before serialized PUBLIC_GRAPHQL_M2M_V1 companion docs, externally tested GraphQL, Portal, Home Assistant, and compatibility-safe add-on packaging, while bounded raw Portal diagnostics remain separate.
   - id: M6
     title: Generic private eeBUS binding and myVaillant lab proof
-    depends_on: [M5]
-    exit_gate: After the public eeBUS companion merges, the private binding consumes exactly the packaged GraphQL contract and proves SHIP/SPINE lifecycle; M6-02 succeeds only on live GO, and M6-03 then publishes sanitized reusable interoperability knowledge or records STOP when provenance/licensing forbids publication.
   - id: M7
     title: SunSpec, Growatt, and Huawei profile expansion
-    depends_on: [M1, M2, M3]
-    exit_gate: After the Fronius vertical and critical docs lane through FMV3-M5-09, companion FMV3-M7-01 publishes the complete Growatt contract and an EMMA gateway/model/software/version discriminator inventory or per-field unavailable markers; serialized SunSpec, Growatt, and Huawei work keeps EMMA semantics deferred and blocks Huawei automatic eligibility when reliable discrimination is unavailable.
   - id: M8
     title: Generic private Matter binding
-    depends_on: [M0, M5]
-    exit_gate: After packaged M5-08 rollout and the public Matter companion, exactly one M8 ingress consumes PUBLIC_GRAPHQL_M2M_V1 through the same authenticated bounded query/polling, compatibility, confidential-channel, verified-identity, and credential lifecycle/recovery contract as eeBUS; security tests reject forbidden imports and undocumented network paths, independently of M6.
-
-phase_gates:
-  - id: PG-REPOSITORY-CREATION
-    kind: dependency
-    after_issues: [FMV3-M0-01]
-    before_issues: [FMV3-M0-02, FMV3-M0-03]
-    requirement: Existing governance creates both public Modbus repositories before either public destination bootstrap issue runs; private governance creation FMV3-M0-04 and private bootstraps FMV3-M0-05/FMV3-M0-07 require future explicit authorization.
-  - id: PG-MODBUS-BOOT
-    kind: dependency
-    after_issues: [FMV3-M0-02]
-    before_issues: [FMV3-M1-00, FMV3-M1-01]
-    requirement: The public runtime repository is bootstrapped before its public companion contract and protocol code.
-  - id: PG-MODBUS-DOC-GATE
-    kind: dependency
-    after_issues: [FMV3-M1-00]
-    before_issues: [FMV3-M1-01, FMV3-M1-02, FMV3-M1-03, FMV3-M1-04, FMV3-M2-01, FMV3-M2-02, FMV3-M2-03]
-    requirement: The single bounded public companion publishes transport-write linearization and the M1 runtime plus complete M2 source-observation/provenance, detector lifecycle, qualification, coherence, and fixture/mutation contracts before every M1/M2 implementation issue; each carries the same companion metadata.
-  - id: PG-OPAQUE-ACQUISITION-DOC-GATE
-    kind: dependency
-    after_issues: [FMV3-M1-05]
-    before_issues: [FMV3-M1-06]
-    requirement: The public OPAQUE_RUNTIME_ACQUISITION_V1 companion merges after M1-04 and before M1-06 code, defining source_kind runtime versus offline_fixture, source-issued non-serializable one-shot capability semantics, bounded attempt lifecycle, shared copy/recreation state, per-dependent coalesced capabilities, and lossless normalization. A fresh independent OpenAI review of the exact docs revision is a merge blocker.
-  - id: PG-OPAQUE-ACQUISITION-CONSUMER-PIN
-    kind: dependency
-    after_issues: [FMV3-M1-06]
-    before_issues: [FMV3-M2-01]
-    requirement: M2-01 cannot begin until M1-06 has merged, its exact full 40-character merge SHA is pinned and verified by the consumer, and the M1 hosted RED/GREEN plus fresh independent review evidence is closed.
-  - id: PG-MODBUSREG-BOOT
-    kind: dependency
-    after_issues: [FMV3-M0-03]
-    before_issues: [FMV3-M2-01]
-    requirement: The public profile repository is bootstrapped before profile code.
-  - id: PG-EEBUS-BOOT
-    kind: dependency
-    after_issues: [FMV3-M0-05]
-    before_issues: [FMV3-M6-01]
-    requirement: The private eeBUS repository is bootstrapped before binding code.
-  - id: PG-MATTER-BOOT
-    kind: dependency
-    after_issues: [FMV3-M0-07]
-    before_issues: [FMV3-M8-01]
-    requirement: The private Matter repository is bootstrapped before binding code.
-  - id: PG-RAW-FIRST
-    kind: conditional
-    conditional_gate: CG-M4-LIVE-GO
-    after_issues: [FMV3-M4-04, FMV3-M4-05]
-    before_issues: [FMV3-M5-01, FMV3-M5-02, FMV3-M5-03]
-    requirement: FMV3-M4-04 completion alone is insufficient; only outcome GO plus completed FMV3-M4-05 evidence packaging permits M5 raw/semantic work.
-  - id: PG-PV-DOC-GATE
-    kind: dependency
-    after_issues: [FMV3-M5-02]
-    before_issues: [FMV3-M5-01]
-    requirement: The public canonical PV documentation merges before semantic implementation begins; FMV3-M5-02 retains the M4 evidence prerequisites.
-  - id: PG-SEMANTIC-LOCK
-    kind: conditional
-    conditional_gate: CG-M5-SEMANTIC-GO
-    after_issues: [FMV3-M5-03]
-    before_issues: [FMV3-M5-09]
-    requirement: FMV3-M5-04 candidate semantic MCP must be a completed ancestor of FMV3-M5-03; issue completion alone is insufficient, and GraphQL promotion plus later consumers require M5-03 GO on that exact golden- and live-tested MCP version.
-  - id: PG-CONSUMER-PROMOTION
-    kind: dependency
-    after_issues: [FMV3-M5-03]
-    before_issues: [FMV3-M5-09, FMV3-M5-05, FMV3-M5-06, FMV3-M5-07]
-    requirement: Candidate semantic MCP passes golden/live tests before M5-03 locks its exact version; only then may public GraphQL companion docs, GraphQL implementation, GraphQL-only semantic Portal plus separately authenticated bounded raw Portal diagnostics, and Home Assistant proceed.
-  - id: PG-GRAPHQL-DOC-GATE
-    kind: dependency
-    after_issues: [FMV3-M5-09]
-    before_issues: [FMV3-M5-05]
-    requirement: The one PUBLIC_GRAPHQL_M2M_V1 public companion issue merges its schema projection, external access/security/channel, compatibility/versioning, credential lifecycle, and recovery contract before GraphQL implementation.
-  - id: PG-PUBLIC-ROLLOUT
-    kind: dependency
-    after_issues: [FMV3-M5-08]
-    before_issues: [FMV3-M6-00, FMV3-M8-00]
-    requirement: Public eeBUS and Matter companion work starts only after M5-08 packages and externally tests PUBLIC_GRAPHQL_M2M_V1.
-  - id: PG-EEBUS-DOC-GATE
-    kind: dependency
-    after_issues: [FMV3-M6-00]
-    before_issues: [FMV3-M6-01]
-    requirement: The sanitized permissively publishable SHIP/SPINE binding contract merges before private eeBUS implementation; reusable myVaillant findings later publish through M6-03 or STOP.
-  - id: PG-MATTER-DOC-GATE
-    kind: dependency
-    after_issues: [FMV3-M8-00]
-    before_issues: [FMV3-M8-01]
-    requirement: The sanitized permissively publishable Matter binding contract merges before private Matter implementation.
-  - id: PG-VENDOR-EXPANSION
-    kind: dependency
-    after_issues: [FMV3-M1-04, FMV3-M2-03, FMV3-M3-03, FMV3-M7-01]
-    before_issues: [FMV3-M7-02]
-    requirement: The serialized SunSpec expansion starts only after shared runtime/profile contracts, the Fronius minimal vertical, and FMV3-M7-01 has merged the complete Growatt candidate/admission contract after the critical docs lane reaches FMV3-M5-09; M7-03 consumes that companion, and completed Growatt admission or non-admission then releases Huawei.
-  - id: PG-READ-ONLY
-    kind: policy
-    after_issues: []
-    before_issues: []
-    requirement: Write support is out of scope until a separate safety plan is reviewed and locked.
-  - id: PG-RECOVERABLE-RELEASE
-    kind: dependency
-    after_issues: [FMV3-M5-06, FMV3-M5-07]
-    before_issues: [FMV3-M5-08]
-    requirement: Both Portal surfaces and Home Assistant parity precede packaged rollout and compatibility recovery proof.
-
-conditional_gates:
-  - id: CG-M4-LIVE-GO
-    gate_issue: FMV3-M4-04
-    allowed_outcomes: [GO, NO_GO, STOP]
-    progress_outcome: GO
-    non_progress_outcomes: [NO_GO, STOP]
-    issue_completion_satisfies_gate: false
-    required_completion_issues: [FMV3-M4-05]
-    before_issues: [FMV3-M5-01, FMV3-M5-02, FMV3-M5-03, FMV3-M5-04, FMV3-M5-09, FMV3-M5-05, FMV3-M5-06, FMV3-M5-07, FMV3-M5-08]
-    requirement: M5 work is blocked unless FMV3-M4-04 records GO and FMV3-M4-05 completes evidence packaging; NO_GO or STOP is retained as honest evidence but is not progress.
-  - id: CG-M5-SEMANTIC-GO
-    gate_issue: FMV3-M5-03
-    allowed_outcomes: [GO, NO_GO, STOP]
-    progress_outcome: GO
-    non_progress_outcomes: [NO_GO, STOP]
-    issue_completion_satisfies_gate: false
-    required_completion_issues: []
-    before_issues: [FMV3-M5-09, FMV3-M5-05, FMV3-M5-06, FMV3-M5-07, FMV3-M5-08, FMV3-M6-00, FMV3-M6-01, FMV3-M6-02, FMV3-M6-03, FMV3-M8-00, FMV3-M8-01, FMV3-M8-02]
-    requirement: M5-04 candidate semantic MCP remains outside this gate's before-set; GraphQL promotion and later consumers are blocked unless FMV3-M5-03 records GO on that exact tested MCP version, while NO_GO or STOP preserves raw MCP but is not progress.
-
-risks:
-  - id: R01
-    statement: Profile ambiguity can silently assign the wrong register meaning.
-    mitigation: Fail closed, preserve raw evidence, and require cross-profile ambiguity fixtures.
-    stop_trigger: More than one eligible profile remains after bounded read-only probes.
-  - id: R02
-    statement: Function/table aliasing, incorrect coalesced slicing, lossy normalization, duplicate AttemptKey, mutable post-seal publication, reuse of an abandoned TCP transaction ID, delivery of a late same-shape RTU response, wrong codec order/packing, mixed generations, torn samples, or conflated source/canonical state can corrupt values.
-    mitigation: Bind wire_response_id to the physical request/range and every logical observation to logical_view_id plus exact slice identity; use a shared bounded ledger that rejects duplicate keys and publishes only a sealed immutable attempt set; require exact normalization round-trip, reject incompatible coalescing, preserve write/response-wait recovery, keep protocol words uninterpreted, version codec interpretation/coherence, and leave canonical transitions to ebusreg.
-    stop_trigger: A replay cannot reproduce exact logical-view words/provenance and the full normalization record, incompatible reads coalesce, duplicate AttemptKey is accepted, Publish() accepts mutable state, a late response crosses identity, or a sample aliases FC03/FC04, mixes generations, or emits after an unvalidated torn read.
-  - id: R03
-    statement: Endpoint contention, incorrect connection-wide correlation, replayed or copy-raced acquisition capability, unbounded capability/attempt/claim state, tombstone exhaustion, RTU failure to quiesce, or reconnect storms can starve consumers or misdeliver responses.
-    mitigation: One endpoint owner, source-issued opaque one-shot capabilities with shared copy/recreation state and terminal reclamation, one MBAP allocator/map per connection across all units, socket-lifetime tombstones with controlled generation rollover, isolated bounded scheduling, and RTU fixture-only default-disabled experimental status until RTU_PHYSICAL_QUALIFICATION_V1 records adapter/transceiver, baud/topology, physical silent intervals, and timeout/cancellation quarantine.
-    stop_trigger: Tests exceed capability, attempt, claim, queue, or transport limits; more than one copied view wins; a coalesced dependent lacks its own capability; a tombstoned ID is reused; an old-generation frame is accepted; a logical slice is misdelivered; or RTU is claimed enabled/supported without the named physical qualification evidence.
-  - id: R04
-    statement: Operator-authored Huawei analysis may contain stale or branch-inapplicable conclusions.
-    mitigation: Rebuild provenance, model, gateway, firmware-branch, and probe evidence; enumerate every detector operation against the runtime FC03/FC04/FC2B-MEI0E allowlist; inventory EMMA discriminators or mark unavailable while semantics remain deferred.
-    stop_trigger: A claimed register lacks branch evidence, a detector needs an unowned operation, modbusreg frames a PDU, EMMA activates a Huawei profile, or automatic eligibility lacks reliable discrimination.
-  - id: R05
-    statement: Private binding knowledge could flow upstream and contaminate public artifacts.
-    mitigation: One-way dependencies, clean public CI, sanitized evidence, and import scans.
-    stop_trigger: Any public build, test, fixture, or document requires a private path or artifact.
-  - id: R06
-    statement: A private binding could use plaintext, untrusted identity, an incompatible or undocumented ingress, or stale/non-live data while appearing compatible.
-    mitigation: Require both eeBUS and Matter to consume exactly packaged PUBLIC_GRAPHQL_M2M_V1 through authenticated bounded polling, compatible versions, confidential transport, verified server identity, and credential lifecycle/recovery; reject forbidden imports and permit myVaillant GO only for the same fresh live observation.
-    stop_trigger: Credentials cross plaintext/untrusted identity, M8 has other than one concrete ingress, a private binding uses Modbus/modbusreg/gateway internals or an undocumented network path, or the myVaillant trace is not live/fresh/same-observation end to end.
-  - id: R07
-    statement: Read-only work can accidentally expose a write-capable primitive.
-    mitigation: Omit write functions from public phase-1 APIs and assert read-only function allowlists.
-    stop_trigger: A write PDU, write probe, or control surface is reachable.
-  - id: R08
-    statement: Hardware-dependent claims may be promoted from fixture-only evidence.
-    mitigation: Keep fixture-only profiles default-disabled experimental opt-in and require a matching versioned hardware record before auto-eligibility or support claims.
-    stop_trigger: A profile auto-activates or a release claims a supported device/gateway without its matching hardware qualification record.
 
 issues:
   - id: FMV3-M0-01
     milestone: M0
     repo: Project-Helianthus/.github
     depends_on: []
-    what: Create the two planned public Modbus repositories under organization governance.
-    acceptance: Governance creates empty public helianthus-modbus and helianthus-modbusreg repositories with no Git objects, default branch, bootstrap content, or product code; private governance creation remains deferred to FMV3-M0-04 under future explicit authorization.
+    title: Create the two public Modbus repositories under organization governance
+    acceptance: Governance creates empty public helianthus-modbus and helianthus-modbusreg repositories with the intended visibility and no product code.
     gates: [governance, licensing, security]
-    rollback: Remove only an unused empty repository created in error; once used, correct governance without rewriting history.
+    rollback: Remove only a repository that remains unused; once used, correct governance forward without rewriting history.
   - id: FMV3-M0-02
     milestone: M0
     repo: Project-Helianthus/helianthus-modbus
     depends_on: [FMV3-M0-01]
-    what: Bootstrap the newly created public Modbus runtime repository.
-    acceptance: After repository existence is verified, license, Go module, ownership rules, baseline CI, and read-only scope exist; no product code is assumed in advance.
+    title: Bootstrap the public Modbus runtime repository
+    acceptance: The repository contains its license, Go module, ownership rules, baseline CI, and an explicit read-only phase-one scope.
     gates: [governance, licensing, CI]
-    rollback: Remove an unused empty bootstrap; once published, deprecate instead of rewriting history.
+    rollback: Remove an unused bootstrap or deprecate and replace it without rewriting published history.
   - id: FMV3-M0-03
     milestone: M0
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M0-01]
-    what: Bootstrap the newly created public multi-profile registry repository.
-    acceptance: After repository existence is verified, license, Go module, ownership rules, baseline CI, and no-per-vendor-repo policy exist.
+    title: Bootstrap the public multi-profile registry repository
+    acceptance: The repository contains its license, Go module, ownership rules, baseline CI, and the policy that vendor profiles share this repository.
     gates: [governance, licensing, CI]
-    rollback: Remove an unused empty bootstrap; once published, deprecate instead of rewriting history.
+    rollback: Remove an unused bootstrap or deprecate and replace it without rewriting published history.
   - id: FMV3-M0-04
     milestone: M0
     repo: Project-Helianthus/.github
     depends_on: [FMV3-M0-01]
-    what: Under future explicit authorization, create the two empty private binding repositories under organization governance.
-    acceptance: Governance creates empty private helianthus-eebus-binding-private and helianthus-matter-binding-private repositories with no Git objects, default branches, bootstrap content, or product code.
-    gates: [governance, licensing, security]
-    rollback: Remove only an unused empty repository created in error; once used, correct governance without rewriting history.
+    title: Create the two generic private binding repositories under organization governance
+    acceptance: Only after explicit operator confirmation, governance creates empty private eeBUS and Matter binding repositories with the intended visibility and no product code.
+    gates: [operator_confirmation, governance, licensing, security]
+    rollback: Remove only a repository that remains unused; once used, correct governance forward without rewriting history.
   - id: FMV3-M0-05
     milestone: M0
     repo: Project-Helianthus/helianthus-eebus-binding-private
     depends_on: [FMV3-M0-04]
-    what: Bootstrap the generic private eeBUS output-binding repository after governance creation.
-    acceptance: After repository existence is verified, private access, private license, CI, and a public-contract-only dependency policy exist; PV is the first slice, not repository scope.
-    gates: [governance, licensing, security]
-    rollback: Remove an unused empty bootstrap or disable access before any artifact is distributed.
+    title: Bootstrap the generic private eeBUS output-binding repository
+    acceptance: Private access, licensing, CI, and a public-contract-only dependency boundary exist, with PV as the first capability rather than repository scope.
+    gates: [governance, licensing, CI, security]
+    rollback: Remove an unused bootstrap or disable access before distributing any artifact.
   - id: FMV3-M0-07
     milestone: M0
     repo: Project-Helianthus/helianthus-matter-binding-private
     depends_on: [FMV3-M0-04]
-    what: Bootstrap the generic private Matter output-binding repository after governance creation.
-    acceptance: After repository existence is verified, private access, private license, CI, and a public-contract-only dependency policy exist; M8 remains independent of M6.
-    gates: [governance, licensing, security]
-    rollback: Remove an unused empty bootstrap or disable access before any artifact is distributed.
+    title: Bootstrap the generic private Matter output-binding repository
+    acceptance: Private access, licensing, CI, and a public-contract-only dependency boundary exist independently of the eeBUS binding.
+    gates: [governance, licensing, CI, security]
+    rollback: Remove an unused bootstrap or disable access before distributing any artifact.
   - id: FMV3-M0-06
     milestone: M0
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: []
-    what: Publish the layer, ownership, licensing, evidence, and public-private direction contracts.
-    acceptance: Documentation defines transport through binding boundaries, standard versus vendor profiles, claim labels, clean-room intake, and write deferral.
+    title: Publish layer, ownership, licensing, evidence, and public-private direction contracts
+    acceptance: Public documentation defines layer ownership, standard versus vendor profiles, clean-room evidence intake, public-to-private dependency direction, write deferral, gateway Modbus endpoint ownership, and the bounded read-only raw/profile MCP contract before gateway implementation.
     gates: [doc_gate, licensing]
-    rollback: Revert the documentation change while no downstream contract is locked; otherwise publish a correction.
+    rollback: Revert before downstream use or publish a versioned correction after dependent contracts exist.
   - id: FMV3-M1-00
     milestone: M1
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M0-02, FMV3-M0-06]
-    what: Publish one bounded public companion contract for the M1 Modbus foundation and complete M2 registry contracts before implementation.
-    acceptance: One docs issue/PR defines Modbus framing and the exact phase-1 read-only operations FC03 Read Holding Registers, FC04 Read Input Registers, and FC2B/MEI0E Read Device Identification, including conformity levels, object IDs, segmentation/more-follows, bounds, exceptions, and malformed responses on TCP/RTU. It also defines transport recovery, coalescing identity, RTU qualification, and complete M2 contracts before implementation.
+    title: Publish the bounded public M1 Modbus foundation contract
+    acceptance: The companion defines TCP and RTU framing, the exact read-only FC03, FC04, and FC2B/MEI0E allowlist with bounds, segmentation, exceptions, malformed-response behavior, scheduling, coalescing identity, provenance, recovery, RTU qualification, and M2-facing contracts.
     gates: [doc_gate, licensing, protocol_interop]
-    doc_gate: companion
-    companion_for: [FMV3-M1-01, FMV3-M1-02, FMV3-M1-03, FMV3-M1-04, FMV3-M2-01, FMV3-M2-02, FMV3-M2-03]
-    phase1_read_only_operations: [fc03_read_holding_registers, fc04_read_input_registers, fc2b_mei0e_read_device_identification]
-    transport_abandonment_docs: [write_linearization, full_transmit_response_wait, tcp_socket_lifetime_tombstones, tcp_close_on_possibly_transmitted, tcp_generation_rollover, rtu_response_latency_bus_idle_quarantine]
-    transport_write_linearization:
-      boundary: transport_write_invoked
-      abnormal_results: [provable_zero, partial_write, indeterminate_error, cancellation_race, ambiguous_completion]
-      no_abandonment_only_if: provable_zero
-      possibly_transmitted: [partial_write, indeterminate_error, cancellation_race, ambiguous_completion]
-      full_transmit_success_transition: response_wait
-      tcp_possibly_transmitted_action: [tombstone_transaction_id, close_connection_prevent_stream_desync, reconnect_increment_generation, reject_old_generation]
-      tcp_response_wait_abandonment: {triggers: [timeout, cancellation], transaction_id_action: tombstone, late_response: drop, same_socket_reuse: forbidden_until_normal_tombstone_rollover}
-      rtu_possibly_transmitted_action: quarantine_resynchronize_or_recover_before_successor
-      rtu_response_wait_abandonment: {triggers: [timeout, cancellation], action: quarantine_resynchronize_or_recover_before_successor}
-    coalescing_identity_contract:
-      wire_response_id_bound_to: [physical_request_id, endpoint, unit_id, function_code, logical_table, physical_zero_based_pdu_offset, physical_word_count, transport_generation_id]
-      logical_view_fields: [logical_view_id, wire_response_id, logical_zero_based_pdu_offset, logical_word_count, slice_offset_within_wire, slice_word_count]
-      logical_view_per_dependent_observation: required
-      replay: exact_words_and_provenance
-      success_case: unequal_overlapping_reads
-      incompatible_dimensions: [unit_id, logical_table, authorization_scope, poll_generation_id, operation_deadline]
-    rtu_physical_qualification_contract:
-      gate: RTU_PHYSICAL_QUALIFICATION_V1
-      dispositions: [PHYSICALLY_QUALIFIED, FIXTURE_ONLY_NO_HARDWARE]
-      fixture_only: {default: disabled, enabled_claim: forbidden, maturity: experimental}
-      required_evidence: [adapter_transceiver_identity, baud_and_topology, measured_physical_silent_intervals, timeout_cancellation_quarantine_trace]
-      no_hardware: {supported_claim: forbidden, enabled_claim: forbidden, blocks_tcp_fronius: false, blocks_tcp_sufficient_m1_m7: false}
-    rollback: Correct the public contract before implementation; after dependent APIs publish, use a versioned forward correction.
+    rollback: Correct the contract before implementation or publish a versioned compatible correction after dependent APIs exist.
   - id: FMV3-M1-01
     milestone: M1
     repo: Project-Helianthus/helianthus-modbus
     depends_on: [FMV3-M0-02, FMV3-M1-00]
-    what: Implement strict Modbus protocol types, read request/response codecs, exception handling, and bounded limits.
-    acceptance: Against merged companion FMV3-M1-00, RED-first tests cover malformed lengths, identity, exceptions, and the exact FC03/FC04/FC2B-MEI0E allowlist. FC03/FC04 ranges preserve distinct provenance. Device Identification tests cover conformity levels, individual/regular/extended object access, object IDs, segmentation/more-follows, bounded aggregation, exceptions, and malformed responses without profile semantics or string normalization.
+    title: Implement strict Modbus protocol types and bounded read codecs
+    acceptance: RED-first conformance tests admit only FC03 holding-register reads, FC04 input-register reads, and FC2B/MEI0E device identification, preserve FC03/FC04 provenance separately, and reject writes, malformed lengths, invalid objects, unbounded segmentation, and protocol exceptions.
     gates: [TDD_RED, CI, doc_gate, transport_gate, security]
-    doc_gate: required
-    companion_issue: FMV3-M1-00
-    phase1_read_only_operations: [fc03_read_holding_registers, fc04_read_input_registers, fc2b_mei0e_read_device_identification]
     rollback: Revert the unpublished API or add a compatible correction before downstream release.
   - id: FMV3-M1-02
     milestone: M1
     repo: Project-Helianthus/helianthus-modbus
     depends_on: [FMV3-M1-01]
-    what: Implement Modbus TCP endpoint ownership, scheduler, pooling, fairness, coalescing, backoff, reconnect, cancellation, and limits.
-    acceptance: Deterministic tests prove one endpoint owner and allocator/map per TCP socket plus existing correlation/abandonment behavior. A wire_response_id binds each physical request/range; unequal overlapping compatible reads coalesce, and each dependent logical_view_id/slice replays its exact words/provenance. Cross-unit, cross-table, cross-authorization, cross-generation, and deadline-incompatible reads do not coalesce. Tombstone reuse/exhaustion, bounded correlation, isolated unit/profile state, and absence of profile semantics remain covered.
+    title: Implement the Modbus TCP endpoint runtime
+    acceptance: Deterministic tests prove one fair bounded scheduler and transaction allocator per TCP socket, exact response correlation, abandonment and socket-lifetime tombstone recovery, compatible read coalescing only within unit/table/access/generation/deadline boundaries, and exact per-dependent slice replay with wire-response and logical-view provenance.
     gates: [TDD_RED, CI, doc_gate, transport_gate, operability]
-    doc_gate: required
-    companion_issue: FMV3-M1-00
-    tcp_correlation_contract: {scope: per_connection_socket, allocator_count: one, inflight_map_count: one, shared_unit_ids: all, match_fields: [active_connection_generation, transaction_id, echoed_unit_id, echoed_function_code, applicable_response_byte_count], request_offset_role: provenance_only, response_echoes_request_offset: false, abandoned_id: tombstone_for_socket_lifetime, same_socket_tombstone_reuse: forbidden, tombstone_exhaustion: controlled_close_reconnect, generation_increment: before_tombstoned_id_reuse, old_socket_generation_frames: reject, successful_non_abandoned_correlation: bounded, full_transmit_success_transition: response_wait, response_wait_abandonment: {triggers: [timeout, cancellation], transaction_id_action: tombstone, late_response: drop, same_socket_reuse: forbidden_until_normal_tombstone_rollover}, unit_profile_state: isolated, endpoint_scheduling: shared, profile_semantics: forbidden}
-    coalescing_identity_contract:
-      wire_response_id_bound_to: [physical_request_id, endpoint, unit_id, function_code, logical_table, physical_zero_based_pdu_offset, physical_word_count, transport_generation_id]
-      logical_view_fields: [logical_view_id, wire_response_id, logical_zero_based_pdu_offset, logical_word_count, slice_offset_within_wire, slice_word_count]
-      logical_view_per_dependent_observation: required
-      replay: exact_words_and_provenance
-      success_case: unequal_overlapping_reads
-      incompatible_dimensions: [unit_id, logical_table, authorization_scope, poll_generation_id, operation_deadline]
-    abnormal_write_results: [provable_zero, partial_write, indeterminate_error, cancellation_race, ambiguous_completion]
-    possibly_transmitted_action: [tombstone_transaction_id, close_connection_prevent_stream_desync, reconnect_increment_generation, reject_old_generation]
-    rollback: Disable the TCP runtime entry point and restore the previous gateway build without persisted-state migration.
+    rollback: Disable or revert the TCP runtime entry point and restore the preceding compatible runtime without changing gateway state.
   - id: FMV3-M1-03
     milestone: M1
     repo: Project-Helianthus/helianthus-modbus
     depends_on: [FMV3-M1-02]
-    what: Implement the shared runtime contract for Modbus RTU without coupling it to Fronius phase 1.
-    acceptance: RED-first fixture tests cover framing, CRC, silent intervals, abandonment, and timeout/cancellation quarantine. Capability remains disabled by default and experimental with disposition FIXTURE_ONLY_NO_HARDWARE unless RTU_PHYSICAL_QUALIFICATION_V1 records adapter/transceiver identity, baud/topology, measured physical silent intervals, and timeout/cancellation quarantine traces and yields PHYSICALLY_QUALIFIED. No hardware means no enabled/supported claim, but completes fixture conformance and blocks no TCP/Fronius path or TCP-sufficient M1/M7 work.
+    title: Implement Modbus RTU against the shared runtime contract
+    acceptance: RED-first fixture tests prove framing, CRC, serial scheduling, silent intervals, abandonment, and timeout or cancellation quarantine; RTU remains disabled and experimental until RTU_PHYSICAL_QUALIFICATION_V1 records adapter, topology, timing, and recovery evidence.
     gates: [TDD_RED, CI, doc_gate, transport_gate, hardware_conditional]
-    doc_gate: required
-    companion_issue: FMV3-M1-00
-    rtu_abandonment_contract: {scope: abnormal_or_response_wait_abandonment, triggers: [partial_write, indeterminate_error, cancellation_race, ambiguous_completion], full_transmit_success_transition: response_wait, response_wait_abandonment: [timeout, cancellation], response_latency: bounded_endpoint_declared, bus_idle_resynchronization: required, frames_during_quarantine: discard, successor_transmit: after_quarantine_only, quiescence_failure: disable_and_recover_endpoint, late_same_shape_delivery: forbidden}
-    rtu_physical_qualification_contract:
-      gate: RTU_PHYSICAL_QUALIFICATION_V1
-      dispositions: [PHYSICALLY_QUALIFIED, FIXTURE_ONLY_NO_HARDWARE]
-      fixture_only: {default: disabled, enabled_claim: forbidden, maturity: experimental}
-      required_evidence: [adapter_transceiver_identity, baud_and_topology, measured_physical_silent_intervals, timeout_cancellation_quarantine_trace]
-      no_hardware: {supported_claim: forbidden, enabled_claim: forbidden, blocks_tcp_fronius: false, blocks_tcp_sufficient_m1_m7: false}
-    abnormal_write_results: [provable_zero, partial_write, indeterminate_error, cancellation_race, ambiguous_completion]
-    possibly_transmitted_action: quarantine_resynchronize_or_recover_before_successor
-    rollback: Disable RTU registration while retaining the protocol and TCP APIs.
+    rollback: Disable RTU registration while retaining shared protocol and TCP APIs.
   - id: FMV3-M1-04
     milestone: M1
     repo: Project-Helianthus/helianthus-modbus
     depends_on: [FMV3-M1-02, FMV3-M1-03]
-    what: Close TCP and RTU conformance, stress, cancellation, and recovery matrices.
-    acceptance: TCP and RTU fixture matrices pass with no unexpected fail/xpass, retain every recovery row, and prove bounded FC2B/MEI0E Device Identification framing, segmentation, exception, and malformed-response behavior on both transports. RTU qualification disposition remains explicit, and TCP/Fronius never depends on RTU hardware.
+    title: Close TCP and RTU conformance and recovery matrices
+    acceptance: TCP and RTU matrices pass without unexpected fail or xpass across the read allowlist, framing, bounded scheduling, FC2B segmentation, exceptions, malformed responses, reconnect, late-response tombstones, and RTU quarantine, while physical RTU support remains conditional on qualification.
     gates: [TDD_RED, CI, doc_gate, transport_gate, recovery]
-    doc_gate: required
-    companion_issue: FMV3-M1-00
-    abnormal_write_results: [provable_zero, partial_write, indeterminate_error, cancellation_race, ambiguous_completion]
-    full_transmit_success_transition: response_wait
-    identity_operation_matrix: [tcp_fc2b_mei0e_device_identification, rtu_fc2b_mei0e_device_identification]
-    transport_recovery_matrix: [tcp_provable_zero_no_abandonment, tcp_partial_write_close_reconnect, tcp_indeterminate_error_close_reconnect, tcp_cancellation_race_close_reconnect, tcp_ambiguous_completion_close_reconnect, tcp_full_transmit_timeout_tombstone, tcp_full_transmit_cancellation_tombstone, tcp_same_socket_tombstone_reuse_rejected, tcp_tombstone_exhaustion_controlled_rollover, tcp_old_generation_late_frame_rejected, rtu_provable_zero_no_abandonment, rtu_partial_write_quarantine, rtu_indeterminate_error_quarantine, rtu_cancellation_race_quarantine, rtu_ambiguous_completion_quarantine, rtu_full_transmit_timeout_quarantine, rtu_full_transmit_cancellation_quarantine, rtu_late_same_shape_discarded, rtu_quiescence_failure_endpoint_recovery]
-    rollback: Hold the failing transport disabled and keep passing transports available behind explicit capability flags.
+    rollback: Keep only the failing transport disabled behind an explicit capability switch while preserving passing transports.
   - id: FMV3-M1-05
     milestone: M1
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M1-04]
-    what: Publish the OPAQUE_RUNTIME_ACQUISITION_V1 companion contract before corrective runtime code.
-    acceptance: After M1-04, one public docs issue/PR defines source_kind as runtime or offline_fixture; only a deliverable runtime acquisition may receive a source-issued, opaque, non-serializable capability. It defines one-shot CAS backed by shared state across value copies and endpoint recreation, no capability for non-deliverable acquisitions or offline fixtures, one independent capability for every coalesced dependent, exactly one copied-view race winner, bounded capability/attempt/claim lifecycle, and a lossless versioned normalization record with exact round-trip. A fresh independent OpenAI review of the exact docs revision must close with all findings resolved or NO_FINDINGS before merge.
+    title: Publish OPAQUE_RUNTIME_ACQUISITION_V1 version 1
+    acceptance: The public contract defines runtime-only opaque delivery after successful correlated coherent reads, fresh acquisition isolation, copy-shared one-shot state, bounded operation lifecycles, cancellation and publication linearization, pre-allocation limits, deterministic terminal sequencing, non-reconstructing tombstone reclamation, and lossless normalization provenance.
     gates: [doc_gate, licensing, data_integrity, fresh_adversarial_review]
-    doc_gate: companion
-    companion_for: [FMV3-M1-06, FMV3-M2-01]
-    documents_contract: OPAQUE_RUNTIME_ACQUISITION_V1
-    contract_sections: [opaque_single_use_runtime_acquisition_capability, source_kind_runtime_vs_offline_fixture, source_issued_deliverability, attempt_lifecycle_and_bounds, copied_view_and_endpoint_recreation_cas, per_coalesced_dependent_capability, lossless_normalization]
-    source_kind_contract:
-      allowed: [runtime, offline_fixture]
-      runtime_trust: capability_required_for_delivery
-      offline_fixture_trust: untrusted_no_capability
-    opaque_runtime_acquisition_contract:
-      representation: opaque_non_serializable
-      issuer: runtime_source
-      issue_condition: deliverable_runtime_acquisition_only
-      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
-      consumption: one_shot_compare_and_swap
-      state_owner: source_issued_shared_ledger_pointer
-      value_copy_semantics: shared_state
-      endpoint_recreation_semantics: shared_state
-      coalesced_dependents: independent_capability_per_dependent
-      copied_view_race: exactly_one_winner
-      terminal_reuse: forbidden
-      bounded_state: {capabilities: endpoint_configured_hard_limit, open_attempts: consumer_configured_hard_limit, claims_per_attempt: dependency_set_hard_limit, terminal_reclamation: required}
-    normalization_round_trip_contract:
-      schema: versioned
-      record_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
-      unknown_extension_fields: preserved_losslessly
-      round_trip: exact_record_equality
-    fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revision: exact_docs_head_full_sha, findings: resolve_all_or_no_findings, merge_blocker: true}
-    rollback: Correct the public contract before M1-06; after implementation, publish a versioned forward correction without weakening one-shot or source-origin guarantees.
+    rollback: Correct the contract before M1-06 or publish a versioned compatible correction without weakening source origin or one-shot behavior.
   - id: FMV3-M1-06
     milestone: M1
     repo: Project-Helianthus/helianthus-modbus
     depends_on: [FMV3-M1-04, FMV3-M1-05]
-    what: Implement the source-issued opaque single-use runtime acquisition capability.
-    acceptance: Against merged M1-05, a test-only RED commit observed failing by hosted CI precedes implementation. Tests prove the token is opaque and non-serializable, issued only by a deliverable runtime source, absent for non-deliverable acquisitions and offline fixtures, and consumed by one-shot CAS against shared state across value copies and endpoint recreation. Every coalesced dependent receives its own capability, copied views racing the same capability produce exactly one winner, all state is bounded and reclaimed, and hosted GREEN plus fresh independent OpenAI review of the exact RED and implementation revisions pass before merge.
+    title: Implement the opaque runtime acquisition contract
+    acceptance: RED-first tests prove runtime-only capability delivery, fresh and coalesced-dependent isolation, exactly one winner across copied views, frozen-member cancellation and drain, bounded state with exhaustion handling, deterministic non-reconstructing tombstone recovery, lossless provenance, and the full M1-06 conformance report.
     gates: [TDD_RED, CI, doc_gate, data_integrity, concurrency, fresh_adversarial_review]
-    doc_gate: required
-    companion_issue: FMV3-M1-05
-    implements_contract: OPAQUE_RUNTIME_ACQUISITION_V1
-    opaque_runtime_acquisition_contract:
-      representation: opaque_non_serializable
-      issuer: runtime_source
-      issue_condition: deliverable_runtime_acquisition_only
-      forbidden_issue_conditions: [non_deliverable_runtime_acquisition, offline_fixture]
-      consumption: one_shot_compare_and_swap
-      state_owner: source_issued_shared_ledger_pointer
-      value_copy_semantics: shared_state
-      endpoint_recreation_semantics: shared_state
-      coalesced_dependents: independent_capability_per_dependent
-      copied_view_race: exactly_one_winner
-      terminal_reuse: forbidden
-      bounded_state: {capabilities: endpoint_configured_hard_limit, open_attempts: consumer_configured_hard_limit, claims_per_attempt: dependency_set_hard_limit, terminal_reclamation: required}
-    strict_tdd_contract: {red_commit: test_only, hosted_red: fails_for_missing_behavior, implementation_before_hosted_red: forbidden, hosted_green: required_on_implementation_head}
-    fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revisions: [red_commit_full_sha, implementation_head_full_sha], findings: resolve_all_or_no_findings, merge_blocker: true}
-    rollback: Disable capability delivery and pin consumers to the last compatible runtime; never replace the token with a serializable or replayable surrogate.
+    rollback: Disable capability delivery and restore the last compatible consumer and runtime versions while retaining the published contract version.
   - id: FMV3-M2-01
     milestone: M2
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M0-03, FMV3-M1-00, FMV3-M1-01, FMV3-M1-06]
-    what: Define profile, codec, catalog, source-observation identity/coherence, and raw-provenance contracts.
-    acceptance: Against merged FMV3-M1-00 and M1-05, the consumer pins and verifies the full 40-character merged M1-06 SHA before a test-only RED commit is observed failing by hosted CI. Tests prove runtime acquisitions require the opaque capability while offline_fixture remains untrusted with zero capability CAS and no production sample_id; an attempt uses shared ledger-owned pointer state with hard bounds on attempts and claims, rejects duplicate AttemptKey, seals one immutable attempt set, and then Publish() consumes that sealed set without a mutable DTO. Versioned codecs preserve existing wire/logical/sample provenance and exact normalization-record round-trip. Hosted GREEN and a fresh independent OpenAI review of the exact RED and implementation revisions are merge blockers.
+    title: Define profile, codec, catalog, identity, coherence, and provenance contracts
+    acceptance: RED-first tests define transport-neutral profile and codec APIs, runtime-versus-fixture trust, bounded attempt and operation state, deterministic cancellation and one-shot publication, terminal tombstone reclamation, exact normalization round-trip, and immutable wire, logical-view, sample, generation, and source provenance.
     gates: [TDD_RED, CI, doc_gate, data_integrity, concurrency, fresh_adversarial_review]
-    doc_gate: required
-    companion_issue: FMV3-M1-00
-    corrective_companion_issue: FMV3-M1-05
-    consumes_contract: OPAQUE_RUNTIME_ACQUISITION_V1
-    producer_pin_contract: {producer_issue: FMV3-M1-06, merge_sha: required_full_40_lowercase_hex, consumer_resolution: exact_sha_verified_before_red}
-    source_trust_contract:
-      runtime: {capability: required, delivery_trust: successful_one_shot_cas}
-      offline_fixture: {capability: forbidden, capability_cas_calls: 0, trust: untrusted, production_sample_id: forbidden}
-    attempt_ledger_contract:
-      state_owner: shared_ledger_owned_pointer
-      attempt_key_uniqueness: duplicate_rejected
-      attempt_bound: configured_hard_limit
-      claims_per_attempt_bound: dependency_set_hard_limit
-      claim_capability: one_shot_runtime_capability
-      seal_transition: open_to_sealed_once
-      sealed_attempt_set: immutable
-      publish_signature: Publish()
-      publish_input: sealed_ledger_state
-      mutable_dto: forbidden
-      terminal_reclamation: required
-    normalization_round_trip_contract:
-      schema: versioned
-      record_fields: [schema_version, source_kind, source_evidence_id, documentary_notation, documentary_address, documentary_address_base, function_code, logical_table, normalized_zero_based_pdu_offset, word_count]
-      unknown_extension_fields: preserved_losslessly
-      round_trip: exact_record_equality
-    strict_tdd_contract: {red_commit: test_only, hosted_red: fails_for_missing_behavior, implementation_before_hosted_red: forbidden, hosted_green: required_on_implementation_head}
-    fresh_adversarial_contract: {provider: openai, context: fresh_independent, reviewed_revisions: [red_commit_full_sha, implementation_head_full_sha], findings: resolve_all_or_no_findings, merge_blocker: true}
-    observation_view_fields: [logical_view_id, wire_response_id, logical_zero_based_pdu_offset, logical_word_count, slice_offset_within_wire, slice_word_count]
     rollback: Version the unpublished contract or add a compatible successor before profile release.
   - id: FMV3-M2-02
     milestone: M2
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M1-00, FMV3-M2-01]
-    what: Implement deterministic profile detection and version-gated read-only probe planning.
-    acceptance: Against merged companion FMV3-M1-00, tests prove bounded no-write probes, deterministic ordering, model and firmware gates, ambiguity and no-match failure, and no activation from partial evidence; fixture-only profiles are default-disabled experimental_opt_in, explicit opt-in cannot bypass gates, and auto_eligible requires a matching versioned hardware qualification record with safe mismatch, revocation, disable, and demotion behavior.
+    title: Implement deterministic profile detection and bounded read-only probing
+    acceptance: Tests prove bounded no-write probes, deterministic ordering, model and firmware gates, fail-closed ambiguity and no-match behavior, explicit opt-in for fixture-only profiles, and qualification-aware activation, revocation, disable, and demotion.
     gates: [TDD_RED, CI, doc_gate, protocol_interop, security]
-    doc_gate: required
-    companion_issue: FMV3-M1-00
-    rollback: Disable automatic detection and require an explicit profile selection with the same validation gates.
+    rollback: Disable automatic detection and require explicit profile selection under the same validation gates.
   - id: FMV3-M2-03
     milestone: M2
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M1-00, FMV3-M2-01, FMV3-M2-02]
-    what: Build sanitized fixture, replay, mutation, and cross-profile conformance harnesses.
-    acceptance: Against merged FMV3-M1-00, deterministic fixtures retain codec, detector, qualification, normalization, generation, and torn-read coverage. A required mutation coalesces unequal overlapping reads and proves each linked logical view replays exact words/provenance; cross-unit, cross-table, cross-authorization, cross-generation, and deadline-incompatible mutations must refuse coalescing.
+    title: Build sanitized fixture, replay, and cross-profile conformance harnesses
+    acceptance: Deterministic fixtures cover codecs, detectors, qualification, normalization, generations, and torn reads, while mutation tests prove compatible unequal overlaps replay each exact logical slice and incompatible unit, table, access, generation, or deadline reads never coalesce.
     gates: [TDD_RED, CI, doc_gate, testability, licensing]
-    doc_gate: required
-    companion_issue: FMV3-M1-00
-    coalescing_mutation_matrix: [unequal_overlapping_reads_each_logical_view_replays_exact_words_and_provenance, cross_unit_rejected, cross_table_rejected, cross_authorization_rejected, cross_generation_rejected, deadline_incompatible_rejected]
     rollback: Quarantine a bad fixture or profile version without changing shared runtime behavior.
   - id: FMV3-M3-01
     milestone: M3
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M0-06, FMV3-M2-01]
-    what: Build a provenance-qualified Fronius and SunSpec evidence packet and sanitized fixture manifest.
-    acceptance: One public companion packet defines the evidence, conformance, and disposition record used by FMV3-M3-02 and FMV3-M3-03; sources, model/firmware applicability, standard use, overlay scope, unknowns, and fixture derivation are reviewable without private paths or secrets.
+    title: Publish the Fronius and SunSpec evidence packet and fixture manifest
+    acceptance: One public packet records provenance, model and firmware applicability, standard coverage, possible overlay scope, retained unknowns, sanitized fixtures, and the disposition evidence consumed by M3-02 and M3-03.
     gates: [doc_gate, licensing, protocol_interop]
-    doc_gate: companion
-    companion_for: [FMV3-M3-02, FMV3-M3-03]
-    rollback: Withdraw disputed claims and retain them as labeled hypotheses until revalidated.
+    rollback: Withdraw disputed facts and retain them as labeled hypotheses until revalidated.
   - id: FMV3-M3-02
     milestone: M3
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M1-02, FMV3-M2-03, FMV3-M3-01]
-    what: Implement the minimal SunSpec standard-family slice required by the Fronius phase-1 fixtures.
-    acceptance: RED-first fixtures prove standard model-chain parsing, codec signedness/scale interpretation, each applicable declared multi-register word order, intra-word byte order, string packing/padding case, exact raw/sample identity, recorded documentary address normalization, profile-declared coherence, provenance, version gates, transport neutrality, and no vendor assumptions or write path.
+    title: Implement the minimal SunSpec slice required by Fronius phase 1
+    acceptance: RED-first fixtures prove model-chain parsing, signedness and scaling, declared word and byte order, string packing, address normalization, exact raw and sample identity, coherence, provenance, version gates, transport neutrality, and absence of vendor assumptions or writes.
     gates: [TDD_RED, CI, doc_gate, protocol_interop, licensing]
-    doc_gate: required
-    companion_issue: FMV3-M3-01
     rollback: Disable the minimal SunSpec profile version while retaining shared registry contracts.
   - id: FMV3-M3-03
     milestone: M3
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M3-02]
-    what: Determine Fronius phase-1 applicability and implement only any evidence-required TCP read-only overlay.
-    acceptance: Against companion FMV3-M3-01 and M3-02 conformance, record exactly STANDARD_ONLY or OVERLAY_REQUIRED publicly. Both retain evidence, fixtures, live scope, identity/provenance/coherence, read-only behavior, and green conformance CI. STANDARD_ONLY produces no implementation commit or empty overlay; only OVERLAY_REQUIRED requires a test-only RED commit and evidence-bounded overlay implementation, and either disposition unblocks M4.
+    title: Decide Fronius applicability and add only a transport-neutral read-only overlay if evidence requires it
+    acceptance: Public evidence records exactly STANDARD_ONLY or OVERLAY_REQUIRED; both paths keep green read-only conformance and transport-neutral activation, STANDARD_ONLY adds no production overlay, and OVERLAY_REQUIRED adds only evidence-supported Fronius profile logic with RED-first tests.
     gates: [CI, doc_gate, protocol_interop, licensing, TDD_RED_IF_OVERLAY_REQUIRED]
-    doc_gate: required
-    companion_issue: FMV3-M3-01
-    tdd_condition: OVERLAY_REQUIRED
-    standard_only_contract: {evidence_and_disposition: public, conformance_ci: green, implementation_commit: forbidden, empty_overlay: forbidden}
-    disposition_contract:
-      allowed: [STANDARD_ONLY, OVERLAY_REQUIRED]
-      completion_is_progress: true
-    rollback: Invalidate the disposition when evidence changes; disable an admitted overlay while minimal SunSpec and raw Modbus access remain available.
+    rollback: Invalidate the disposition when evidence changes and disable an admitted overlay while retaining minimal SunSpec and raw Modbus access.
   - id: FMV3-M4-01
     milestone: M4
     repo: Project-Helianthus/helianthus-ebusgateway
-    depends_on: [FMV3-M1-02, FMV3-M3-03]
-    what: Implement gateway package internal/modbusadapter and compose one owned TCP endpoint behind the existing protocol-agnostic adapter interface.
-    acceptance: internal/modbusadapter is the only gateway package importing helianthus-modbus or helianthus-modbusreg and has real-module integration tests; gateway core tests use the interface and a fake adapter to prove endpoint exclusivity, unit fairness, compatible coalescing, source validity/time and unchanged sample/poll/dependency/wire-response/logical-view identity, mixed or incoherent rejection, disable, and cancellation without gateway-owned canonical freshness.
-    gates: [TDD_RED, CI, transport_gate, operability]
+    depends_on: [FMV3-M0-06, FMV3-M1-02, FMV3-M3-03]
+    title: Compose one owned Modbus TCP endpoint behind the gateway adapter interface
+    acceptance: Integration and fake-adapter tests prove one gateway endpoint owner, fair unit scheduling, safe compatible coalescing, unchanged wire, logical-view, sample, poll, dependency, source-time, and validity provenance, mixed-generation rejection, disable, and cancellation without gateway-owned canonical freshness.
+    gates: [TDD_RED, CI, doc_gate, transport_gate, operability]
     rollback: Disable the Modbus endpoint configuration and restart without changing eBUS behavior.
   - id: FMV3-M4-02
     milestone: M4
     repo: Project-Helianthus/helianthus-ebusgateway
     depends_on: [FMV3-M4-01]
-    what: Expose bounded raw Modbus and profile-observation MCP tools before semantic promotion.
-    acceptance: MCP tests expose sanitized raw reads, detector and activation-lifecycle evidence, profile identity, source validity/timestamps, physical request/range wire_response_id, each dependent logical_view_id/slice, sample/poll/dependency identity, normalization provenance, limits, and exact-view replay while rejecting writes and unbounded ranges.
-    gates: [TDD_RED, CI, security, MCP_first]
+    title: Expose bounded raw Modbus and profile-observation MCP tools
+    acceptance: MCP tests expose sanitized bounded read-only data, detector and activation evidence, profile identity, source validity and time, wire-response and logical-view slices, sample and poll identity, normalization provenance, limits, and exact replay while rejecting writes and unbounded ranges.
+    gates: [TDD_RED, CI, doc_gate, security, MCP_first]
     rollback: Disable the MCP tools while retaining internal read-only polling and diagnostics.
   - id: FMV3-M4-03
     milestone: M4
     repo: Project-Helianthus/helianthus-ha-addon
     depends_on: [FMV3-M4-01]
-    what: Add validated endpoint configuration, secret handling, disable switch, health, and restart recovery for the add-on.
-    acceptance: Tests prove atomic config validation, no secret logging, bounded restart behavior, explicit disable, and fallback to the previous image or binary.
+    title: Add endpoint configuration, secrets, health, disable, and restart recovery
+    acceptance: Tests prove atomic configuration validation, secret redaction, bounded restart behavior, explicit disable, health reporting, and fallback to the previous image or binary.
     gates: [TDD_RED, CI, security, recovery]
     rollback: Restore the previous add-on image and disable Modbus configuration.
   - id: FMV3-M4-04
     milestone: M4
     repo: Project-Helianthus/helianthus-ebusgateway
     depends_on: [FMV3-M4-02, FMV3-M4-03]
-    what: Run the required Fronius real-device TCP read-only smoke and recovery gate.
-    acceptance: A reproducible lab record proves opt-in detection before qualification, bounded polling, raw MCP parity, coherent sample/wire-response/logical-view identity, source observation stop/resume across disconnect/reconnect, generation integrity, no writes, and no regression to existing gateway traffic; it records exactly GO, NO_GO, or STOP, only GO permits downstream progress, and the matching GO record qualifies only the tested profile/hardware tuple.
+    title: Run the Fronius real-device TCP read-only smoke and recovery gate
+    acceptance: A reproducible lab run proves qualified opt-in detection, bounded polling, raw MCP parity, coherent provenance, disconnect and reconnect generation integrity, no writes, and no gateway regression, then records exactly GO, NO_GO, or STOP for the tested hardware and profile tuple.
     gates: [CI, transport_gate, hardware_required, recovery]
-    outcome_contract:
-      allowed: [GO, NO_GO, STOP]
-      progress: GO
-      completion_is_progress: false
-    rollback: Disable the endpoint and restore the prior gateway/add-on pair if smoke or recovery fails.
+    rollback: Disable the endpoint and restore the prior gateway and add-on pair if smoke or recovery fails.
   - id: FMV3-M4-05
     milestone: M4
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M3-01, FMV3-M4-04]
-    what: Publish sanitized Fronius live applicability evidence and retained unknowns.
-    acceptance: Documentation packages the exact FMV3-M4-04 GO, NO_GO, or STOP outcome, tested model, firmware and profile versions, gateway mode, smoke result, unknown fields, and provenance without device secrets or private material paths; packaging a non-GO outcome preserves evidence but unlocks no M5 issue.
+    title: Publish sanitized Fronius applicability evidence and retained unknowns
+    acceptance: Documentation preserves the M4-04 outcome, tested model, firmware, profile, gateway mode, smoke and recovery results, unknown fields, and provenance without secrets; NO_GO or STOP remains valid evidence and every M5 follow-up is explicitly triaged from current GitHub state and operator direction.
     gates: [doc_gate, licensing, hardware_required]
-    packages_outcome_of: FMV3-M4-04
     rollback: Retract unsupported applicability and return affected fields to Unknown.
   - id: FMV3-M5-01
     milestone: M5
     repo: Project-Helianthus/helianthus-ebusreg
     depends_on: [FMV3-M5-02]
-    what: Define protocol-independent canonical PV identities, quantities, quality, freshness, counters, and compatibility rules.
-    acceptance: Work starts only after FMV3-M5-02 has merged the public contract from FMV3-M4-04 GO and packaged FMV3-M4-05 evidence; RED-first tests define stable IDs, units, canonical quality, freshness deadlines and transitions, stale/unavailable behavior, counter rollover/reset, provenance references, schema versioning, and compatibility from source validity/timestamps without delegating canonical policy upstream.
+    title: Define protocol-independent canonical PV semantics and compatibility rules
+    acceptance: RED-first tests define stable IDs, units, canonical quality, freshness transitions, stale and unavailable behavior, counter rollover and reset, provenance references, schema versioning, and compatibility without moving canonical policy into transport or profile layers.
     gates: [TDD_RED, CI, doc_gate, data_integrity]
-    rollback: Before publication remove the candidate; after publication retain schema/IDs and use a compatible successor or make disabled data unavailable.
+    rollback: Remove an unpublished candidate or retain published IDs and provide a compatible successor or unavailable state.
   - id: FMV3-M5-02
     milestone: M5
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M4-05]
-    what: Publish and merge the public canonical PV contract documentation from M4 evidence before semantic implementation.
-    acceptance: Work starts only after FMV3-M4-04 records GO and FMV3-M4-05 packages that evidence; before FMV3-M5-01 implementation and semantic lock, documentation merges with proposed version, meanings, source-validity-to-canonical-quality boundary, freshness deadlines, compatibility, evidence requirements, and private-consumer boundary.
-    gates: [doc_gate, licensing]
-    rollback: Before publication revise/remove candidate docs; after publication correct or deprecate them with the retained normative schema.
+    title: Publish the public canonical PV contract before semantic implementation
+    acceptance: When current GitHub state, packaged M4-05 evidence, and operator triage support a canonical proposal, public documentation defines the proposed schema, meanings, source-validity boundary, freshness, compatibility, evidence, and private-consumer boundary before semantic implementation.
+    gates: [doc_gate, licensing, live_smoke]
+    rollback: Revise an unpublished candidate or correct and deprecate published documentation compatibly.
   - id: FMV3-M5-03
     milestone: M5
     repo: Project-Helianthus/helianthus-execution-plans
     depends_on: [FMV3-M5-04]
-    what: Lock the exact golden- and live-tested candidate semantic MCP version.
-    acceptance: Fresh adversarial review examines the exact FMV3-M5-04 mapping, semantic MCP version, golden results, live Fronius trace, evidence, quality/freshness behavior, and compatibility, then records GO, NO_GO, or STOP. Completion is not success; GO permits FMV3-M5-09 and later consumers, while NO_GO/STOP preserves raw and candidate semantic MCP for remediation but unlocks no consumer.
+    title: Record the lock decision for the tested semantic MCP version
+    acceptance: Fresh review records the tested semantic mapping, MCP version, golden and live results, quality, freshness, provenance, compatibility, and the operator's disposition; current GitHub and owning-repository state determine any follow-up work.
     gates: [semantic_lock, adversarial_review, operator_go]
-    outcome_contract:
-      allowed: [GO, NO_GO, STOP]
-      progress: GO
-      completion_is_progress: false
-    rollback: Revoke an unpublished GO decision; after publication, issue a new compatible contract and lock decision.
+    rollback: Revoke an unpublished GO or publish a new compatible contract and lock decision after release.
   - id: FMV3-M5-04
     milestone: M5
     repo: Project-Helianthus/helianthus-ebusgateway
     depends_on: [FMV3-M5-01, FMV3-M5-02]
-    what: Implement the candidate Fronius-to-canonical mapping and semantic MCP before lock.
-    acceptance: Golden and live Fronius tests run the exact candidate semantic MCP version, propagate sample_id, poll_generation_id and complete dependency/wire-response/logical-view identity unchanged, reject mixed/incoherent samples, preserve source validity/timestamps, apply only ebusreg-owned canonical transitions, and prove raw-to-canonical traceability. This issue is outside CG-M5-SEMANTIC-GO and creates no GraphQL or consumer contract.
+    title: Implement candidate Fronius-to-canonical mapping and semantic MCP
+    acceptance: Golden and live tests prove raw-to-canonical traceability, unchanged sample, poll, dependency, wire-response, and logical-view provenance, mixed-generation rejection, source validity and time preservation, and ebusreg-owned canonical transitions without creating GraphQL or consumer contracts.
     gates: [TDD_RED, CI, MCP_first, hardware_required]
-    rollback: Before publication remove promotion; after publication retain schema/IDs, disable mapping, report data unavailable, and keep raw MCP.
+    rollback: Remove an unpublished mapping or disable it, preserve raw MCP and published IDs, and report data unavailable.
   - id: FMV3-M5-09
     milestone: M5
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M5-03]
-    what: Publish the one public PUBLIC_GRAPHQL_M2M_V1 companion contract after semantic MCP lock and before GraphQL implementation.
-    acceptance: After FMV3-M5-04 semantic MCP and explicit FMV3-M5-03 GO on that exact tested version, one serialized public docs issue/PR later than FMV3-M5-02 publishes the locked schema projection, external access/security/channel, compatibility/versioning, credential lifecycle, and recovery for PUBLIC_GRAPHQL_M2M_V1; it introduces no raw registers or subscription and merges before FMV3-M5-05.
+    title: Publish PUBLIC_GRAPHQL_M2M_V1 before GraphQL implementation
+    acceptance: When current GitHub state and the recorded semantic disposition support publication, public documentation defines the projection, external access and channel security, compatibility, credentials, and recovery for PUBLIC_GRAPHQL_M2M_V1 without raw registers or subscriptions.
     gates: [doc_gate, licensing, semantic_lock, security]
-    doc_gate: companion
-    companion_for: [FMV3-M5-05]
-    documents_contract: PUBLIC_GRAPHQL_M2M_V1
-    contract_sections: [schema_projection, external_access_security_channel, compatibility_versioning, credential_lifecycle, recovery]
-    external_channel_contract: {scope: credential_bearing_external, authentication: required, confidentiality: required, server_identity: verified, plaintext_external: reject, untrusted_server_identity: reject, mechanism: unspecified, raw_registers_in_graphql: forbidden}
-    semantic_lock_ancestor: FMV3-M5-03
-    rollback: Revise before GraphQL publication; after publication retain the documented version and issue a compatible correction or deprecation.
+    rollback: Revise before GraphQL publication or retain the published version and issue a compatible correction or deprecation.
   - id: FMV3-M5-05
     milestone: M5
     repo: Project-Helianthus/helianthus-ebusgateway
     depends_on: [FMV3-M5-09]
-    what: Implement GraphQL parity for the locked PV projection and publish the documented public machine-to-machine access contract.
-    acceptance: Against merged companion FMV3-M5-09, GraphQL schema, resolver, authorization, and snapshots match semantic MCP and preserve canonical quality, time, unit, freshness/unavailable state, source identity, and compatible schema IDs; one externally routable endpoint contract is reachable from a separately deployed service-client context and proves noninteractive authentication/authorization, least privilege, bounded polling/rate/resources, and credential provisioning/rotation/revocation/disable/recovery. Credential-bearing external use requires the documented authenticated confidential channel with verified server identity before credentials are sent; plaintext external access and untrusted identity fail closed without prescribing the channel/auth mechanism, weakening security, adding a subscription, or exposing raw registers through GraphQL.
+    title: Implement GraphQL parity for the locked PV projection
+    acceptance: Schema, resolver, access control, and snapshots match semantic MCP identity, value, unit, quality, time, freshness, unavailable state, and compatibility, while an external service client proves authenticated least-privilege bounded polling, credential lifecycle, confidential transport, and verified server identity.
     gates: [TDD_RED, CI, API_parity, doc_gate, security]
-    doc_gate: required
-    companion_issue: FMV3-M5-09
-    publishes_contract: PUBLIC_GRAPHQL_M2M_V1
-    external_channel_contract: {scope: credential_bearing_external, authentication: required, confidentiality: required, server_identity: verified, plaintext_external: reject, untrusted_server_identity: reject, mechanism: unspecified, raw_registers_in_graphql: forbidden}
-    rollback: Before publication remove candidate fields; after publication retain schema/IDs and forward-fix or return unavailable while the capability is disabled.
+    rollback: Remove unpublished fields or retain published schema and IDs while disabling the capability, returning unavailable, and forward-fixing compatibility.
   - id: FMV3-M5-06
     milestone: M5
     repo: Project-Helianthus/helianthus-ebusgateway
     depends_on: [FMV3-M5-05]
-    what: Add the Portal semantic PV view and authenticated bounded raw diagnostics/register exploration in the existing serialized gateway issue.
-    acceptance: Portal semantic tests consume GraphQL only and preserve canonical identity, units, quality, freshness/unavailable state, and source timestamps; a separate authenticated/authorized raw explorer reuses the bounded raw MCP service contract with endpoint/function/range budgets, read-only allowlists, rate/resource limits, secret redaction and audit evidence, without adding raw registers to semantic GraphQL or importing Modbus outside the local adapter.
+    title: Add Portal semantic PV and bounded raw diagnostic views
+    acceptance: Portal semantic tests consume GraphQL only, while a separate authenticated raw explorer reuses bounded read-only MCP with endpoint, function, range, rate, resource, redaction, and audit controls and does not expose raw registers through semantic GraphQL.
     gates: [TDD_RED, CI, consumer_parity, security]
-    rollback: Disable semantic and raw Portal routes independently while published GraphQL schema/IDs remain available or explicitly unavailable and raw MCP remains policy-controlled.
+    rollback: Disable semantic and raw Portal routes independently while preserving published GraphQL behavior and policy-controlled raw MCP.
   - id: FMV3-M5-07
     milestone: M5
     repo: Project-Helianthus/helianthus-ha-integration
     depends_on: [FMV3-M5-06]
-    what: Consume the locked GraphQL PV contract in Home Assistant.
-    acceptance: RED-first tests cover discovery, stable unique IDs, units, unavailable and stale states, restart, migration, and absence of raw Modbus coupling.
+    title: Consume the locked GraphQL PV contract in Home Assistant
+    acceptance: RED-first tests prove discovery, stable unique IDs, units, stale and unavailable states, restart, migration, and absence of raw Modbus coupling.
     gates: [TDD_RED, CI, consumer_parity]
-    rollback: Disable entities while retaining published schema/IDs and expose unavailable; restore only a compatible integration release.
+    rollback: Disable entities while retaining published IDs and unavailable behavior, then restore only a compatible integration release.
   - id: FMV3-M5-08
     milestone: M5
     repo: Project-Helianthus/helianthus-ha-addon
     depends_on: [FMV3-M5-06, FMV3-M5-07]
-    what: Package and prove a recoverable public Fronius-to-HA and service-client rollout.
-    acceptance: Exact-version smoke proves raw MCP, semantic MCP, GraphQL, GraphQL-only semantic Portal, authenticated bounded raw Portal exploration, and HA availability; from a separately deployed external service context it repeats endpoint reachability, noninteractive authn/authz, least privilege, bounded polling/rate/resources, credential provisioning/rotation/revocation/disable/recovery, and authenticated confidential-channel server-identity verification for exactly PUBLIC_GRAPHQL_M2M_V1. Tests reject plaintext external access and untrusted server identity before credential use, without prescribing the mechanism, plus prove restart, independent surface disable, pre-publication rollback, post-publication compatibility recovery, and no schema-less replacement for a published schema.
+    title: Package and prove a recoverable public Fronius-to-HA rollout
+    acceptance: Exact-version smoke proves raw and semantic MCP, GraphQL, separate Portal surfaces, Home Assistant availability, external service authentication and bounded access, credential and channel recovery, restart, independent disable, and compatibility-preserving rollback.
     gates: [CI, hardware_required, recovery, release_gate, security]
-    packages_contract: PUBLIC_GRAPHQL_M2M_V1
-    tests_external_channel: PUBLIC_GRAPHQL_M2M_V1
-    rollback: Before publication restore the prior pair; after publication use only a schema-compatible image or keep schema/IDs and report disabled data unavailable.
+    rollback: Restore the prior pair before publication or use only a schema-compatible image and unavailable state after publication.
   - id: FMV3-M6-00
     milestone: M6
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M5-08]
-    what: Publish the sanitized public eeBUS binding and SHIP/SPINE companion contract.
-    acceptance: Before private implementation, one permissively publishable companion defines PUBLIC_GRAPHQL_M2M_V1 ingress, SHIP/SPINE discovery, TLS/pairing, trust lifecycle, reconnect/revocation/reset, capability negotiation, identity, encoding, PV exchange, security boundaries, and the rule that reusable protocol knowledge cannot remain private.
+    title: Publish the public eeBUS binding and SHIP/SPINE companion contract
+    acceptance: A permissively publishable companion defines PUBLIC_GRAPHQL_M2M_V1 ingress, SHIP/SPINE discovery, TLS and pairing, trust lifecycle, reconnect, revocation, reset, capability negotiation, identity, encoding, PV exchange, and public-private boundaries.
     gates: [doc_gate, licensing, protocol_interop, security]
-    doc_gate: companion
-    companion_for: [FMV3-M6-01]
-    rollback: Correct before implementation or publish a compatible successor; no private protocol code may bypass it.
+    rollback: Correct before implementation or publish a compatible successor that private protocol code must follow.
   - id: FMV3-M6-01
     milestone: M6
     repo: Project-Helianthus/helianthus-eebus-binding-private
     depends_on: [FMV3-M0-05, FMV3-M6-00]
-    what: Deploy a generic private eeBUS output binding that polls exactly the packaged public GraphQL machine-to-machine PV contract as its only semantic ingress.
-    acceptance: A test-only RED commit is CI-observed before implementation; deployment/config tests consume exactly PUBLIC_GRAPHQL_M2M_V1 as externally tested by FMV3-M5-08, use its noninteractive least-privilege authorization, bounded polling/resources, and authenticated confidential channel with verified server identity, reject plaintext external access and untrusted server identity before credential use without prescribing the mechanism, reject incompatible schema/contract versions, and prove credential disable/recovery, reconnect/backoff, explicit capability disable, and unavailable/stale handling from ingress through output; deterministic peer tests also cover minimum SHIP/SPINE discovery, SHIP TLS/pairing, trust persistence, reconnect, revocation/reset, disable recovery, session/capability negotiation, identity, encoding, and a complete PV exchange, with no invented GraphQL subscription, Modbus, Fronius, register, gateway-internal logic, or public eeBUS repo.
+    title: Implement a generic private eeBUS output binding from PUBLIC_GRAPHQL_M2M_V1
+    acceptance: RED-first tests consume only PUBLIC_GRAPHQL_M2M_V1 through authenticated bounded polling, prove version rejection, credential and reconnect recovery, stale propagation, and minimum SHIP/SPINE discovery, pairing, trust, identity, capability, encoding, and PV exchange without Modbus or gateway-internal imports.
     gates: [TDD_RED, CI, licensing, private_boundary, protocol_interop, security, recovery]
-    doc_gate: required
-    companion_issue: FMV3-M6-00
-    consumes_contract: PUBLIC_GRAPHQL_M2M_V1
-    access_mechanism: authenticated_bounded_query_polling
-    version_compatibility: reject_incompatible_contract_versions
-    authentication: noninteractive_least_privilege
-    confidential_channel: required
-    server_identity: verified
-    credential_lifecycle_recovery: [provision, rotate, revoke, disable, recover]
-    ingress_recovery: [bounded_reconnect_backoff, explicit_disable, stale_unavailable_propagation]
-    forbidden_ingress_sources: [helianthus-modbus, helianthus-modbusreg, gateway_internals, undocumented_network_paths]
-    tests_external_channel: PUBLIC_GRAPHQL_M2M_V1
     rollback: Disable the PV capability or revert the private artifact without changing public contracts.
   - id: FMV3-M6-02
     milestone: M6
     repo: Project-Helianthus/helianthus-eebus-binding-private
     depends_on: [FMV3-M6-01]
-    what: Test actual myVaillant interoperability as a lab hypothesis.
-    acceptance: Record exactly GO, NO_GO, or STOP; completion is not progress and GO is the sole objective success. GO requires an enabled and qualified live Fronius endpoint throughout the run and at least one traced observation that is available, non-stale, and generated after the recorded lab-run start. The same observation identity and value must traverse PUBLIC_GRAPHQL_M2M_V1 and eeBUS to an accepted myVaillant-side observable with matching canonical/source identity, value, unit/value semantics, quality, source-observation time, and receipt time. Replayed, synthetic, retained-cache-only, fixture-only, or simulator-only input and handshake/packet observation alone cannot GO. Existing identity/time/quality fields suffice; no new public schema field is required. NO_GO/STOP retains sanitized honest evidence, completes no plan objective, unlocks no success, and adds no vendor logic or public-schema distortion.
+    title: Test myVaillant interoperability as a lab hypothesis
+    acceptance: A live run records GO only when a fresh qualified Fronius observation traverses PUBLIC_GRAPHQL_M2M_V1 and eeBUS to a matching myVaillant-visible value and identity; replay, cache, fixture, simulator, handshake-only, NO_GO, or STOP evidence cannot satisfy the outcome.
     gates: [CI, hardware_required, protocol_interop, security, recovery]
-    outcome_contract:
-      allowed: [GO, NO_GO, STOP]
-      progress: GO
-      success: GO
-      completion_is_progress: false
-    go_evidence_contract:
-      minimum_locked_pv_capabilities: 1
-      live_fronius_endpoint: {enabled_during_run: required, qualification: qualified, availability_during_run: required}
-      traced_observation: {availability: available, freshness: non_stale, generated_after: recorded_lab_run_start}
-      disallowed_inputs: [replayed, synthetic, retained_cache_only, fixture_only, simulator_only]
-      capability_value_result: accepted_and_exposed
-      myvaillant_side_observable: required
-      path: [PUBLIC_GRAPHQL_M2M_V1, eebus, myvaillant]
-      traversal_requirement: same_observation_identity_and_value
-      matching_fields: [canonical_identity, source_identity, value, unit, value_semantics, quality, source_observation_timestamp, receipt_timestamp]
-      public_schema_field_change: none_use_existing_identity_time_quality_contract
-      handshake_or_packet_observation_only: insufficient
-    rollback: Disable the private export and preserve the lab trace as sanitized evidence.
+    rollback: Disable the private export and preserve the sanitized lab trace.
   - id: FMV3-M6-03
     milestone: M6
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M6-02]
-    what: Publish sanitized reusable eeBUS and myVaillant interoperability findings.
-    acceptance: Publish every reusable SHIP/SPINE, trust, identity, encoding, capability, and myVaillant interoperability finding with provenance/licensing and secret removal. If required knowledge cannot be published permissively, record STOP and make no support or interoperability claim; private-only protocol knowledge cannot satisfy M6.
+    title: Publish reusable eeBUS and myVaillant findings or record STOP
+    acceptance: Reusable SHIP/SPINE, trust, identity, encoding, capability, and interoperability findings are published with provenance and secrets removed, or STOP is recorded with no support statement when permissive publication is impossible.
     gates: [doc_gate, licensing, protocol_interop, security]
-    packages_outcome_of: FMV3-M6-02
-    publication_contract: {publishable_result: sanitized_public_artifact, unpublishable_result: STOP, private_only_success_claim: forbidden}
-    rollback: Withdraw disputed public claims and retain STOP without changing private/public runtime contracts.
+    rollback: Withdraw disputed public statements and retain STOP without changing runtime contracts.
   - id: FMV3-M7-01
     milestone: M7
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M0-06, FMV3-M1-04, FMV3-M2-03, FMV3-M5-09]
-    what: Build separate SunSpec, Growatt, and Huawei evidence and applicability packets.
-    acceptance: After FMV3-M5-09, the companion publishes existing SunSpec/Growatt contracts and, for every vendor candidate, enumerates each detector operation/PDU and proves it is in the versioned helianthus-modbus phase-1 runtime allowlist. Every SmartLogger/S-Dongle candidate also receives a complete public admission packet or NO_ADMISSIBLE_PROFILE. EMMA discriminators are inventoried or unavailable; semantics remain deferred and missing discrimination blocks Huawei automatic eligibility.
+    title: Publish separate SunSpec, Growatt, and Huawei evidence packets
+    acceptance: Public packets define provenance-qualified SunSpec, Growatt, and Huawei candidates, map every detector PDU to the runtime read allowlist, distinguish SmartLogger and S-Dongle applicability, and mark missing EMMA discriminators while deferring EMMA semantics.
     gates: [doc_gate, licensing, protocol_interop]
-    doc_gate: companion
-    companion_for: [FMV3-M7-02, FMV3-M7-03, FMV3-M7-04]
-    growatt_contract_sections: [complete_candidate_contract, complete_admission_contract, qualified_candidate_facts, admission_criteria, provenance, licensing, unsupported_disposition, exact_code_doc_mapping]
-    growatt_contract_completion: published_and_merged_before_close
-    huawei_candidate_contract_sections: [register_map, codec, gateway_applicability, branch_applicability, version_applicability, detection, provenance, licensing, exact_code_doc_mapping]
-    huawei_candidate_dispositions: [PROFILE_ADMITTED, NO_ADMISSIBLE_PROFILE]
-    huawei_contract_completion: published_and_merged_before_close
-    detector_runtime_operation_contract: {enumeration: per_candidate, required_runtime_allowlist: [fc03_read_holding_registers, fc04_read_input_registers, fc2b_mei0e_read_device_identification], unsupported_operation_disposition: NO_ADMISSIBLE_PROFILE, modbusreg_protocol_framing: forbidden}
-    emma_discriminator_inventory: {required: [gateway, model, software, version], unavailable_disposition: mark_each_unavailable, semantics: deferred}
     rollback: Quarantine disputed facts and keep affected support states experimental or Unknown.
   - id: FMV3-M7-02
     milestone: M7
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M1-04, FMV3-M2-03, FMV3-M3-03, FMV3-M7-01]
-    what: Expand the minimal M3 SunSpec slice with additional versioned standard models without vendor assumptions.
-    acceptance: Conformance proves model-chain parsing, standard units and scales, every applicable declared word order, intra-word byte order, string packing/padding case, transport neutrality, version gates, unknown model handling, and codec-version provenance.
+    title: Expand SunSpec with additional versioned standard models
+    acceptance: Conformance proves model-chain parsing, units and scales, declared word and byte order, string packing, transport neutrality, version gates, unknown-model handling, and codec-version provenance.
     gates: [TDD_RED, CI, doc_gate, protocol_interop, hardware_conditional]
-    doc_gate: required
-    companion_issue: FMV3-M7-01
     rollback: Disable the affected standard profile version in the catalog.
   - id: FMV3-M7-03
     milestone: M7
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M7-02]
-    what: Decide Growatt profile admission and add profiles or overlays only when evidence permits.
-    acceptance: Against the already-merged companion FMV3-M7-01, record exactly PROFILE_ADMITTED or NO_ADMISSIBLE_PROFILE. PROFILE_ADMITTED alone triggers RED-first fixtures/code for bounded read-only conformance and requires no later companion docs change. NO_ADMISSIBLE_PROFILE performs no implementation or later companion docs change, preserves the pre-published public evidence and explicit unsupported disposition, creates no catalog/support claim, and releases FMV3-M7-04 without a GO gate.
+    title: Decide Growatt admission and add only evidence-supported profiles
+    acceptance: Record PROFILE_ADMITTED or NO_ADMISSIBLE_PROFILE from the published evidence; only evidence-supported profiles add RED-first bounded read-only fixtures and code, while non-admission preserves evidence without catalog support and M7-04 remains an ordinary downstream issue requiring current-state triage.
     gates: [CI, licensing, protocol_interop, hardware_conditional, doc_gate, TDD_RED_IF_PROFILE_ADMITTED]
-    doc_gate: required
-    companion_issue: FMV3-M7-01
-    tdd_condition: PROFILE_ADMITTED
-    profile_admitted_contract: {red_first_fixtures_and_code: required, later_companion_docs_change: forbidden}
-    no_admissible_profile_contract: {prepublished_public_evidence_and_unsupported_disposition: preserved, implementation_commit: forbidden, catalog_entry: forbidden, support_claim: forbidden, later_companion_docs_change: forbidden}
-    disposition_contract:
-      allowed: [PROFILE_ADMITTED, NO_ADMISSIBLE_PROFILE]
-      completion_is_progress: true
-    rollback: Disable an admitted Growatt profile without changing shared contracts, or revise NO_ADMISSIBLE_PROFILE only when new qualified evidence reopens admission.
+    rollback: Disable an admitted Growatt profile or revise non-admission only when new qualified evidence reopens evaluation.
   - id: FMV3-M7-04
     milestone: M7
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M7-03]
-    what: Add clean-room Huawei SmartLogger and S-Dongle profiles with branch and gateway gates.
-    acceptance: For each M7-01 SmartLogger/S-Dongle candidate, record PROFILE_ADMITTED or NO_ADMISSIBLE_PROFILE. Admission requires every detector probe to map to the versioned runtime operation allowlist; modbusreg cannot frame a protocol PDU. Only admission triggers RED-first code and positive fixtures. Non-admission creates no code/catalog/support claim. EMMA and insufficiently distinguished negatives remain fail-closed.
+    title: Add qualified Huawei SmartLogger and S-Dongle profiles
+    acceptance: Each candidate records PROFILE_ADMITTED or NO_ADMISSIBLE_PROFILE, every admitted detector probe uses the versioned runtime read allowlist, only admission adds RED-first code and fixtures, and ambiguous EMMA or insufficiently distinguished devices remain ineligible.
     gates: [CI, doc_gate, protocol_interop, licensing, hardware_conditional, TDD_RED_IF_PROFILE_ADMITTED]
-    doc_gate: required
-    companion_issue: FMV3-M7-01
-    huawei_admission_contract: {per_candidate_disposition: [PROFILE_ADMITTED, NO_ADMISSIBLE_PROFILE], admitted_requires: [published_packet, red_first_fixtures_and_code, positive_gateway_branch_version_detection_codec_fixtures], non_admitted_forbids: [implementation_commit, catalog_entry, support_claim]}
-    emma_negative_fixture_contract: {inputs: [emma_endpoint, insufficiently_distinguished_endpoint], allowed_outcomes: [no_match, insufficient_evidence], forbidden_activation: [huawei_smartlogger, huawei_s_dongle], automatic_eligibility_without_reliable_discrimination: blocked}
     rollback: Disable the affected Huawei profile and return unconfirmed values to Unknown.
   - id: FMV3-M7-05
     milestone: M7
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M7-04]
-    what: Close cross-profile detection, ambiguity, version, mutation, activation, and lifecycle conformance.
-    acceptance: A mixed catalog selects at most one eligible primary and retains activation lifecycle tests. EMMA and insufficiently distinguished negative fixtures return only no_match or insufficient_evidence, never activate SmartLogger/S-Dongle, and keep Huawei automatic eligibility blocked whenever reliable gateway/model/software/version discrimination is unavailable.
+    title: Close mixed-catalog detection and compatibility conformance
+    acceptance: Mixed-catalog tests select at most one eligible primary, preserve activation lifecycle, and force ambiguous EMMA or insufficiently distinguished Huawei fixtures to no_match or insufficient_evidence rather than automatic activation.
     gates: [TDD_RED, CI, protocol_interop, testability]
-    emma_negative_fixture_contract: {inputs: [emma_endpoint, insufficiently_distinguished_endpoint], allowed_outcomes: [no_match, insufficient_evidence], forbidden_activation: [huawei_smartlogger, huawei_s_dongle], automatic_eligibility_without_reliable_discrimination: blocked}
     rollback: Pin the last passing catalog and disable new profile versions independently.
   - id: FMV3-M8-00
     milestone: M8
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M5-08]
-    what: Publish the sanitized public Matter binding companion contract.
-    acceptance: Before private implementation, one permissively publishable companion defines the PUBLIC_GRAPHQL_M2M_V1 ingress boundary, Matter identity/capability/encoding projection, trust and credential lifecycle, compatibility, stale/unavailable behavior, recovery, and forbidden private/internal imports without disclosing licensed binding implementation.
+    title: Publish the public Matter binding companion contract
+    acceptance: A permissively publishable companion defines PUBLIC_GRAPHQL_M2M_V1 ingress, Matter identity, capability and encoding projection, trust and credential lifecycle, compatibility, stale and unavailable behavior, recovery, and forbidden private or internal dependencies.
     gates: [doc_gate, licensing, protocol_interop, security]
-    doc_gate: companion
-    companion_for: [FMV3-M8-01]
-    rollback: Correct before implementation or publish a compatible successor; no private protocol code may bypass it.
+    rollback: Correct before implementation or publish a compatible successor that private binding code must follow.
   - id: FMV3-M8-01
     milestone: M8
     repo: Project-Helianthus/helianthus-matter-binding-private
     depends_on: [FMV3-M0-07, FMV3-M8-00]
-    what: Implement a generic private Matter output-binding kernel from exactly PUBLIC_GRAPHQL_M2M_V1.
-    acceptance: After packaged FMV3-M5-08 ancestry, RED-first security tests consume exactly PUBLIC_GRAPHQL_M2M_V1 by authenticated bounded query/polling, reject incompatible contract versions, require noninteractive least privilege, a confidential channel and verified server identity, reject plaintext/untrusted identity, and prove credential provision/rotation/revocation/disable/recovery plus reconnect, disable, and stale/unavailable handling. Imports from helianthus-modbus, helianthus-modbusreg, gateway internals, undocumented network paths, and GraphQL subscriptions are rejected.
+    title: Implement a generic private Matter binding from PUBLIC_GRAPHQL_M2M_V1
+    acceptance: RED-first tests consume only PUBLIC_GRAPHQL_M2M_V1 through authenticated bounded polling, reject incompatible versions and insecure endpoints, prove credential and reconnect recovery plus stale propagation, and reject Modbus, registry, gateway-internal, undocumented-network, and subscription dependencies.
     gates: [TDD_RED, CI, licensing, private_boundary, security, recovery]
-    doc_gate: required
-    companion_issue: FMV3-M8-00
-    consumes_contract: PUBLIC_GRAPHQL_M2M_V1
-    access_mechanism: authenticated_bounded_query_polling
-    version_compatibility: reject_incompatible_contract_versions
-    authentication: noninteractive_least_privilege
-    confidential_channel: required
-    server_identity: verified
-    credential_lifecycle_recovery: [provision, rotate, revoke, disable, recover]
-    ingress_recovery: [bounded_reconnect_backoff, explicit_disable, stale_unavailable_propagation]
-    forbidden_ingress_sources: [helianthus-modbus, helianthus-modbusreg, gateway_internals, undocumented_network_paths]
-    tests_external_channel: PUBLIC_GRAPHQL_M2M_V1
     rollback: Disable or revert the private artifact without changing public contracts.
   - id: FMV3-M8-02
     milestone: M8
     repo: Project-Helianthus/helianthus-matter-binding-private
     depends_on: [FMV3-M8-01]
-    what: Add and test PV as the first Matter binding capability slice.
-    acceptance: Conformance tests preserve identity, units, quality, stale and unavailable behavior; no Matter claim blocks M6 or changes the locked PV contract.
+    title: Add PV as the first Matter capability slice
+    acceptance: Conformance tests preserve identity, units, quality, stale and unavailable behavior; every Matter claim consumes PUBLIC_GRAPHQL_M2M_V1 as its sole ingress and cannot change or bypass the locked PV contract; Matter delivery remains independent of M6.
     gates: [TDD_RED, CI, consumer_parity, hardware_optional]
     rollback: Disable the PV capability while retaining the generic binding kernel.
