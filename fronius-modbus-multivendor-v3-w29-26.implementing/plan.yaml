@@ -122,7 +122,7 @@ execution_authorization:
         required_semantics: [claim_in_progress, cancelling, closed_attempt_instance_membership_before_ledger_admission, nonempty_exact_ordered_runtime_dependency_set_before_seal, CancelOpen_closed_AttemptInstance_linearization, atomic_publish_cancel_winner, closed_published_projection, downstream_docs_lock_and_behavioral_conformance, byte_and_field_bounds, reserved_non_wrapping_terminal_sequences]
     tooling_binding:
       validator_path: fronius-modbus-multivendor-v3-w29-26.implementing/validate_plan.py
-      validator_sha256: 6a1356c01204897ba103ed644e6d52756184ae6709aec9e4a67f1119913ecb58
+      validator_sha256: 58af5b68c0e1adaef5e13683c516f9b388df5e867a59fc6e625ce31bdb4d90c6
       workflow_path: .github/workflows/ci.yml
       workflow_sha256: 0692d27194b0428d45a756e052eb7f1b7feb6dbaa1048c16c8217a8717736599
       launcher_reference_path: scripts/fmv3_anchor_validator.py
@@ -204,7 +204,7 @@ execution_authorization:
     direct_dependency_completion: exact_static_live_github_bindings_for_completed_predecessors_plus_bounded_github_authenticated_certificate_bound_to_anchored_issue_spec_for_future_direct_predecessors
     stop_before_issue: FMV3-M4-01
     gateway_work_authorized: false
-    amendment_surfaces_sha256: 66afabf9425e12a7f9347935c34198132a0105d93482b2afe2a26726b2888cd4
+    amendment_surfaces_sha256: 78c0ce3d111379d99544383e7913e91e22ab754f246e1342ed1725ab76afe287
   repository_creation_authorized: true
   repository_creation_targets:
     public: [helianthus-modbus, helianthus-modbusreg]

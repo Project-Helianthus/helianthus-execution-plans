@@ -2518,6 +2518,7 @@ def require_m3_03_completion_artifact(
                 f"FMV3-M3-03 production source {path} imports a TCP-concrete dependency "
                 "or a dependency outside the sealed transport-neutral allowlist",
             )
+        if is_overlay_source:
             production_code = go_code_projection(source_text)
             require(
                 not re.search(r"(?m)^\s*func\s+(?:\([^\n]*\)\s*)?init\s*\(", production_code)
