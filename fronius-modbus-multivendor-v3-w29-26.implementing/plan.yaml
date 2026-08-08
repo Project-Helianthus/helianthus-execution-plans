@@ -145,8 +145,8 @@ issues:
     repo: Project-Helianthus/.github
     depends_on: [FMV3-M0-01]
     title: Create the two generic private binding repositories under organization governance
-    acceptance: Governance creates empty private eeBUS and Matter binding repositories with the intended visibility and no product code.
-    gates: [governance, licensing, security]
+    acceptance: Only after explicit operator confirmation, governance creates empty private eeBUS and Matter binding repositories with the intended visibility and no product code.
+    gates: [operator_confirmation, governance, licensing, security]
     rollback: Remove only a repository that remains unused; once used, correct governance forward without rewriting history.
   - id: FMV3-M0-05
     milestone: M0

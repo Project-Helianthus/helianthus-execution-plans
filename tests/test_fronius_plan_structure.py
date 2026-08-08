@@ -205,6 +205,47 @@ class FroniusPlanStructureTests(unittest.TestCase):
 
         self.assert_document_rejected(mutate, "private bootstrap must retain its CI gate")
 
+    def test_private_repository_creation_requires_operator_confirmation(self) -> None:
+        document = self.document(PLAN_DIR)
+        issue = self.issue(document, "FMV3-M0-04")
+        self.assertIn("operator_confirmation", issue["gates"])
+        self.assertIn("Only after explicit operator confirmation", issue["acceptance"])
+
+    def test_rejects_private_repository_creation_without_confirmation(self) -> None:
+        def mutate(document: dict[str, Any]) -> None:
+            issue = self.issue(document, "FMV3-M0-04")
+            issue["gates"].remove("operator_confirmation")
+
+        self.assert_document_rejected(mutate, "requires explicit operator confirmation")
+
+    def test_rejects_status_hard_stop_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_dir = self.copy_plan(Path(temp))
+            status = plan_dir / "99-status.md"
+            status.write_text(
+                status.read_text(encoding="utf-8").replace(
+                    "- gateway work: blocked", "- gateway work: ready", 1
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "status does not mirror"):
+                VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_canonical_hard_stop_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            plan_dir = self.copy_plan(Path(temp))
+            canonical = plan_dir / "00-canonical.md"
+            canonical.write_text(
+                canonical.read_text(encoding="utf-8").replace(
+                    "`FMV3-M4-01`. `FMV3-M4-01` and every gateway issue remain blocked.",
+                    "`FMV3-M4-02`. `FMV3-M4-02` and every gateway issue remain blocked.",
+                    1,
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "canonical prose does not mirror"):
+                VALIDATOR.validate_plan(plan_dir)
+
     def test_matter_pv_slice_is_m6_independent_and_contract_bound(self) -> None:
         document = self.document(PLAN_DIR)
         issues = {row["id"]: row for row in document["issues"]}

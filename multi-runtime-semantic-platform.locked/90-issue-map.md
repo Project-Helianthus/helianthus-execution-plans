@@ -17,13 +17,12 @@ Amendment: `M6.25 bounded SPINE 1.3 erratum`
 This map preserves historical evidence and adds the M6.25/live-completion rows
 without rewriting M0-M6. One active PR per repo remains mandatory.
 
-## Active Control Surface
+## Dependency guidance
 
 `92-m0-issue-matrix.yaml` records dependency guidance. Current readiness comes from GitHub and the owning code repositories.
-This page deliberately does not duplicate active routing contracts, provider or
-model selections, or completion-token edges. The live matrix is the only
-source that can authorize a successor; its 107 audit is a deterministic,
-complete projection for review.
+This page deliberately does not duplicate routing contracts, provider or model selections,
+or predecessor edges. Neither this page nor the matrix authorizes a successor or changes
+repository state.
 
 ## Historical Accepted Evidence
 
@@ -44,7 +43,7 @@ complete projection for review.
 
 ## Hard Blockers
 
-- The generated release-proof projection is the sole current dispatch authority.
+- Current dispatch decisions require current GitHub and owning-repository state.
 - Base M6.25 LAB remains accepted and
   `lab_release_proof=released_chain_redeployed` remains unchanged.
 - The bounded SPINE 1.3 erratum is completed under the independent
@@ -52,7 +51,7 @@ complete projection for review.
 - M6 topology and live counts do not prove canonical typed feature-data
   acquisition.
 - Historical `MSP-065`, `MSP-07`, `MSP-08`, and `MSP-085` closure cannot
-  authorize any `*-LIVE-R1` row.
+  make any `*-LIVE-R1` row ready.
 - Public write denial must occur before every downstream contact.
 - M9 is blocked until `MSP-085-LIVE-R1` completes and
   `promoted_leaf_count > 0`.
@@ -105,18 +104,18 @@ does not add or reorder a row.
 
 ## Preserved Historical And Live Rows
 
-| Row family | Classification | Unlock authority |
+| Row family | Classification | Dependency meaning |
 | --- | --- | --- |
 | `MSP-065` | `framework_complete` | none for live chain |
 | `MSP-07`, `MSP-08`, `MSP-085` | `synthetic_only` | none for live chain |
-| `MSP-065-LIVE-R1` -> `MSP-07-LIVE-R1` -> `MSP-08-LIVE-R1` -> `MSP-085-LIVE-R1` | proposed live chain | completion tokens only |
+| `MSP-065-LIVE-R1` -> `MSP-07-LIVE-R1` -> `MSP-08-LIVE-R1` -> `MSP-085-LIVE-R1` | proposed live chain | predecessor order only |
 | `MSP-09A` through `MSP-09D` | not started substantively | require live M8.5 plus positive promoted-leaf count |
 
-## AD-DOCS-02 token chain
+## Historical AD-DOCS-02 dependency chain
 
-The matrix requires `MSP-DOCS-CLEAN` and `MSP-03C` completion tokens for
-`MSP-03D-R`; `MSP-03D-G01` is evidence-only. Completion tokens, not historical
-observations, authorize every active edge.
+The matrix records `MSP-DOCS-CLEAN` and `MSP-03C` as predecessors of
+`MSP-03D-R`; `MSP-03D-G01` is evidence-only. Current GitHub state and
+implementation-repository evidence determine whether work may proceed.
 
 - No publication of MSP-R00 private details: local SHA, private path, raw HMAC
   mapping, source-bundle detail, raw paths, volume, sizes, timestamps, bytes,

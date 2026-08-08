@@ -277,6 +277,7 @@ def _validate_mirrors(
     plan_dir: Path,
     milestones: list[dict[str, Any]],
     issues: list[dict[str, Any]],
+    hard_stop: dict[str, Any],
 ) -> None:
     expected_issues = [
         (
@@ -299,6 +300,31 @@ def _validate_mirrors(
         ("Milestone", "Title"),
     )
     _require(actual_milestones == expected_milestones, "milestone map does not mirror plan.yaml")
+
+    after_issue = hard_stop["after_issue"]
+    before_issue = hard_stop["before_issue"]
+    gateway_work = hard_stop["gateway_work"]
+    status_text = (plan_dir / "99-status.md").read_text(encoding="utf-8")
+    expected_status = (
+        "Machine-readable inventory:\n\n"
+        f"- issues: {len(issues)}\n"
+        f"- milestones: {len(milestones)}\n"
+        "- retained domain contracts: 7\n"
+        f"- current-cycle last issue: `{after_issue}`\n"
+        f"- hard stop: immediately before `{before_issue}`\n"
+        f"- gateway work: {gateway_work}"
+    )
+    _require(expected_status in status_text, "status does not mirror the hard stop")
+
+    canonical_text = " ".join(
+        (plan_dir / "00-canonical.md").read_text(encoding="utf-8").split()
+    )
+    expected_canonical = (
+        f"The current plan cycle ends after `{after_issue}` and immediately before "
+        f"`{before_issue}`. `{before_issue}` and every gateway issue remain "
+        f"{gateway_work}."
+    )
+    _require(expected_canonical in canonical_text, "canonical prose does not mirror the hard stop")
 
 
 def validate_plan(plan_dir: Path) -> dict[str, int]:
@@ -358,6 +384,13 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
             f"{bootstrap_id} private bootstrap must retain its CI gate",
         )
 
+    private_creation = issue_map["FMV3-M0-04"]
+    _require(
+        "operator_confirmation" in private_creation["gates"]
+        and "Only after explicit operator confirmation" in private_creation["acceptance"],
+        "FMV3-M0-04 private repository creation requires explicit operator confirmation",
+    )
+
     m8 = issue_map["FMV3-M8-02"]
     _require(
         not any(issue_id.startswith("FMV3-M6-") for issue_id in _ancestors(m8["id"], issue_map)),
@@ -414,7 +447,8 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
             _require(gate_issue in _ancestors(successor, issue_map), f"{gate_id} successor is not downstream of its gate issue")
 
     _require(plan["review_policy"] == EXPECTED_REVIEW_POLICY, "review policy changed")
-    _require(plan["hard_stop"] == {
+    hard_stop = plan["hard_stop"]
+    _require(hard_stop == {
         "after_issue": "FMV3-M3-03",
         "before_issue": "FMV3-M4-01",
         "gateway_work": "blocked",
@@ -439,7 +473,7 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     title = m3["title"].lower()
     _require("transport-neutral" in title and "read-only" in title, "M3-03 title lost its boundary")
 
-    _validate_mirrors(plan_dir, milestones, issues)
+    _validate_mirrors(plan_dir, milestones, issues, hard_stop)
     return {"issues": len(issues), "milestones": len(milestones), "contracts": len(contracts)}
 
 
