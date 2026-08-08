@@ -159,6 +159,9 @@ class ExecutionPlanProcessTests(unittest.TestCase):
             "sole current ready row",
             "sole initial ready row",
             "mint CLEAN token",
+            "outcome_gates",
+            "only GO releases",
+            "successors released only by GO",
             "digest-bound completion token",
             "token-authoritative",
         ):

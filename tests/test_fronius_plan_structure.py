@@ -158,29 +158,11 @@ class FroniusPlanStructureTests(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, "accepted issue graph changed"):
             self.assert_issue_graph_locked(document)
 
-    def test_outcome_gates_release_successors_only_on_go(self) -> None:
-        document = self.document(PLAN_DIR)
-        for gate in document["outcome_gates"]:
-            self.assertEqual(gate["release_outcome"], "GO")
-            self.assertEqual(gate["non_release_outcomes"], ["NO_GO", "STOP"])
-            for outcome in gate["allowed_outcomes"]:
-                released = gate["gated_successors"] if outcome == gate["release_outcome"] else []
-                if outcome == "GO":
-                    self.assertTrue(released)
-                else:
-                    self.assertEqual(released, [])
-
-    def test_rejects_outcome_gate_release_drift(self) -> None:
+    def test_rejects_plan_local_outcome_release_authority(self) -> None:
         def mutate(document: dict[str, Any]) -> None:
-            document["outcome_gates"][0]["release_outcome"] = "NO_GO"
+            document["outcome_gates"] = [{"release_outcome": "GO"}]
 
-        self.assert_document_rejected(mutate, "outcome gate declarations changed")
-
-    def test_rejects_outcome_gate_successor_removal(self) -> None:
-        def mutate(document: dict[str, Any]) -> None:
-            document["outcome_gates"][1]["gated_successors"].remove("FMV3-M8-02")
-
-        self.assert_document_rejected(mutate, "outcome gate declarations changed")
+        self.assert_document_rejected(mutate, "plan.yaml root fields are invalid")
 
     def test_rejects_missing_issue_acceptance(self) -> None:
         def mutate(document: dict[str, Any]) -> None:

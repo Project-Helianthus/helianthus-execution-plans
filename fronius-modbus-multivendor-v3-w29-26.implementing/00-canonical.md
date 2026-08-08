@@ -19,7 +19,7 @@ The machine-readable surface is intentionally small:
 
 - `plan.yaml` contains the 46 issue nodes with concise acceptance, applicable gates, and
   rollback, plus 9 milestones, repository ownership, dependency edges, two declarative
-  outcome gates, retained domain contract IDs and versions, ordering constraints, review
+  decision records, retained domain contract IDs and versions, ordering constraints, review
   policy, the M3-03 transport-neutral boundary, and the hard stop;
 - `validate_plan.py` reads local files and checks only structural and semantic
   consistency;

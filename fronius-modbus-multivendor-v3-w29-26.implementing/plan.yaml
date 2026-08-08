@@ -63,22 +63,6 @@ transport_neutral_boundary:
   allowed_dispositions: [STANDARD_ONLY, OVERLAY_REQUIRED]
   proof_owner: Project-Helianthus/helianthus-modbusreg
 
-outcome_gates:
-  - id: live_smoke
-    gate_issue: FMV3-M4-04
-    allowed_outcomes: [GO, NO_GO, STOP]
-    release_outcome: GO
-    non_release_outcomes: [NO_GO, STOP]
-    evidence_issues: [FMV3-M4-04, FMV3-M4-05]
-    gated_successors: [FMV3-M5-01, FMV3-M5-02, FMV3-M5-03, FMV3-M5-04, FMV3-M5-09, FMV3-M5-05, FMV3-M5-06, FMV3-M5-07, FMV3-M5-08]
-  - id: semantic_lock
-    gate_issue: FMV3-M5-03
-    allowed_outcomes: [GO, NO_GO, STOP]
-    release_outcome: GO
-    non_release_outcomes: [NO_GO, STOP]
-    evidence_issues: [FMV3-M5-03]
-    gated_successors: [FMV3-M5-09, FMV3-M5-05, FMV3-M5-06, FMV3-M5-07, FMV3-M5-08, FMV3-M6-00, FMV3-M6-01, FMV3-M6-02, FMV3-M6-03, FMV3-M8-00, FMV3-M8-01, FMV3-M8-02]
-
 ordering:
   - id: modbus_foundation
     sequence: [FMV3-M1-00, FMV3-M1-01, FMV3-M1-02, FMV3-M1-04]
@@ -337,7 +321,7 @@ issues:
     repo: Project-Helianthus/helianthus-execution-plans
     depends_on: [FMV3-M5-04]
     title: Record the lock decision for the tested semantic MCP version
-    acceptance: Fresh review of the tested semantic mapping, MCP version, golden and live results, quality, freshness, provenance, and compatibility records exactly GO, NO_GO, or STOP; only GO releases the declared GraphQL and consumer successors.
+    acceptance: Fresh review records the tested semantic mapping, MCP version, golden and live results, quality, freshness, provenance, compatibility, and the operator's disposition; current GitHub and owning-repository state determine any follow-up work.
     gates: [semantic_lock, adversarial_review, operator_go]
     rollback: Revoke an unpublished GO or publish a new compatible contract and lock decision after release.
   - id: FMV3-M5-04
@@ -353,7 +337,7 @@ issues:
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M5-03]
     title: Publish PUBLIC_GRAPHQL_M2M_V1 before GraphQL implementation
-    acceptance: After semantic-lock GO, public documentation defines the locked projection, external access and channel security, compatibility, credentials, and recovery for PUBLIC_GRAPHQL_M2M_V1 without raw registers or subscriptions.
+    acceptance: When current GitHub state and the recorded semantic disposition support publication, public documentation defines the projection, external access and channel security, compatibility, credentials, and recovery for PUBLIC_GRAPHQL_M2M_V1 without raw registers or subscriptions.
     gates: [doc_gate, licensing, semantic_lock, security]
     rollback: Revise before GraphQL publication or retain the published version and issue a compatible correction or deprecation.
   - id: FMV3-M5-05
