@@ -1,65 +1,53 @@
 # Helianthus Execution Plans
 
-This repository is the canonical home for locked Helianthus execution plans.
+This repository holds human-readable cross-repository plans for Helianthus. It records
+architecture decisions, issue IDs, dependency graphs, repository boundaries, contract
+IDs/versions, rollback intent, and explicit stop conditions.
 
-It is not a brainstorm dump and it is not a substitute for code-repo issues.
-Its job is to hold the hardened version of non-trivial workstreams after they
-survive adversarial review and before, during, and after implementation.
+It is not a product runtime, execution service, repository mutation service, or substitute for
+code-repository issues and pull requests.
 
-## What Lives Here
+## Normal workflow
 
-- locked execution plans for cross-repo, milestone, architecture, protocol, and
-  API workstreams
-- Discussions used to attack, revise, and harden those plans before lock
-- issue and milestone mappings for the target code repositories
-- a validator and CI gate for plan layout, token budgets, and proof metadata
+1. Discuss and review a cross-repository plan.
+2. Merge the accepted human-readable plan to `main`.
+3. An agent reads merged `main`.
+4. The agent creates or selects the normal issue, branch, and PR in the code repository
+   that owns the next DAG node.
+5. The code repository proves behavior through its own interfaces/types, golden fixtures,
+   conformance tests, and compatibility tests.
+6. Reusable architecture or protocol knowledge is published in the public docs repo.
 
-## Plan States
+Merging a plan has no post-merge effect. It does not create repositories, issues,
+branches, PRs, commits, deployments, or follow-up jobs.
 
-Plans appear in this repository only from `locked` onward.
+## Plan contents
 
-- `Discussion`: pre-lock incubation in GitHub Discussions
-- `slug.locked/`: canonical plan accepted and merged
-- `slug.implementing/`: first code PR has opened in a target repository
-- `slug.maintenance/`: main implementation wave is merged; only follow-ups,
-  bugfixes, docs capture, and maintenance remain
+A plan is primarily Markdown. It may include a small `plan.yaml` when machine-readable
+IDs, dependencies, repository boundaries, contract versions, or a hard stop materially
+reduce drift.
 
-Only one active directory may exist for a given slug.
-
-## Required Layout
+The common layout is:
 
 ```text
 <slug>.<state>/
-  plan.yaml
   00-canonical.md
   01-index.md
   10-*.md
   90-issue-map.md
   91-milestone-map.md
   99-status.md
+  plan.yaml
+  validate_plan.py
 ```
 
-## Discussion Workflow
+Lifecycle labels are descriptive:
 
-Discussions in this repository are the official venue for:
+- `locked`: accepted roadmap, no code work started;
+- `implementing`: at least one code-repository issue is in progress;
+- `maintenance`: the main wave is complete and follow-up context remains.
 
-- adversarial planning
-- multi-agent attacks and defenses
-- deep research passes
-- plan hardening before lock
-
-Recommended discussion comment markers:
-
-- `ATTACK`
-- `DEFENSE`
-- `RESEARCH`
-- `REVISION`
-- `LOCK`
-
-Default lock threshold:
-
-- at least 2 independent adversarial passes
-- at least 1 deep research pass for architecture, protocol, or API work
+These labels do not grant permission or change repository state.
 
 ## Validation
 
@@ -69,20 +57,37 @@ Run:
 ./scripts/validate_plans_repo.sh
 ```
 
-The validator checks:
+Repository CI is one read-only job. It parses local YAML with duplicate-key rejection,
+runs local structural/semantic validators, and runs the unit-test suite. Validators may
+check IDs, known repositories, dependencies, acyclicity, Markdown mirrors, retained
+contract versions, declared ordering, and hard stops.
 
-- plan directory layout
-- single active state per slug
-- `plan.yaml` consistency
-- canonical hash drift
-- required chunk headers
-- token budgets below `10000` for GPT-5-family and Claude tokenizers
+Validators must not:
 
-## Seed Plan
+- query GitHub or another network service;
+- check out another repository or PR;
+- create or mutate product repositories;
+- scan arbitrary implementation source to prove product behavior;
+- trigger post-merge work;
+- duplicate long implementation contracts as Python strings.
 
-The repository is seeded with:
+## Review policy
 
-- `observe-first-bus-observability.implementing/`
+Review has no arbitrary round cap. Fresh exact-HEAD review continues while P0-P2
+findings exist. Merge requires a fresh exact-HEAD `NO_BLOCKING_FINDINGS` verdict and all
+prior P0-P2 resolved or independently validated as by design.
 
-This imports the active observability workstream from the existing workspace into
-the new canonical plan layout.
+P3/P4 findings are triaged as fix, backlog, or by design. They are nonblocking and do not
+force another round. Duplicate findings do not reopen. A disputed by-design decision gets
+one independent opinion.
+
+Reviewers stay within acceptance criteria and the declared threat model. A P2 requires a
+concrete reachable scenario, wrong behavior, relevant impact, and a verifiable fix
+criterion; theoretical out-of-threat-model possibilities are not P2.
+
+## Knowledge ownership
+
+This repository tracks planning intent. Durable public protocol, topology, runtime, and
+API knowledge belongs in `Project-Helianthus/helianthus-docs-ebus` or the corresponding
+future protocol documentation repository. Product behavior and its proof belong in the
+code repository that owns that behavior.

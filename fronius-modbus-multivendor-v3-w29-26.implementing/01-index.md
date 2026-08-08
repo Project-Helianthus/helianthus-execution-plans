@@ -1,22 +1,13 @@
-# Implementing package index
+# Plan index
 
-Canonical-SHA256: `49688ec3e29b92a643b655dd4771f564568d0be08d1d53d7de4fdb9d0eb499de`
-
-| File | Purpose |
-|---|---|
-| `plan.yaml` | Machine-readable decisions, milestones, risks, gates, and issue DAG |
-| `00-canonical.md` | Canonical human review surface |
-| `01-index.md` | Package index and canonical digest mirror |
-| `10-architecture-and-repo-boundaries.md` | Layer, ownership, runtime, licensing, and import contracts |
-| `11-fronius-readonly-and-semantic-lock.md` | Fronius phase 1, raw MCP, live proof, and semantic promotion |
-| `12-vendor-expansion-and-private-bindings.md` | SunSpec, Growatt, Huawei, eeBUS, Matter, and EMMA deferral |
-| `13-roadmap-gates-and-risks.md` | DAG interpretation, gates, recovery, risks, and stop/go rules |
-| `90-issue-map.md` | Executable one-repository issue rows |
-| `91-milestone-map.md` | Cross-repository grouping and critical-path view |
-| `92-adversarial-review.md` | Bounded review epochs, immutable history, and active placeholders |
-| `99-status.md` | Current implementing and authorization state |
-| `validate_plan.py` | Structural validator for this lifecycle package |
-
-Review order: canonical, chunks 10 through 13, issue map, milestone map, review
-contract, then status. `plan.yaml` is authoritative for machine-readable topology;
-`00-canonical.md` is authoritative for human-readable decisions.
+- `00-canonical.md` - purpose, boundaries, retained contracts, review policy, and hard stop
+- `10-architecture-and-repo-boundaries.md` - layer and repository ownership
+- `11-fronius-readonly-and-semantic-lock.md` - M1-M5 Fronius-first path
+- `12-vendor-expansion-and-private-bindings.md` - M6-M8 expansion and private outputs
+- `13-roadmap-gates-and-risks.md` - milestones, rollback, review, and risks
+- `90-issue-map.md` - human mirror of all 46 issue nodes
+- `91-milestone-map.md` - human mirror of all 9 milestones
+- `92-adversarial-review.md` - accepted review rules and concise decision history
+- `99-status.md` - current plan status and stop condition
+- `plan.yaml` - small machine-readable graph and retained identifiers
+- `validate_plan.py` - local read-only structural and semantic validator

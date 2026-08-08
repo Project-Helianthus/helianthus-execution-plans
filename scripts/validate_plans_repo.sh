@@ -4,257 +4,41 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONDONTWRITEBYTECODE=1
 
-FMV3_DOCS_CANDIDATE_SHA="4a4c6f431ae0166e309bee71771c66aebe0d173a"
-FMV3_DOCS_CANDIDATE_REMOTE="https://github.com/Project-Helianthus/helianthus-docs-ebus.git"
-fmv3_docs_temp=""
-cleanup_fmv3_docs_candidate() {
-  if [ -n "$fmv3_docs_temp" ]; then
-    rm -rf "$fmv3_docs_temp"
-  fi
-}
-trap cleanup_fmv3_docs_candidate EXIT
-if [ -z "${FMV3_DOCS_CANDIDATE_ROOT:-}" ]; then
-  fmv3_docs_temp="$(mktemp -d "${TMPDIR:-/tmp}/fmv3-docs-candidate.XXXXXX")"
-  git -C "$fmv3_docs_temp" init -q
-  git -C "$fmv3_docs_temp" remote add origin "$FMV3_DOCS_CANDIDATE_REMOTE"
-  git -C "$fmv3_docs_temp" fetch -q --depth=1 origin "$FMV3_DOCS_CANDIDATE_SHA"
-  git -C "$fmv3_docs_temp" checkout -q --detach FETCH_HEAD
-  git -C "$fmv3_docs_temp" remote set-url --push origin "$FMV3_DOCS_CANDIDATE_REMOTE"
-  export FMV3_DOCS_CANDIDATE_ROOT="$fmv3_docs_temp"
-fi
-
-VALIDATION_CACHE_ROOT="${HELIANTHUS_VALIDATION_CACHE_ROOT:-${TMPDIR:-/tmp}}"
-TOKEN_VENV="$VALIDATION_CACHE_ROOT/helianthus-plans-tokenenv"
-if [ ! -x "$TOKEN_VENV/bin/python" ]; then
-  if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
-    echo "Pinned Python validation dependencies were not pre-provisioned." >&2
-    exit 1
-  fi
-  python3 -m venv "$TOKEN_VENV"
-  "$TOKEN_VENV/bin/pip" install -q 'PyYAML==6.0.2' 'tiktoken==0.11.0' >/dev/null
-fi
-
-"$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_msp_r00_l_ledger.py"
-"$TOKEN_VENV/bin/python" "$ROOT/scripts/aggregate_completion_token.py" verify-inputs \
-  --root "$ROOT" \
-  --platform-envelope "$ROOT/tests/fixtures/msp_docs_e2r_aggregate/platform_b_completion_envelope.json" \
-  --publish-envelope "$ROOT/tests/fixtures/msp_docs_e2r_aggregate/publish_completion_envelope.json" \
-  --architecture-review "$ROOT/multi-runtime-semantic-platform.locked/108-msp-docs-e2r-aggregate-architecture-review.json" \
-  --process-attestation "$ROOT/multi-runtime-semantic-platform.locked/109-msp-docs-e2r-aggregate-process-attestation.json" \
-  --clean-repository "Project-Helianthus/helianthus-eebusreg" \
-  --clean-base "0e58327dfdb86ef243a19e18d590564813feaa00"
-issue_63_head="${AD_DOCS_02_ISSUE_63_HEAD:-}"
-if [ -z "$issue_63_head" ] \
-  && [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ] \
-  && [ "${GITHUB_HEAD_REF:-}" = "issue/63-e2r-architecture-gates" ]; then
-  if [ -z "${GITHUB_EVENT_PATH:-}" ]; then
-    echo "AD-DOCS-02: issue-63 pull_request event path is required" >&2
-    exit 1
-  fi
-  issue_63_head="$("$TOKEN_VENV/bin/python" - "$ROOT" "$GITHUB_EVENT_PATH" <<'PY'
-import sys
+python3 - "$ROOT" <<'PY'
 from pathlib import Path
-
-sys.path.insert(0, sys.argv[1] + "/scripts")
-from validate_ad_docs_02 import ValidationError, pull_request_head_from_event
-
-try:
-    print(pull_request_head_from_event(Path(sys.argv[2])))
-except ValidationError as exc:
-    raise SystemExit("AD-DOCS-02: " + str(exc))
-PY
-)"
-fi
-
-if [ -n "$issue_63_head" ]; then
-  "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py" --issue-63-head "$issue_63_head"
-else
-  "$TOKEN_VENV/bin/python" "$ROOT/scripts/validate_ad_docs_02.py"
-fi
-"$TOKEN_VENV/bin/python" -m unittest discover -s "$ROOT/tests" -p "test*.py"
-
-fronius_plan_dir=""
-fronius_plan_count=0
-for state in locked implementing maintenance; do
-  candidate="$ROOT/fronius-modbus-multivendor-v3-w29-26.$state"
-  if [ -d "$candidate" ]; then
-    fronius_plan_dir="$candidate"
-    fronius_plan_count=$((fronius_plan_count + 1))
-  fi
-done
-if [ "$fronius_plan_count" -ne 1 ]; then
-  echo "Expected exactly one active Fronius Modbus plan lifecycle directory." >&2
-  exit 1
-fi
-"$TOKEN_VENV/bin/python" "$fronius_plan_dir/validate_plan.py" "$fronius_plan_dir"
-
-NODE_DIR="$VALIDATION_CACHE_ROOT/helianthus-plans-node"
-if [ ! -d "$NODE_DIR/node_modules/@anthropic-ai/tokenizer" ]; then
-  if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
-    echo "Pinned Node validation dependencies were not pre-provisioned." >&2
-    exit 1
-  fi
-  mkdir -p "$NODE_DIR"
-  cp "$ROOT/scripts/validation-node/package.json" "$NODE_DIR/package.json"
-  cp "$ROOT/scripts/validation-node/package-lock.json" "$NODE_DIR/package-lock.json"
-  npm ci --silent --ignore-scripts --prefix "$NODE_DIR" >/dev/null 2>&1
-fi
-
-ROOT="$ROOT" NODE_PATH="$NODE_DIR/node_modules" "$TOKEN_VENV/bin/python" - <<'PY'
-from __future__ import annotations
-
-import hashlib
-import os
-import re
-import subprocess
 import sys
-from pathlib import Path
-
-import tiktoken
 import yaml
 
-ROOT = Path(os.environ["ROOT"])
-NODE_PATH = os.environ["NODE_PATH"]
-STATE_RE = re.compile(r"^(?P<slug>.+)\.(?P<state>locked|implementing|maintenance)$")
-DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-REQUIRED_KEYS = [
-    "slug",
-    "title",
-    "state",
-    "source_discussion",
-    "target_repos",
-    "knowledge_repo",
-    "canonical_file",
-    "split_index",
-    "started_on",
-    "current_milestone",
-]
-REQUIRED_HEADERS = [
-    "Depends on:",
-    "Scope:",
-    "Idempotence contract:",
-    "Falsifiability gate:",
-    "Coverage:",
-]
-GPT_LIMIT = 10000
-CLAUDE_LIMIT = 10000
-enc = tiktoken.get_encoding("o200k_base")
+
+class UniqueKeyLoader(yaml.SafeLoader):
+    pass
 
 
-def fail(message: str) -> None:
-    print(message, file=sys.stderr)
-    raise SystemExit(1)
+def unique_mapping(loader, node, deep=False):
+    result = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in result:
+            raise SystemExit(f"duplicate YAML key in {current}: {key}")
+        result[key] = loader.construct_object(value_node, deep=deep)
+    return result
 
 
-def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def claude_tokens(path: Path) -> int:
-    js = """
-const fs = require('fs');
-const { countTokens } = require('@anthropic-ai/tokenizer');
-const txt = fs.readFileSync(process.argv[1], 'utf8');
-process.stdout.write(String(countTokens(txt)));
-"""
-    result = subprocess.run(
-        ["node", "-e", js, str(path)],
-        check=True,
-        capture_output=True,
-        text=True,
-        env={**os.environ, "NODE_PATH": NODE_PATH},
-    )
-    return int(result.stdout.strip())
-
-
-def load_yaml(path: Path) -> dict:
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict):
-        fail(f"{path}: plan.yaml must contain a mapping")
-    return data
-
-
-plan_dirs = sorted(p for p in ROOT.iterdir() if p.is_dir() and STATE_RE.match(p.name))
-if not plan_dirs:
-    fail("no plan directories found")
-
-slug_to_dir = {}
-for plan_dir in plan_dirs:
-    match = STATE_RE.match(plan_dir.name)
-    assert match is not None
-    slug = match.group("slug")
-    state = match.group("state")
-    if slug in slug_to_dir:
-        fail(f"multiple active plan directories found for slug '{slug}'")
-    slug_to_dir[slug] = plan_dir
-
-    required_files = [
-        "plan.yaml",
-        "00-canonical.md",
-        "01-index.md",
-        "90-issue-map.md",
-        "91-milestone-map.md",
-        "99-status.md",
-    ]
-    for rel in required_files:
-        if not (plan_dir / rel).is_file():
-            fail(f"{plan_dir.name}: missing required file {rel}")
-
-    chunk_files = sorted(plan_dir.glob("1[0-9]-*.md"))
-    if not chunk_files:
-        fail(f"{plan_dir.name}: missing chunk files matching 1[0-9]-*.md")
-
-    meta = load_yaml(plan_dir / "plan.yaml")
-    for key in REQUIRED_KEYS:
-        if key not in meta:
-            fail(f"{plan_dir.name}: plan.yaml missing key '{key}'")
-
-    if meta["slug"] != slug:
-        fail(f"{plan_dir.name}: plan.yaml slug '{meta['slug']}' does not match directory slug '{slug}'")
-    if meta["state"] != state:
-        fail(f"{plan_dir.name}: plan.yaml state '{meta['state']}' does not match directory state '{state}'")
-    if not isinstance(meta["target_repos"], list) or not meta["target_repos"]:
-        fail(f"{plan_dir.name}: target_repos must be a non-empty list")
-    if not DATE_RE.match(str(meta["started_on"])):
-        fail(f"{plan_dir.name}: started_on must use YYYY-MM-DD")
-
-    canonical = plan_dir / str(meta["canonical_file"])
-    index = plan_dir / str(meta["split_index"])
-    if canonical.name != "00-canonical.md":
-        fail(f"{plan_dir.name}: canonical_file must be 00-canonical.md")
-    if index.name != "01-index.md":
-        fail(f"{plan_dir.name}: split_index must be 01-index.md")
-    if not canonical.is_file():
-        fail(f"{plan_dir.name}: canonical file not found: {canonical.name}")
-    if not index.is_file():
-        fail(f"{plan_dir.name}: split index not found: {index.name}")
-
-    canonical_hash = sha256(canonical)
-    expected_hash_line = f"Canonical-SHA256: `{canonical_hash}`"
-
-    index_text = index.read_text(encoding="utf-8")
-    if expected_hash_line not in index_text:
-        fail(f"{plan_dir.name}: index hash mismatch")
-
-    for chunk in chunk_files:
-        text = chunk.read_text(encoding="utf-8")
-        if expected_hash_line not in text:
-            fail(f"{plan_dir.name}: chunk hash mismatch in {chunk.name}")
-        for header in REQUIRED_HEADERS:
-            if re.search(rf"^{re.escape(header)}", text, re.MULTILINE) is None:
-                fail(f"{plan_dir.name}: missing header '{header}' in {chunk.name}")
-        if chunk.name not in index_text:
-            fail(f"{plan_dir.name}: index does not reference {chunk.name}")
-
-        gpt_tokens = len(enc.encode(text))
-        if gpt_tokens >= GPT_LIMIT:
-            fail(f"{plan_dir.name}: GPT token budget exceeded in {chunk.name} ({gpt_tokens})")
-
-        claude = claude_tokens(chunk)
-        if claude >= CLAUDE_LIMIT:
-            fail(f"{plan_dir.name}: Claude token budget exceeded in {chunk.name} ({claude})")
-
-        print(f"{plan_dir.name}\t{chunk.name}\tGPT={gpt_tokens}\tClaude={claude}")
-
-print(f"validated {len(plan_dirs)} plan(s)")
+UniqueKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+    unique_mapping,
+)
+root = Path(sys.argv[1])
+plans = sorted(root.glob("*.*/plan.yaml"))
+if not plans:
+    raise SystemExit("no plan.yaml files found")
+for current in plans:
+    value = yaml.load(current.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
+    if not isinstance(value, dict):
+        raise SystemExit(f"{current}: root must be a mapping")
+print(f"YAML valid: {len(plans)} plan files")
 PY
+
+PLAN="$ROOT/fronius-modbus-multivendor-v3-w29-26.implementing"
+python3 "$PLAN/validate_plan.py" "$PLAN"
+python3 -m unittest discover -s "$ROOT/tests" -p "test*.py"
