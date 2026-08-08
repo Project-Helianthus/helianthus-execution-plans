@@ -105,8 +105,8 @@ publish sanitized applicability evidence. These are retained roadmap nodes, not 
 work.
 
 The live smoke records `GO`, `NO_GO`, or `STOP`. `FMV3-M4-05` packages any of those
-outcomes so failed or stopped work remains reviewable, but only `GO` satisfies the live
-gate and releases its declared M5 successors after normal DAG prerequisites complete.
+outcomes so failed or stopped work remains reviewable. The result informs explicit
+GitHub triage and operator direction; it does not release or authorize an M5 issue.
 
 ## Deferred M5 semantic promotion
 
@@ -123,9 +123,10 @@ M5 preserves this order:
 Raw Portal diagnostics remain bounded and separate from semantic GraphQL. Home Assistant
 consumes GraphQL, not raw register or unstable MCP representations.
 
-The semantic lock also records `GO`, `NO_GO`, or `STOP`. Only `GO` releases the listed
-GraphQL, public rollout, eeBUS, and Matter successors; `NO_GO` and `STOP` preserve the
-candidate and review evidence for remediation without satisfying the gate.
+The semantic review also records `GO`, `NO_GO`, or `STOP`. The result preserves candidate
+and review evidence for explicit GitHub triage and operator direction. It does not
+release, authorize, or automatically block GraphQL, public rollout, eeBUS, or Matter
+issues.
 
 ## Proof location
 

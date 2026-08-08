@@ -297,7 +297,7 @@ issues:
     repo: Project-Helianthus/helianthus-docs-ebus
     depends_on: [FMV3-M3-01, FMV3-M4-04]
     title: Publish sanitized Fronius applicability evidence and retained unknowns
-    acceptance: Documentation preserves the M4-04 outcome, tested model, firmware, profile, gateway mode, smoke and recovery results, unknown fields, and provenance without secrets; NO_GO or STOP remains evidence-only and releases no M5 successor.
+    acceptance: Documentation preserves the M4-04 outcome, tested model, firmware, profile, gateway mode, smoke and recovery results, unknown fields, and provenance without secrets; NO_GO or STOP remains valid evidence and every M5 follow-up is explicitly triaged from current GitHub state and operator direction.
     gates: [doc_gate, licensing, hardware_required]
     rollback: Retract unsupported applicability and return affected fields to Unknown.
   - id: FMV3-M5-01
@@ -425,7 +425,7 @@ issues:
     repo: Project-Helianthus/helianthus-modbusreg
     depends_on: [FMV3-M7-02]
     title: Decide Growatt admission and add only evidence-supported profiles
-    acceptance: Record PROFILE_ADMITTED or NO_ADMISSIBLE_PROFILE from the published evidence; only admission adds RED-first bounded read-only fixtures and code, while non-admission preserves evidence without catalog support and releases M7-04.
+    acceptance: Record PROFILE_ADMITTED or NO_ADMISSIBLE_PROFILE from the published evidence; only evidence-supported profiles add RED-first bounded read-only fixtures and code, while non-admission preserves evidence without catalog support and M7-04 remains an ordinary downstream issue requiring current-state triage.
     gates: [CI, licensing, protocol_interop, hardware_conditional, doc_gate, TDD_RED_IF_PROFILE_ADMITTED]
     rollback: Disable an admitted Growatt profile or revise non-admission only when new qualified evidence reopens evaluation.
   - id: FMV3-M7-04

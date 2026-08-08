@@ -164,6 +164,25 @@ class FroniusPlanStructureTests(unittest.TestCase):
 
         self.assert_document_rejected(mutate, "plan.yaml root fields are invalid")
 
+    def test_active_plan_has_no_outcome_release_language(self) -> None:
+        text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(PLAN_DIR.iterdir())
+            if path.suffix in {".md", ".yaml"}
+        )
+        for forbidden in (
+            "only `GO` satisfies",
+            "Only `GO` releases",
+            "releases its declared",
+            "releases no M5 successor",
+            "releases M7-04",
+            "release_outcome:",
+            "gated_successors:",
+            "outcome_gates:",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, text)
+
     def test_rejects_missing_issue_acceptance(self) -> None:
         def mutate(document: dict[str, Any]) -> None:
             self.issue(document, "FMV3-M2-03")["acceptance"] = ""
