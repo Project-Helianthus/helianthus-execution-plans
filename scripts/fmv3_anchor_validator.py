@@ -1354,6 +1354,22 @@ class MutationProcessController:
                 )
             self.pump_pipes(min(0.05, remaining))
 
+    def wait_for_group_absence(self, timeout_seconds: float) -> None:
+        deadline = time.monotonic() + timeout_seconds
+        while True:
+            try:
+                os.killpg(self.process.pid, 0)
+            except ProcessLookupError:
+                return
+            except PermissionError:
+                pass
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise MutationProcessGroupFenceError(
+                    "mutation process group remained present after SIGKILL"
+                )
+            self.pump_pipes(min(0.05, remaining))
+
     def fence_and_reap(
         self, grace_seconds: float = 2, kill_grace_seconds: float = 2,
     ) -> tuple[int, bytes, bytes]:
@@ -1384,6 +1400,7 @@ class MutationProcessController:
                 )
             self.group_actions_closed = True
         returncode = self.reap_leader()
+        self.wait_for_group_absence(kill_grace_seconds)
         self.drain_after_reap()
         return returncode, bytes(self.stdout), bytes(self.stderr)
 

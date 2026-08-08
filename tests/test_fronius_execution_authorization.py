@@ -8778,6 +8778,10 @@ var _ *net.TCPConn
             'test "$(git rev-parse HEAD)" = "${{ github.sha }}"',
             post_merge,
         )
+        self.assertIn('git checkout -B main "${{ github.sha }}"', post_merge)
+        self.assertIn(
+            'test "$(git symbolic-ref --short HEAD)" = main', post_merge
+        )
 
     def test_pull_request_ci_jobs_receive_no_github_token(self) -> None:
         workflow = yaml.safe_load(

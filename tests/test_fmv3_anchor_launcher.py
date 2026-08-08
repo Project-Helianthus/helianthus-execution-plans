@@ -994,7 +994,7 @@ def record_reap(event, result):
     return result
 
 def traced_killpg(pgid, signum):
-    if reaped:
+    if reaped and signum != 0:
         raise RuntimeError("process-group action followed leader reap")
     events.append(f"killpg:{{signum}}")
     return real_killpg(pgid, signum)
@@ -1038,8 +1038,10 @@ print(json.dumps(events))
         )
         self.assertTrue(any(event.startswith("killpg:") for event in events))
         self.assertFalse(any(
-            event.startswith("killpg:") for event in events[reap_index + 1:]
+            event in {f"killpg:{signal.SIGTERM}", f"killpg:{signal.SIGKILL}"}
+            for event in events[reap_index + 1:]
         ))
+        self.assertIn("killpg:0", events[reap_index + 1:])
 
     def test_mutation_process_pumps_one_mib_input_and_output_without_deadlock(self) -> None:
         child_program = (
