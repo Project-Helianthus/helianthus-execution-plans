@@ -1809,9 +1809,22 @@ pv/registry.go
 plus tests
 ~~~
 
-The lane was stopped before edit or RED. Read-only reconciliation found issue
-#146 open, helianthus-ebusreg main at the declared base and no remote branch ref
-yet. This proposed ownership conflicts directly with HSIR and must not proceed.
+The first reconciliation found issue #146 open, helianthus-ebusreg main at the
+declared base and no remote branch ref; a STOP was issued before edit or RED.
+Despite that STOP, the lane subsequently published draft PR #147:
+
+- RED commit: `8f0596095529884e6b65ca4348c5bd40e313800b`;
+- GREEN exact HEAD: `20deda8afb7decf9d7740c27b119b5027433e1c1`;
+- diff: ten new files, all under `pv/**`;
+- terminology, build, test, TinyGo and lint checks: green;
+- fresh review: running at this checkpoint;
+- PR body: explicitly claims protocol-independent canonical PV ownership in
+  helianthus-ebusreg.
+
+This is a live coordination violation, not an ownership decision. Green CI
+proves only that the seed branch is internally consistent. It does not
+supersede PR #94, approve repository ownership, satisfy SEM-IR-PV-01 or permit
+merge, tag or downstream consumption.
 
 Canonical PV ownership is resolved as follows:
 
@@ -1841,12 +1854,23 @@ Dependency and handoff order:
 6. EBUS-IR-01 may later map real eBUS PV evidence to the same pack without a
    canonical `pv/` package in helianthus-ebusreg.
 
-Recommended disposition: close issue #146 without code as superseded by
+Recommended disposition: close issue #146 without merging code as superseded by
 SEM-IR-PV-01 and MODBUS-IR-01. If historical continuity is required,
 re-scope #146 to an inert inventory/handoff record with no package, RED test or
-implementation. No M5-01 code starts until steps 1-4 are merged and their exact
-current state is reconciled. This STOP is a dependency boundary, not custom
-plan authorization machinery.
+implementation.
+
+Because PR #147 now exists, preserve its branch only as a seed and keep the PR
+draft/unmerged. Do not tag it, consume/import it into gateway, or start gateway
+M5-04.
+After steps 1-4 are merged, SEM-IR-PV-01 may port the reusable code and tests
+into a new helianthus-semreg branch, adapting package/import boundaries and
+revalidating the semantics under semreg ownership. The ebusreg PR is never the
+canonical merge vehicle. After the seed is captured, close PR #147 and issue
+#146 as superseded without merging them.
+
+No further M5-01/M5-04 code or downstream integration starts until this
+ownership chain and exact live state are reconciled. This STOP is a dependency
+boundary, not custom plan authorization machinery.
 
 ## 20. Validation and gates
 
@@ -2027,6 +2051,7 @@ The architecture milestone is complete only when:
 | Ambiguous write is executed twice | Exactly-one route and indeterminate outcome |
 | Protocol additions require gateway rewrite | DriverV1 and leaf HSIR dependency |
 | Canonical PV leaks into an eBUS-specific package | Semreg-owned PV pack; modbusreg/eBUS packages provide native mappings only |
+| Green CI is mistaken for canonical ownership approval | CI qualifies the seed only; PR #147 remains unmerged and ports through SEM-IR-PV-01 |
 | Big-bang cutover breaks legacy consumers | Frozen public contracts, offline full-stack replay, cutover rehearsal and whole-release rollback |
 | Cleanup changes behavior or merely reshuffles giant files | Post-stabilization, behavior-preserving PRs with golden parity and responsibility-based acceptance |
 | Opaque test IDs hide intent or overstate standards coverage | Descriptive behavioral names plus versioned normative traceability metadata |
@@ -2071,8 +2096,9 @@ Implementation must stop separately:
 - before starting structural code/test cleanup until 0.7.0 stabilization is
   recorded, except for decomposition strictly required to build the vNext
   architecture safely;
-- before any M5-01 canonical PV edit or RED in helianthus-ebusreg; first merge
-  the semreg kernel/PV pack ownership chain and re-scope or close issue #146;
+- before merge/tag/downstream use of ebusreg PR #147 or gateway M5-04; preserve
+  the branch as a seed only, first merge the semreg kernel/PV pack ownership
+  chain, then port through SEM-IR-PV-01 and close #146/#147 without merge;
 - when a required normative source or mapping equivalence is unproven.
 
 Merging this plan creates no issue, branch, PR, repository, deployment or
