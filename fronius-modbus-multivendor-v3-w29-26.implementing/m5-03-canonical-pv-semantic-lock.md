@@ -127,12 +127,15 @@ deterministic replay. They must not depend on source register layout, Fronius
 flavor details, raw MCP payloads, generated asset-reference format, or the
 three withheld outputs.
 
-Compatible successors may add optional facts or mappings while preserving V1
-meaning and closed accounting. A breaking meaning, unit, identity, lifecycle,
-or provenance change requires a compatible successor contract and a new lock
-decision. Source/profile failure returns canonical stale or unavailable state
-through registry-owned policy; it must not silently substitute a newer sample
-for replay of an older sample identity.
+A producer update under the same V1 contract may change source mappings only
+when every emitted fact, enum, unit, dimension, and capability-pack member is
+already defined by the closed V1 catalog and its meaning and accounting remain
+unchanged. Any added fact, enum, unit, dimension, or required pack member needs
+a new contract or capability-pack ID and a new lock decision. A breaking
+identity, lifecycle, or provenance change has the same requirement.
+Source/profile failure returns canonical stale or unavailable state through
+registry-owned policy; it must not silently substitute a newer sample for
+replay of an older sample identity.
 
 GraphQL, Portal, Home Assistant, private eeBUS, and private Matter publication
 remain downstream work. This record does not expose or implement those
