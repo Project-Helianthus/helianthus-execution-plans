@@ -60,10 +60,10 @@ hint only and must be refreshed at activation.
 
 The M4-04 gateway fix is merged on gateway main at
 `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b` and becomes the gateway baseline
-for M0. Before vNext work starts, the follow-on legacy add-on 0.6.51 release
-must complete its strictly bounded repin, version, provenance, changelog and
-test work, publish/deploy, and read-only M4-04 validation. That stabilization
-release does not create an HSIR or DriverManager runtime lane.
+for M0. Legacy add-on 0.6.51 is published and deployed as its matching frozen
+comparator baseline. Before vNext work starts, its bounded M4-04 validation
+must also close. That stabilization release and validation do not create an
+HSIR or DriverManager runtime lane.
 
 Version 0.7.0 is the functional architecture and cutover release. A mandatory
 post-0.7 cleanup wave follows stabilization; it is not mixed into the semantic
@@ -1294,8 +1294,9 @@ Deliverables:
 
 - exact current heads and green local CI;
 - gateway baseline at or descended from M4-04 squash merge
-  `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`, plus completed legacy add-on
-  0.6.51 stabilization and read-only validation evidence;
+  `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`, legacy add-on 0.6.51 at merge
+  `8be32bc7f49f3000eba6074f12ca782e10425093`, exact published image digests,
+  deployment evidence and completed bounded M4-04 validation;
 - frozen GraphQL/MCP/Portal/HA compatibility snapshots;
 - current 18 EEBUS promoted-leaf fixture;
 - eBUS B524/B509/standard-source catalog;
@@ -1722,15 +1723,16 @@ of the healthy generation. The offline comparator and future DriverV1 reuse
 this existing Modbus seam; DriverManager must not duplicate it. These legacy
 fixes do not add DriverManager or any vNext lifecycle API to the legacy runtime.
 
-### 19.3 Legacy add-on 0.6.51 reservation
+### 19.3 Legacy add-on 0.6.51 closure and validation boundary
 
-The active add-on coordination lane is issue #212 on branch
+The completed add-on coordination lane was issue #212 / PR #213 on branch
 `issue/212-release-0651-modbus-mcp-recovery`, based on
 `cd6017bf554987b8ebb423b4de88af391461b125`, targeting release 0.6.51 and pinning
-gateway `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`.
+gateway `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`. Its final premerge HEAD was
+`2d2a32e1db9b608292f36283e561a297476fe028`; squash merge on add-on main is
+`8be32bc7f49f3000eba6074f12ca782e10425093`.
 
-Its exact packaging-only write-set is owner-exclusive until squash merge or
-explicit handoff:
+Its exact packaging-only write-set was:
 
 ~~~text
 helianthus-ha-addon:
@@ -1748,20 +1750,34 @@ helianthus-ha-addon:
   tests/test_modbus_runtime_guard.py
 ~~~
 
-Wrapper/schema/runtime implementation, deployment and live validation are
-outside issue #212. Publish/deploy and M4-04 read-only validation are later
-release boundaries, not implied by packaging merge.
+Wrapper/schema/runtime implementation, deployment and live validation were
+outside issue #212 / PR #213. The packaging reservation is released by squash
+merge; future edits still require ordinary live write-set reconciliation.
 
 Gateway CI run `32032466778` for main SHA
-`6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b` is in progress at this checkpoint:
-build, lint and terminology are green, while the test job is still running.
-The parity artifact is hard-stopped until that run reaches `SUCCESS`. This is a
-revalidated dependency gate, not plan authorization machinery.
+`6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b` completed `SUCCESS`. Add-on publish
+run `32034812409` for main SHA
+`8be32bc7f49f3000eba6074f12ca782e10425093` also completed `SUCCESS`.
 
-There is zero overlap with the HSIR plan-only lane. Future executors must not
-claim the listed add-on files until issue #212 records squash merge or explicit
-handoff, and must re-read the run and lane because this checkpoint can become
-stale. No HSIR or DriverManager runtime work exists in gateway or add-on.
+Published 0.6.51 evidence:
+
+- multi-architecture digest:
+  `sha256:876098e26a6b5f698d0f992f61a0784af8f677f4e3b96a424869fda9609eec6e`;
+- arm64 digest:
+  `sha256:0a9b443085369bfa92919699257880e2d5a764a32d95c9af91a1893cc193f783`;
+- deployment backup: `0d5b6628`;
+- direct deployment retained the existing ENS, Modbus and EEBUS options;
+- ports 8080 and 19001 are up and GraphQL returns HTTP 200.
+
+Release 0.6.51 is the frozen legacy comparator baseline if plan #93 has not
+advanced to a later explicitly reconciled baseline. This is comparison
+evidence, not executable pinning or permission to start vNext.
+
+Fronius now enters the separate M4-04 live-validation boundary: read-only
+observation plus one bounded Modbus reset. EEBUS and FM5 writes are forbidden.
+There is zero overlap with the HSIR plan-only lane, and no HSIR or DriverManager
+runtime work exists in gateway or add-on. Future executors re-read deployment
+and validation state because this checkpoint can become stale.
 
 ## 20. Validation and gates
 
