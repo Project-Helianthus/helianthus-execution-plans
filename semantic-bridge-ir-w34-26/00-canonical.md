@@ -1288,8 +1288,9 @@ Deliverables:
 - EEBUS 32/143/48/36 inventory;
 - full pinned SunSpec model inventory;
 - current runtime and driver lifecycle inventory;
-- live Modbus M4-04 regression fixtures proving private-endpoint sanitization
-  in `modbus.v1.raw.read` errors and raw MCP reconnect/retry after TCP reset;
+- live Modbus M4-04 regression fixtures proving endpoint-free
+  `modbus.v1.raw.read` errors and exactly one bounded raw MCP reconnect+retry
+  after a TCP reset only when `Snapshot.ReconnectRequired` is true;
 - source/version ledger for Matter, EVCC and OCPP.
 
 Exit:
@@ -1615,8 +1616,8 @@ The same task receives checkpoints at merge, release and live/deployment
 boundaries. This is coordination, not workflow authority; current GitHub and
 runtime state must still be re-read.
 
-Reference state supplied by the operator on 2026-08-17, superseded where noted
-by the later same-day coordination update:
+Initial reference state supplied by the operator on 2026-08-17, superseded
+where noted by later same-day coordination updates:
 
 - Fronius declares zero active lane;
 - add-on main and deployed version are 0.6.50 at
@@ -1626,38 +1627,42 @@ by the later same-day coordination update:
 
 Every lane reconciles this snapshot because it can become stale.
 
-The later coordination update reports an active docs-first Fronius lane for two
-live Modbus M4-04 P2 defects against add-on 0.6.50 and gateway
-`7f1cbea90e0b189486febc656632e9e7430c8500`:
+The latest coordination update reports active gateway issue #833, branch
+`issue/833-modbus-mcp-reconnect-redaction`, for two live Modbus M4-04 P2
+defects against add-on 0.6.50. Its exact base and current HEAD are both
+`7f1cbea90e0b189486febc656632e9e7430c8500`. Its documentation gate is already
+merged at `1ca1438813ec80b12a9c4e9565086cecd6160e19`:
 
 - `modbus.v1.raw.read error.message` leaks a private endpoint;
 - raw MCP does not reconnect/retry after a TCP reset until the add-on restarts.
 
-That lane reserves the following exact write-set:
+The gateway lane owns the following exact write-set exclusively until merge or
+explicit handoff:
 
 ~~~text
-helianthus-docs-ebus:
-  api/modbus-v1-mcp.md
-  tests/test_modbus_v1_mcp_contract.py
-
 helianthus-ebusgateway:
-  mcp/modbus_v1.go
-  mcp/modbus_v1_test.go
   cmd/gateway/modbus_mcp_provider.go
   cmd/gateway/modbus_mcp_provider_test.go
+  mcp/modbus_v1.go
+  mcp/modbus_v1_test.go
 ~~~
 
 The future HSIR executor must receive and reconcile this reservation before its
-first edit. It must not touch those files until the Fronius task records merge
-or an explicit handoff/release of ownership. The Fronius lane explicitly does
-not own `cmd/gateway/main.go` or the composition root, semantic Vaillant code,
-EEBUS, DriverManager, adaptermux, `go.mod`, `go.sum` or the add-on; this negative
-scope is not permission to overlap another active reservation.
+first edit and must not claim or touch those files until the Fronius task
+records merge or an explicit handoff/release of ownership. There is currently
+no concrete overlap with the HSIR plan lane.
+
+The Fronius lane explicitly excludes `cmd/gateway/main.go` and the composition
+root, `go.mod`, `go.sum`, `internal/modbusadapter`, semantic Vaillant code,
+eBUS, EEBUS, DriverManager, adaptermux, the add-on and live deployment. This
+negative scope is not permission to overlap another active reservation.
 
 Both defects become M0 baseline requirements and vNext compatibility fixtures.
-The offline comparator must prove endpoint sanitization and bounded raw MCP
-reconnect/retry after a TCP reset. These legacy fixes do not add DriverManager
-or any vNext lifecycle API to the legacy runtime.
+The implementation scope is endpoint-free public errors plus exactly one
+bounded raw MCP reconnect+retry after a TCP reset, and only when
+`Snapshot.ReconnectRequired` is true. The offline comparator must preserve this
+exact behavior. These legacy fixes do not add DriverManager or any vNext
+lifecycle API to the legacy runtime.
 
 ## 20. Validation and gates
 
@@ -1679,8 +1684,9 @@ or any vNext lifecycle API to the legacy runtime.
 - cache and quantization lineage;
 - absent source timestamp;
 - private transport endpoints are sanitized from public Modbus MCP errors;
-- raw Modbus MCP recovers according to its bounded reconnect/retry contract
-  after a TCP reset without requiring an add-on restart;
+- raw Modbus MCP performs exactly one bounded reconnect+retry after a TCP reset
+  only when `Snapshot.ReconnectRequired` is true, without requiring an add-on
+  restart;
 - false identity rejection;
 - projection loss golden reports;
 - no invented enum equivalence;
@@ -1793,9 +1799,9 @@ The architecture milestone is complete only when:
     rules are exercised without overlapping writes;
 27. gateway/add-on/Modbus lanes record the required Fronius coordination
     notices and checkpoints;
-28. the vNext comparator preserves the merged M4-04 endpoint-sanitization and
-    TCP-reset reconnect/retry behavior without importing DriverManager into
-    legacy;
+28. the vNext comparator preserves the merged M4-04 endpoint-free error
+    contract and exactly-one bounded TCP-reset reconnect+retry only for
+    `Snapshot.ReconnectRequired`, without importing DriverManager into legacy;
 29. whole-release rollback to the frozen legacy artifact and untouched legacy
     state is tested;
 30. the post-0.7 cleanup inventory and issue wave cover the identified
