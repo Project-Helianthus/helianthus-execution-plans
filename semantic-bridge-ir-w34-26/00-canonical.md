@@ -1608,18 +1608,30 @@ Publishing this plan does not create them.
 | DOC-IR-02 | helianthus-docs-ebus | Final mappings, operations and deployment concepts | producer PRs |
 | CLEAN-IR-* | touched vNext repositories | Post-0.7 responsibility-driven code/test decomposition, descriptive test taxonomy and legacy removal | 0.7.0 stabilization |
 
-### 19.1 Plan #93 parallel-lane exception
+### 19.1 Recorded operator direction for parallel lanes
 
-For this plan only, the operator authorizes parallel PRs in the same repository
-when all of the following are true:
+The repository default is one active issue and PR per repository. Separately
+from this plan, the operator explicitly directed that plan #93 may use parallel
+PRs in the same repository under the constraints below. This section records
+that external direction; publishing the plan does not create or extend the
+exception. Every executor re-reads the then-current operator and AGENTS
+instructions before opening a second same-repository PR. If the external
+direction is absent, withdrawn or superseded, execution remains serialized.
+
+While the external direction remains effective, all of the following are
+required:
 
 - every PR uses a separate worktree and branch;
 - file/module ownership is disjoint and announced before the first write;
+- no lane imports, consumes or changes a public/internal contract or schema
+  owned by another unmerged same-repository lane;
 - participating lanes send reciprocal notice and adjust around merged changes;
 - every shared file has exactly one owner at a time;
 - merges use an explicit merge train;
 - after each predecessor merge, every dependent PR rebases on current main and
-  reruns full exact-HEAD CI and fresh review.
+  reruns full exact-HEAD CI and fresh review;
+- before merge, each PR is validated against the current merge-train tip,
+  including every predecessor already merged or queued ahead of it.
 
 Integration chokepoints are single-owner and may not be split across concurrent
 lanes:
@@ -1628,9 +1640,9 @@ lanes:
 - the public HSIR schema/contracts;
 - the Home Assistant add-on wrapper/configuration and release packaging.
 
-This is a scoped exception for plan #93 and does not change the organization
-default. Documentation-gate companions follow the code lane that owns each
-semantic or protocol change.
+This recorded direction is scoped to plan #93 and does not change the
+organization default or authorize any other plan. Documentation-gate
+companions follow the code lane that owns each semantic or protocol change.
 
 ### 19.2 Mandatory Fronius lane coordination
 
