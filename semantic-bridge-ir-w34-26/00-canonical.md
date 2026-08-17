@@ -1182,6 +1182,10 @@ helianthus-modbus + helianthus-modbusreg
 Required changes:
 
 - keep transport, PDU, TCP/RTU lifecycle and bounds in helianthus-modbus;
+- treat the existing `internal/modbusadapter.ExecuteReadWithReconnect` under
+  `executeMu` as the Modbus adapter/transport seam: future DriverV1 reuses it
+  or relocates it with behavior preserved; DriverManager must not duplicate
+  reconnect, retry ownership, quota or healthy-generation teardown logic;
 - keep standard and vendor profile detection, decode and native provenance in
   helianthus-modbusreg;
 - remove cross-protocol canonical PV ownership from eBUS-specific packages;
@@ -1291,7 +1295,9 @@ Deliverables:
 - live Modbus M4-04 regression fixtures proving endpoint-free
   `modbus.v1.raw.read` provider errors and at most one raw MCP reconnect+retry
   inside one total bounded context after a TCP reset, owner-gated by
-  `Snapshot.ReconnectRequired`, with one quota and an immutable PDU;
+  `Snapshot.ReconnectRequired`, with one quota and an immutable PDU, including
+  two concurrent raw callers that cause one reconnect and do not tear down the
+  healthy generation;
 - source/version ledger for Matter, EVCC and OCPP.
 
 Exit:
@@ -1403,6 +1409,9 @@ Deliverables:
 - real EEBUS northbound SPINE server features/use cases/read/subscribe and
   gated commands;
 - full SunSpec inventory and qualified profile mappings;
+- DriverV1 reuse or behavior-preserving relocation of the atomic Modbus
+  `internal/modbusadapter.ExecuteReadWithReconnect` seam rather than
+  reconnect/retry duplication in DriverManager;
 - generation-bound lifecycle;
 - source shadows and lineage;
 - read-only canonical parity before any new mutation.
@@ -1637,13 +1646,15 @@ merged at `1ca1438813ec80b12a9c4e9565086cecd6160e19`:
 - `modbus.v1.raw.read error.message` leaks a private endpoint;
 - raw MCP does not reconnect/retry after a TCP reset until the add-on restarts.
 
-The gateway lane owns the following exact write-set exclusively until merge or
-explicit handoff:
+The gateway lane owns the following exact six-file write-set exclusively until
+squash merge or explicit handoff:
 
 ~~~text
 helianthus-ebusgateway:
   cmd/gateway/modbus_mcp_provider.go
   cmd/gateway/modbus_mcp_provider_test.go
+  internal/modbusadapter/adapter.go
+  internal/modbusadapter/adapter_reconnect_test.go
   mcp/modbus_v1.go
   mcp/modbus_v1_test.go
 ~~~
@@ -1654,19 +1665,23 @@ records squash merge or an explicit handoff/release of ownership. There is
 currently zero concrete overlap with HSIR or DriverManager.
 
 The Fronius lane explicitly excludes `cmd/gateway/main.go` and the composition
-root, `go.mod`, `go.sum`, `internal/modbusadapter`, semantic Vaillant code,
-eBUS, EEBUS, DriverManager, adaptermux, the add-on and live deployment. This
-negative scope is not permission to overlap another active reservation.
+root, `go.mod`, `go.sum`, semantic Vaillant code, eBUS, EEBUS, DriverManager,
+adaptermux, the add-on and live deployment. This negative scope is not
+permission to overlap another active reservation.
 
 Public checkpoint evidence for issue #833 / PR #834:
 
 - RED commit: `77885ddac7021804b523c7a6b93adf3163aaa816`;
-- GREEN public HEAD: `d5cd63caaf508c9927af32a7662dca33883be2fa`;
+- prior GREEN public HEAD:
+  `d5cd63caaf508c9927af32a7662dca33883be2fa`;
 - focused real-TCP reset/reconnect race: green;
 - full local CI: Portal 43/43, full Go race, Python
   168+6+9+7+6+2, lint 0;
-- fresh exact-HEAD review and GitHub checks: still in progress at this
-  checkpoint.
+- a fresh P2 review at `d5cd63caaf508c9927af32a7662dca33883be2fa`
+  found that provider `Snapshot` to reconnect ownership was not atomic between
+  two raw callers;
+- fresh exact-HEAD review and GitHub checks for the follow-up fix: still in
+  progress at this checkpoint.
 
 The reservation therefore remains active; GREEN and local CI do not substitute
 for squash merge or explicit ownership handoff. Every future executor re-reads
@@ -1676,9 +1691,13 @@ Both defects become M0 baseline requirements and vNext compatibility fixtures.
 The implementation contract is endpoint-free provider errors plus at most one
 raw MCP reconnect+retry within one total bounded context after a TCP reset,
 only when the owning snapshot sets `Snapshot.ReconnectRequired`. The retry uses
-one shared quota and the original PDU remains immutable. The offline comparator
-must preserve this exact behavior. These legacy fixes do not add DriverManager
-or any vNext lifecycle API to the legacy runtime.
+one shared quota and the original PDU remains immutable. Ownership moves into
+the atomic Modbus transport operation `ExecuteReadWithReconnect` under
+`executeMu`: first execute, owner-snapshot gate, at most one reconnect and one
+retry. A two-caller regression must prove exactly one reconnect and no teardown
+of the healthy generation. The offline comparator and future DriverV1 reuse
+this existing Modbus seam; DriverManager must not duplicate it. These legacy
+fixes do not add DriverManager or any vNext lifecycle API to the legacy runtime.
 
 ## 20. Validation and gates
 
@@ -1704,6 +1723,9 @@ or any vNext lifecycle API to the legacy runtime.
   context after a TCP reset, only when the owning snapshot sets
   `Snapshot.ReconnectRequired`, using one quota and an immutable original PDU,
   without requiring an add-on restart;
+- two concurrent raw callers use atomic `ExecuteReadWithReconnect` under
+  `executeMu`, produce one reconnect and do not tear down the healthy transport
+  generation;
 - false identity rejection;
 - projection loss golden reports;
 - no invented enum equivalence;
@@ -1819,7 +1841,10 @@ The architecture milestone is complete only when:
 28. the vNext comparator preserves the merged M4-04 endpoint-free provider
     error contract and at-most-one TCP-reset reconnect+retry in one total
     bounded context, owner-gated by `Snapshot.ReconnectRequired`, with one
-    quota and an immutable PDU, without importing DriverManager into legacy;
+    quota, an immutable PDU, atomic two-caller ownership and no teardown of the
+    healthy generation; future DriverV1 reuses `ExecuteReadWithReconnect` and
+    does not duplicate this behavior in DriverManager or import DriverManager
+    into legacy;
 29. whole-release rollback to the frozen legacy artifact and untouched legacy
     state is tested;
 30. the post-0.7 cleanup inventory and issue wave cover the identified
