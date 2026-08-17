@@ -1817,14 +1817,33 @@ Despite that STOP, the lane subsequently published draft PR #147:
 - GREEN exact HEAD: `20deda8afb7decf9d7740c27b119b5027433e1c1`;
 - diff: ten new files, all under `pv/**`;
 - terminology, build, test, TinyGo and lint checks: green;
-- fresh review: running at this checkpoint;
-- PR body: explicitly claims protocol-independent canonical PV ownership in
-  helianthus-ebusreg.
+- fresh exact-HEAD seed review: blocking for transfer, not for repair or merge
+  in helianthus-ebusreg;
+- PR title/body: amended to mark the branch as a superseded candidate that
+  must not merge.
 
 This is a live coordination violation, not an ownership decision. Green CI
 proves only that the seed branch is internally consistent. It does not
 supersede PR #94, approve repository ownership, satisfy SEM-IR-PV-01 or permit
 merge, tag or downstream consumption.
+
+The fresh seed review identified two transfer requirements that belong to
+SEM-IR-PV-01 rather than corrective commits in PR #147:
+
+1. **P1 — canonical envelope accounting.** Every requested output must have
+   exactly one capability identifier and outcome, plus a one-to-one
+   projection-report entry. The envelope must preserve `source_time_state`,
+   `requested_outputs`, and mixed-origin partial-update accounting without
+   silently omitting or duplicating a result.
+2. **P2 — canonical identity grammar.** Asset and profile identifiers must use
+   exact schema patterns. Path-like, whitespace-bearing, URL-shaped and other
+   malformed identities are rejected rather than normalized into apparently
+   valid tokens.
+
+The GitHub comments endpoint was intermittently unavailable while this
+handoff was recorded. That transient API condition is neither plan authority
+nor a merge gate; this human-readable reconciliation preserves the findings
+until the receiving semreg issue and tests exist.
 
 Canonical PV ownership is resolved as follows:
 
@@ -1864,9 +1883,11 @@ draft/unmerged. Do not tag it, consume/import it into gateway, or start gateway
 M5-04.
 After steps 1-4 are merged, SEM-IR-PV-01 may port the reusable code and tests
 into a new helianthus-semreg branch, adapting package/import boundaries and
-revalidating the semantics under semreg ownership. The ebusreg PR is never the
-canonical merge vehicle. After the seed is captured, close PR #147 and issue
-#146 as superseded without merging them.
+revalidating the semantics under semreg ownership. The port must add the
+envelope-accounting and identity-grammar RED/GREEN cases above before it can
+be accepted. The ebusreg PR is never the canonical merge vehicle. After plan
+#94 is accepted and the seed is captured, close PR #147 and issue #146 as
+superseded without merging them.
 
 No further M5-01/M5-04 code or downstream integration starts until this
 ownership chain and exact live state are reconciled. This STOP is a dependency
@@ -2035,7 +2056,11 @@ The architecture milestone is complete only when:
 33. code repositories finish with applicable CI and fresh exact-HEAD
     NO_BLOCKING_FINDINGS;
 34. official external certifications are reported separately from internal
-    certification readiness.
+    certification readiness;
+35. SEM-IR-PV-01 proves complete canonical envelope accounting for every
+    requested output, including mixed-origin partial updates, and rejects
+    path-like, whitespace-bearing, URL-shaped or otherwise malformed asset and
+    profile identifiers under exact schema grammar.
 
 ## 22. Risks and mitigations
 
@@ -2052,6 +2077,7 @@ The architecture milestone is complete only when:
 | Protocol additions require gateway rewrite | DriverV1 and leaf HSIR dependency |
 | Canonical PV leaks into an eBUS-specific package | Semreg-owned PV pack; modbusreg/eBUS packages provide native mappings only |
 | Green CI is mistaken for canonical ownership approval | CI qualifies the seed only; PR #147 remains unmerged and ports through SEM-IR-PV-01 |
+| Seed defects are copied into the canonical PV pack | Treat the #147 P1/P2 review as SEM-IR-PV-01 RED requirements for envelope accounting and strict identity grammar |
 | Big-bang cutover breaks legacy consumers | Frozen public contracts, offline full-stack replay, cutover rehearsal and whole-release rollback |
 | Cleanup changes behavior or merely reshuffles giant files | Post-stabilization, behavior-preserving PRs with golden parity and responsibility-based acceptance |
 | Opaque test IDs hide intent or overstate standards coverage | Descriptive behavioral names plus versioned normative traceability metadata |
