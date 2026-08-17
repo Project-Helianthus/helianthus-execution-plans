@@ -1671,7 +1671,7 @@ permission to overlap another active reservation.
 
 Public checkpoint evidence for issue #833 / PR #834:
 
-- RED commit: `77885ddac7021804b523c7a6b93adf3163aaa816`;
+- initial RED commit: `77885ddac7021804b523c7a6b93adf3163aaa816`;
 - prior GREEN public HEAD:
   `d5cd63caaf508c9927af32a7662dca33883be2fa`;
 - focused real-TCP reset/reconnect race: green;
@@ -1680,12 +1680,22 @@ Public checkpoint evidence for issue #833 / PR #834:
 - a fresh P2 review at `d5cd63caaf508c9927af32a7662dca33883be2fa`
   found that provider `Snapshot` to reconnect ownership was not atomic between
   two raw callers;
-- fresh exact-HEAD review and GitHub checks for the follow-up fix: still in
-  progress at this checkpoint.
+- atomicity RED commit: `822fa53588f74853ac5e4ea3a50cd2646e88cb5f`;
+- current exact HEAD: `ce0d0ac4f10d7880188a291bea00984115ab2354`;
+- `Snapshot` to reconnect ownership is closed through owner-atomic
+  `ExecuteReadWithReconnect` under `executeMu`;
+- an assertion scoped specifically to `error.message` closes the second P2
+  test-flake;
+- full local exact-HEAD CI is green, both prior P2 findings are closed and
+  fresh review reports zero other code P0-P2 findings;
+- GitHub build, lint and terminology checks are green;
+- GitHub test rerun attempt 2 remains in progress after an unrelated timeout
+  in `graphql/subscriptions_integration_test.go`.
 
-The reservation therefore remains active; GREEN and local CI do not substitute
-for squash merge or explicit ownership handoff. Every future executor re-reads
-the PR because this checkpoint may become stale.
+The six-file reservation and the gateway lane therefore remain active; GREEN
+local evidence and partial GitHub success do not substitute for squash merge or
+explicit ownership handoff. The lane must not be reported free. Every future
+executor re-reads the PR because this checkpoint may become stale.
 
 Both defects become M0 baseline requirements and vNext compatibility fixtures.
 The implementation contract is endpoint-free provider errors plus at most one
