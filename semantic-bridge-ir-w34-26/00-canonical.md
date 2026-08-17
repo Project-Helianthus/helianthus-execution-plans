@@ -1195,7 +1195,14 @@ Required changes:
   reconnect, retry ownership, quota or healthy-generation teardown logic;
 - keep standard and vendor profile detection, decode and native provenance in
   helianthus-modbusreg;
-- remove cross-protocol canonical PV ownership from eBUS-specific packages;
+- make helianthus-semreg the sole owner of canonical PV types, fact catalog,
+  lifecycle/quality/freshness semantics, counter rules, registry and versioned
+  PV capability pack;
+- keep SunSpec, Fronius and Huawei native qualification, decode, source
+  identity and native-to-HSIR mapping in helianthus-modbusreg;
+- remove and forbid cross-protocol canonical PV ownership in eBUS-specific
+  packages; helianthus-ebusreg may later publish only evidence-backed eBUS
+  SourceBindings to the semreg-owned PV pack;
 - implement DriverV1 and HSIR SourceBindings for every qualified profile;
 - preserve raw words, exact transport generation and documented absence of
   source time;
@@ -1249,6 +1256,7 @@ flowchart TB
     D1["M1 Public architecture and contract docs"]
     O1["M1 Organization creates helianthus-semreg"]
     S1["M2 HSIR kernel, packs and conformance harness"]
+    PV1["M2 Canonical PV pack<br/>SEM-IR-PV-01"]
     G1["M3 Gateway DriverManager and empty HSIR host"]
     E1["M4 eBUS DriverV1 in vNext"]
     EE1["M5 EEBUS exhaustive mapping"]
@@ -1266,10 +1274,12 @@ flowchart TB
     P0 --> O1
     D1 --> S1
     O1 --> S1
+    S1 --> PV1
     S1 --> G1
     G1 --> E1
     E1 --> EE1
     E1 --> M1
+    PV1 --> M1
     EE1 --> R1
     M1 --> R1
     R1 --> A1
@@ -1339,6 +1349,7 @@ Deliverables:
 - SourceBinding and provenance DAG;
 - CandidateFactSet and CanonicalFactEnvelope;
 - capability-pack registration/versioning;
+- canonical PV pack/catalog/lifecycle/counter/registry under SEM-IR-PV-01;
 - planes/lenses model;
 - semantic operation and driver contracts;
 - projection manifest/report;
@@ -1420,6 +1431,8 @@ Deliverables:
 - real EEBUS northbound SPINE server features/use cases/read/subscribe and
   gated commands;
 - full SunSpec inventory and qualified profile mappings;
+- merged semreg-owned PV capability pack before any canonical PV producer
+  mapping starts;
 - DriverV1 reuse or behavior-preserving relocation of the atomic Modbus
   `internal/modbusadapter.ExecuteReadWithReconnect` seam rather than
   reconnect/retry duplication in DriverManager;
@@ -1581,11 +1594,12 @@ Publishing this plan does not create them.
 | SEM-IR-01 | helianthus-semreg | Kernel and type system | DOC-IR-01, ORG-IR-01 |
 | SEM-IR-02 | helianthus-semreg | Provenance, planes and selection | SEM-IR-01 |
 | SEM-IR-03 | helianthus-semreg | Capabilities, operations and projections | SEM-IR-01 |
+| SEM-IR-PV-01 | helianthus-semreg | Canonical PV pack, catalog, lifecycle, counter semantics and registry | SEM-IR-01, SEM-IR-02 |
 | GW-IR-01 | helianthus-ebusgateway | DriverManager and semreg host | SEM-IR-01 |
 | EBUS-IR-01 | helianthus-ebusreg | eBUS SourceBindings and DriverV1 | GW-IR-01 |
 | GW-IR-02 | helianthus-ebusgateway | vNext eBUS integration and offline compatibility comparator | EBUS-IR-01 |
 | EEBUS-IR-01 | helianthus-eebusreg | Exhaustive SPINE-to-HSIR mapping | GW-IR-02, SEM-IR-02 |
-| MODBUS-IR-01 | helianthus-modbusreg | SunSpec/profile-to-HSIR mapping | GW-IR-02, SEM-IR-02 |
+| MODBUS-IR-01 | helianthus-modbusreg | SunSpec/profile-to-HSIR mapping | GW-IR-02, SEM-IR-PV-01 |
 | GW-IR-03 | helianthus-ebusgateway | EEBUS/Modbus integration and planes | EEBUS-IR-01, MODBUS-IR-01 |
 | GW-IR-04 | helianthus-ebusgateway | Direct vNext GraphQL/MCP/Portal M2M implementation | GW-IR-03, SEM-IR-03 |
 | NB-IR-REQ | target binding owners | Required cutover GraphQL/EEBUS/Matter and declared target projections | GW-IR-04 |
@@ -1779,6 +1793,61 @@ There is zero overlap with the HSIR plan-only lane, and no HSIR or DriverManager
 runtime work exists in gateway or add-on. Future executors re-read deployment
 and validation state because this checkpoint can become stale.
 
+### 19.4 Blocking canonical PV ownership reconciliation
+
+Before the first M5-01 edit, Fronius declared helianthus-ebusreg issue #146 and
+branch `issue/146-canonical-pv-registry-v1` at base
+`92a35b3ec2eb40223981a2af33cbdd2415b258d4`, with a planned canonical package:
+
+~~~text
+pv/doc.go
+pv/types.go
+pv/catalog.go
+pv/lifecycle.go
+pv/counter.go
+pv/registry.go
+plus tests
+~~~
+
+The lane was stopped before edit or RED. Read-only reconciliation found issue
+#146 open, helianthus-ebusreg main at the declared base and no remote branch ref
+yet. This proposed ownership conflicts directly with HSIR and must not proceed.
+
+Canonical PV ownership is resolved as follows:
+
+| Concern | Sole code owner |
+|---|---|
+| Protocol-neutral PV types, exact quantities, dimensions, units and value domains | helianthus-semreg kernel/PV pack |
+| Canonical PV lifecycle, quality, availability, freshness and counter semantics | helianthus-semreg PV pack |
+| Canonical PV fact catalog and registry | helianthus-semreg PV pack |
+| SunSpec/Fronius/Huawei qualification, native decode, provenance and mapping | helianthus-modbusreg |
+| PV facts observed through eBUS | helianthus-ebusreg SourceBindings to the semreg PV pack only |
+| Driver hosting, selection and northbound projection | gateway, without redefining PV types |
+
+The docs merge `e6feb0f847a0df9029a878850fac34f45f17599d` cited by
+issue #146 is treated as a candidate semantic contract, not proof that
+helianthus-ebusreg owns canonical PV. DOC-IR-01 must preserve reusable semantics
+while correcting repository ownership and legacy-extension language.
+
+Dependency and handoff order:
+
+1. merge plan PR #94 and DOC-IR-01 with the ownership correction;
+2. ORG-IR-01 creates helianthus-semreg;
+3. SEM-IR-01 merges the protocol-neutral kernel contracts;
+4. SEM-IR-PV-01 merges the versioned canonical PV capability pack and
+   registry;
+5. MODBUS-IR-01 implements SunSpec/Fronius/Huawei native mappings in
+   helianthus-modbusreg against that published pack;
+6. EBUS-IR-01 may later map real eBUS PV evidence to the same pack without a
+   canonical `pv/` package in helianthus-ebusreg.
+
+Recommended disposition: close issue #146 without code as superseded by
+SEM-IR-PV-01 and MODBUS-IR-01. If historical continuity is required,
+re-scope #146 to an inert inventory/handoff record with no package, RED test or
+implementation. No M5-01 code starts until steps 1-4 are merged and their exact
+current state is reconciled. This STOP is a dependency boundary, not custom
+plan authorization machinery.
+
 ## 20. Validation and gates
 
 ### Required for every producer
@@ -1878,6 +1947,7 @@ The architecture milestone is complete only when:
    starts;
 2. Helianthus Bridge 0.7.0 has a complete vNext release bill of materials;
 3. helianthus-semreg exists and its kernel has no protocol or gateway import;
+   it is the sole canonical PV type/catalog/lifecycle/counter/registry owner;
 4. every public HSIR field is typed; value:any is absent;
 5. opaque ResourceID replaces Service-path identity internally with compatible
    aliases;
@@ -1956,6 +2026,7 @@ The architecture milestone is complete only when:
 | Two controllers oscillate a setpoint | Report/serialize mechanically; coordination remains external |
 | Ambiguous write is executed twice | Exactly-one route and indeterminate outcome |
 | Protocol additions require gateway rewrite | DriverV1 and leaf HSIR dependency |
+| Canonical PV leaks into an eBUS-specific package | Semreg-owned PV pack; modbusreg/eBUS packages provide native mappings only |
 | Big-bang cutover breaks legacy consumers | Frozen public contracts, offline full-stack replay, cutover rehearsal and whole-release rollback |
 | Cleanup changes behavior or merely reshuffles giant files | Post-stabilization, behavior-preserving PRs with golden parity and responsibility-based acceptance |
 | Opaque test IDs hide intent or overstate standards coverage | Descriptive behavioral names plus versioned normative traceability metadata |
@@ -2000,6 +2071,8 @@ Implementation must stop separately:
 - before starting structural code/test cleanup until 0.7.0 stabilization is
   recorded, except for decomposition strictly required to build the vNext
   architecture safely;
+- before any M5-01 canonical PV edit or RED in helianthus-ebusreg; first merge
+  the semreg kernel/PV pack ownership chain and re-scope or close issue #146;
 - when a required normative source or mapping equivalence is unproven.
 
 Merging this plan creates no issue, branch, PR, repository, deployment or
