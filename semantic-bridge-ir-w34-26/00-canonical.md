@@ -1289,8 +1289,9 @@ Deliverables:
 - full pinned SunSpec model inventory;
 - current runtime and driver lifecycle inventory;
 - live Modbus M4-04 regression fixtures proving endpoint-free
-  `modbus.v1.raw.read` errors and exactly one bounded raw MCP reconnect+retry
-  after a TCP reset only when `Snapshot.ReconnectRequired` is true;
+  `modbus.v1.raw.read` provider errors and at most one raw MCP reconnect+retry
+  inside one total bounded context after a TCP reset, owner-gated by
+  `Snapshot.ReconnectRequired`, with one quota and an immutable PDU;
 - source/version ledger for Matter, EVCC and OCPP.
 
 Exit:
@@ -1627,9 +1628,9 @@ where noted by later same-day coordination updates:
 
 Every lane reconciles this snapshot because it can become stale.
 
-The latest coordination update reports active gateway issue #833, branch
+The coordinated lane is gateway issue #833 and PR #834 on branch
 `issue/833-modbus-mcp-reconnect-redaction`, for two live Modbus M4-04 P2
-defects against add-on 0.6.50. Its exact base and current HEAD are both
+defects against add-on 0.6.50. It started from exact base/HEAD
 `7f1cbea90e0b189486febc656632e9e7430c8500`. Its documentation gate is already
 merged at `1ca1438813ec80b12a9c4e9565086cecd6160e19`:
 
@@ -1649,20 +1650,35 @@ helianthus-ebusgateway:
 
 The future HSIR executor must receive and reconcile this reservation before its
 first edit and must not claim or touch those files until the Fronius task
-records merge or an explicit handoff/release of ownership. There is currently
-no concrete overlap with the HSIR plan lane.
+records squash merge or an explicit handoff/release of ownership. There is
+currently zero concrete overlap with HSIR or DriverManager.
 
 The Fronius lane explicitly excludes `cmd/gateway/main.go` and the composition
 root, `go.mod`, `go.sum`, `internal/modbusadapter`, semantic Vaillant code,
 eBUS, EEBUS, DriverManager, adaptermux, the add-on and live deployment. This
 negative scope is not permission to overlap another active reservation.
 
+Public checkpoint evidence for issue #833 / PR #834:
+
+- RED commit: `77885ddac7021804b523c7a6b93adf3163aaa816`;
+- GREEN public HEAD: `d5cd63caaf508c9927af32a7662dca33883be2fa`;
+- focused real-TCP reset/reconnect race: green;
+- full local CI: Portal 43/43, full Go race, Python
+  168+6+9+7+6+2, lint 0;
+- fresh exact-HEAD review and GitHub checks: still in progress at this
+  checkpoint.
+
+The reservation therefore remains active; GREEN and local CI do not substitute
+for squash merge or explicit ownership handoff. Every future executor re-reads
+the PR because this checkpoint may become stale.
+
 Both defects become M0 baseline requirements and vNext compatibility fixtures.
-The implementation scope is endpoint-free public errors plus exactly one
-bounded raw MCP reconnect+retry after a TCP reset, and only when
-`Snapshot.ReconnectRequired` is true. The offline comparator must preserve this
-exact behavior. These legacy fixes do not add DriverManager or any vNext
-lifecycle API to the legacy runtime.
+The implementation contract is endpoint-free provider errors plus at most one
+raw MCP reconnect+retry within one total bounded context after a TCP reset,
+only when the owning snapshot sets `Snapshot.ReconnectRequired`. The retry uses
+one shared quota and the original PDU remains immutable. The offline comparator
+must preserve this exact behavior. These legacy fixes do not add DriverManager
+or any vNext lifecycle API to the legacy runtime.
 
 ## 20. Validation and gates
 
@@ -1684,9 +1700,10 @@ lifecycle API to the legacy runtime.
 - cache and quantization lineage;
 - absent source timestamp;
 - private transport endpoints are sanitized from public Modbus MCP errors;
-- raw Modbus MCP performs exactly one bounded reconnect+retry after a TCP reset
-  only when `Snapshot.ReconnectRequired` is true, without requiring an add-on
-  restart;
+- raw Modbus MCP performs at most one reconnect+retry within one total bounded
+  context after a TCP reset, only when the owning snapshot sets
+  `Snapshot.ReconnectRequired`, using one quota and an immutable original PDU,
+  without requiring an add-on restart;
 - false identity rejection;
 - projection loss golden reports;
 - no invented enum equivalence;
@@ -1799,9 +1816,10 @@ The architecture milestone is complete only when:
     rules are exercised without overlapping writes;
 27. gateway/add-on/Modbus lanes record the required Fronius coordination
     notices and checkpoints;
-28. the vNext comparator preserves the merged M4-04 endpoint-free error
-    contract and exactly-one bounded TCP-reset reconnect+retry only for
-    `Snapshot.ReconnectRequired`, without importing DriverManager into legacy;
+28. the vNext comparator preserves the merged M4-04 endpoint-free provider
+    error contract and at-most-one TCP-reset reconnect+retry in one total
+    bounded context, owner-gated by `Snapshot.ReconnectRequired`, with one
+    quota and an immutable PDU, without importing DriverManager into legacy;
 29. whole-release rollback to the frozen legacy artifact and untouched legacy
     state is tested;
 30. the post-0.7 cleanup inventory and issue wave cover the identified
