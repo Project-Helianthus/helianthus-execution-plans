@@ -58,6 +58,13 @@ gateway/add-on/Modbus write-set, or lacks a reproducible green baseline, plan
 execution waits. The earlier operator-supplied lane snapshot is a coordination
 hint only and must be refreshed at activation.
 
+The M4-04 gateway fix is merged on gateway main at
+`6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b` and becomes the gateway baseline
+for M0. Before vNext work starts, the follow-on legacy add-on 0.6.51 release
+must complete its strictly bounded repin, version, provenance, changelog and
+test work, publish/deploy, and read-only M4-04 validation. That stabilization
+release does not create an HSIR or DriverManager runtime lane.
+
 Version 0.7.0 is the functional architecture and cutover release. A mandatory
 post-0.7 cleanup wave follows stabilization; it is not mixed into the semantic
 rewrite before cutover. That wave covers production code and the test corpus:
@@ -1286,6 +1293,9 @@ Repositories: gateway, eBUS, EEBUS, Modbus, HA, docs.
 Deliverables:
 
 - exact current heads and green local CI;
+- gateway baseline at or descended from M4-04 squash merge
+  `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`, plus completed legacy add-on
+  0.6.51 stabilization and read-only validation evidence;
 - frozen GraphQL/MCP/Portal/HA compatibility snapshots;
 - current 18 EEBUS promoted-leaf fixture;
 - eBUS B524/B509/standard-source catalog;
@@ -1646,8 +1656,8 @@ merged at `1ca1438813ec80b12a9c4e9565086cecd6160e19`:
 - `modbus.v1.raw.read error.message` leaks a private endpoint;
 - raw MCP does not reconnect/retry after a TCP reset until the add-on restarts.
 
-The gateway lane owns the following exact six-file write-set exclusively until
-squash merge or explicit handoff:
+The gateway lane owned the following exact six-file write-set exclusively
+through squash merge:
 
 ~~~text
 helianthus-ebusgateway:
@@ -1659,10 +1669,10 @@ helianthus-ebusgateway:
   mcp/modbus_v1_test.go
 ~~~
 
-The future HSIR executor must receive and reconcile this reservation before its
-first edit and must not claim or touch those files until the Fronius task
-records squash merge or an explicit handoff/release of ownership. There is
-currently zero concrete overlap with HSIR or DriverManager.
+There was zero concrete overlap with HSIR or DriverManager. The reservation is
+now released by the final squash merge recorded below; future work still uses
+normal live write-set reconciliation rather than treating historical release
+as permanent ownership.
 
 The Fronius lane explicitly excludes `cmd/gateway/main.go` and the composition
 root, `go.mod`, `go.sum`, semantic Vaillant code, eBUS, EEBUS, DriverManager,
@@ -1681,21 +1691,24 @@ Public checkpoint evidence for issue #833 / PR #834:
   found that provider `Snapshot` to reconnect ownership was not atomic between
   two raw callers;
 - atomicity RED commit: `822fa53588f74853ac5e4ea3a50cd2646e88cb5f`;
-- current exact HEAD: `ce0d0ac4f10d7880188a291bea00984115ab2354`;
+- final premerge HEAD: `ce0d0ac4f10d7880188a291bea00984115ab2354`;
 - `Snapshot` to reconnect ownership is closed through owner-atomic
   `ExecuteReadWithReconnect` under `executeMu`;
 - an assertion scoped specifically to `error.message` closes the second P2
   test-flake;
-- full local exact-HEAD CI is green, both prior P2 findings are closed and
-  fresh review reports zero other code P0-P2 findings;
-- GitHub build, lint and terminology checks are green;
-- GitHub test rerun attempt 2 remains in progress after an unrelated timeout
-  in `graphql/subscriptions_integration_test.go`.
+- final local and GitHub gates are 4/4 green with fresh
+  `NO_BLOCKING_FINDINGS`; both prior P2 findings are closed, with zero other
+  code P0-P2 and zero P3/P4;
+- gateway squash merge on main:
+  `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`;
+- issue #833 is closed, PR #834 is merged, the feature branch is deleted and
+  gateway main is clean.
 
-The six-file reservation and the gateway lane therefore remain active; GREEN
-local evidence and partial GitHub success do not substitute for squash merge or
-explicit ownership handoff. The lane must not be reported free. Every future
-executor re-reads the PR because this checkpoint may become stale.
+The six-file reservation is closed. The merged gateway SHA is the new M0
+baseline. The following Fronius program is legacy add-on 0.6.51: its current
+issue #212 lane is packaging-only, while publish/deploy and M4-04 read-only
+validation remain later boundaries. It is not an HSIR manager runtime lane in
+gateway or add-on, and plan #93 remains plan-only.
 
 Both defects become M0 baseline requirements and vNext compatibility fixtures.
 The implementation contract is endpoint-free provider errors plus at most one
@@ -1708,6 +1721,47 @@ retry. A two-caller regression must prove exactly one reconnect and no teardown
 of the healthy generation. The offline comparator and future DriverV1 reuse
 this existing Modbus seam; DriverManager must not duplicate it. These legacy
 fixes do not add DriverManager or any vNext lifecycle API to the legacy runtime.
+
+### 19.3 Legacy add-on 0.6.51 reservation
+
+The active add-on coordination lane is issue #212 on branch
+`issue/212-release-0651-modbus-mcp-recovery`, based on
+`cd6017bf554987b8ebb423b4de88af391461b125`, targeting release 0.6.51 and pinning
+gateway `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`.
+
+Its exact packaging-only write-set is owner-exclusive until squash merge or
+explicit handoff:
+
+~~~text
+helianthus-ha-addon:
+  .github/workflows/build.yml
+  helianthus/config.json
+  helianthus/Dockerfile
+  helianthus/CHANGELOG.md
+  helianthus/README.md
+  README.md
+  SMOKE_RUNBOOK.md
+  scripts/check_eebus_wrapper.py
+  scripts/check_source_addr_wrapper.py
+  fixtures/gateway_parity_artifact_pass.json
+  tests/test_eebus_admin_wrapper.py
+  tests/test_modbus_runtime_guard.py
+~~~
+
+Wrapper/schema/runtime implementation, deployment and live validation are
+outside issue #212. Publish/deploy and M4-04 read-only validation are later
+release boundaries, not implied by packaging merge.
+
+Gateway CI run `32032466778` for main SHA
+`6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b` is in progress at this checkpoint:
+build, lint and terminology are green, while the test job is still running.
+The parity artifact is hard-stopped until that run reaches `SUCCESS`. This is a
+revalidated dependency gate, not plan authorization machinery.
+
+There is zero overlap with the HSIR plan-only lane. Future executors must not
+claim the listed add-on files until issue #212 records squash merge or explicit
+handoff, and must re-read the run and lane because this checkpoint can become
+stale. No HSIR or DriverManager runtime work exists in gateway or add-on.
 
 ## 20. Validation and gates
 
@@ -1802,7 +1856,10 @@ work.
 The architecture milestone is complete only when:
 
 1. the minimal SunSpec/Fronius/Huawei Modbus prerequisite and current EEBUS
-   completion prerequisite are reconciled green before execution starts;
+   completion prerequisite are reconciled green, gateway M0 includes merge
+   `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`, and legacy add-on 0.6.51
+   stabilization/read-only validation is complete before vNext execution
+   starts;
 2. Helianthus Bridge 0.7.0 has a complete vNext release bill of materials;
 3. helianthus-semreg exists and its kernel has no protocol or gateway import;
 4. every public HSIR field is typed; value:any is absent;
