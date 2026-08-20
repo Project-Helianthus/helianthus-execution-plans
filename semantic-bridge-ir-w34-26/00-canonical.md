@@ -65,6 +65,14 @@ comparator baseline. Before vNext work starts, its bounded M4-04 validation
 must also close. That stabilization release and validation do not create an
 HSIR or DriverManager runtime lane.
 
+The later legacy comparator closure advances the factual baseline to canonical
+PV in helianthus-ebusreg main at
+`f8b7082b3fa4d4843315039b6d95dbf68141d596`, gateway PV integration at
+`d8bdb0f66b30a30c09690935d18a887ff5c84f64`, and the UI tuple recorded in
+section 19.5. These merged legacy facts are migration inputs for vNext; draft
+plan PR #94 was not a dependency, blocker or ownership authority for their
+delivery.
+
 Version 0.7.0 is the functional architecture and cutover release. A mandatory
 post-0.7 cleanup wave follows stabilization; it is not mixed into the semantic
 rewrite before cutover. That wave covers production code and the test corpus:
@@ -1195,14 +1203,16 @@ Required changes:
   reconnect, retry ownership, quota or healthy-generation teardown logic;
 - keep standard and vendor profile detection, decode and native provenance in
   helianthus-modbusreg;
-- make helianthus-semreg the sole owner of canonical PV types, fact catalog,
-  lifecycle/quality/freshness semantics, counter rules, registry and versioned
-  PV capability pack;
+- treat the merged helianthus-ebusreg `pv/` V1 package as the frozen legacy
+  canonical PV comparator, without rewriting its completed delivery history;
+- make helianthus-semreg the vNext owner of protocol-neutral PV types, fact
+  catalog, lifecycle/quality/freshness semantics, counter rules, registry and
+  versioned PV capability pack, with explicit migration parity from legacy V1;
 - keep SunSpec, Fronius and Huawei native qualification, decode, source
   identity and native-to-HSIR mapping in helianthus-modbusreg;
-- remove and forbid cross-protocol canonical PV ownership in eBUS-specific
-  packages; helianthus-ebusreg may later publish only evidence-backed eBUS
-  SourceBindings to the semreg-owned PV pack;
+- in the vNext composition, make helianthus-ebusreg publish evidence-backed
+  eBUS SourceBindings to the semreg-owned PV pack; the legacy `pv/` package
+  remains a comparator until cutover and is removed only after parity proof;
 - implement DriverV1 and HSIR SourceBindings for every qualified profile;
 - preserve raw words, exact transport generation and documented absence of
   source time;
@@ -1307,6 +1317,10 @@ Deliverables:
   `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`, legacy add-on 0.6.51 at merge
   `8be32bc7f49f3000eba6074f12ca782e10425093`, exact published image digests,
   deployment evidence and completed bounded M4-04 validation;
+- latest legacy comparator tuple: helianthus-ebusreg
+  `f8b7082b3fa4d4843315039b6d95dbf68141d596`, gateway PV integration
+  `d8bdb0f66b30a30c09690935d18a887ff5c84f64`, and the docs/gateway/HA UI
+  closure from section 19.5;
 - frozen GraphQL/MCP/Portal/HA compatibility snapshots;
 - current 18 EEBUS promoted-leaf fixture;
 - eBUS B524/B509/standard-source catalog;
@@ -1431,8 +1445,8 @@ Deliverables:
 - real EEBUS northbound SPINE server features/use cases/read/subscribe and
   gated commands;
 - full SunSpec inventory and qualified profile mappings;
-- merged semreg-owned PV capability pack before any canonical PV producer
-  mapping starts;
+- merged semreg-owned PV capability pack before any vNext canonical PV
+  producer mapping starts, using the merged legacy V1 behavior as comparator;
 - DriverV1 reuse or behavior-preserving relocation of the atomic Modbus
   `internal/modbusadapter.ExecuteReadWithReconnect` seam rather than
   reconnect/retry duplication in DriverManager;
@@ -1805,105 +1819,92 @@ There is zero overlap with the HSIR plan-only lane, and no HSIR or DriverManager
 runtime work exists in gateway or add-on. Future executors re-read deployment
 and validation state because this checkpoint can become stale.
 
-### 19.4 Blocking canonical PV ownership reconciliation
+### 19.4 Canonical PV legacy closure and vNext migration boundary
 
-Before the first M5-01 edit, Fronius declared helianthus-ebusreg issue #146 and
-branch `issue/146-canonical-pv-registry-v1` at base
-`92a35b3ec2eb40223981a2af33cbdd2415b258d4`, with a planned canonical package:
+The operator later corrected the provisional ownership direction recorded in
+earlier revisions of this draft. PR #94 remained draft/inert and was not a
+blocker, dependency or ownership authority for the active Fronius route. That
+route continued under its already merged execution plan and canonical-PV docs
+merge `e6feb0f847a0df9029a878850fac34f45f17599d`.
 
-~~~text
-pv/doc.go
-pv/types.go
-pv/catalog.go
-pv/lifecycle.go
-pv/counter.go
-pv/registry.go
-plus tests
-~~~
+Verified legacy delivery evidence:
 
-The first reconciliation found issue #146 open, helianthus-ebusreg main at the
-declared base and no remote branch ref; a STOP was issued before edit or RED.
-Despite that STOP, the lane subsequently published draft PR #147:
+- helianthus-ebusreg issue #146 / PR #147 used base
+  `92a35b3ec2eb40223981a2af33cbdd2415b258d4`;
+- RED: `8f0596095529884e6b65ca4348c5bd40e313800b`;
+- intermediate GREEN seed:
+  `20deda8afb7decf9d7740c27b119b5027433e1c1`;
+- final premerge HEAD:
+  `dcd5ab868fdd0b9577e69db2f8ac6443068d589e`;
+- PR #147 squash-merged canonical PV V1 into helianthus-ebusreg main at
+  `f8b7082b3fa4d4843315039b6d95dbf68141d596`;
+- gateway M5-04 integrated qualified SunSpec observations at
+  `d8bdb0f66b30a30c09690935d18a887ff5c84f64`.
 
-- RED commit: `8f0596095529884e6b65ca4348c5bd40e313800b`;
-- GREEN exact HEAD: `20deda8afb7decf9d7740c27b119b5027433e1c1`;
-- diff: ten new files, all under `pv/**`;
-- terminology, build, test, TinyGo and lint checks: green;
-- fresh exact-HEAD seed review: blocking for transfer, not for repair or merge
-  in helianthus-ebusreg;
-- PR title/body: amended to mark the branch as a superseded candidate that
-  must not merge.
+All earlier draft statements that #146/#147 must not merge, that M5-04 must
+stop, or that the active route depended on PR #94 are superseded and have no
+operational effect.
 
-This is a live coordination violation, not an ownership decision. Green CI
-proves only that the seed branch is internally consistent. It does not
-supersede PR #94, approve repository ownership, satisfy SEM-IR-PV-01 or permit
-merge, tag or downstream consumption.
+Ownership is scoped by runtime generation rather than rewritten
+retrospectively:
 
-The fresh seed review identified two transfer requirements that belong to
-SEM-IR-PV-01 rather than corrective commits in PR #147:
+| Scope | Owner/contract |
+|---|---|
+| Frozen legacy canonical PV V1 | helianthus-ebusreg `pv/` at `f8b7082b...` |
+| Frozen legacy SunSpec-to-PV integration | qualified native facts plus gateway integration at `d8bdb0f...` |
+| vNext protocol-neutral PV model | helianthus-semreg through SEM-IR-PV-01 |
+| vNext SunSpec/Fronius/Huawei qualification and mappings | helianthus-modbusreg through MODBUS-IR-01 |
+| vNext eBUS PV production | helianthus-ebusreg DriverV1 SourceBindings to the semreg pack |
+| Hosting, selection and northbound projection | gateway, without redefining vNext PV types |
 
-1. **P1 — canonical envelope accounting.** Every requested output must have
-   exactly one capability identifier and outcome, plus a one-to-one
-   projection-report entry. The envelope must preserve `source_time_state`,
-   `requested_outputs`, and mixed-origin partial-update accounting without
-   silently omitting or duplicating a result.
-2. **P2 — canonical identity grammar.** Asset and profile identifiers must use
+SEM-IR-PV-01 is therefore a vNext migration and parity milestone, not a
+precondition for the completed legacy route. It consumes the merged legacy V1
+behavior as comparator evidence and must preserve or explicitly version every
+intentional difference.
+
+Two semantic requirements remain mandatory RED/GREEN cases for that migration:
+
+1. **Canonical envelope accounting.** Every requested output has exactly one
+   capability identifier and outcome plus a one-to-one projection-report entry.
+   `source_time_state`, `requested_outputs` and mixed-origin partial-update
+   accounting cannot silently omit or duplicate results.
+2. **Strict canonical identity grammar.** Asset and profile identifiers follow
    exact schema patterns. Path-like, whitespace-bearing, URL-shaped and other
    malformed identities are rejected rather than normalized into apparently
    valid tokens.
 
-The GitHub comments endpoint was intermittently unavailable while this
-handoff was recorded. That transient API condition is neither plan authority
-nor a merge gate; this human-readable reconciliation preserves the findings
-until the receiving semreg issue and tests exist.
+No STOP, coordination request or downstream mutation may be derived from this
+draft against the already merged Fronius route. If the operator later accepts
+and executes vNext, normal preflight reconciles the current legacy baseline and
+opens the semreg/modbusreg migration issues in DAG order.
 
-Canonical PV ownership is resolved as follows:
+### 19.5 Frozen legacy UI comparator closure — 2026-08-20
 
-| Concern | Sole code owner |
-|---|---|
-| Protocol-neutral PV types, exact quantities, dimensions, units and value domains | helianthus-semreg kernel/PV pack |
-| Canonical PV lifecycle, quality, availability, freshness and counter semantics | helianthus-semreg PV pack |
-| Canonical PV fact catalog and registry | helianthus-semreg PV pack |
-| SunSpec/Fronius/Huawei qualification, native decode, provenance and mapping | helianthus-modbusreg |
-| PV facts observed through eBUS | helianthus-ebusreg SourceBindings to the semreg PV pack only |
-| Driver hosting, selection and northbound projection | gateway, without redefining PV types |
+The UI closure completed after the earlier 0.6.51 comparator snapshot. Its
+exact repository tuple is:
 
-The docs merge `e6feb0f847a0df9029a878850fac34f45f17599d` cited by
-issue #146 is treated as a candidate semantic contract, not proof that
-helianthus-ebusreg owns canonical PV. DOC-IR-01 must preserve reusable semantics
-while correcting repository ownership and legacy-extension language.
+- helianthus-docs-eebus main:
+  `7565639062cd620895c9513ba5e6ae790ea4295c`;
+- helianthus-ebusgateway main:
+  `a759efd7f72a099288f1fc2b7cf20236d37cfa0b`, containing the earlier PV
+  integration `d8bdb0f66b30a30c09690935d18a887ff5c84f64`;
+- helianthus-ha-integration main:
+  `980e27b6b213a3491a8dc49076904f0e19de34bd`.
 
-Dependency and handoff order:
+The legacy comparator behavior is explicit:
 
-1. merge plan PR #94 and DOC-IR-01 with the ownership correction;
-2. ORG-IR-01 creates helianthus-semreg;
-3. SEM-IR-01 merges the protocol-neutral kernel contracts;
-4. SEM-IR-PV-01 merges the versioned canonical PV capability pack and
-   registry;
-5. MODBUS-IR-01 implements SunSpec/Fronius/Huawei native mappings in
-   helianthus-modbusreg against that published pack;
-6. EBUS-IR-01 may later map real eBUS PV evidence to the same pack without a
-   canonical `pv/` package in helianthus-ebusreg.
+- a trusted but offline peer is shown as disconnected;
+- SPINE state is connected-only and does not imply Pairing or SHIP state;
+- Pairing, SHIP and SPINE are separate workspaces/surfaces;
+- at this closure checkpoint, physical eBUS masters and the VR940 are
+  disconnected.
 
-Recommended disposition: close issue #146 without merging code as superseded by
-SEM-IR-PV-01 and MODBUS-IR-01. If historical continuity is required,
-re-scope #146 to an inert inventory/handoff record with no package, RED test or
-implementation.
-
-Because PR #147 now exists, preserve its branch only as a seed and keep the PR
-draft/unmerged. Do not tag it, consume/import it into gateway, or start gateway
-M5-04.
-After steps 1-4 are merged, SEM-IR-PV-01 may port the reusable code and tests
-into a new helianthus-semreg branch, adapting package/import boundaries and
-revalidating the semantics under semreg ownership. The port must add the
-envelope-accounting and identity-grammar RED/GREEN cases above before it can
-be accepted. The ebusreg PR is never the canonical merge vehicle. After plan
-#94 is accepted and the seed is captured, close PR #147 and issue #146 as
-superseded without merging them.
-
-No further M5-01/M5-04 code or downstream integration starts until this
-ownership chain and exact live state are reconciled. This STOP is a dependency
-boundary, not custom plan authorization machinery.
+Because the required physical topology is unavailable, live-topology
+acceptance is deferred as an environmental condition rather than converted
+into a software failure or a fabricated PASS. This closure is a frozen legacy
+UI comparator for future GraphQL/Portal/HA parity; it is not a vNext
+DriverManager or lifecycle extension. M0 revalidates the tuple and connected
+hardware state if execution starts later.
 
 ## 20. Validation and gates
 
@@ -1969,6 +1970,9 @@ boundary, not custom plan authorization machinery.
   HSIR serialization, identity/linking, lineage, presentation selection,
   DriverManager lifecycle, capability generation, operation routing,
   projection loss and compatibility output;
+- SEM-IR-PV-01 starts with explicit RED cases for one-to-one envelope
+  accounting and strict asset/profile identity grammar before vNext
+  implementation; the merged legacy comparator does not replace this evidence;
 - docs-only and read-only standards inventory lanes do not require artificial
   RED commits;
 - repository-local TDD evidence follows the normal issue/PR workflow and is
@@ -2000,11 +2004,12 @@ The architecture milestone is complete only when:
 1. the minimal SunSpec/Fronius/Huawei Modbus prerequisite and current EEBUS
    completion prerequisite are reconciled green, gateway M0 includes merge
    `6f4aaa7a08eeffb655e5da0f6f6c2053e399a45b`, and legacy add-on 0.6.51
-   stabilization/read-only validation is complete before vNext execution
-   starts;
+   stabilization/read-only validation plus the later canonical-PV/UI comparator
+   tuple in sections 19.4-19.5 are reconciled before vNext execution starts;
 2. Helianthus Bridge 0.7.0 has a complete vNext release bill of materials;
 3. helianthus-semreg exists and its kernel has no protocol or gateway import;
-   it is the sole canonical PV type/catalog/lifecycle/counter/registry owner;
+   within vNext it owns the canonical PV type/catalog/lifecycle/counter/registry
+   contract migrated from the frozen legacy comparator;
 4. every public HSIR field is typed; value:any is absent;
 5. opaque ResourceID replaces Service-path identity internally with compatible
    aliases;
@@ -2072,7 +2077,11 @@ The architecture milestone is complete only when:
 35. SEM-IR-PV-01 proves complete canonical envelope accounting for every
     requested output, including mixed-origin partial updates, and rejects
     path-like, whitespace-bearing, URL-shaped or otherwise malformed asset and
-    profile identifiers under exact schema grammar.
+    profile identifiers under exact schema grammar;
+36. GraphQL/Portal/HA parity preserves the section 19.5 separation of Pairing,
+    SHIP and SPINE plus trusted/offline disconnected behavior, while live
+    physical-topology acceptance remains explicitly deferred until the eBUS
+    masters and VR940 are connected.
 
 ## 22. Risks and mitigations
 
@@ -2087,9 +2096,10 @@ The architecture milestone is complete only when:
 | Two controllers oscillate a setpoint | Report/serialize mechanically; coordination remains external |
 | Ambiguous write is executed twice | Exactly-one route and indeterminate outcome |
 | Protocol additions require gateway rewrite | DriverV1 and leaf HSIR dependency |
-| Canonical PV leaks into an eBUS-specific package | Semreg-owned PV pack; modbusreg/eBUS packages provide native mappings only |
-| Green CI is mistaken for canonical ownership approval | CI qualifies the seed only; PR #147 remains unmerged and ports through SEM-IR-PV-01 |
-| Seed defects are copied into the canonical PV pack | Treat the #147 P1/P2 review as SEM-IR-PV-01 RED requirements for envelope accounting and strict identity grammar |
+| Legacy canonical PV ownership is mistaken for the vNext dependency direction | Preserve ebusreg V1 as comparator; migrate protocol-neutral ownership to semreg only within vNext |
+| Draft PR #94 is treated as authority over the merged Fronius route | Keep the plan inert; operator direction and merged route state remain authoritative |
+| Legacy PV defects are copied into the vNext pack | Make envelope accounting and strict identity grammar mandatory SEM-IR-PV-01 RED/GREEN requirements |
+| Disconnected eBUS/VR940 topology is reported as a software failure or PASS | Defer live-topology acceptance as environmental and re-run with connected hardware |
 | Big-bang cutover breaks legacy consumers | Frozen public contracts, offline full-stack replay, cutover rehearsal and whole-release rollback |
 | Cleanup changes behavior or merely reshuffles giant files | Post-stabilization, behavior-preserving PRs with golden parity and responsibility-based acceptance |
 | Opaque test IDs hide intent or overstate standards coverage | Descriptive behavioral names plus versioned normative traceability metadata |
@@ -2134,9 +2144,9 @@ Implementation must stop separately:
 - before starting structural code/test cleanup until 0.7.0 stabilization is
   recorded, except for decomposition strictly required to build the vNext
   architecture safely;
-- before merge/tag/downstream use of ebusreg PR #147 or gateway M5-04; preserve
-  the branch as a seed only, first merge the semreg kernel/PV pack ownership
-  chain, then port through SEM-IR-PV-01 and close #146/#147 without merge;
+- before deleting or replacing merged legacy PV/UI behavior until
+  SEM-IR-PV-01 and consumer parity prove the vNext migration against the frozen
+  comparator; draft PR #94 must not block or mutate the completed Fronius route;
 - when a required normative source or mapping equivalence is unproven.
 
 Merging this plan creates no issue, branch, PR, repository, deployment or
