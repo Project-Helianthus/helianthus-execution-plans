@@ -15,7 +15,7 @@ workflow state.
 - remaining nodes: 10
 - completed public milestones: M1, M2, M3, M4, M5, and M7
 - active FMV3 public code PRs: none
-- next unresolved prerequisite: `FMV3-M0-04`
+- next DAG-ready nodes: `FMV3-M0-04`, `FMV3-M6-00`, and `FMV3-M8-00`
 
 The public Fronius/Modbus delivery is complete through mixed-catalog closure:
 
@@ -38,17 +38,19 @@ Representative merged checkpoints are:
 - public M7-05 documentation main:
   `736fd599cf0128b32257c178b454114893b5dc57`.
 
-The remaining nodes are the private output-binding tracks and their governance/docs
-prerequisites:
+The remaining nodes are the private output-binding tracks plus their public documentation
+and governance prerequisites:
 
 - M0: `FMV3-M0-04`, `FMV3-M0-05`, and `FMV3-M0-07`;
 - M6: `FMV3-M6-00` through `FMV3-M6-03`; and
 - M8: `FMV3-M8-00` through `FMV3-M8-02`.
 
 The planned private repositories `helianthus-eebus-binding-private` and
-`helianthus-matter-binding-private` do not yet exist. M6 and M8 therefore remain
-unstarted. They consume only `PUBLIC_GRAPHQL_M2M_V1`; they do not read Modbus or registry
-internals and do not redefine canonical PV semantics.
+`helianthus-matter-binding-private` do not yet exist. Their private implementation nodes
+cannot start before M0-04 plus the corresponding M0-05 or M0-07 bootstrap. The public
+documentation nodes M6-00 and M8-00 depend only on completed M5-08 and may proceed
+independently now. Both private implementations consume only `PUBLIC_GRAPHQL_M2M_V1`;
+they do not read Modbus or registry internals and do not redefine canonical PV semantics.
 
 Nonblocking public backlog remains tracked separately in `helianthus-modbusreg` issues
 `#25`, `#32`, and `#35`. Those P3 items do not reopen completed FMV3 milestones.
@@ -112,8 +114,10 @@ reopen; one independent opinion resolves a by-design dispute.
 ## Current stop condition
 
 No further action starts merely because this status file is merged. The public lane is at
-a clean stop after `FMV3-M7-05`. Continuing the original plan starts with private-repository
-governance at `FMV3-M0-04`, followed by the M6 and M8 documentation/bootstrap dependencies.
+a clean stop after `FMV3-M7-05`. Three independent nodes are DAG-ready: private-repository
+governance at `FMV3-M0-04`, public eeBUS binding documentation at `FMV3-M6-00`, and public
+Matter binding documentation at `FMV3-M8-00`. M6-01 and M8-01 remain blocked until their
+respective public documentation and private repository bootstrap dependencies merge.
 
 Private repository creation, credentials, myVaillant lab mutations, releases, and live
 installation retain their applicable action-time safety boundaries. The draft semantic
