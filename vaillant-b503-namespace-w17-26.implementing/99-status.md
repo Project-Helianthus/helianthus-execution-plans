@@ -25,7 +25,12 @@ Implementation started: `2026-04-22` (M0_DOC_GATE merged that evening)
 - Live gateway probe (192.168.100.4) on 2026-04-25 revealed `b503StubDispatcher` still injected; `vaillantCapabilities.b503 = {available: false, reason: UNKNOWN}` and all MCP read tools surfacing `UPSTREAM_RPC_FAILED`.
 - Plan rolled back from `.maintenance` to `.implementing` on 2026-04-25.
 - Amendment-1 (M0b, M6, M7, M8) locked after R1..R5 adversarial CONSENSUS with Codex `gpt-5.4` reasoning=high — see `00-canonical.md::§Adversarial provenance` and `13-amendment-1-dispatcher-portal-ux.md::§Adversarial provenance`.
-- Next action: cruise-preflight on `M0b_DOC_DISPATCHER_BRIDGE` and `M6_DISPATCHER_BRIDGE` (parallel where DAG permits — M0b has no upstream deps; M6 depends on M0b merged).
+- M0b_DOC_DISPATCHER_BRIDGE merged as docs-ebus#289 (`eceba7d7`) and
+  M6_DISPATCHER_BRIDGE merged as ebusgateway#550 (`25ae9099`).
+- M7_BENCH_REPLACE and M8_PORTAL_UX_GAPS were attempted but closed unmerged:
+  gateway#553 (`ecca5c3f`) and gateway#554 (`a4631edd`), respectively. No
+  bench evidence exists, so neither is a completion claim.
+- Revalidation on current main and any new live bench remain separately scoped.
 - Canonical SHA256: see `00-canonical.md` head; chunks bear matching hash.
 
 ## Timeline

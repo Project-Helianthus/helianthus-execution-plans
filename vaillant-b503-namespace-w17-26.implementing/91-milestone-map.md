@@ -23,10 +23,10 @@ Coverage: All 11 milestones (7 v1.0 baseline + 4 v1.1 amendment-1); status colum
 | `M2b_GATEWAY_GRAPHQL` | GraphQL parity + `vaillantCapabilities.b503` signal | `helianthus-ebusgateway` | codex-dev | 5 | `M2a`, `M5` | merged 2026-04-23 (ebusgateway#520 07385b01) |
 | `M3_PORTAL` | Vaillant pane (errors/service/live-monitor tabs) read-only | `helianthus-ebusgateway` | codex-dev | 4 | `M2b` | merged 2026-04-23 (ebusgateway#522 45846270) |
 | `M4_HA` | Diagnostic sensor + history attribute; capability-signal-driven lifecycle | `helianthus-ha-integration` | codex-dev | 4 | `M2b` | merged 2026-04-23 (ha-integration#188 d9355e5f) |
-| **`M0b_DOC_DISPATCHER_BRIDGE`** (amend1) | Normative spec for production dispatcher contract + 8-row capability truth table + error mapping + lock-order invariant | `helianthus-docs-ebus` | docs-researcher | 4 | none (parallel; merge-blocks M6) | **not started** |
-| **`M6_DISPATCHER_BRIDGE`** (amend1) | Replace `b503StubDispatcher` with production `RawFrameDispatcher`; epoch-tagged in-flight; 4 concurrency tests; 8 truth-table tests; mechanical lock tracer | `helianthus-ebusgateway` | **claude-dev + adversarial** | 8 | `M4`, `M0b` | **not started** |
-| **`M7_BENCH_REPLACE`** (amend1) | Operator-attested live-bus captures; matrix §9 `[bridge-PASS]→[bridge-LIVE-PASS]`; 3 attestation gates; WAIT_OPERATOR | `helianthus-ebusgateway` | codex-dev + operator-attest | 5 | `M6` | **not started** |
-| **`M8_PORTAL_UX_GAPS`** (amend1) | Per-target portal awareness; full reason matrix; projection fold-in; session-state strip; history sub-tab; AD02 banner; F7 cruise-consult; LANE A | `helianthus-ebusgateway` | codex-restricted | 6 | `M6` (parallel to M7) | **not started** |
+| **`M0b_DOC_DISPATCHER_BRIDGE`** (amend1) | Normative spec for production dispatcher contract + 8-row capability truth table + error mapping + lock-order invariant | `helianthus-docs-ebus` | docs-researcher | 4 | none (parallel; merge-blocks M6) | merged 2026-04-25 (docs-ebus#289 eceba7d7) |
+| **`M6_DISPATCHER_BRIDGE`** (amend1) | Replace `b503StubDispatcher` with production `RawFrameDispatcher`; epoch-tagged in-flight; 4 concurrency tests; 8 truth-table tests; mechanical lock tracer | `helianthus-ebusgateway` | **claude-dev + adversarial** | 8 | `M4`, `M0b` | merged 2026-04-25 (ebusgateway#550 25ae9099) |
+| **`M7_BENCH_REPLACE`** (amend1) | Operator-attested live-bus captures; matrix §9 `[bridge-PASS]→[bridge-LIVE-PASS]`; 3 attestation gates; WAIT_OPERATOR | `helianthus-ebusgateway` | codex-dev + operator-attest | 5 | `M6` | closed unmerged (ebusgateway#553 ecca5c3f; no bench evidence) |
+| **`M8_PORTAL_UX_GAPS`** (amend1) | Per-target portal awareness; full reason matrix; projection fold-in; session-state strip; history sub-tab; AD02 banner; F7 cruise-consult; LANE A | `helianthus-ebusgateway` | codex-restricted | 6 | `M6` (parallel to M7) | closed unmerged (ebusgateway#554 a4631edd; no bench evidence) |
 
 ## Invariants
 
