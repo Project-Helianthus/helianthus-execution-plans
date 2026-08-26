@@ -9,6 +9,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 MSP = ROOT / "multi-runtime-semantic-platform.locked"
 MSP_GRAPH_GOLDEN = ROOT / "tests/golden/msp-dependency-graph.yaml"
+P11 = ROOT / "fix-p11-midwrite-byte-routing-w21-26.implementing"
 
 
 class UniqueKeyLoader(yaml.SafeLoader):
@@ -164,6 +165,27 @@ class ExecutionPlanProcessTests(unittest.TestCase):
             "successors released only by GO",
             "digest-bound completion token",
             "token-authoritative",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, text)
+
+    def test_p11_record_has_no_legacy_plan_runtime_surface(self) -> None:
+        text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(P11.iterdir())
+            if path.suffix in {".md", ".yaml"}
+        )
+        for forbidden in (
+            "Canonical-SHA256:",
+            "canonical_sha256:",
+            "sha256_chunks:",
+            "cruise-state:",
+            "active_skill",
+            "active_state",
+            "cruise-resume",
+            "Idempotence contract:",
+            "Falsifiability gate:",
+            "post-merge proof",
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)
