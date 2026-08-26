@@ -25,7 +25,12 @@ class ActivePlanStructureTests(unittest.TestCase):
         return temporary, root
 
     def test_current_active_plan_directories_are_valid(self) -> None:
-        self.assertEqual(21, VALIDATOR.validate_active_plan_structure(ROOT))
+        expected = sum(
+            1
+            for state in VALIDATOR.ACTIVE_STATES
+            for _ in ROOT.glob(f"*.{state}/plan.yaml")
+        )
+        self.assertEqual(expected, VALIDATOR.validate_active_plan_structure(ROOT))
 
     def test_rejects_directory_state_mismatch(self) -> None:
         temporary, root = self.copied_plan_root()
