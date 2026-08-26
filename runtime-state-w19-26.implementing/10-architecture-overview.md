@@ -2,7 +2,7 @@
 
 Source: [00-canonical.md](./00-canonical.md)
 
-Canonical-SHA256: `5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede`
+Canonical-SHA256: `fcf04d9a6910d0ccbef81c01da8e50ce634450cc4f39627882225f94134c5f36`
 
 Depends on: [11-decision-matrix.md](./11-decision-matrix.md), [12-milestones.md](./12-milestones.md), [13-acceptance-falsifiability-cross-plan.md](./13-acceptance-falsifiability-cross-plan.md).
 

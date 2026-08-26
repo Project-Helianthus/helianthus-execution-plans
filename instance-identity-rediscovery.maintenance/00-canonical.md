@@ -225,7 +225,7 @@ The first-wave durability guarantee is scoped to the HA add-on lifecycle.
 
 Per `feedback_deprecation_enrichment.md` (extend, do not rewrite):
 the canonical persistence path for `instance_guid` is migrated by the
-`runtime-state-w19-26.locked` plan from the standalone file
+`runtime-state-w19-26.implementing` plan from the standalone file
 `/data/instance_guid` to a namespaced field
 `/data/runtime_state.json[meta][instance_guid]` in a new gateway-owned
 runtime state file.
@@ -249,7 +249,7 @@ What changes:
   `runtime_state.json` is the gateway.
 - The add-on reads `meta.instance_guid` from `runtime_state.json` at
   startup with the precedence documented in
-  `runtime-state-w19-26.locked/11-decision-matrix.md` (AD09b).
+  `runtime-state-w19-26.implementing/11-decision-matrix.md` (AD09b).
 - Migration is hard-cut, no read-fallback in code (operator-locked
   decision: manual deploy step). A guardrail (AD09a) prevents silent
   identity regeneration when legacy `/data/instance_guid` is detected
@@ -261,6 +261,6 @@ What changes:
   treated as a post-migration audit artifact only.
 
 Forward reference: see
-[`runtime-state-w19-26.locked/00-canonical.md`](../runtime-state-w19-26.locked/00-canonical.md)
+[`runtime-state-w19-26.implementing/00-canonical.md`](../runtime-state-w19-26.implementing/00-canonical.md)
 for the full schema, decision matrix, and falsifiability gate. This
 canonical is not invalidated by that plan; it is extended.

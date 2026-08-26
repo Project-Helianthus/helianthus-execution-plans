@@ -46,5 +46,11 @@ M0_PLAN_LOCK → M0_DOC_GATE → M1_TDD_RED_GATEWAY → M2_LOADER →
 M3_PERSISTER → M4_SOURCE_SELECTION_HINT → M5_REVALIDATE → M7_LIVE_VALIDATION
 ```
 
+## Reconciled Position
+
+M0 through M6 and M8 are merged. M7 is the current live-validation milestone;
+it remains nonterminal until its own evidence is evaluated. This table does not
+select a final lifecycle or waive any incomplete gate.
+
 8 milestones, gateway-heavy. Add-on lane (M1_TDD_RED_ADDON → M6) joins at
 M7 but does not gate the gateway-side critical path until then.
