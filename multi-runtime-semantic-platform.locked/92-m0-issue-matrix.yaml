@@ -23,6 +23,11 @@ issues:
   depends_on: []
   gates:
   - ci
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Create M0 issue matrix and control-plane fields' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-00B
   title: Record historical model selection context
   repo: helianthus-execution-plans
@@ -31,6 +36,11 @@ issues:
   - MSP-00A
   gates:
   - ci
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Record historical model selection context' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-00C
   title: Define eebus-transport-gate v0
   repo: helianthus-execution-plans
@@ -39,6 +49,11 @@ issues:
   - MSP-00A
   gates:
   - ci
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Define eebus-transport-gate v0' is complete under its declared gates; this row
+    does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-01A
   title: Add platform docs ownership ADR
   repo: helianthus-docs-ebus
@@ -48,6 +63,11 @@ issues:
   gates:
   - ci
   - docs:required
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add platform docs ownership ADR' is complete under its declared gates; this row
+    does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-01B
   title: Bootstrap helianthus-docs-eebus
   repo: helianthus-docs-eebus
@@ -57,6 +77,11 @@ issues:
   gates:
   - ci
   - docs:required
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Bootstrap helianthus-docs-eebus' is complete under its declared gates; this row
+    does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-01C
   title: Add eeBUS provenance and publication policy
   repo: helianthus-docs-eebus
@@ -67,6 +92,11 @@ issues:
   - ci
   - docs:required
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add eeBUS provenance and publication policy' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-020
   title: Bootstrap helianthus-eebusreg raw runtime repo
   repo: helianthus-eebusreg
@@ -81,6 +111,11 @@ issues:
   gates:
   - ci
   - docs:required
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Bootstrap helianthus-eebusreg raw runtime repo' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-02A
   title: Draft raw runtime identity contract
   repo: helianthus-eebusreg
@@ -97,6 +132,11 @@ issues:
   - ci
   - docs:required
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Draft raw runtime identity contract' is complete under its declared gates; this
+    row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-02B
   title: Draft snapshot envelope and evidence object
   repo: helianthus-eebusreg
@@ -106,6 +146,11 @@ issues:
   gates:
   - ci
   - docs:required
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Draft snapshot envelope and evidence object' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-02C
   title: Draft raw correlation and promotion dossier policy
   repo: helianthus-docs-ebus
@@ -116,6 +161,11 @@ issues:
   gates:
   - ci
   - docs:required
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Draft raw correlation and promotion dossier policy' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-03A
   title: Spike eebus-go v0.7.0 internal facade
   repo: helianthus-eebusreg
@@ -125,6 +175,11 @@ issues:
   gates:
   - ci
   - docs:required
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Spike eebus-go v0.7.0 internal facade' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-03B
   title: Prove local and container toolchain boundaries
   repo: helianthus-eebusreg
@@ -134,6 +189,11 @@ issues:
   gates:
   - ci
   - docs:required
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Prove local and container toolchain boundaries' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-03C
   title: Prove HA runtime networking
   repo: helianthus-ha-addon
@@ -146,6 +206,11 @@ issues:
   - docs:required
   - transport:eebus_v0
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Prove HA runtime networking' is complete under its declared gates; this row does
+    not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-03D-G01
   title: Preserve merged fake-peer harness evidence
   repo: helianthus-eebusreg
@@ -157,6 +222,11 @@ issues:
   - docs:required
   - transport:eebus_v0
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Preserve merged fake-peer harness evidence' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-R00
   title: Recovery reconciliation ledger and source-only bundle
   repo: helianthus-eebusreg
@@ -165,6 +235,12 @@ issues:
   gates:
   - ci
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Recovery reconciliation ledger and source-only bundle' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-R00-L
   title: Review and publish the redacted recovery ledger
   repo: helianthus-execution-plans
@@ -173,6 +249,11 @@ issues:
   gates:
   - ci
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Review and publish the redacted recovery ledger' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: DOCS-VERIFY
   title: Verify docs ownership, license, template, and path layout
   repo: helianthus-docs-eebus
@@ -182,6 +263,12 @@ issues:
   - ci
   - docs:verify
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Verify docs ownership, license, template, and path layout' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-API-SCHEMA
   title: Freeze eeBUS Go public API schema inputs
   repo: helianthus-docs-eebus
@@ -193,6 +280,11 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Freeze eeBUS Go public API schema inputs' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-PLATFORM
   title: Add cross-runtime platform contracts and ownership manifest
   repo: helianthus-docs-ebus
@@ -204,6 +296,12 @@ issues:
   - ci
   - docs:required
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add cross-runtime platform contracts and ownership manifest' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-E2
   title: Move eeBUS protocol, architecture, and API docs to docs-eebus
   repo: helianthus-docs-eebus
@@ -214,6 +312,12 @@ issues:
   - ci
   - docs:required
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Move eeBUS protocol, architecture, and API docs to docs-eebus' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-E2R-PLATFORM
   title: Introduce backward-compatible publication-contract v2 validator
   repo: helianthus-docs-ebus
@@ -225,6 +329,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Introduce backward-compatible publication-contract v2 validator' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-E2R-PUBLISH
   title: Migrate accepted documentation manifest to publication-contract v2
   repo: helianthus-docs-eebus
@@ -236,6 +346,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Migrate accepted documentation manifest to publication-contract v2' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-E2R-AGGREGATE
   title: Aggregate v2 publication evidence and verify repository-local checks
   repo: helianthus-execution-plans
@@ -247,6 +363,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Aggregate v2 publication evidence and verify repository-local checks' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-CLEAN
   title: Enforce external-only documentation in helianthus-eebusreg
   repo: helianthus-eebusreg
@@ -258,6 +380,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Enforce external-only documentation in helianthus-eebusreg' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-CANDIDATE-CLEANUP
   title: Withdraw abandoned eeBUS candidate docs
   repo: helianthus-docs-eebus
@@ -268,6 +396,11 @@ issues:
   - ci
   - docs:required
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Withdraw abandoned eeBUS candidate docs' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-03D-R
   title: Reconcile G17 and G19 from clean main
   repo: helianthus-eebusreg
@@ -281,6 +414,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Reconcile G17 and G19 from clean main' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-035
   title: Freeze raw runtime contract
   repo: helianthus-eebusreg
@@ -291,6 +429,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Freeze raw runtime contract' is complete under its declared gates; this row does
+    not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-04A
   title: Implement internal persistent store/schema only
   repo: helianthus-eebusreg
@@ -302,6 +445,11 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Implement internal persistent store/schema only' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-036
   title: Export immutable raw snapshot/view fields
   repo: helianthus-eebusreg
@@ -313,6 +461,11 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Export immutable raw snapshot/view fields' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-API-CANDIDATE
   title: Stage the exact-head eeBUS Go public API candidate
   repo: helianthus-docs-eebus
@@ -325,6 +478,11 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Stage the exact-head eeBUS Go public API candidate' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-055
   title: Add disabled read-only lifecycle facade
   repo: helianthus-eebusreg
@@ -338,6 +496,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add disabled read-only lifecycle facade' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-API-FREEZE
   title: Freeze active eeBUS Go public API documentation
   repo: helianthus-docs-eebus
@@ -349,6 +512,11 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Freeze active eeBUS Go public API documentation' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-04B
   title: Implement first-trust and admin-local boundary
   repo: helianthus-eebusreg
@@ -361,6 +529,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Implement first-trust and admin-local boundary' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-04C
   title: Implement restore, revocation, quarantine, and repair
   repo: helianthus-eebusreg
@@ -373,6 +546,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Implement restore, revocation, quarantine, and repair' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-045
   title: Freeze trust and admin state model
   repo: helianthus-eebusreg
@@ -384,6 +563,11 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Freeze trust and admin state model' is complete under its declared gates; this
+    row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05A
   title: Add disabled eeBUS config scaffold
   repo: helianthus-ebusgateway
@@ -394,6 +578,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add disabled eeBUS config scaffold' is complete under its declared gates; this
+    row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-DOCS-05P
   title: Freeze the production activation, provider, listener-scope, and config mapping
     contract
@@ -407,6 +596,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Freeze the production activation, provider, listener-scope, and config mapping
+    contract' is complete under its declared gates; this row does not create readiness,
+    authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05P-SHIP
   title: Add scoped SHIP listener and independently gated mDNS publication
   repo: helianthus-ship-go
@@ -419,6 +614,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add scoped SHIP listener and independently gated mDNS publication' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05P-EEBUS
   title: Thread listener and discovery policy through eebus-go
   repo: helianthus-eebus-go
@@ -431,6 +632,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Thread listener and discovery policy through eebus-go' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05P-REG-API-V2
   title: Add an explicit bind-address runtime API without breaking v1
   repo: helianthus-eebusreg
@@ -443,6 +650,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add an explicit bind-address runtime API without breaking v1' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05P-REG-ID
   title: Install host-bound protected runtime identity material
   repo: helianthus-eebusreg
@@ -454,6 +667,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Install host-bound protected runtime identity material' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05P-REG-RUNTIME
   title: Replace production runtime stubs with the scoped SHIP service
   repo: helianthus-eebusreg
@@ -466,6 +685,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Replace production runtime stubs with the scoped SHIP service' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05P-REG-API-V1-CLEANUP
   title: Collapse the unreleased exact-address runtime API into the initial v1 surface
   repo: helianthus-eebusreg
@@ -478,6 +703,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Collapse the unreleased exact-address runtime API into the initial v1 surface'
+    is complete under its declared gates; this row does not create readiness, authorization,
+    or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05A-R1
   title: Map gateway eeBUS config exactly onto the production runtime API
   repo: helianthus-ebusgateway
@@ -490,6 +721,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Map gateway eeBUS config exactly onto the production runtime API' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05B-PLAN-R1
   title: Correct the M5 gateway lifecycle prerequisite and sidecar contract
   repo: helianthus-execution-plans
@@ -500,6 +737,12 @@ issues:
   - MSP-DOCS-05P
   gates:
   - ci
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Correct the M5 gateway lifecycle prerequisite and sidecar contract' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05A-R2
   title: Harden gateway process-exit boundary and canonicalize eeBUS remotes
   repo: helianthus-ebusgateway
@@ -512,6 +755,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Harden gateway process-exit boundary and canonicalize eeBUS remotes' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-05B
   title: Add disabled-by-default EEBusRuntimeAdapter sidecar
   repo: helianthus-ebusgateway
@@ -526,6 +775,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add disabled-by-default EEBusRuntimeAdapter sidecar' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-06
   title: Add read-only eebus.v1 MCP tools
   repo: helianthus-ebusgateway
@@ -538,6 +792,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add read-only eebus.v1 MCP tools' is complete under its declared gates; this
+    row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-PLAN
   title: Publish forward-only M6.25 raw SPINE feature acquisition amendment
   repo: helianthus-execution-plans
@@ -547,6 +806,12 @@ issues:
   gates:
   - ci
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Publish forward-only M6.25 raw SPINE feature acquisition amendment' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-DOCS-E
   title: Freeze M6.25 SPINE function-data, runtime, and API contract
   repo: helianthus-docs-eebus
@@ -559,6 +824,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Freeze M6.25 SPINE function-data, runtime, and API contract' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-SPINE
   title: Add atomic correlated SPINE round-trip
   repo: helianthus-spine-go
@@ -571,6 +842,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add atomic correlated SPINE round-trip' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-EEBUS
   title: Add exact full READ/WRITE feature executor
   repo: helianthus-eebus-go
@@ -583,6 +859,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add exact full READ/WRITE feature executor' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-REG-EXEC
   title: Add RawFeatureRuntimeV1 typed acquisition executor
   repo: helianthus-eebusreg
@@ -595,6 +876,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add RawFeatureRuntimeV1 typed acquisition executor' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-REG-MUT
   title: Add durable bounded mutation coordinator
   repo: helianthus-eebusreg
@@ -607,6 +893,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add durable bounded mutation coordinator' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-GW-ROUTER
   title: Add EEBusCommandRouter policy boundary
   repo: helianthus-ebusgateway
@@ -619,6 +910,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add EEBusCommandRouter policy boundary' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-GW-MCP
   title: Register exact M6.25 eebus.v1 tools
   repo: helianthus-ebusgateway
@@ -631,6 +927,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Register exact M6.25 eebus.v1 tools' is complete under its declared gates; this
+    row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-LAB
   title: Prove live typed acquisition and bounded rollback
   repo: helianthus-docs-eebus
@@ -643,6 +944,11 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Prove live typed acquisition and bounded rollback' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-DOCS-P
   title: Cross-seed thin public acquisition methodology
   repo: helianthus-docs-ebus
@@ -653,6 +959,11 @@ issues:
   - ci
   - docs:required
   - security
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Cross-seed thin public acquisition methodology' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-S13-DOCS
   title: Freeze bounded SPINE 1.3 READ erratum and public baseline
   repo: helianthus-docs-eebus
@@ -666,6 +977,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Freeze bounded SPINE 1.3 READ erratum and public baseline' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-S13-SPINE
   title: Apply bounded SPINE 1.3 model and function-data corrections
   repo: helianthus-spine-go
@@ -678,6 +995,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Apply bounded SPINE 1.3 model and function-data corrections' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-S13-EEBUS
   title: Adopt bounded SPINE 1.3 erratum in exact feature READ execution
   repo: helianthus-eebus-go
@@ -690,6 +1013,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Adopt bounded SPINE 1.3 erratum in exact feature READ execution' is complete
+    under its declared gates; this row does not create readiness, authorization, or
+    a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-S13-REG
   title: Reconcile raw typed READ results with the SPINE 1.3 erratum
   repo: helianthus-eebusreg
@@ -702,6 +1031,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Reconcile raw typed READ results with the SPINE 1.3 erratum' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-0625-S13-GW-LAB
   title: Integrate and prove the bounded SPINE 1.3 READ erratum
   repo: helianthus-ebusgateway
@@ -714,6 +1049,12 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Integrate and prove the bounded SPINE 1.3 READ erratum' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-065
   title: Preserve historical synchronized evidence recorder framework
   repo: helianthus-ebusgateway
@@ -725,6 +1066,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Preserve historical synchronized evidence recorder framework' is complete under
+    its declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-07
   title: Preserve historical synthetic draft candidate fact graph
   repo: helianthus-ebusgateway
@@ -735,6 +1082,12 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Preserve historical synthetic draft candidate fact graph' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-08
   title: Preserve historical synthetic multi-runtime coexistence
   repo: helianthus-ebusgateway
@@ -746,6 +1099,12 @@ issues:
   - docs:required
   - transport:eebus_v0
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Preserve historical synthetic multi-runtime coexistence' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-085
   title: Preserve historical zero-leaf promotion closure
   repo: helianthus-ebusgateway
@@ -756,6 +1115,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Preserve historical zero-leaf promotion closure' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-065-LIVE-R1
   title: Complete live synchronized evidence recorder revision 1
   repo: helianthus-ebusgateway
@@ -769,6 +1133,12 @@ issues:
   - docs:required
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Complete live synchronized evidence recorder revision 1' is complete under its
+    declared gates; this row does not create readiness, authorization, or a post-merge
+    effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-07-LIVE-R1
   title: Build live draft candidate fact graph revision 1
   repo: helianthus-ebusgateway
@@ -779,6 +1149,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Build live draft candidate fact graph revision 1' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-08-LIVE-R1
   title: Prove live multi-runtime coexistence revision 1
   repo: helianthus-ebusgateway
@@ -790,6 +1165,11 @@ issues:
   - docs:required
   - transport:eebus_v0
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Prove live multi-runtime coexistence revision 1' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-085-LIVE-R1
   title: Lock live per-leaf promotion dossiers revision 1
   repo: helianthus-ebusgateway
@@ -800,6 +1180,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Lock live per-leaf promotion dossiers revision 1' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-09A
   title: Add GraphQL for promoted leaves
   repo: helianthus-ebusgateway
@@ -810,6 +1195,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add GraphQL for promoted leaves' is complete under its declared gates; this row
+    does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-09B
   title: Add Portal promoted-leaf support
   repo: helianthus-ebusgateway
@@ -821,6 +1211,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add Portal promoted-leaf support' is complete under its declared gates; this
+    row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-09C
   title: Add Home Assistant promoted-entity support
   repo: helianthus-ha-integration
@@ -833,6 +1228,11 @@ issues:
   - ci
   - docs:required
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add Home Assistant promoted-entity support' is complete under its declared gates;
+    this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
 - id: MSP-09D
   title: Add add-on configuration for promoted eeBUS runtime
   repo: helianthus-ha-addon
@@ -847,3 +1247,8 @@ issues:
   - transport:eebus_v0
   - security
   - tdd
+  acceptance: The owning repository records evidence that the bounded deliverable
+    'Add add-on configuration for promoted eeBUS runtime' is complete under its declared
+    gates; this row does not create readiness, authorization, or a post-merge effect.
+  rollback: Correct, disable, or supersede the affected deliverable in its owning
+    repository without rewriting published history.
