@@ -1,6 +1,6 @@
 slug: runtime-state-w19-26
 title: Runtime State File — /data/runtime_state.json
-state: locked
+state: implementing
 source_discussion: operator-runtime-state-design-2026-05-10
 target_repos:
   - helianthus-execution-plans
@@ -11,9 +11,9 @@ knowledge_repo: helianthus-docs-ebus
 canonical_file: 00-canonical.md
 split_index: 01-index.md
 started_on: 2026-05-10
-current_milestone: M0_PLAN_LOCK
-canonical_revision: v1.1-amendment-source-selection-naming
-canonical_sha256: 5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede
+current_milestone: M7_LIVE_VALIDATION
+canonical_revision: v1.2-status-reconciliation
+canonical_sha256: fcf04d9a6910d0ccbef81c01da8e50ce634450cc4f39627882225f94134c5f36
 amendments:
   - revision: v1.1
     locked_on: 2026-05-10
@@ -138,4 +138,4 @@ topology_nodes:
     milestone: M8_TRANSPORT_VERIFY
 
 sha256_chunks:
-  "00-canonical.md": 5f723d7122dd24c81357dc7adb640cbdb805679a5d91c8b8dedcbe6ef60edede
+  "00-canonical.md": fcf04d9a6910d0ccbef81c01da8e50ce634450cc4f39627882225f94134c5f36

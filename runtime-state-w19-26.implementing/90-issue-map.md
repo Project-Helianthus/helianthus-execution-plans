@@ -5,6 +5,22 @@ Source: [00-canonical.md](./00-canonical.md)
 Per-repo canonical issue identifiers. Each gets a real GitHub issue at
 M0_PLAN_LOCK execution time; this map is the seed.
 
+## Reconciled Completion Evidence
+
+| Milestone | Disposition | Recorded merge evidence |
+| --- | --- | --- |
+| M0_PLAN_LOCK | merged | execution-plans PR #28 |
+| M0_DOC_GATE | merged | docs-ebus PRs #304 and #305 |
+| M0A_TRANSPORT_BASELINE | merged | gateway PR #610 |
+| M1_TDD_RED_GATEWAY | merged | gateway PR #611 |
+| M1_TDD_RED_ADDON | merged | ha-addon PR #126 |
+| M2_GATEWAY_LOADER / M3_GATEWAY_PERSISTER | merged | gateway PR #612 |
+| M4_SOURCE_SELECTION_HINT | merged | gateway PR #613 |
+| M5_ADDRESS_TABLE_REVALIDATE | merged | gateway PRs #614 and #615 |
+| M6_HA_ADDON_MIGRATION | merged | ha-addon PR #127 |
+| M7_LIVE_VALIDATION | current | live validation remains nonterminal |
+| M8_TRANSPORT_VERIFY | merged | gateway PR #616 |
+
 ## helianthus-execution-plans
 
 - **RTS-PLAN-01** — Lock `runtime-state-w19-26.draft → .locked` (M0_PLAN_LOCK).

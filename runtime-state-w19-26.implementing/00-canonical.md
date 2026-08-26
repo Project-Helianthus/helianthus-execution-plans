@@ -1,6 +1,6 @@
 # Runtime State File — /data/runtime_state.json
 
-State: `draft` (will become `locked` post-validator)
+State: `implementing`
 Slug: `runtime-state-w19-26`
 Started: `2026-05-10`
 Planner: `Codex gpt-5.5 high (6 adversarial rounds, ready_to_lock=true at R6)`
@@ -33,6 +33,12 @@ versioning, atomicity contract, and add-on-vs-gateway ownership boundary
 established here. v2 surface exposure (GraphQL/MCP identity-source field) and
 v2 features (stale-verified pruning, stable schema URL, USB hot-disconnect
 live test) are explicitly out of v1 scope.
+
+## Status Reconciliation
+
+The plan lock and M0 through M6/M8 implementation milestones are merged. M7
+is the current live-validation milestone. This status does not claim a final
+lifecycle, a live PASS, or a waiver for any missing evidence.
 
 ## Objective
 
