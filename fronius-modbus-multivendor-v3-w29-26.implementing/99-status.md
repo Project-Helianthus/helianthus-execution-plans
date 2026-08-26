@@ -55,11 +55,10 @@ they do not read Modbus or registry internals and do not redefine canonical PV s
 Nonblocking public backlog remains tracked separately in `helianthus-modbusreg` issues
 `#25`, `#32`, and `#35`. Those P3 items do not reopen completed FMV3 milestones.
 
-## Original plan-cycle declaration
+## Historical M0-M3 plan-cycle declaration
 
-The following inventory is retained verbatim because the current read-only validator
-checks the original M0-M3 planning boundary. It describes the plan cycle that first
-published this guide, not the current GitHub execution position:
+The following inventory is retained as historical context for the plan cycle that first
+published this guide. It does not govern current GitHub execution position:
 
 Machine-readable inventory:
 
@@ -86,7 +85,7 @@ re-block the already merged M4-M7 implementation.
 The active validator is local, read-only, and structural/semantic. It checks YAML parsing
 and duplicate keys, unique IDs, known repositories, dependency existence, DAG acyclicity,
 Markdown mirrors, contract IDs/versions, declared order, review-policy invariants, the
-M3-03 boundary, and the hard stop.
+M3-03 transport-neutral boundary, and factual historical/reconciled boundary prose.
 
 It does not query GitHub, inspect another checkout, scan arbitrary implementation source,
 or cause post-merge actions. Product proof remains in code repositories through

@@ -51,11 +51,6 @@ review_policy:
     - verifiable_fix_criterion
   theoretical_out_of_threat_model_is_p2: false
 
-hard_stop:
-  after_issue: FMV3-M3-03
-  before_issue: FMV3-M4-01
-  gateway_work: blocked
-
 transport_neutral_boundary:
   issue: FMV3-M3-03
   evidence_transport: Modbus TCP

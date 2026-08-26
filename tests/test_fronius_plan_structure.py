@@ -238,32 +238,32 @@ class FroniusPlanStructureTests(unittest.TestCase):
 
         self.assert_document_rejected(mutate, "requires explicit operator confirmation")
 
-    def test_rejects_status_hard_stop_drift(self) -> None:
+    def test_rejects_status_reconciled_boundary_drift(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             plan_dir = self.copy_plan(Path(temp))
             status = plan_dir / "99-status.md"
             status.write_text(
                 status.read_text(encoding="utf-8").replace(
-                    "- gateway work: blocked", "- gateway work: ready", 1
+                    "after `FMV3-M7-05`", "after `FMV3-M7-04`", 1
                 ),
                 encoding="utf-8",
             )
-            with self.assertRaisesRegex(VALIDATOR.ValidationError, "status does not mirror"):
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "reconciled status"):
                 VALIDATOR.validate_plan(plan_dir)
 
-    def test_rejects_canonical_hard_stop_drift(self) -> None:
+    def test_rejects_canonical_historical_boundary_drift(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             plan_dir = self.copy_plan(Path(temp))
             canonical = plan_dir / "00-canonical.md"
             canonical.write_text(
                 canonical.read_text(encoding="utf-8").replace(
-                    "`FMV3-M4-01`. `FMV3-M4-01` and every gateway issue remain blocked.",
-                    "`FMV3-M4-02`. `FMV3-M4-02` and every gateway issue remain blocked.",
+                    "`FMV3-M3-03` and immediately before\n`FMV3-M4-01`.",
+                    "`FMV3-M3-03` and immediately before\n`FMV3-M4-02`.",
                     1,
                 ),
                 encoding="utf-8",
             )
-            with self.assertRaisesRegex(VALIDATOR.ValidationError, "canonical prose does not mirror"):
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "canonical historical boundary"):
                 VALIDATOR.validate_plan(plan_dir)
 
     def test_matter_pv_slice_is_m6_independent_and_contract_bound(self) -> None:
@@ -475,23 +475,15 @@ class FroniusPlanStructureTests(unittest.TestCase):
             with self.assertRaisesRegex(VALIDATOR.ValidationError, "milestone map does not mirror"):
                 VALIDATOR.validate_plan(plan_dir)
 
-    def test_rejects_hard_stop_drift(self) -> None:
+    def test_rejects_legacy_hard_stop_key(self) -> None:
         def mutate(document: dict[str, Any]) -> None:
-            document["hard_stop"]["before_issue"] = "FMV3-M4-02"
+            document["hard_stop"] = {
+                "after_issue": "FMV3-M3-03",
+                "before_issue": "FMV3-M4-01",
+                "gateway_work": "blocked",
+            }
 
-        self.assert_document_rejected(mutate, "hard stop must remain")
-
-    def test_rejects_gateway_unblocked_state(self) -> None:
-        def mutate(document: dict[str, Any]) -> None:
-            document["hard_stop"]["gateway_work"] = "ready"
-
-        self.assert_document_rejected(mutate, "hard stop must remain")
-
-    def test_rejects_later_issue_bypassing_hard_stop(self) -> None:
-        def mutate(document: dict[str, Any]) -> None:
-            self.issue(document, "FMV3-M4-03")["depends_on"] = []
-
-        self.assert_document_rejected(mutate, "bypasses the hard stop")
+        self.assert_document_rejected(mutate, "root fields are invalid")
 
     def test_rejects_transport_boundary_drift(self) -> None:
         def mutate(document: dict[str, Any]) -> None:
