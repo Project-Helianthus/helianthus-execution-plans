@@ -1,0 +1,11 @@
+slug: fix-p11-midwrite-byte-routing-w21-26
+title: P11 first-byte arbitration correction historical record
+state: implementing
+status: stopped-NO_GO
+owners:
+  - helianthus-ebusgateway
+  - helianthus-ha-addon
+  - helianthus-docs-ebus
+historical_boundary:
+  qualification: M4_NO_GO
+  next_action: explicit_rollback_waiver_or_corrective_plan_decision
