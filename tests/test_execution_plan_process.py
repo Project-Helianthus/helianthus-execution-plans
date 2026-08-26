@@ -95,7 +95,16 @@ class ExecutionPlanProcessTests(unittest.TestCase):
         self.assertEqual(golden, graph)
         for row in rows:
             self.assertEqual(
-                {"id", "title", "repo", "milestone", "depends_on", "gates"},
+                {
+                    "id",
+                    "title",
+                    "repo",
+                    "milestone",
+                    "depends_on",
+                    "gates",
+                    "acceptance",
+                    "rollback",
+                },
                 set(row),
             )
             self.assertNotIn("requires_completion_tokens", row)
@@ -110,6 +119,10 @@ class ExecutionPlanProcessTests(unittest.TestCase):
             self.assertTrue(set(row.get("depends_on", ())).issubset(by_id))
             self.assertTrue(row["gates"])
             self.assertTrue(all(isinstance(gate, str) for gate in row["gates"]))
+            self.assertIsInstance(row["acceptance"], str)
+            self.assertTrue(row["acceptance"])
+            self.assertIsInstance(row["rollback"], str)
+            self.assertTrue(row["rollback"])
 
         visiting: set[str] = set()
         visited: set[str] = set()
