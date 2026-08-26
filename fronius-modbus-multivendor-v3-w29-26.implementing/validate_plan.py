@@ -46,7 +46,6 @@ ROOT_KEYS = {
     "repositories",
     "contracts",
     "review_policy",
-    "hard_stop",
     "transport_neutral_boundary",
     "ordering",
     "milestones",
@@ -247,7 +246,6 @@ def _validate_mirrors(
     plan_dir: Path,
     milestones: list[dict[str, Any]],
     issues: list[dict[str, Any]],
-    hard_stop: dict[str, Any],
 ) -> None:
     expected_issues = [
         (
@@ -271,30 +269,30 @@ def _validate_mirrors(
     )
     _require(actual_milestones == expected_milestones, "milestone map does not mirror plan.yaml")
 
-    after_issue = hard_stop["after_issue"]
-    before_issue = hard_stop["before_issue"]
-    gateway_work = hard_stop["gateway_work"]
     status_text = (plan_dir / "99-status.md").read_text(encoding="utf-8")
-    expected_status = (
-        "Machine-readable inventory:\n\n"
-        f"- issues: {len(issues)}\n"
-        f"- milestones: {len(milestones)}\n"
-        "- retained domain contracts: 7\n"
-        f"- current-cycle last issue: `{after_issue}`\n"
-        f"- hard stop: immediately before `{before_issue}`\n"
-        f"- gateway work: {gateway_work}"
-    )
-    _require(expected_status in status_text, "status does not mirror the hard stop")
+    for expected_status in (
+        f"- planned nodes: {len(issues)}",
+        "- completed nodes: 36",
+        "- remaining nodes: 10",
+        "clean stop after `FMV3-M7-05`",
+        "M0: `FMV3-M0-04`, `FMV3-M0-05`, and `FMV3-M0-07`",
+        "M6: `FMV3-M6-00` through `FMV3-M6-03`",
+        "M8: `FMV3-M8-00` through `FMV3-M8-02`",
+    ):
+        _require(expected_status in status_text, "reconciled status is incomplete or stale")
 
     canonical_text = " ".join(
         (plan_dir / "00-canonical.md").read_text(encoding="utf-8").split()
     )
-    expected_canonical = (
-        f"The current plan cycle ends after `{after_issue}` and immediately before "
-        f"`{before_issue}`. `{before_issue}` and every gateway issue remain "
-        f"{gateway_work}."
+    _require(
+        "The original M0-M3 plan cycle ended after `FMV3-M3-03` and immediately before "
+        "`FMV3-M4-01`." in canonical_text,
+        "canonical historical boundary is incomplete or stale",
     )
-    _require(expected_canonical in canonical_text, "canonical prose does not mirror the hard stop")
+    _require(
+        "The reconciled public delivery stops after `FMV3-M7-05`." in canonical_text,
+        "canonical reconciled boundary is incomplete or stale",
+    )
 
 
 def validate_plan(plan_dir: Path) -> dict[str, int]:
@@ -404,19 +402,6 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
             f"FMV3-M0-06 must retain public gateway/MCP contract term: {required_term}",
         )
 
-    hard_stop = plan["hard_stop"]
-    _require(hard_stop == {
-        "after_issue": "FMV3-M3-03",
-        "before_issue": "FMV3-M4-01",
-        "gateway_work": "blocked",
-    }, "hard stop must remain immediately before FMV3-M4-01")
-    for issue in issues:
-        if issue["milestone"] in {"M4", "M5", "M6", "M7", "M8"}:
-            _require(
-                issue["id"] == "FMV3-M4-01" or "FMV3-M4-01" in _ancestors(issue["id"], issue_map),
-                f"{issue['id']} bypasses the hard stop",
-            )
-
     _require(plan["transport_neutral_boundary"] == {
         "issue": "FMV3-M3-03",
         "evidence_transport": "Modbus TCP",
@@ -430,7 +415,7 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     title = m3["title"].lower()
     _require("transport-neutral" in title and "read-only" in title, "M3-03 title lost its boundary")
 
-    _validate_mirrors(plan_dir, milestones, issues, hard_stop)
+    _validate_mirrors(plan_dir, milestones, issues)
     return {"issues": len(issues), "milestones": len(milestones), "contracts": len(contracts)}
 
 

@@ -15,17 +15,19 @@ issues; only issue dependencies define readiness.
 | M7 | SunSpec, Growatt, and Huawei profile expansion |
 | M8 | Generic private Matter binding |
 
-## Current cycle
+## Historical and current boundaries
 
-The current cycle ends after M3 issue `FMV3-M3-03` and before the first M4 issue,
-`FMV3-M4-01`. M4-M8 remain roadmap context and are not current work.
+The original cycle ended after M3 issue `FMV3-M3-03` and before `FMV3-M4-01`. That is
+historical process context only. Reconciled public delivery ends after M7 issue
+`FMV3-M7-05`; the remaining ten M0/M6/M8 nodes are private-binding governance and
+implementation tracks.
 
 ## Main dependency direction
 
 ```text
-M0 -> M1/M2 -> M3 -> STOP -> M4 -> M5 -> M6 and M8
+M0 -> M1/M2 -> M3 -> M4 -> M5 -> M6 and M8
                          \
-                          -> M7 after the retained public contract lane
+                          -> M7 -> reconciled public stop
 ```
 
 Within M5, public canonical documentation precedes semantics, semantic MCP precedes its

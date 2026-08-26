@@ -56,5 +56,6 @@ do not create, start, or approve work.
 
 The exact titles and issue-level acceptance, gates, and rollback remain adjacent to each
 node in `plan.yaml`; protocol details and outcome-gate semantics are summarized in
-`11-fronius-readonly-and-semantic-lock.md` and `13-roadmap-gates-and-risks.md`. The hard
-stop is after `FMV3-M3-03` and before `FMV3-M4-01`.
+`11-fronius-readonly-and-semantic-lock.md` and `13-roadmap-gates-and-risks.md`. The M3
+boundary is historical. The reconciled public delivery stops after `FMV3-M7-05`; the ten
+remaining M0/M6/M8 private-binding nodes retain their declared dependencies.

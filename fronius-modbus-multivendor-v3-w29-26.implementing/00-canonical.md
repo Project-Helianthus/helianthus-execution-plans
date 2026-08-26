@@ -3,8 +3,8 @@
 Status: `implementing`
 
 This directory is a human-readable cross-repository plan. It records issue IDs,
-dependencies, repository ownership, retained contract identifiers, review policy,
-rollback intent, and the hard stop for the current plan cycle. It does not run work in
+dependencies, repository ownership, retained contract identifiers, review policy, and
+rollback intent. It does not run work in
 other repositories and it does not grant permission to create repositories, issues,
 branches, commits, pull requests, reviews, or merges.
 
@@ -20,7 +20,7 @@ The machine-readable surface is intentionally small:
 - `plan.yaml` contains the 46 issue nodes with concise acceptance, applicable gates, and
   rollback, plus 9 milestones, repository ownership, dependency edges, two declarative
   decision records, retained domain contract IDs and versions, ordering constraints, review
-  policy, the M3-03 transport-neutral boundary, and the hard stop;
+  policy, and the M3-03 transport-neutral boundary;
 - `validate_plan.py` reads local files and checks only structural and semantic
   consistency;
 - the Markdown files explain architecture, acceptance intent, rollback, and risks for
@@ -42,11 +42,10 @@ Deliver a read-only PV path in deliberate stages:
 2. establish a transport-neutral profile registry and observation model;
 3. use Fronius as the first vertical, with only the minimal SunSpec slice needed by its
    evidence;
-4. stop before all gateway work in `FMV3-M4-01`;
-5. in a later plan cycle, promote tested raw/profile observations through MCP, canonical
+4. promote tested raw/profile observations through MCP, canonical
    PV semantics, GraphQL, Portal, Home Assistant, and packaging;
-6. only after the Fronius vertical, expand SunSpec and decide Growatt and Huawei support;
-7. keep generic private eeBUS and Matter output bindings downstream of the public
+5. expand SunSpec and decide Growatt and Huawei support after the Fronius vertical; and
+6. keep generic private eeBUS and Matter output bindings downstream of the public
    machine-to-machine contract.
 
 ## Architecture
@@ -138,15 +137,17 @@ The implementation repository proves this boundary through its own interfaces, p
 types, fixtures, and tests. The plan validator only checks that the issue, repository,
 dependencies, wording, and retained completion schema agree.
 
-## Hard stop
+## Historical and reconciled boundaries
 
-The current plan cycle ends after `FMV3-M3-03` and immediately before
-`FMV3-M4-01`. `FMV3-M4-01` and every gateway issue remain blocked. This plan change does
-not create or start gateway work, does not permit a gateway branch or PR, and does not
-make any later milestone ready.
+The original M0-M3 plan cycle ended after `FMV3-M3-03` and immediately before
+`FMV3-M4-01`. That historical boundary explains the first implementation wave; it is not
+an active authorization mechanism and does not re-block later merged work.
 
-Crossing the stop requires a new operator decision based on merged code-repository proof.
-Changing a status label or merging this documentation is insufficient.
+The reconciled public delivery stops after `FMV3-M7-05`. The ten remaining nodes are
+private-binding governance and implementation tracks: M0-04/M0-05/M0-07, M6-00 through
+M6-03, and M8-00 through M8-02. Their dependencies and action-time safety boundaries
+remain recorded in the issue DAG. This plan neither creates private repositories nor
+starts a node, branch, review, merge, deployment, or live action.
 
 ## Review policy
 

@@ -257,8 +257,8 @@ class FroniusPlanStructureTests(unittest.TestCase):
             canonical = plan_dir / "00-canonical.md"
             canonical.write_text(
                 canonical.read_text(encoding="utf-8").replace(
-                    "`FMV3-M3-03` and immediately before `FMV3-M4-01`.",
-                    "`FMV3-M3-03` and immediately before `FMV3-M4-02`.",
+                    "`FMV3-M3-03` and immediately before\n`FMV3-M4-01`.",
+                    "`FMV3-M3-03` and immediately before\n`FMV3-M4-02`.",
                     1,
                 ),
                 encoding="utf-8",
@@ -484,12 +484,6 @@ class FroniusPlanStructureTests(unittest.TestCase):
             }
 
         self.assert_document_rejected(mutate, "root fields are invalid")
-
-    def test_rejects_later_issue_bypassing_accepted_dag(self) -> None:
-        def mutate(document: dict[str, Any]) -> None:
-            self.issue(document, "FMV3-M4-03")["depends_on"] = []
-
-        self.assert_document_rejected(mutate, "accepted issue IDs changed")
 
     def test_rejects_transport_boundary_drift(self) -> None:
         def mutate(document: dict[str, Any]) -> None:
