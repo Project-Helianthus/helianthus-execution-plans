@@ -1,6 +1,6 @@
 slug: source-address-selection-admission
 title: Source Address Selection Admission
-state: locked
+state: maintenance
 source_discussion: operator-live-bus-2026-05-03
 target_repos:
   - helianthus-execution-plans

@@ -1,6 +1,6 @@
 # Source Address Selection Admission
 
-State: `locked`
+State: `maintenance`
 Slug: `source-address-selection-admission`
 Started: `2026-05-03`
 Planner: `Codex gpt-5.5 high`
@@ -33,6 +33,13 @@ one of four modes:
 
 `helianthus-ebusreg` remains outside admission. It receives the selected source
 byte and continues to provide `Scan` and `ScanDirected` behavior.
+
+## Completion Boundary
+
+The baseline source-address-selection rollout is complete. This directory
+retains its plan, merge evidence, and live-rollout record for maintenance and
+future regression review. New source-selection behavior requires a separately
+scoped plan and does not reopen this completed baseline implicitly.
 
 ## Live Problem Statement
 

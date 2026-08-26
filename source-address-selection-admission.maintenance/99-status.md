@@ -1,6 +1,6 @@
 # Status
 
-State: `locked`
+State: `maintenance`
 
 Current milestone: `COMPLETE`
 
@@ -202,4 +202,5 @@ Review/CI state at M4 closure:
 
 Next:
 
-- No remaining baseline source-selection admission milestones.
+- No remaining baseline source-selection admission milestones. Any new behavior
+  requires a separately scoped plan.
