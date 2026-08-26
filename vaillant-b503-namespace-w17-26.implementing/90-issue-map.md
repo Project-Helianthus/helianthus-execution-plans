@@ -23,7 +23,7 @@ Coverage: One row per milestone (11 total: 7 v1.0 baseline + 4 v1.1 amendment-1)
 | M2b_GATEWAY_GRAPHQL | helianthus-ebusgateway | — | ebusgateway#520 | 07385b01 | merged 2026-04-23 |
 | M3_PORTAL | helianthus-ebusgateway | — | ebusgateway#522 | 45846270 | merged 2026-04-23 |
 | M4_HA | helianthus-ha-integration | — | ha-integration#188 | d9355e5f | merged 2026-04-23 |
-| M0b_DOC_DISPATCHER_BRIDGE | helianthus-docs-ebus | — | — | — | not started (amendment-1) |
-| M6_DISPATCHER_BRIDGE | helianthus-ebusgateway | — | — | — | not started (amendment-1) |
-| M7_BENCH_REPLACE | helianthus-ebusgateway | — | — | — | not started (amendment-1) |
-| M8_PORTAL_UX_GAPS | helianthus-ebusgateway | — | — | — | not started (amendment-1) |
+| M0b_DOC_DISPATCHER_BRIDGE | helianthus-docs-ebus | — | docs-ebus#289 | eceba7d7 | merged 2026-04-25 |
+| M6_DISPATCHER_BRIDGE | helianthus-ebusgateway | — | ebusgateway#550 | 25ae9099 | merged 2026-04-25 |
+| M7_BENCH_REPLACE | helianthus-ebusgateway | — | ebusgateway#553 | — | closed unmerged; head ecca5c3f; no bench evidence |
+| M8_PORTAL_UX_GAPS | helianthus-ebusgateway | — | ebusgateway#554 | — | closed unmerged; head a4631edd; no bench evidence |
