@@ -1,10 +1,10 @@
-# Source Address Selection Admission Locked Split Index
+# Source Address Selection Admission Maintenance Split Index
 
 Source: [00-canonical.md](./00-canonical.md)
 
 Canonical-SHA256: `0675509fd10408c4102f15b108f8152e1fd985293f14f7f870b3bc4176bab720`
 
-This directory contains a locked execution plan for replacing legacy join
+This directory retains the completed execution plan that replaced legacy join
 terminology and behavior with source address selection plus validation.
 
 ## Split Rules
@@ -41,7 +41,7 @@ terminology and behavior with source address selection plus validation.
 
 ## Review Target
 
-The locked plan remains falsifiable through:
+The completed baseline remains falsifiable through:
 
 - whether `SourceAddressSelector` names the behavior clearly enough;
 - whether ebusgo's static source table matches the referenced docs section;

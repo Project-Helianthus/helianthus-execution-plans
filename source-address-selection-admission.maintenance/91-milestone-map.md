@@ -1,7 +1,10 @@
 # Milestone Map
 
-Status: `Locked`
+Status: `Maintenance`
 Source plan: `source-address-selection-admission`
+
+All baseline milestones below are complete. The table remains historical and
+does not authorize a successor or a new rollout.
 
 | Milestone | Primary repo | Depends on | Gate |
 | --- | --- | --- | --- |

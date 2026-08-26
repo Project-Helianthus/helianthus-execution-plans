@@ -1,10 +1,10 @@
 # Issue Map
 
-Status: `Locked`
+Status: `Maintenance`
 Source plan: `source-address-selection-admission`
 
-No GitHub issues are created by this locked plan. The map below is the intended issue
-shape for later promotion.
+The baseline issue sequence below is completed. It remains as historical mapping
+for maintenance and regression review; it does not create future issue readiness.
 
 | Draft ID | Repo | Milestone | Depends on | What |
 | --- | --- | --- | --- | --- |
