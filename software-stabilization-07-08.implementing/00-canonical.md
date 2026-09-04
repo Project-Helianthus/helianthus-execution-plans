@@ -78,6 +78,8 @@ An issue closes as **resolved** only with acceptance evidence. Duplicates/supers
 
 ## Release acceptance
 
+Every review and hardware result is tied to an exact candidate BOM. If INT-20 or INT-23 produces a code, configuration, dependency or package fix, that item cannot complete until the changed candidate receives a fresh Daybreak Blue review and the affected hardware/conformance tests are repeated. INT-21 and INT-24 publish only the final BOM covered by those results; evidence from an earlier candidate cannot satisfy this gate. Preserve earlier results as history rather than re-labeling them.
+
 `HARDWARE_TEST_READY`: real configuration and connected acquisition in the binary composition, fixture/replay through the full path, semantics and consumers, degraded/restart/reconnect/cleanup behavior, CI and review at the exact BOM, and an executable hardware procedure. An injectable MCP alone does not meet the criterion.
 
 `QUALIFICATION_TEST_READY`: a bounded experiment capable of obtaining missing native evidence; the product remains semantically incomplete until qualification and verified implementation. Such products stay visible in scope and do not disappear from the matrix.

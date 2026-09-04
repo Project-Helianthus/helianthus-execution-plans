@@ -22,7 +22,10 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
     def copy_plan(self, destination: Path) -> Path:
         plan_dir = destination / PLAN_DIR.name
         shutil.copytree(PLAN_DIR, plan_dir)
-        plan = self.load_plan(plan_dir)
+        self.write_mirror(plan_dir, self.load_plan(plan_dir))
+        return plan_dir
+
+    def write_mirror(self, plan_dir: Path, plan: dict[str, object]) -> None:
         packages = plan["packages"]
         assert isinstance(packages, list)
         rows = [
@@ -39,7 +42,6 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
         start = text.index("| ID |")
         end = text.index("\n## ", start)
         path.write_text(text[:start] + "\n".join(rows) + text[end:], encoding="utf-8")
-        return plan_dir
 
     def load_plan(self, plan_dir: Path) -> dict[str, object]:
         return yaml.safe_load((plan_dir / "plan.yaml").read_text(encoding="utf-8"))
@@ -86,6 +88,44 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
             self.package(plan, "INT-05")["depends_on"] = ["INT-04"]
             self.write_plan(plan_dir, plan)
             with self.assertRaisesRegex(VALIDATOR.ValidationError, "downstream of SEMREG-BOOTSTRAP"):
+                VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_release_without_daybreak_review(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            plan = self.load_plan(plan_dir)
+            self.package(plan, "INT-20")["depends_on"] = [
+                "LEGACY-PERSIST",
+                "LEGACY-IDENTITY",
+                "LEGACY-MUX",
+            ]
+            self.write_plan(plan_dir, plan)
+            self.write_mirror(plan_dir, plan)
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "INT-20 must remain downstream of INT-19"):
+                VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_release_without_hardware_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            plan = self.load_plan(plan_dir)
+            self.package(plan, "INT-21")["depends_on"] = [
+                "LEGACY-PERSIST",
+                "LEGACY-IDENTITY",
+                "LEGACY-MUX",
+            ]
+            self.write_plan(plan_dir, plan)
+            self.write_mirror(plan_dir, plan)
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "INT-21 must remain downstream of INT-19, INT-20"):
+                VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_08_release_without_08_hardware_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            plan = self.load_plan(plan_dir)
+            self.package(plan, "INT-24")["depends_on"] = ["INT-22"]
+            self.write_plan(plan_dir, plan)
+            self.write_mirror(plan_dir, plan)
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "INT-24 must remain downstream of INT-22, INT-23"):
                 VALIDATOR.validate_plan(plan_dir)
 
     def test_rejects_markdown_owner_drift(self) -> None:

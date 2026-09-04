@@ -25,6 +25,15 @@ PLAN_SLUG = "software-stabilization-07-08"
 PLAN_STATE = "implementing"
 PUBLIC_BOOTSTRAP_ID = "SEMREG-BOOTSTRAP"
 PUBLIC_SEMREG = "Project-Helianthus/helianthus-semreg"
+CRITICAL_ORDER = {
+    "INT-19": ("INT-17",),
+    "INT-20": ("INT-19",),
+    "INT-21": ("INT-19", "INT-20"),
+    "INT-18": ("INT-21",),
+    "INT-22": ("INT-18",),
+    "INT-23": ("INT-22",),
+    "INT-24": ("INT-22", "INT-23"),
+}
 
 
 class ValidationError(ValueError):
@@ -185,6 +194,14 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
         PUBLIC_BOOTSTRAP_ID in _ancestors("INT-05", packages),
         "INT-05 must remain downstream of SEMREG-BOOTSTRAP",
     )
+    for package_id, predecessors in CRITICAL_ORDER.items():
+        _require(package_id in packages, f"{package_id} is missing")
+        ancestors = _ancestors(package_id, packages)
+        missing = [predecessor for predecessor in predecessors if predecessor not in ancestors]
+        _require(
+            not missing,
+            f"{package_id} must remain downstream of {', '.join(predecessors)}",
+        )
 
     expected_table = [
         (
