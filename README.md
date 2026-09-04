@@ -7,6 +7,10 @@ IDs/versions, rollback intent, and explicit stop conditions.
 It is not a product runtime, execution service, repository mutation service, or substitute for
 code-repository issues and pull requests.
 
+## Current software release program
+
+[Software0.7 stabilization and0.8 declarative release guide](software-stabilization-07-08.implementing/00-canonical.md) covers the current convergence scope, separate hardware program, release validation and [issue reconciliation](software-stabilization-07-08.implementing/90-issue-map.md). It reuses existing semantic design work; merging the guide has no execution side effects.
+
 ## Normal workflow
 
 1. Discuss and review a cross-repository plan.

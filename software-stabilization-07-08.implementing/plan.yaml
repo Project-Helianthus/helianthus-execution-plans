@@ -1,0 +1,220 @@
+schema_version: 1
+slug: software-stabilization-07-08
+state: implementing
+matter_anchor:
+  repository: AryaHassanli/connectedhomeip
+  branch: dm-0.9-1.7
+  commit: 29b4768a513cf566011ab8cd60df1bc495204953
+  ballot: "0.9"
+  draft: "1.7"
+  upstream_pr: 73842
+repositories:
+  Project-Helianthus/.github:
+    owner_status: existing
+  Project-Helianthus/helianthus-canbusreg:
+    owner_status: existing
+  Project-Helianthus/helianthus-docs-eebus:
+    owner_status: existing
+  Project-Helianthus/helianthus-ebusgateway:
+    owner_status: existing
+  Project-Helianthus/helianthus-gateway:
+    owner_status: planned
+    bootstrap: INT-14
+  Project-Helianthus/helianthus-ebusreg:
+    owner_status: existing
+  Project-Helianthus/helianthus-eebus-go:
+    owner_status: existing
+  Project-Helianthus/helianthus-execution-plans:
+    owner_status: existing
+  Project-Helianthus/helianthus-ha-addon:
+    owner_status: existing
+  Project-Helianthus/helianthus-ha-integration:
+    owner_status: existing
+  Project-Helianthus/helianthus-modbusreg:
+    owner_status: existing
+  Project-Helianthus/helianthus-semreg:
+    owner_status: planned
+    bootstrap: SEMREG-BOOTSTRAP
+  Project-Helianthus/helianthus-vrc-explorer:
+    owner_status: existing
+packages:
+  - id: GOV-01
+    release: "0.7"
+    owner: Project-Helianthus/.github
+    depends_on: []
+  - id: CLEAN-01
+    release: "0.7"
+    owner: Project-Helianthus/.github
+    depends_on: []
+  - id: STD-01
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-docs-eebus
+    depends_on: []
+  - id: SEMREG-BOOTSTRAP
+    release: "0.7"
+    owner: Project-Helianthus/.github
+    depends_on: [INT-04]
+  - id: LEGACY-PERSIST
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: []
+  - id: LEGACY-IDENTITY
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: []
+  - id: LEGACY-MUX
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: []
+  - id: NATIVE-01
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusreg
+    depends_on: []
+  - id: NATIVE-02
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-eebus-go
+    depends_on: []
+  - id: NATIVE-03
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-modbusreg
+    depends_on: []
+  - id: NATIVE-04
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-modbusreg
+    depends_on: []
+  - id: NATIVE-05
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-canbusreg
+    depends_on: []
+  - id: NATIVE-06
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-canbusreg
+    depends_on: []
+  - id: NATIVE-07-GROWATT-II
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-modbusreg
+    depends_on: []
+  - id: NATIVE-07-GROWATT-BMS
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-modbusreg
+    depends_on: []
+  - id: NATIVE-07-TESLA-GEN3
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-modbusreg
+    depends_on: []
+  - id: NATIVE-07-TESLA-LEGACY
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-modbusreg
+    depends_on: []
+  - id: NATIVE-07-OUTBACK
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-modbusreg
+    depends_on: []
+  - id: NATIVE-08
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusreg
+    depends_on: []
+  - id: NATIVE-09
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-vrc-explorer
+    depends_on: []
+  - id: INT-00
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-execution-plans
+    depends_on: []
+  - id: INT-01
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: []
+  - id: INT-02
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ha-addon
+    depends_on: []
+  - id: INT-03
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ha-integration
+    depends_on: []
+  - id: INT-04
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-execution-plans
+    depends_on: [INT-00, STD-01]
+  - id: INT-05
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-semreg
+    depends_on: [INT-04, SEMREG-BOOTSTRAP]
+  - id: INT-06
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-04]
+  - id: INT-07
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-05, INT-06, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK]
+  - id: INT-08
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-05, INT-06, INT-07]
+  - id: INT-09
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-04, INT-06]
+  - id: INT-10
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-08, INT-09]
+  - id: INT-11
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-06, INT-08]
+  - id: INT-12
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-08, STD-01]
+  - id: INT-13
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-08]
+  - id: INT-14
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ebusgateway
+    depends_on: [INT-10, INT-11, INT-12, INT-13, INT-15]
+  - id: INT-15
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ha-integration
+    depends_on: [INT-03, INT-08]
+  - id: INT-16
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-ha-addon
+    depends_on: [INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]
+  - id: INT-17
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-gateway
+    depends_on: [INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09]
+  - id: INT-18
+    release: "0.8"
+    owner: Project-Helianthus/.github
+    depends_on: [INT-21]
+  - id: INT-19
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-gateway
+    depends_on: [INT-17]
+  - id: INT-20
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-gateway
+    depends_on: [INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]
+  - id: INT-21
+    release: "0.7"
+    owner: Project-Helianthus/helianthus-gateway
+    depends_on: [INT-20, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]
+  - id: INT-22
+    release: "0.8"
+    owner: Project-Helianthus/helianthus-gateway
+    depends_on: [INT-18]
+  - id: INT-23
+    release: "0.8"
+    owner: Project-Helianthus/helianthus-gateway
+    depends_on: [INT-22]
+  - id: INT-24
+    release: "0.8"
+    owner: Project-Helianthus/helianthus-gateway
+    depends_on: [INT-23]

@@ -52,4 +52,8 @@ python3 "$ROOT/scripts/validate_active_plan_structure.py"
 
 PLAN="$ROOT/fronius-modbus-multivendor-v3-w29-26.implementing"
 python3 "$PLAN/validate_plan.py" "$PLAN"
+
+PLAN="$ROOT/software-stabilization-07-08.implementing"
+python3 "$PLAN/validate_plan.py" "$PLAN"
+
 python3 -m unittest discover -s "$ROOT/tests" -p "test*.py"
