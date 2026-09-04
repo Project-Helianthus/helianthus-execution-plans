@@ -41,7 +41,7 @@ Stable IDs identify planned outcomes. They do not encode mutable runtime state, 
 | INT-14 | 0.7 | Redenumește helianthus-ebusgateway în helianthus-gateway | INT-10, INT-11, INT-12, INT-13, INT-15 |
 | INT-15 | 0.7 | HA consumă întregul contract software 0.7 prin GraphQL | INT-03, INT-08 |
 | INT-16 | 0.7 | Ambalează candidatul software 0.7 la BOM exact înaintea review-ului și hardware gate | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
-| INT-17 | 0.7 | Închide acceptanța offline și pregătește testarea hardware | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-08, NATIVE-09 |
+| INT-17 | 0.7 | Închide acceptanța offline și pregătește testarea hardware | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09 |
 | INT-18 | 0.8 | 0.8: proiectează și implementează IR/codegen declarativ și reducerea măsurată de cod | INT-21 |
 | INT-19 | 0.7 | 0.7: review Daybreak Blue pe candidatul complet | INT-17 |
 | INT-20 | 0.7 | 0.7: validare exhaustivă pe hardware real | INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
@@ -59,3 +59,5 @@ SEMREG-BOOTSTRAP establishes the public implementation owner before INT-05. INT-
 The rename waits for Portal, observability, bindings and HA freeze, then coordinates all affected remote/module/import/image/pin references before packaging. Multi-repository packages split into one issue per owning repository, with explicit cross-repo predecessor links.
 
 The structural companion used during preparation verified unique IDs, dependency existence and DAG acyclicity. It is not installed as a plan runtime or required by contributors.
+
+NATIVE-08 is a P3 evidence-only closure task, tracked with CLEAN-01. It is nonblocking for release and is not an INT-17 prerequisite.
