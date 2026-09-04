@@ -30,7 +30,7 @@ Stable IDs identify planned outcomes. They do not encode mutable runtime state, 
 | INT-03 | 0.7 | Project-Helianthus/helianthus-ha-integration | Reconcile and close existing HA acceptance without duplicate rewrites | None |
 | INT-04 | 0.7 | Project-Helianthus/helianthus-execution-plans | Design the complete Semantic Layer on Matter 1.7 draft and current eeBUS | INT-00, STD-01 |
 | INT-05 | 0.7 | Project-Helianthus/helianthus-semreg | Implement semreg and all 0.7 software capability packs | INT-04, SEMREG-BOOTSTRAP |
-| INT-06 | 0.7 | Project-Helianthus/helianthus-execution-plans | Design the north-south flow and complete driver contract | INT-04 |
+| INT-06 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Design the north-south flow and complete driver contract | INT-04 |
 | INT-07 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Connect all drivers and native acquisition into the gateway composition | INT-05, INT-06, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK |
 | INT-08 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Implement the north-south flow and MCP/GraphQL projections | INT-05, INT-06, INT-07 |
 | INT-09 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Design the extensible Portal and driver UI contributions | INT-04, INT-06 |
@@ -54,7 +54,7 @@ Stable IDs identify planned outcomes. They do not encode mutable runtime state, 
 
 Native IDs close provider-local artifacts only. INT-07 owns gateway acquisition, INT-08 public semantic surfaces, and INT-17 the integrated matrix. LEGACY packages close offline reconciliation/proof; their live assertions remain INT-20 acceptance and block INT-21. A release candidate can therefore be built before the hardware tests that need it.
 
-SEMREG-BOOTSTRAP establishes the planned public implementation repository before INT-05. INT-06 is design and may advance while bootstrap completes. STD-01 gates normative mapping freeze, not conceptual exploration or independent fixes.
+SEMREG-BOOTSTRAP establishes the planned public implementation repository before INT-05. INT-06 is the gateway's runtime driver/provider SPI and north-south composition contract; durable documentation, types, and fixtures are published by their actual producer and consumer owners, with protocol-neutral canonical domain types owned by semreg. It is design and may advance while bootstrap completes. STD-01 gates normative mapping freeze, not conceptual exploration or independent fixes.
 
 INT-12 and INT-13 have the public gateway as their accountable software owner. If the approved design chooses new public binding repositories, update the owner map and bootstrap dependencies before dispatch. The separate private hardware repository cannot own these public software outputs.
 

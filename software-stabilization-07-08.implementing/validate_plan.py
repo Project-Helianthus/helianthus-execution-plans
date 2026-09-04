@@ -16,6 +16,7 @@ EXPECTED_ROOT_KEYS = {
     "schema_version",
     "slug",
     "state",
+    "matter_anchor",
     "repositories",
     "packages",
 }
@@ -26,6 +27,18 @@ PLAN_STATE = "implementing"
 PUBLIC_BOOTSTRAP_ID = "SEMREG-BOOTSTRAP"
 PUBLIC_SEMREG = "Project-Helianthus/helianthus-semreg"
 RENAMED_GATEWAY = "Project-Helianthus/helianthus-gateway"
+MATTER_ANCHOR = {
+    "repository": "AryaHassanli/connectedhomeip",
+    "branch": "dm-0.9-1.7",
+    "commit": "29b4768a513cf566011ab8cd60df1bc495204953",
+    "ballot": "0.9",
+    "draft": "1.7",
+    "upstream_pr": 73842,
+}
+MATTER_ANCHOR_MARKDOWN = (
+    "Matter is anchored to `AryaHassanli/connectedhomeip:dm-0.9-1.7`, SHA "
+    "`29b4768a513cf566011ab8cd60df1bc495204953` (ballot 0.9, draft 1.7, upstream PR #73842)."
+)
 KNOWN_EXISTING_REPOSITORIES = {
     "Project-Helianthus/.github",
     "Project-Helianthus/helianthus-canbusreg",
@@ -198,6 +211,7 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     _require(plan["schema_version"] == 1, "schema_version must be 1")
     _require(plan["slug"] == PLAN_SLUG, "slug is invalid")
     _require(plan["state"] == PLAN_STATE, "state must be implementing")
+    _require(plan["matter_anchor"] == MATTER_ANCHOR, "Matter anchor is invalid")
     repositories = _validate_repositories(plan["repositories"])
 
     package_rows = plan["packages"]
@@ -237,6 +251,10 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
         packages["INT-14"]["owner"] == "Project-Helianthus/helianthus-ebusgateway",
         "INT-14 must remain owned by the pre-rename gateway repository",
     )
+    _require(
+        packages["INT-06"]["owner"] == "Project-Helianthus/helianthus-ebusgateway",
+        "INT-06 must remain owned by the current gateway repository",
+    )
     for package_id in RENAMED_GATEWAY_PACKAGES:
         _require(
             packages[package_id]["owner"] == RENAMED_GATEWAY,
@@ -259,6 +277,8 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     actual_table = _table(plan_dir / "91-milestone-map.md")
     actual_projection = [(row[0], row[1], row[2], row[4]) for row in actual_table]
     _require(actual_projection == expected_table, "91-milestone-map.md does not mirror plan.yaml")
+    canonical_text = (plan_dir / "00-canonical.md").read_text(encoding="utf-8")
+    _require(MATTER_ANCHOR_MARKDOWN in canonical_text, "canonical Matter anchor does not match plan.yaml")
     return {"packages": len(packages), "repositories": len(repositories)}
 
 

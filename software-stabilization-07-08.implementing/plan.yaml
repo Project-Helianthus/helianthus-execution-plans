@@ -1,6 +1,13 @@
 schema_version: 1
 slug: software-stabilization-07-08
 state: implementing
+matter_anchor:
+  repository: AryaHassanli/connectedhomeip
+  branch: dm-0.9-1.7
+  commit: 29b4768a513cf566011ab8cd60df1bc495204953
+  ballot: "0.9"
+  draft: "1.7"
+  upstream_pr: 73842
 repositories:
   Project-Helianthus/.github:
     owner_status: existing
@@ -137,7 +144,7 @@ packages:
     depends_on: [INT-04, SEMREG-BOOTSTRAP]
   - id: INT-06
     release: "0.7"
-    owner: Project-Helianthus/helianthus-execution-plans
+    owner: Project-Helianthus/helianthus-ebusgateway
     depends_on: [INT-04]
   - id: INT-07
     release: "0.7"

@@ -109,6 +109,30 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
             with self.assertRaisesRegex(VALIDATOR.ValidationError, "downstream of SEMREG-BOOTSTRAP"):
                 VALIDATOR.validate_plan(plan_dir)
 
+    def test_rejects_int06_plan_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            plan = self.load_plan(plan_dir)
+            self.package(plan, "INT-06")["owner"] = "Project-Helianthus/helianthus-execution-plans"
+            self.write_plan(plan_dir, plan)
+            self.write_mirror(plan_dir, plan)
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "INT-06 must remain owned by the current gateway"):
+                VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_matter_markdown_anchor_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            path = plan_dir / "00-canonical.md"
+            path.write_text(
+                path.read_text(encoding="utf-8").replace(
+                    "29b4768a513cf566011ab8cd60df1bc495204953",
+                    "0000000000000000000000000000000000000000",
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "canonical Matter anchor"):
+                VALIDATOR.validate_plan(plan_dir)
+
     def test_rejects_renamed_gateway_before_int14(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             plan_dir = self.copy_plan(Path(temporary))
