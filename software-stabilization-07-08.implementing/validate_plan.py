@@ -25,6 +25,19 @@ PLAN_SLUG = "software-stabilization-07-08"
 PLAN_STATE = "implementing"
 PUBLIC_BOOTSTRAP_ID = "SEMREG-BOOTSTRAP"
 PUBLIC_SEMREG = "Project-Helianthus/helianthus-semreg"
+KNOWN_EXISTING_REPOSITORIES = {
+    "Project-Helianthus/.github",
+    "Project-Helianthus/helianthus-canbusreg",
+    "Project-Helianthus/helianthus-docs-eebus",
+    "Project-Helianthus/helianthus-ebusgateway",
+    "Project-Helianthus/helianthus-ebusreg",
+    "Project-Helianthus/helianthus-eebus-go",
+    "Project-Helianthus/helianthus-execution-plans",
+    "Project-Helianthus/helianthus-ha-addon",
+    "Project-Helianthus/helianthus-ha-integration",
+    "Project-Helianthus/helianthus-modbusreg",
+    "Project-Helianthus/helianthus-vrc-explorer",
+}
 CRITICAL_ORDER = {
     "INT-19": ("INT-17",),
     "INT-20": ("INT-19",),
@@ -137,6 +150,10 @@ def _validate_graph(packages: dict[str, dict[str, Any]]) -> None:
 
 def _validate_repositories(value: Any) -> dict[str, dict[str, str]]:
     _require(isinstance(value, dict) and value, "repositories must be a nonempty mapping")
+    _require(
+        set(value) == KNOWN_EXISTING_REPOSITORIES | {PUBLIC_SEMREG},
+        "repository allowlist is invalid",
+    )
     repositories: dict[str, dict[str, str]] = {}
     planned: list[tuple[str, dict[str, str]]] = []
     for repository, metadata in value.items():

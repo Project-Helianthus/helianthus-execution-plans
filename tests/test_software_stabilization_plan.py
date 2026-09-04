@@ -71,6 +71,25 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
             with self.assertRaisesRegex(VALIDATOR.ValidationError, "unknown owner"):
                 VALIDATOR.validate_plan(plan_dir)
 
+    def test_rejects_coherent_repository_typo(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            plan = self.load_plan(plan_dir)
+            repositories = plan["repositories"]
+            assert isinstance(repositories, dict)
+            owner = "Project-Helianthus/helianthus-ebusgateway"
+            typo = "Project-Helianthus/helianthus-ebusgateawy"
+            repositories[typo] = repositories.pop(owner)
+            packages = plan["packages"]
+            assert isinstance(packages, list)
+            for package in packages:
+                if package["owner"] == owner:
+                    package["owner"] = typo
+            self.write_plan(plan_dir, plan)
+            self.write_mirror(plan_dir, plan)
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "repository allowlist is invalid"):
+                VALIDATOR.validate_plan(plan_dir)
+
     def test_rejects_dependency_cycle(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             plan_dir = self.copy_plan(Path(temporary))
