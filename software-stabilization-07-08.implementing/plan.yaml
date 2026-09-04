@@ -10,6 +10,9 @@ repositories:
     owner_status: existing
   Project-Helianthus/helianthus-ebusgateway:
     owner_status: existing
+  Project-Helianthus/helianthus-gateway:
+    owner_status: planned
+    bootstrap: INT-14
   Project-Helianthus/helianthus-ebusreg:
     owner_status: existing
   Project-Helianthus/helianthus-eebus-go:
@@ -178,7 +181,7 @@ packages:
     depends_on: [INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]
   - id: INT-17
     release: "0.7"
-    owner: Project-Helianthus/helianthus-ebusgateway
+    owner: Project-Helianthus/helianthus-gateway
     depends_on: [INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09]
   - id: INT-18
     release: "0.8"
@@ -186,25 +189,25 @@ packages:
     depends_on: [INT-21]
   - id: INT-19
     release: "0.7"
-    owner: Project-Helianthus/helianthus-ebusgateway
+    owner: Project-Helianthus/helianthus-gateway
     depends_on: [INT-17]
   - id: INT-20
     release: "0.7"
-    owner: Project-Helianthus/helianthus-ebusgateway
+    owner: Project-Helianthus/helianthus-gateway
     depends_on: [INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]
   - id: INT-21
     release: "0.7"
-    owner: Project-Helianthus/helianthus-ebusgateway
+    owner: Project-Helianthus/helianthus-gateway
     depends_on: [INT-20, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]
   - id: INT-22
     release: "0.8"
-    owner: Project-Helianthus/helianthus-ebusgateway
+    owner: Project-Helianthus/helianthus-gateway
     depends_on: [INT-18]
   - id: INT-23
     release: "0.8"
-    owner: Project-Helianthus/helianthus-ebusgateway
+    owner: Project-Helianthus/helianthus-gateway
     depends_on: [INT-22]
   - id: INT-24
     release: "0.8"
-    owner: Project-Helianthus/helianthus-ebusgateway
+    owner: Project-Helianthus/helianthus-gateway
     depends_on: [INT-23]

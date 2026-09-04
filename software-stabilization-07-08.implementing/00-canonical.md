@@ -62,7 +62,7 @@ Waves are dependency groups, not promises to finish overnight. Every cross-repos
 - `SEMREG-BOOTSTRAP`, after ownership selection in `INT-04`, creates the public repository, license, self-contained AGENTS, CI, and import/documentation contracts. It precedes `INT-05` implementation; north–south design can continue in parallel.
 - Native packages close only their provider capabilities and probes. `INT-07` consumes those artifacts and owns gateway acquisition; `INT-08` owns public surfaces; `INT-17` validates full composition. There is no reverse dependency from provider to consumer.
 - `LEGACY-PERSIST`, `LEGACY-IDENTITY`, and `LEGACY-MUX` retain assertions from plans #27/#23/#30. The exact criteria are in `92-retained-acceptance.md` in the public guide. Reconcile them with current code: a historical NO_GO is neither PASS nor automatic proof of a remaining bug. Offline work precedes packaging; physical rows are in `INT-20`, before release.
-- Rename `INT-14` waits for `INT-10/11/12/13/15`: Portal, metrics, bindings, and HA reach freeze; then inventory and integrate affected PRs, coordinate remote/module/import/pin migration, and verify consumers. Do not move the name under active branches. Forward fix or rollback is explicit in the issue before cutover.
+- Rename `INT-14` waits for `INT-10/11/12/13/15`: Portal, metrics, bindings, and HA reach freeze; then inventory and integrate affected PRs, coordinate repository, documentation, project, remote, module, import, image, and pin-reference migration, and verify consumers. The post-rename `helianthus-gateway` owner begins only with downstream `INT-17` and release packages. Do not move the name under active branches. Forward fix or rollback is explicit in the issue before cutover.
 
 ## Cruise-control rules
 

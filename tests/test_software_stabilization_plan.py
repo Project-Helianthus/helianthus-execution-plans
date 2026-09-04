@@ -58,7 +58,7 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
 
     def test_current_plan_is_valid(self) -> None:
         self.assertEqual(
-            {"packages": 45, "repositories": 12},
+            {"packages": 45, "repositories": 13},
             VALIDATOR.validate_plan(PLAN_DIR),
         )
 
@@ -107,6 +107,26 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
             self.package(plan, "INT-05")["depends_on"] = ["INT-04"]
             self.write_plan(plan_dir, plan)
             with self.assertRaisesRegex(VALIDATOR.ValidationError, "downstream of SEMREG-BOOTSTRAP"):
+                VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_renamed_gateway_before_int14(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            plan = self.load_plan(plan_dir)
+            self.package(plan, "INT-17")["depends_on"].remove("INT-16")
+            self.write_plan(plan_dir, plan)
+            self.write_mirror(plan_dir, plan)
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "INT-17 must remain downstream of INT-14"):
+                VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_post_rename_package_with_old_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            plan_dir = self.copy_plan(Path(temporary))
+            plan = self.load_plan(plan_dir)
+            self.package(plan, "INT-19")["owner"] = "Project-Helianthus/helianthus-ebusgateway"
+            self.write_plan(plan_dir, plan)
+            self.write_mirror(plan_dir, plan)
+            with self.assertRaisesRegex(VALIDATOR.ValidationError, "INT-19 must be owned by the renamed gateway"):
                 VALIDATOR.validate_plan(plan_dir)
 
     def test_rejects_release_without_daybreak_review(self) -> None:

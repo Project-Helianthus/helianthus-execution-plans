@@ -25,6 +25,7 @@ PLAN_SLUG = "software-stabilization-07-08"
 PLAN_STATE = "implementing"
 PUBLIC_BOOTSTRAP_ID = "SEMREG-BOOTSTRAP"
 PUBLIC_SEMREG = "Project-Helianthus/helianthus-semreg"
+RENAMED_GATEWAY = "Project-Helianthus/helianthus-gateway"
 KNOWN_EXISTING_REPOSITORIES = {
     "Project-Helianthus/.github",
     "Project-Helianthus/helianthus-canbusreg",
@@ -47,6 +48,15 @@ CRITICAL_ORDER = {
     "INT-23": ("INT-22",),
     "INT-24": ("INT-22", "INT-23"),
 }
+RENAMED_GATEWAY_PACKAGES = (
+    "INT-17",
+    "INT-19",
+    "INT-20",
+    "INT-21",
+    "INT-22",
+    "INT-23",
+    "INT-24",
+)
 
 
 class ValidationError(ValueError):
@@ -151,7 +161,7 @@ def _validate_graph(packages: dict[str, dict[str, Any]]) -> None:
 def _validate_repositories(value: Any) -> dict[str, dict[str, str]]:
     _require(isinstance(value, dict) and value, "repositories must be a nonempty mapping")
     _require(
-        set(value) == KNOWN_EXISTING_REPOSITORIES | {PUBLIC_SEMREG},
+        set(value) == KNOWN_EXISTING_REPOSITORIES | {PUBLIC_SEMREG, RENAMED_GATEWAY},
         "repository allowlist is invalid",
     )
     repositories: dict[str, dict[str, str]] = {}
@@ -171,8 +181,12 @@ def _validate_repositories(value: Any) -> dict[str, dict[str, str]]:
             planned.append((repository, metadata))
         repositories[repository] = metadata
     _require(
-        planned == [(PUBLIC_SEMREG, {"owner_status": "planned", "bootstrap": PUBLIC_BOOTSTRAP_ID})],
-        "the sole planned public repository must be helianthus-semreg bootstrapped by SEMREG-BOOTSTRAP",
+        dict(planned)
+        == {
+            PUBLIC_SEMREG: {"owner_status": "planned", "bootstrap": PUBLIC_BOOTSTRAP_ID},
+            RENAMED_GATEWAY: {"owner_status": "planned", "bootstrap": "INT-14"},
+        },
+        "planned repositories must retain the semreg bootstrap and gateway rename",
     )
     return repositories
 
@@ -218,6 +232,19 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
         _require(
             not missing,
             f"{package_id} must remain downstream of {', '.join(predecessors)}",
+        )
+    _require(
+        packages["INT-14"]["owner"] == "Project-Helianthus/helianthus-ebusgateway",
+        "INT-14 must remain owned by the pre-rename gateway repository",
+    )
+    for package_id in RENAMED_GATEWAY_PACKAGES:
+        _require(
+            packages[package_id]["owner"] == RENAMED_GATEWAY,
+            f"{package_id} must be owned by the renamed gateway repository",
+        )
+        _require(
+            "INT-14" in _ancestors(package_id, packages),
+            f"{package_id} must remain downstream of INT-14",
         )
 
     expected_table = [

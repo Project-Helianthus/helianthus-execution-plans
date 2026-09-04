@@ -41,14 +41,14 @@ Stable IDs identify planned outcomes. They do not encode mutable runtime state, 
 | INT-14 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Rename helianthus-ebusgateway to helianthus-gateway | INT-10, INT-11, INT-12, INT-13, INT-15 |
 | INT-15 | 0.7 | Project-Helianthus/helianthus-ha-integration | HA consumes the full 0.7 software contract through GraphQL | INT-03, INT-08 |
 | INT-16 | 0.7 | Project-Helianthus/helianthus-ha-addon | Package the 0.7 software candidate at the exact BOM before review and the hardware gate | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
-| INT-17 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Close offline acceptance and prepare hardware testing | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09 |
+| INT-17 | 0.7 | Project-Helianthus/helianthus-gateway | Close offline acceptance and prepare hardware testing | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09 |
 | INT-18 | 0.8 | Project-Helianthus/.github | 0.8: design and implement declarative IR/codegen and measured code reduction | INT-21 |
-| INT-19 | 0.7 | Project-Helianthus/helianthus-ebusgateway | 0.7: Daybreak Blue review of the complete candidate | INT-17 |
-| INT-20 | 0.7 | Project-Helianthus/helianthus-ebusgateway | 0.7: exhaustive validation on real hardware | INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
-| INT-21 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Publish release0.7 after all gates | INT-20, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
-| INT-22 | 0.8 | Project-Helianthus/helianthus-ebusgateway | 0.8: Daybreak Blue review after the declarative transformation | INT-18 |
-| INT-23 | 0.8 | Project-Helianthus/helianthus-ebusgateway | 0.8: exhaustive validation on real hardware | INT-22 |
-| INT-24 | 0.8 | Project-Helianthus/helianthus-ebusgateway | Publish release0.8 with measured actual reduction | INT-23 |
+| INT-19 | 0.7 | Project-Helianthus/helianthus-gateway | 0.7: Daybreak Blue review of the complete candidate | INT-17 |
+| INT-20 | 0.7 | Project-Helianthus/helianthus-gateway | 0.7: exhaustive validation on real hardware | INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
+| INT-21 | 0.7 | Project-Helianthus/helianthus-gateway | Publish release0.7 after all gates | INT-20, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
+| INT-22 | 0.8 | Project-Helianthus/helianthus-gateway | 0.8: Daybreak Blue review after the declarative transformation | INT-18 |
+| INT-23 | 0.8 | Project-Helianthus/helianthus-gateway | 0.8: exhaustive validation on real hardware | INT-22 |
+| INT-24 | 0.8 | Project-Helianthus/helianthus-gateway | Publish release0.8 with measured actual reduction | INT-23 |
 
 ## Repository ownership and sequencing
 
@@ -60,6 +60,6 @@ INT-12 and INT-13 have the public gateway as their accountable software owner. I
 
 INT-18 is a cross-repository0.8 design/delivery package owned by platform governance; its implementation must be split into the selected compiler/native/semantic repositories after that design. No compiler implementation belongs in .github or execution-plans merely because those repositories coordinate the work.
 
-The rename waits for Portal, observability, bindings and HA freeze, then coordinates all affected remote/module/import/image/pin references before packaging. NATIVE-08 is P3 evidence-only cleanup under CLEAN-01 and is nonblocking for release.
+The rename waits for Portal, observability, bindings and HA freeze, then migrates all affected repository, documentation, project, remote, module, import, image, and pin references before packaging. Packages INT-17 and INT-19 through INT-24 use the planned post-rename repository only after INT-14. NATIVE-08 is P3 evidence-only cleanup under CLEAN-01 and is nonblocking for release.
 
 The local read-only plan.yaml companion and validate_plan.py validate IDs, known owners, dependencies, DAG acyclicity, the bootstrap boundary and this table. The existing repository gate checks this guide explicitly. They neither query GitHub nor execute the plan.
