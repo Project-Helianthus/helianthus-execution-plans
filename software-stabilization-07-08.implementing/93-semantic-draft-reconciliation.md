@@ -26,10 +26,16 @@ The old draft's post-0.7 cleanup is retained in this program; it is no longer an
 unspecified 0.7.x wave with 0.8 outside scope. Necessary architectural refactoring
 and behavioral test names still belong in the 0.7 changes that need them.
 
-The public semantic contract destination is **Project-Helianthus/helianthus-semreg**.
-It owns the protocol-neutral kernel, versioned capability packs and their public
-architecture/API documentation. SEMREG-BOOTSTRAP establishes the actual repository,
-license, self-contained instructions and independent build before implementation.
+The semantic code destination is **Project-Helianthus/helianthus-semreg**. It owns
+the protocol-neutral kernel, versioned capability packs, interfaces, types and
+compatibility fixtures. Reusable semantic architecture and API documentation is
+owned by the planned public documentation repository
+**Project-Helianthus/helianthus-docs-semantic**. SEMREG-BOOTSTRAP remains accountable
+in `.github` and covers establishment of both destinations through normal owning
+issues, including licenses, self-contained instructions and independent validation.
+The reusable documentation contract must be merged in its documentation owner
+before dependent code implementation is accepted. Neither destination is created
+or activated by this planning document.
 This ownership choice does not assert that bootstrap or the complete INT-04
 design is finished. The eBUS-specific registry and its PV contracts are migration
 donors and compatibility comparators, not the universal semantic owner.
@@ -91,7 +97,7 @@ none becomes the upstream semantic owner.
 | DriverManager exists only in a future runtime and must be newly implemented | INT-06 begins from the actual current manager and owned acquisition seams. Existing eBUS lifecycle behavior is a reuse baseline, not proof that every family already implements the new SPI. |
 | Matter starts from the 1.6.1 data-model snapshot | The source is draft 1.7 ballot 0.9 at `29b4768a513cf566011ab8cd60df1bc495204953`, as recorded in the canonical guide. Draft support is not final-standard conformance. |
 | SPINE 1.3 counts 32/143/48/36 establish current completeness | Those numbers identify the old draft's inventory. STD-01 verifies exact current component/use-case sources and deltas. Every element in the selected corpus needs a disposition; device materialization remains limited to advertised/observed evidence. |
-| Universal semantic documentation belongs in docs-ebus | Semreg owns its public semantic contract; each protocol docs repository owns its native evidence and protocol contract. |
+| Universal semantic documentation belongs in docs-ebus | Planned docs-semantic owns reusable semantic architecture/API documentation; semreg owns interfaces/types/fixtures; each protocol docs repository owns its native evidence and protocol contract. |
 | One big-bang rewrite dictates all development sequencing | Repository-local delivery follows the current dependency map. Production replacement and rollback still use a coherent, exact release BOM and separately authorized operations; mixed incompatible semantic state is not a fallback. |
 | Rename is excluded from the architecture program | INT-14 explicitly owns the coordinated gateway rename after its stated dependencies, including consumer, module, image, documentation and pin migration. |
 | Old parallel-lane notices and historical ownership reservations remain mandatory | Current issue/PR write sets and dependency order govern delivery. Disjoint worktrees, fresh bases and exact-HEAD review preserve the useful coordination invariant. Historical comments do not reserve current work. |
@@ -121,7 +127,7 @@ and owners are defined in [the milestone map](91-milestone-map.md).
 |---|---|---|
 | 1 | Reconcile current native/runtime baselines and frozen comparator behavior. Historical SHAs and physical checks are dated evidence, not a universal precondition for independent work. | INT-00, native packages, INT-17, INT-20 |
 | 2 | Exact complete 0.7 BOM, reviewed and physically accepted before release. | INT-16, INT-19, INT-20, INT-21 |
-| 3 | Public semreg ownership, protocol-free imports and migration of canonical PV types/catalog/lifecycle/counters/registry. | SEMREG-BOOTSTRAP, INT-04, INT-05 |
+| 3 | Public semreg code ownership, docs-semantic reusable documentation ownership, protocol-free imports and migration of canonical PV types/catalog/lifecycle/counters/registry. | SEMREG-BOOTSTRAP, INT-04, INT-05 |
 | 4 | Explicit public types and versioned extensions; no unrestricted untyped public values. | INT-04, INT-05 |
 | 5 | Opaque resource identities with tested public compatibility aliases. | INT-05, INT-08, LEGACY-IDENTITY |
 | 6 | Shared driver/provider contract without protocol branches in common lifecycle logic; include all started native families. | INT-06, INT-07 |
@@ -153,8 +159,8 @@ and owners are defined in [the milestone map](91-milestone-map.md).
 
 | Draft section 19 ID | Current successor |
 |---|---|
-| DOC-IR-01 | INT-04 and semreg-owned public architecture contract after SEMREG-BOOTSTRAP |
-| ORG-IR-01 | SEMREG-BOOTSTRAP |
+| DOC-IR-01 | INT-04 planning intent; reusable public architecture/API contract in docs-semantic after its SEMREG-BOOTSTRAP establishment |
+| ORG-IR-01 | SEMREG-BOOTSTRAP for semantic code and documentation destinations; `.github` remains accountable |
 | SEM-IR-01 | INT-04 design and INT-05 typed kernel |
 | SEM-IR-02 | INT-05 provenance, perspectives, selection and conflict |
 | SEM-IR-03 | INT-05 capability/operation types; INT-06/08 routing; INT-12/13 projections |

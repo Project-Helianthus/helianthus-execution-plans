@@ -7,7 +7,7 @@ Stable IDs identify planned outcomes. They do not encode mutable runtime state, 
 | GOV-01 | 0.7 | Project-Helianthus/.github | Adopt clear roles and reconcile runtime bindings | None |
 | CLEAN-01 | 0.7 | Project-Helianthus/.github | Reconcile and close historical issues without losing acceptance | None |
 | STD-01 | 0.7 | Project-Helianthus/helianthus-docs-eebus | Verify and pin the current eeBUS normative corpus | None |
-| SEMREG-BOOTSTRAP | 0.7 | Project-Helianthus/.github | Establish the public semantic repository and contract boundary | INT-04 |
+| SEMREG-BOOTSTRAP | 0.7 | Project-Helianthus/.github | Establish public semreg code and docs-semantic documentation destinations and contract boundaries | INT-04 |
 | LEGACY-PERSIST | 0.7 | Project-Helianthus/helianthus-ebusgateway | Reconcile persistent state, migration and restart acceptance | None |
 | LEGACY-IDENTITY | 0.7 | Project-Helianthus/helianthus-ebusgateway | Reconcile address-table, enrichment and passive-tap acceptance | None |
 | LEGACY-MUX | 0.7 | Project-Helianthus/helianthus-ebusgateway | Resolve the historical mux qualification gap against current code | None |
