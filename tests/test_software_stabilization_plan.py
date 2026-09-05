@@ -58,7 +58,7 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
 
     def test_current_plan_is_valid(self) -> None:
         self.assertEqual(
-            {"packages": 45, "repositories": 13},
+            {"packages": 45, "repositories": 14},
             VALIDATOR.validate_plan(PLAN_DIR),
         )
 
@@ -70,6 +70,25 @@ class SoftwareStabilizationPlanTests(unittest.TestCase):
             self.write_plan(plan_dir, plan)
             with self.assertRaisesRegex(VALIDATOR.ValidationError, "unknown owner"):
                 VALIDATOR.validate_plan(plan_dir)
+
+    def test_rejects_semantic_documentation_owner_drift(self) -> None:
+        owner = "Project-Helianthus/helianthus-docs-semantic"
+        for mutation in ("missing", "misspelled", "wrong-bootstrap", "wrong-status"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as temporary:
+                plan_dir = self.copy_plan(Path(temporary))
+                plan = self.load_plan(plan_dir)
+                repositories = plan["repositories"]
+                if mutation == "missing":
+                    repositories.pop(owner)
+                elif mutation == "misspelled":
+                    repositories[owner + "s"] = repositories.pop(owner)
+                elif mutation == "wrong-bootstrap":
+                    repositories[owner]["bootstrap"] = "INT-14"
+                else:
+                    repositories[owner] = {"owner_status": "existing"}
+                self.write_plan(plan_dir, plan)
+                with self.assertRaises(VALIDATOR.ValidationError):
+                    VALIDATOR.validate_plan(plan_dir)
 
     def test_rejects_coherent_repository_typo(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

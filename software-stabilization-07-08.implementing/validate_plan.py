@@ -26,6 +26,7 @@ PLAN_SLUG = "software-stabilization-07-08"
 PLAN_STATE = "implementing"
 PUBLIC_BOOTSTRAP_ID = "SEMREG-BOOTSTRAP"
 PUBLIC_SEMREG = "Project-Helianthus/helianthus-semreg"
+PUBLIC_SEMANTIC_DOCS = "Project-Helianthus/helianthus-docs-semantic"
 RENAMED_GATEWAY = "Project-Helianthus/helianthus-gateway"
 MATTER_ANCHOR = {
     "repository": "AryaHassanli/connectedhomeip",
@@ -174,7 +175,7 @@ def _validate_graph(packages: dict[str, dict[str, Any]]) -> None:
 def _validate_repositories(value: Any) -> dict[str, dict[str, str]]:
     _require(isinstance(value, dict) and value, "repositories must be a nonempty mapping")
     _require(
-        set(value) == KNOWN_EXISTING_REPOSITORIES | {PUBLIC_SEMREG, RENAMED_GATEWAY},
+        set(value) == KNOWN_EXISTING_REPOSITORIES | {PUBLIC_SEMREG, PUBLIC_SEMANTIC_DOCS, RENAMED_GATEWAY},
         "repository allowlist is invalid",
     )
     repositories: dict[str, dict[str, str]] = {}
@@ -197,9 +198,10 @@ def _validate_repositories(value: Any) -> dict[str, dict[str, str]]:
         dict(planned)
         == {
             PUBLIC_SEMREG: {"owner_status": "planned", "bootstrap": PUBLIC_BOOTSTRAP_ID},
+            PUBLIC_SEMANTIC_DOCS: {"owner_status": "planned", "bootstrap": PUBLIC_BOOTSTRAP_ID},
             RENAMED_GATEWAY: {"owner_status": "planned", "bootstrap": "INT-14"},
         },
-        "planned repositories must retain the semreg bootstrap and gateway rename",
+        "planned repositories must retain both semantic owners' bootstrap and gateway rename",
     )
     return repositories
 

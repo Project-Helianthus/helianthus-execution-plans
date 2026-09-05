@@ -15,6 +15,9 @@ repositories:
     owner_status: existing
   Project-Helianthus/helianthus-docs-eebus:
     owner_status: existing
+  Project-Helianthus/helianthus-docs-semantic:
+    owner_status: planned
+    bootstrap: SEMREG-BOOTSTRAP
   Project-Helianthus/helianthus-ebusgateway:
     owner_status: existing
   Project-Helianthus/helianthus-gateway:
