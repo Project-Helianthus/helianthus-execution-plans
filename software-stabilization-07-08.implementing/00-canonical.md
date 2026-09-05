@@ -59,6 +59,7 @@ Waves are dependency groups, not promises to finish overnight. Every cross-repos
 ## Explicit dependencies and retained historical requirements
 
 - `STD-01` is owned by docs-eeBUS and fixes the normative corpus before mappings in `INT-04`/`INT-12` are frozen. Conceptual design and independent bugs can proceed in the meantime.
+- [Semantic draft reconciliation](93-semantic-draft-reconciliation.md) maps all acceptance clauses and issue families from draft PR #94 to this program, corrects stale runtime assumptions, and separates 0.7 typed contracts from the 0.8 descriptive migration. It leaves unfinished INT-04 design explicit.
 - `SEMREG-BOOTSTRAP`, after ownership selection in `INT-04`, creates the public repository, license, self-contained AGENTS, CI, and import/documentation contracts. It precedes `INT-05` implementation; north–south design can continue in parallel.
 - `INT-06` is accountable in the current gateway repository for the runtime driver/provider SPI and north–south composition contract. Durable documentation, types, and fixtures remain with their actual producer and consumer owners; protocol-neutral canonical domain types remain semreg-owned. This guide records cross-repository intent only.
 - Native packages close only their provider capabilities and probes. `INT-07` consumes those artifacts and owns gateway acquisition; `INT-08` owns public surfaces; `INT-17` validates full composition. There is no reverse dependency from provider to consumer.
