@@ -104,19 +104,12 @@ strict asset/profile identity grammar, stable public identities and the separati
 of Pairing, SHIP and SPINE, including trusted/offline behavior. Disconnected
 hardware supplies neither a software PASS nor an automatic software defect.
 
-The current source-only gateway baseline inspected for this correction is
-`e31106c9c726fbb8df7546901763e19b93659e72`. Its
-[manager](https://github.com/Project-Helianthus/helianthus-ebusgateway/blob/e31106c9c726fbb8df7546901763e19b93659e72/internal/drivermanager/manager.go#L293)
-already provides internal snapshot/start/replace/stop and capability-admitted
-operations. The
-[composition](https://github.com/Project-Helianthus/helianthus-ebusgateway/blob/e31106c9c726fbb8df7546901763e19b93659e72/cmd/gateway/ebus_driver_runtime.go#L38)
-currently manages `ebus.primary`; it does not yet supply a public `drivers.v1`
-list/get/start/stop/restart edge. Modbus is an optional sidecar, and
-[`ExecuteReadWithReconnect`](https://github.com/Project-Helianthus/helianthus-ebusgateway/blob/e31106c9c726fbb8df7546901763e19b93659e72/internal/modbusadapter/adapter.go#L257)
-owns its serialized bounded reconnect and single retry. INT-06 must adapt this
-manager and add the missing public edge/additional families while preserving
-generation fencing, admission, withdrawal, retry and quarantine. These are source
-observations, not new runtime or hardware validation results.
+INT-06 reconciles the current gateway's lifecycle and acquisition ownership in
+the gateway repository's normal workflow. It records the exact implementation
+baseline, existing internal operations, missing public surfaces and additional
+families there. Its acceptance preserves generation fencing, admission,
+withdrawal, bounded retry and quarantine. This guide records that dependency
+and acceptance intent; it does not validate or store implementation proof.
 
 ## Retention of all 36 original acceptance clauses
 
@@ -197,6 +190,6 @@ contract, not a universal eBUS matrix. Private or restricted test vectors are no
 published. Physical and sensitive operations require their concrete approval.
 
 This document's own validation is the repository's local read-only plan check.
-It adds no checker, executable state or downstream action. After review and merge,
-the old draft may be closed as superseded with a link here; issue #93 and the
-current work packages retain the unimplemented design and delivery acceptance.
+It adds no checker, executable state or downstream action. Draft supersession
+belongs to the owner's separate issue/PR workflow, outside this guide. Issue #93
+and the current work packages retain the unimplemented design and delivery acceptance.
