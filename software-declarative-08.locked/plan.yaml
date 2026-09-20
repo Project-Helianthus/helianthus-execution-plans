@@ -10,8 +10,8 @@ repositories:
   Project-Helianthus/helianthus-gateway: {owner_status: existing}
   Project-Helianthus/helianthus-semreg: {owner_status: existing}
 packages:
-  - {id: INT-18, release: "0.8", owner: Project-Helianthus/.github, depends_on: []}
+  - {id: DRIVER-EXTRACTION-01, release: "0.8", owner: Project-Helianthus/.github, depends_on: []}
+  - {id: INT-18, release: "0.8", owner: Project-Helianthus/.github, depends_on: [DRIVER-EXTRACTION-01]}
   - {id: INT-22, release: "0.8", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-18]}
   - {id: INT-23, release: "0.8", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-22]}
   - {id: INT-24, release: "0.8", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-23]}
-

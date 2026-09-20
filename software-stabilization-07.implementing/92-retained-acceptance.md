@@ -83,4 +83,4 @@ Minimum corrective-successor acceptance:
 - Rerun applicable race/unit/integration tests and T01..T88 with no unexpected fail/xpass; verify the exact gateway/add-on package/BOM used for the live result.
 - If the selected outcome is rollback, prove restoration against the same deterministic and live criteria. If it is waiver, record the exact unqualified mode, affected products, operational limit, expiry/revisit condition, and explicit Board decision.
 
-Mapping: selected disposition and offline evidence block `INT-16/INT-17`; live qualification belongs in `INT-20`; any code/package change after Daybreak requires fresh exact-HEAD review and affected revalidation before `INT-21`.
+Mapping: selected disposition and offline evidence block `INT-16/INT-17`; live qualification belongs in `INT-20`; any code, configuration, dependency or package change after Daybreak requires fresh Daybreak review and affected hardware/conformance revalidation on the changed exact final BOM before `INT-21` publishes it.

@@ -127,6 +127,7 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     require(table_projection(plan_dir / "91-milestone-map.md") == expected_table, "91-milestone-map.md does not mirror plan.yaml")
     canonical = (plan_dir / "00-canonical.md").read_text(encoding="utf-8")
     require(plan["matter_anchor"]["commit"] in canonical, "canonical Matter anchor does not match plan.yaml")
+    require("changed final\nBOM requires a fresh Daybreak review" in canonical, "0.7 changed-candidate invalidation is missing")
     return {"packages": len(packages), "repositories": len(repositories)}
 
 

@@ -32,7 +32,7 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         guide_07 = ROOT / "software-stabilization-07.implementing"
         guide_08 = ROOT / "software-declarative-08.locked"
         self.assertEqual({"packages": 49, "repositories": 15}, load_validator(guide_07).validate_plan(guide_07))
-        self.assertEqual({"packages": 4, "repositories": 3}, load_validator(guide_08).validate_plan(guide_08))
+        self.assertEqual({"packages": 5, "repositories": 3}, load_validator(guide_08).validate_plan(guide_08))
 
     def test_07_rejects_future_package(self) -> None:
         plan_dir = self.copy_plan("software-stabilization-07.implementing")

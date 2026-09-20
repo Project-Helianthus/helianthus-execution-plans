@@ -26,21 +26,29 @@ provenance and performance remain demonstrably equivalent.
 
 ## Work and acceptance
 
-1. `INT-18` designs the descriptive IR, comparator, target repository split and
-   measured reduction. It inventories handwritten, generated, test, fixture,
-   vendor/dependency, documentation and RE lines separately. Deleting tests or
-   functionality is not reduction.
-2. `INT-22` applies the approved migration under native-driver ownership and proves
-   parity using repository-owned fixtures, contract tests and comparators.
-3. `INT-23` runs Daybreak Blue on the transformed exact candidate and remediates
-   valid findings.
-4. `INT-24` runs exhaustive authorized real-hardware validation and publishes 0.8
-   only with the validated measured reduction.
+1. `DRIVER-EXTRACTION-01` defines and delivers the native-owner extraction and
+   parity work for each started driver/profile before the declarative layer is
+   applied. It leaves the gateway with only generic composition and extension hooks.
+2. `INT-18` retains its original outcome: design and implement the descriptive IR,
+   deterministic generation, comparator and measured reduction. It inventories
+   handwritten, generated, test, fixture, vendor/dependency, documentation and RE
+   lines separately. Deleting tests or functionality is not reduction.
+3. `INT-22` retains its original outcome: Daybreak Blue reviews the transformed
+   exact candidate and valid findings are remediated.
+4. `INT-23` retains its original outcome: exhaustive authorized real-hardware
+   validation of that exact candidate.
+5. `INT-24` retains its original outcome: publish 0.8 only with the validated
+   measured reduction and the final covered BOM.
 
 The target packages must specify each driver/profile's selected native owner before
 implementation. No new protocol or product feature is created merely to exercise
 the IR. 0.8 repeats the Daybreak and hardware gates because 0.7 evidence cannot
 certify transformed code.
+
+Any code, configuration, dependency or package fix during Daybreak or hardware
+validation invalidates earlier candidate evidence. The changed final BOM requires
+a fresh Daybreak review and affected hardware and conformance revalidation before
+`INT-24` publishes it. Only the BOM covered by those final results is releasable.
 
 ## Hard stops
 
@@ -49,4 +57,3 @@ repository migration, physical test, live-device action or hardware purchase.
 T01..T88 and all required physical rows are performed only with their action-time
 authorization and remain mandatory for the final 0.8 candidate. FlexPort and
 kernel work remain private and inactive, outside this program.
-

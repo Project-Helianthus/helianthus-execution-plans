@@ -71,8 +71,8 @@ projections with explicit mapping loss.
 | D | Gateway rename, exact candidate packaging and offline acceptance | Preserve consumer IDs, state, pairing/trust and pins through the cutover |
 | E | Daybreak Blue review, remediation and real-hardware acceptance | The final candidate must pass review and every required physical row |
 
-The 0.8 guide is an external release prerequisite after Wave E; it is not a 0.7
-package, dependency or deliverable.
+Accepted 0.7 after Wave E is the external prerequisite for the future 0.8 guide.
+The guide is not a 0.7 package, dependency or deliverable.
 
 ## Acceptance and hard stops
 
@@ -92,6 +92,12 @@ each claimed model/profile/firmware and operation, normal and degraded paths,
 reconnect/restart, freshness, identity, authorized control, indeterminate outcomes
 and recovery. A missing device remains a blocker. No later declarative work can
 substitute for this evidence.
+
+Any code, configuration, dependency or package fix discovered during Daybreak or
+hardware validation invalidates the earlier candidate evidence. The changed final
+BOM requires a fresh Daybreak review and affected hardware and conformance
+revalidation before `INT-21` may publish it. Only the BOM covered by those final
+results is releasable.
 
 ## Dated baseline and working rule
 

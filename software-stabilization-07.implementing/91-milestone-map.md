@@ -55,7 +55,7 @@ can proceed in parallel under the owning repository workflow.
 | INT-17 | 0.7 | Project-Helianthus/helianthus-gateway | Offline acceptance and hardware-test preparation | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09 |
 | INT-19 | 0.7 | Project-Helianthus/helianthus-gateway | Daybreak Blue review of final candidate | INT-17 |
 | INT-20 | 0.7 | Project-Helianthus/helianthus-gateway | Exhaustive real-hardware validation | INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
-| INT-21 | 0.7 | Project-Helianthus/helianthus-gateway | 0.7 release after all gates | INT-20, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
+| INT-21 | 0.7 | Project-Helianthus/helianthus-gateway | Publish only the final validated 0.7 BOM | INT-20, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
 
 ## Boundary and sequencing
 
@@ -69,6 +69,11 @@ INT-19, INT-20 and INT-21 are the 0.7 Daybreak, physical-validation and release
 chain. T01..T88 is deferred and unrun until the approved hardware step, but is
 mandatory before 0.7.0. The future [0.8 guide](../software-declarative-08.locked/00-canonical.md)
 starts after INT-21 acceptance and has no package in this table.
+
+Any code, configuration, dependency or package fix during `INT-19` or `INT-20`
+invalidates earlier candidate evidence. A changed final BOM receives fresh Daybreak
+review plus affected hardware and conformance revalidation before `INT-21` publishes
+it; release names only that validated BOM.
 
 The local structural companion validates only this table's local structure. It
 does not query GitHub, execute work, or prove implementation behavior.
