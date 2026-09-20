@@ -4,6 +4,10 @@ These are traceability inputs, not proof of a current defect and not a revival o
 
 Offline completion of each LEGACY item means reconciliation plus repository-local corrective/proof work is complete. It does not include live release acceptance; the remaining named P/N/live rows are owned by INT-20 and block INT-21. Thus INT-16/INT-17 can consume offline readiness without waiting on a hardware gate that itself requires the release candidate. No completion label may hide an unresolved physical/evidence gap.
 
+Every `T01..T88` reference below is a retained historical acceptance target, not a
+current test result or instruction to run it. The matrix is **DEFERRED AND NOT
+RUN** until authorized hardware validation; it remains mandatory before 0.7.0.
+
 
 The following is the minimum acceptance to carry forward. It preserves product assertions, not the old locked-plan hashes, workflow state, mandatory multiround process, or automatic post-merge actions.
 

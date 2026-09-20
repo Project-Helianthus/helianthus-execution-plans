@@ -9,7 +9,11 @@ code-repository issues and pull requests.
 
 ## Current software release program
 
-[Software0.7 stabilization and0.8 declarative release guide](software-stabilization-07-08.implementing/00-canonical.md) covers the current convergence scope, separate hardware program, release validation and [issue reconciliation](software-stabilization-07-08.implementing/90-issue-map.md). It reuses existing semantic design work; merging the guide has no execution side effects.
+The active [0.7 stabilization guide](software-stabilization-07.implementing/00-canonical.md)
+covers present software convergence, public-proof priorities and its Daybreak and
+hardware gates. The separate [0.8 declarative guide](software-declarative-08.locked/00-canonical.md)
+is future work, locked until 0.7 acceptance. Both public software planning tracks
+are context only; a guide merge has no execution side effects.
 
 ## Normal workflow
 
