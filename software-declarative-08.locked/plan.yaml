@@ -1,0 +1,17 @@
+schema_version: 1
+slug: software-declarative-08
+state: locked
+release_prerequisite: accepted-0.7
+tracking:
+  software_07_project: https://github.com/orgs/Project-Helianthus/projects/2
+  software_08_project: https://github.com/orgs/Project-Helianthus/projects/4
+repositories:
+  Project-Helianthus/.github: {owner_status: existing}
+  Project-Helianthus/helianthus-gateway: {owner_status: existing}
+  Project-Helianthus/helianthus-semreg: {owner_status: existing}
+packages:
+  - {id: DRIVER-EXTRACTION-01, release: "0.8", owner: Project-Helianthus/.github, depends_on: []}
+  - {id: INT-18, release: "0.8", owner: Project-Helianthus/.github, depends_on: [DRIVER-EXTRACTION-01]}
+  - {id: INT-22, release: "0.8", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-18]}
+  - {id: INT-23, release: "0.8", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-22]}
+  - {id: INT-24, release: "0.8", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-23]}

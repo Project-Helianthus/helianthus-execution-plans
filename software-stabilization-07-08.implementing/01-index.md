@@ -1,10 +1,5 @@
-# Guide index
+# Superseded combined-guide index
 
-- [Canonical release guide](./00-canonical.md)
-- [Historical issue reconciliation](./90-issue-map.md)
-- [Work-package and dependency map](./91-milestone-map.md)
-- [Retained acceptance](./92-retained-acceptance.md)
-- [Descriptive status](./99-status.md)
-
-`plan.yaml` and `validate_plan.py` are the local read-only structural companion for
-the work-package map. They do not execute the guide or create repository work.
+Use the active [0.7 guide](../software-stabilization-07.implementing/00-canonical.md)
+or the future [0.8 guide](../software-declarative-08.locked/00-canonical.md). This
+directory preserves former top-level links only and is not an active plan.

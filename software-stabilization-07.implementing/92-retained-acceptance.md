@@ -4,6 +4,10 @@ These are traceability inputs, not proof of a current defect and not a revival o
 
 Offline completion of each LEGACY item means reconciliation plus repository-local corrective/proof work is complete. It does not include live release acceptance; the remaining named P/N/live rows are owned by INT-20 and block INT-21. Thus INT-16/INT-17 can consume offline readiness without waiting on a hardware gate that itself requires the release candidate. No completion label may hide an unresolved physical/evidence gap.
 
+Every `T01..T88` reference below is a retained historical acceptance target, not a
+current test result or instruction to run it. The matrix is **DEFERRED AND NOT
+RUN** until authorized hardware validation; it remains mandatory before 0.7.0.
+
 
 The following is the minimum acceptance to carry forward. It preserves product assertions, not the old locked-plan hashes, workflow state, mandatory multiround process, or automatic post-merge actions.
 
@@ -79,4 +83,4 @@ Minimum corrective-successor acceptance:
 - Rerun applicable race/unit/integration tests and T01..T88 with no unexpected fail/xpass; verify the exact gateway/add-on package/BOM used for the live result.
 - If the selected outcome is rollback, prove restoration against the same deterministic and live criteria. If it is waiver, record the exact unqualified mode, affected products, operational limit, expiry/revisit condition, and explicit Board decision.
 
-Mapping: selected disposition and offline evidence block `INT-16/INT-17`; live qualification belongs in `INT-20`; any code/package change after Daybreak requires fresh exact-HEAD review and affected revalidation before `INT-21`.
+Mapping: selected disposition and offline evidence block `INT-16/INT-17`; live qualification belongs in `INT-20`; any code, configuration, dependency or package change after Daybreak requires fresh Daybreak review and affected hardware/conformance revalidation on the changed exact final BOM before `INT-21` publishes it.
