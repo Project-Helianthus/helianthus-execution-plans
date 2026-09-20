@@ -8,4 +8,3 @@ that a repository or issue is ready. Select repository-local issues only after t
 The public [0.8 software project](https://github.com/orgs/Project-Helianthus/projects/4)
 is a planning tracker. It is not a release authorization, build input or proof of
 implementation.
-

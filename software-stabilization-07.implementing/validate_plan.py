@@ -16,6 +16,34 @@ FUTURE_IDS = {"INT-18", "INT-22", "INT-23", "INT-24"}
 RENAMED_GATEWAY = "Project-Helianthus/helianthus-gateway"
 CURRENT_GATEWAY = "Project-Helianthus/helianthus-ebusgateway"
 TABLE_HEADER = ("ID", "Release", "Owner", "Outcome", "Prerequisites")
+MATTER_ANCHOR = {
+    "repository": "AryaHassanli/connectedhomeip",
+    "branch": "dm-0.9-1.7",
+    "commit": "29b4768a513cf566011ab8cd60df1bc495204953",
+    "ballot": "0.9",
+    "draft": "1.7",
+    "upstream_pr": 73842,
+}
+MATTER_ANCHOR_MARKDOWN = (
+    "Matter is anchored to `AryaHassanli/connectedhomeip:dm-0.9-1.7`, SHA "
+    "`29b4768a513cf566011ab8cd60df1bc495204953` (ballot 0.9, draft 1.7, upstream PR #73842)."
+)
+EXISTING_REPOSITORIES = {
+    "Project-Helianthus/.github",
+    "Project-Helianthus/helianthus-canbusreg",
+    "Project-Helianthus/helianthus-docs-eebus",
+    "Project-Helianthus/helianthus-docs-semantic",
+    "Project-Helianthus/helianthus-ebusgateway",
+    "Project-Helianthus/helianthus-eebusreg",
+    "Project-Helianthus/helianthus-ebusreg",
+    "Project-Helianthus/helianthus-eebus-go",
+    "Project-Helianthus/helianthus-execution-plans",
+    "Project-Helianthus/helianthus-ha-addon",
+    "Project-Helianthus/helianthus-ha-integration",
+    "Project-Helianthus/helianthus-modbusreg",
+    "Project-Helianthus/helianthus-semreg",
+    "Project-Helianthus/helianthus-vrc-explorer",
+}
 
 
 class ValidationError(ValueError):
@@ -85,8 +113,14 @@ def table_projection(path: Path) -> list[tuple[str, str, str, str]]:
 def validate_plan(plan_dir: Path) -> dict[str, int]:
     plan = yaml.safe_load((plan_dir / "plan.yaml").read_text(encoding="utf-8"))
     require(isinstance(plan, dict), "plan.yaml root must be a mapping")
+    require(
+        set(plan) == {"schema_version", "slug", "state", "matter_anchor", "tracking", "repositories", "priority_order", "packages"},
+        "plan.yaml root fields are invalid",
+    )
+    require(plan.get("schema_version") == 1, "schema_version is invalid")
     require(plan.get("slug") == PLAN_SLUG, "slug is invalid")
     require(plan.get("state") == "implementing", "0.7 must remain implementing")
+    require(plan.get("matter_anchor") == MATTER_ANCHOR, "Matter anchor is invalid")
     require(plan.get("tracking") == {
         "software_07_project": "https://github.com/orgs/Project-Helianthus/projects/2",
         "software_08_project": "https://github.com/orgs/Project-Helianthus/projects/4",
@@ -94,8 +128,9 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
 
     repositories = plan.get("repositories")
     require(isinstance(repositories, dict), "repositories must be a mapping")
-    for owner in ("Project-Helianthus/helianthus-semreg", "Project-Helianthus/helianthus-docs-semantic"):
-        require(repositories.get(owner) == {"owner_status": "existing"}, f"{owner} must remain existing")
+    require(set(repositories) == EXISTING_REPOSITORIES | {RENAMED_GATEWAY}, "repository allowlist is invalid")
+    for owner in EXISTING_REPOSITORIES:
+        require(repositories.get(owner) == {"owner_status": "existing"}, f"{owner} metadata is invalid")
     require(repositories.get(RENAMED_GATEWAY) == {"owner_status": "planned", "bootstrap": "INT-14"}, "renamed gateway state is invalid")
 
     records = plan.get("packages")
@@ -126,7 +161,7 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     expected_table = [(record["id"], record["release"], record["owner"], ", ".join(record["depends_on"]) or "None") for record in records]
     require(table_projection(plan_dir / "91-milestone-map.md") == expected_table, "91-milestone-map.md does not mirror plan.yaml")
     canonical = (plan_dir / "00-canonical.md").read_text(encoding="utf-8")
-    require(plan["matter_anchor"]["commit"] in canonical, "canonical Matter anchor does not match plan.yaml")
+    require(MATTER_ANCHOR_MARKDOWN in canonical, "canonical Matter anchor does not match plan.yaml")
     require("changed final\nBOM requires a fresh Daybreak review" in canonical, "0.7 changed-candidate invalidation is missing")
     return {"packages": len(packages), "repositories": len(repositories)}
 

@@ -51,3 +51,40 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         validator = load_validator(plan_dir)
         with self.assertRaisesRegex(validator.ValidationError, "0.7 prerequisite"):
             validator.validate_plan(plan_dir)
+
+    def test_07_rejects_coherent_repository_rename(self) -> None:
+        plan_dir = self.copy_plan("software-stabilization-07.implementing")
+        plan = yaml.safe_load((plan_dir / "plan.yaml").read_text())
+        repositories = plan["repositories"]
+        original = "Project-Helianthus/helianthus-modbusreg"
+        renamed = "Project-Helianthus/helianthus-modbusrge"
+        repositories[renamed] = repositories.pop(original)
+        for package in plan["packages"]:
+            if package["owner"] == original:
+                package["owner"] = renamed
+        (plan_dir / "plan.yaml").write_text(yaml.safe_dump(plan, sort_keys=False))
+        (plan_dir / "91-milestone-map.md").write_text(
+            (plan_dir / "91-milestone-map.md").read_text().replace(original, renamed)
+        )
+        validator = load_validator(plan_dir)
+        with self.assertRaisesRegex(validator.ValidationError, "repository allowlist"):
+            validator.validate_plan(plan_dir)
+
+    def test_07_rejects_each_matter_anchor_field_drift(self) -> None:
+        for field in ("repository", "branch", "commit", "ballot", "draft", "upstream_pr"):
+            with self.subTest(field=field):
+                plan_dir = self.copy_plan("software-stabilization-07.implementing")
+                plan = yaml.safe_load((plan_dir / "plan.yaml").read_text())
+                plan["matter_anchor"][field] = "wrong" if field != "upstream_pr" else 0
+                (plan_dir / "plan.yaml").write_text(yaml.safe_dump(plan, sort_keys=False))
+                validator = load_validator(plan_dir)
+                with self.assertRaisesRegex(validator.ValidationError, "Matter anchor is invalid"):
+                    validator.validate_plan(plan_dir)
+
+    def test_07_rejects_matter_anchor_markdown_drift(self) -> None:
+        plan_dir = self.copy_plan("software-stabilization-07.implementing")
+        canonical = plan_dir / "00-canonical.md"
+        canonical.write_text(canonical.read_text().replace("upstream PR #73842", "upstream PR #0"))
+        validator = load_validator(plan_dir)
+        with self.assertRaisesRegex(validator.ValidationError, "canonical Matter anchor"):
+            validator.validate_plan(plan_dir)

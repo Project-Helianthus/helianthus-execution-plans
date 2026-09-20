@@ -106,7 +106,5 @@ comparators only. Before repository work, read current GitHub state and the merg
 guide, then use the owning repository's ordinary issue, branch, validation, review
 and merge workflow. This guide neither creates work nor reports live completion.
 
-Matter remains anchored to `AryaHassanli/connectedhomeip:dm-0.9-1.7`, commit
-`29b4768a513cf566011ab8cd60df1bc495204953` (ballot 0.9, draft 1.7, upstream
-PR #73842). The applicable eeBUS normative corpus is pinned by `STD-01` before
-affected mapping is frozen.
+Matter is anchored to `AryaHassanli/connectedhomeip:dm-0.9-1.7`, SHA `29b4768a513cf566011ab8cd60df1bc495204953` (ballot 0.9, draft 1.7, upstream PR #73842).
+The applicable eeBUS normative corpus is pinned by `STD-01` before affected mapping is frozen.

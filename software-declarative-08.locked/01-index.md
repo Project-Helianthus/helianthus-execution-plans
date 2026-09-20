@@ -8,4 +8,3 @@
 
 `plan.yaml` and `validate_plan.py` are local read-only structure checks. They do
 not establish that 0.7 is accepted or authorize 0.8 work.
-
