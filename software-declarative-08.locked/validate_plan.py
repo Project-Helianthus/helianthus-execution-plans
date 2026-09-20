@@ -5,6 +5,7 @@ import sys
 from collections import deque
 from pathlib import Path
 from typing import Any
+import re
 
 import yaml
 
@@ -30,6 +31,7 @@ EXPECTED_ROOT_KEYS = {
     "repositories",
     "packages",
 }
+TABLE_HEADER = ("ID", "Release", "Owner", "Outcome", "Prerequisites")
 
 
 class ValidationError(ValueError):
@@ -62,6 +64,27 @@ def validate_graph(packages: list[dict[str, Any]]) -> None:
     require(visited == len(packages), "0.8 package dependency graph must be acyclic")
 
 
+def table_projection(path: Path) -> list[tuple[str, str, str, str]]:
+    rows: list[tuple[str, str, str, str]] = []
+    started = False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("|"):
+            if started:
+                break
+            continue
+        cells = tuple(cell.strip() for cell in line.strip().strip("|").split("|"))
+        if not started:
+            if cells == TABLE_HEADER:
+                started = True
+            continue
+        if all(re.fullmatch(r":?-+:?", cell) for cell in cells):
+            continue
+        require(len(cells) == len(TABLE_HEADER), "0.8 milestone map has a malformed package row")
+        rows.append((cells[0], cells[1], cells[2], cells[4]))
+    require(started, "0.8 milestone map is missing the package table")
+    return rows
+
+
 def validate_plan(plan_dir: Path) -> dict[str, int]:
     plan = yaml.safe_load((plan_dir / "plan.yaml").read_text(encoding="utf-8"))
     require(isinstance(plan, dict), "plan.yaml root must be a mapping")
@@ -89,6 +112,14 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     require(packages[3].get("depends_on") == ["INT-22"], "INT-23 must follow INT-22")
     require(packages[4].get("depends_on") == ["INT-23"], "INT-24 must follow INT-23")
     validate_graph(packages)
+    expected_table = [
+        (package["id"], package["release"], package["owner"], ", ".join(package["depends_on"]) or "None")
+        for package in packages
+    ]
+    require(
+        table_projection(plan_dir / "91-milestone-map.md") == expected_table,
+        "0.8 milestone map does not mirror plan.yaml",
+    )
     return {"packages": len(packages), "repositories": len(plan.get("repositories", {}))}
 
 

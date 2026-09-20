@@ -113,3 +113,16 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
                 validator = load_validator(plan_dir)
                 with self.assertRaisesRegex(validator.ValidationError, message):
                     validator.validate_plan(plan_dir)
+
+    def test_08_rejects_milestone_prerequisite_drift(self) -> None:
+        plan_dir = self.copy_plan("software-declarative-08.locked")
+        milestone_map = plan_dir / "91-milestone-map.md"
+        milestone_map.write_text(
+            milestone_map.read_text().replace(
+                "| INT-24 | 0.8 | Project-Helianthus/helianthus-gateway | Publish only the final validated 0.8 BOM | INT-23 |",
+                "| INT-24 | 0.8 | Project-Helianthus/helianthus-gateway | Publish only the final validated 0.8 BOM | INT-22 |",
+            )
+        )
+        validator = load_validator(plan_dir)
+        with self.assertRaisesRegex(validator.ValidationError, "milestone map does not mirror"):
+            validator.validate_plan(plan_dir)
