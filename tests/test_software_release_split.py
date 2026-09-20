@@ -35,13 +35,15 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         self.assertEqual({"packages": 5, "repositories": 3}, load_validator(guide_08).validate_plan(guide_08))
 
     def test_07_rejects_future_package(self) -> None:
-        plan_dir = self.copy_plan("software-stabilization-07.implementing")
-        plan = yaml.safe_load((plan_dir / "plan.yaml").read_text())
-        plan["packages"][0]["id"] = "INT-18"
-        (plan_dir / "plan.yaml").write_text(yaml.safe_dump(plan, sort_keys=False))
-        validator = load_validator(plan_dir)
-        with self.assertRaisesRegex(validator.ValidationError, "exclusively to 0.8"):
-            validator.validate_plan(plan_dir)
+        for future_id in ("DRIVER-EXTRACTION-01", "INT-18"):
+            with self.subTest(future_id=future_id):
+                plan_dir = self.copy_plan("software-stabilization-07.implementing")
+                plan = yaml.safe_load((plan_dir / "plan.yaml").read_text())
+                plan["packages"][0]["id"] = future_id
+                (plan_dir / "plan.yaml").write_text(yaml.safe_dump(plan, sort_keys=False))
+                validator = load_validator(plan_dir)
+                with self.assertRaisesRegex(validator.ValidationError, "exclusively to 0.8"):
+                    validator.validate_plan(plan_dir)
 
     def test_08_rejects_wrong_prerequisite(self) -> None:
         plan_dir = self.copy_plan("software-declarative-08.locked")
@@ -88,3 +90,26 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         validator = load_validator(plan_dir)
         with self.assertRaisesRegex(validator.ValidationError, "canonical Matter anchor"):
             validator.validate_plan(plan_dir)
+
+    def test_07_rejects_rename_owner_drift(self) -> None:
+        plan_dir = self.copy_plan("software-stabilization-07.implementing")
+        plan = yaml.safe_load((plan_dir / "plan.yaml").read_text())
+        next(package for package in plan["packages"] if package["id"] == "INT-14")["owner"] = "Project-Helianthus/.github"
+        (plan_dir / "plan.yaml").write_text(yaml.safe_dump(plan, sort_keys=False))
+        validator = load_validator(plan_dir)
+        with self.assertRaisesRegex(validator.ValidationError, "INT-14 must remain owned"):
+            validator.validate_plan(plan_dir)
+
+    def test_08_rejects_extraction_dependency_and_unknown_owner(self) -> None:
+        for field, value, message in (
+            ("depends_on", ["INT-24"], "driver extraction must have no dependencies"),
+            ("owner", "Project-Helianthus/unknown", "0.8 package owner is invalid"),
+        ):
+            with self.subTest(field=field):
+                plan_dir = self.copy_plan("software-declarative-08.locked")
+                plan = yaml.safe_load((plan_dir / "plan.yaml").read_text())
+                plan["packages"][0][field] = value
+                (plan_dir / "plan.yaml").write_text(yaml.safe_dump(plan, sort_keys=False))
+                validator = load_validator(plan_dir)
+                with self.assertRaisesRegex(validator.ValidationError, message):
+                    validator.validate_plan(plan_dir)

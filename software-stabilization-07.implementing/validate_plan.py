@@ -12,7 +12,7 @@ import yaml
 
 PLAN_SLUG = "software-stabilization-07"
 PUBLIC_PRIORITY = [f"PUBLIC-{number:02d}" for number in range(1, 9)]
-FUTURE_IDS = {"INT-18", "INT-22", "INT-23", "INT-24"}
+FUTURE_IDS = {"DRIVER-EXTRACTION-01", "INT-18", "INT-22", "INT-23", "INT-24"}
 RENAMED_GATEWAY = "Project-Helianthus/helianthus-gateway"
 CURRENT_GATEWAY = "Project-Helianthus/helianthus-ebusgateway"
 TABLE_HEADER = ("ID", "Release", "Owner", "Outcome", "Prerequisites")
@@ -154,6 +154,7 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     require("INT-14" in ancestors("INT-17", packages), "INT-17 must follow INT-14")
     require("INT-19" in ancestors("INT-20", packages), "INT-20 must follow INT-19")
     require({"INT-19", "INT-20"} <= ancestors("INT-21", packages), "INT-21 must follow Daybreak and hardware validation")
+    require(packages["INT-14"]["owner"] == CURRENT_GATEWAY, "INT-14 must remain owned by the current gateway")
     require(packages["INT-06"]["owner"] == CURRENT_GATEWAY, "INT-06 must remain owned by the current gateway")
     for package_id in ("INT-17", "INT-19", "INT-20", "INT-21"):
         require(packages[package_id]["owner"] == RENAMED_GATEWAY, f"{package_id} must use the renamed gateway")
