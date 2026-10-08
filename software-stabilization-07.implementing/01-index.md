@@ -5,6 +5,7 @@
 - [0.7 work-package and dependency map](./91-milestone-map.md)
 - [Retained 0.7 acceptance](./92-retained-acceptance.md)
 - [Semantic-draft reconciliation](./93-semantic-draft-reconciliation.md)
+- [Portal configuration and optional HA embedding](./94-portal-configuration-and-ha-ingress.md)
 - [Descriptive status](./99-status.md)
 - [Future 0.8 declarative guide](../software-declarative-08.locked/00-canonical.md)
 

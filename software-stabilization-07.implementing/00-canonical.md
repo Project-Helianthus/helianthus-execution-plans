@@ -108,3 +108,11 @@ and merge workflow. This guide neither creates work nor reports live completion.
 
 Matter is anchored to `AryaHassanli/connectedhomeip:dm-0.9-1.7`, SHA `29b4768a513cf566011ab8cd60df1bc495204953` (ballot 0.9, draft 1.7, upstream PR #73842).
 The applicable eeBUS normative corpus is pinned by `STD-01` before affected mapping is frozen.
+
+## Additional 0.7 configuration outcome
+
+The [Portal configuration and optional HA embedding scope](./94-portal-configuration-and-ha-ingress.md)
+is required for 0.7.0: standalone Portal-managed setup, always-on passive/cache
+with full introspection, selective network sharing and native output bindings,
+and add-on-owned Ingress/minimal bootstrap. This guide addition does not resume
+execution and does not move the later declarative work into 0.7.
