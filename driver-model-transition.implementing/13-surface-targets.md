@@ -1,6 +1,6 @@
 # Surface targets
 
-Canonical-SHA256: `ca9edfc928fe862162c6d349c4f226580aa05145d04ae53c81a0aa557c464a85`
+Canonical-SHA256: `884910a1b7a6bd33f6753d1eeac927658870afc500f0250fa64235e2d98a6def`
 Depends on: [12-family-targets.md](./12-family-targets.md).
 Scope: MCP, GraphQL, Portal, setup, metrics, state and consumers.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
@@ -13,7 +13,7 @@ This covers native implementation plus MCP, GraphQL/subscriptions, Portal, metri
 
 | Surface | Inventory file:line evidence | Target split |
 |---|---|---|
-| Lifecycle/factories | `GW cmd/gateway/gateway_run_lifecycle.go:32`; `internal/drivermanager/manager.go:148,189,822` | Host orchestrates typed registrations; drivers own construction/cleanup. Remove each direct start/defer atomically when its managed adapter lands. |
+| Lifecycle/factories | `GW cmd/gateway/gateway_run_lifecycle.go:32`; `internal/drivermanager/manager.go:149,822` | Host orchestrates typed registrations; drivers own construction/cleanup. Remove each direct start/defer atomically when its managed adapter lands. |
 | MCP catalogs | `GW mcp/server_tools.go:3`, `server_construction.go:9`, `modbus_v1.go:106`, `eebus_v1.go:149`; eeBUS `eebusraw/raw_feature_v1.go:21` | Driver contributions replace default eBUS construction. Preserve all inventoried names/classifications: native eBUS/eeBUS/Modbus, semantic PV/storage/EVSE, aliases and conditional availability. Shared router remains host. |
 | MCP governance gap | `GW mcp/tool_classification_test.go:112`, `mcp/server.go:751,1182` | Cover conditional families and protocol_specimens explicitly; v1 spelling alone is not stable-contract proof. Experimental capture/state remains host coordination with evidence hooks (`mcp/leaf_promotion_capture.go:15`, `mcp/synchronized_evidence.go:15`). |
 | Legacy GraphQL/aliases | `GW graphql/query_root.go:27,51,63,103,168,204,255`; `graphql/vaillant_b503.go:451`; `graphql/mutations.go:427,447,547` | Daemon/build identity stays host; adapter/bus/registry/B503/Vaillant fields and writes are eBUS contributions; promoted zone/DHW/system overlays are eeBUS mappings. Preserve aliases and native write admission. |

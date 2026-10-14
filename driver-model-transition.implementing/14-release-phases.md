@@ -1,6 +1,6 @@
 # Release phases
 
-Canonical-SHA256: `ca9edfc928fe862162c6d349c4f226580aa05145d04ae53c81a0aa557c464a85`
+Canonical-SHA256: `884910a1b7a6bd33f6753d1eeac927658870afc500f0250fa64235e2d98a6def`
 Depends on: [13-surface-targets.md](./13-surface-targets.md).
 Scope: 0.7 seams and ordered 0.8 moves.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
@@ -11,8 +11,8 @@ Coverage: Canonical section 4; 90 and 91 maps.
 
 ### 0.7 — seams, not full family extraction
 
-1. Retain G4/#1024 semantic hub behavior and characterization-first discipline. Hub then three kernel owners; Phase A assumes post-G4. Require merged #1024; no live CI claim. Reconcile exact merged contract and its deviations before G5.
-2. Reframe G5 as **Register typed protocol drivers and manage durable lifecycle; first driver ebus.primary** (complexity 8). Registration includes direction and optional surface/setup hooks; prove northbound/southbound/both using fixtures. Production controls initially manage only eBUS. Preserve G5 S1–S6 acceptance, D1–D6 decisions, shell-first startup, lifecycle-only bridge and recovery boundaries; do not expand it into family extraction, thermal cutover or full public lifecycle API.
+1. Retain G4/#1024 semantic hub behavior and characterization-first discipline. Hub then three kernel owners; inventory is unmerged G4 PR #1028 head. Require merged #1024; no live CI claim. Reconcile exact merged contract and its deviations before G5.
+2. Reframe G5 as **Register typed protocol drivers and manage durable lifecycle; first driver ebus.primary** (Cx 9; ordered PR split in O7). G5 descriptor fixtures validate v1 and northbound/southbound/both, without hooks. Production controls initially manage only eBUS. Preserve G5 S1–S6 acceptance, D1–D6 decisions, shell-first startup, lifecycle-only bridge and recovery boundaries; do not expand it into family extraction, thermal cutover or full public lifecycle API.
 3. Keep four separately scoped managed-runtime adapters: SunSpec TCP, Growatt RTU, eeBUS, Tesla (G5 follow-ups, Cx 7 each). These transfer start/close ownership to the registration service, not whole protocol implementations. A retained-only Tesla adapter reports its actual resource; it does not invent a live writer. No managed placeholder accepts nonfunctional controls.
 4. G6 generic registry becomes **driver composition**: needs G5; named M items gate compositions, native providers/qualification stay in drivers. Compose only profiles admitted by M/C evidence; represent blocked families truthfully. G7 CAN and G7b Tesla outcome producer retain their prerequisites; publication/native operations are not granted by registration.
 5. DM-RAW/#1021 follows DM-G5 and satisfied R-G2C. eBUS owns raw identity/promotion/traffic/specimen stores and provenance via contributed read views. G2’s site smoke is a dispatch-time overlap constraint on the same raw 07 04 identification evidence, not a prerequisite. No bytes move to SemReg or a universal raw schema; wider eBUS extraction waits for 0.8.
@@ -34,4 +34,4 @@ Accepted 0.7/INT-21 is the external start prerequisite; coordinate the existing 
 
 Counts and anchors are [inventory](./reference-inventory.md) §6 (`GW mcp/growatt_bms_v104_v1.go:1`, `internal/modbusadapter/adapter.go:122`, `cmd/gateway/eebus_runtime_adapter.go:350`, `gateway.go:22`). Native library trees remain separately owned (eBUS transport 13,074 lines and registry 10,099; Modbus transport 17,376 and registry 20,392; eeBUS native 44,153; CAN registry 1,359). Re-estimate after exact manifests; never infer effort/coverage from test counts. Respect one issue per owning repo and serial repository integration; priority order may pause for unavailable evidence but a Board change must record any reordering.
 
-DM-HOOKS first completes typed MCP/GraphQL/Portal/setup/state/metrics contributions and a fixture proving all directions without native switches. A no-eBUS host fixture must still boot shell, config, M2M, semantic exporter and another driver. Family issue acceptance includes every applicable surface in section 3, not just files with family names. Keep native modules compiled separately from host mechanisms; exact package names are an implementation design decision, not a new repository mandate.
+DM-HOOKS completes typed MCP/GraphQL/Portal/setup/state/metrics contributions with hook fixtures per direction, without native switches. A no-eBUS host fixture must still boot shell, config, M2M, semantic exporter and another driver. Family issue acceptance includes every applicable surface in section 3, not just files with family names. Keep native modules compiled separately from host mechanisms; exact package names are an implementation design decision, not a new repository mandate.

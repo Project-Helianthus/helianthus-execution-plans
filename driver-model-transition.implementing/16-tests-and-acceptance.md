@@ -1,6 +1,6 @@
 # Tests and acceptance
 
-Canonical-SHA256: `ca9edfc928fe862162c6d349c4f226580aa05145d04ae53c81a0aa557c464a85`
+Canonical-SHA256: `884910a1b7a6bd33f6753d1eeac927658870afc500f0250fa64235e2d98a6def`
 Depends on: [15-northbound-and-amendments.md](./15-northbound-and-amendments.md).
 Scope: Characterization, parity, transport, lifecycle and rollback proof.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
@@ -18,7 +18,7 @@ Before **each family move**, commit characterization fixtures/goldens against th
 | eeBUS | SHIP/trust/pairing/listener/outgoing slot, raw feature authorization/mutation outcomes, configured vs applied participation, overlay replay and unknown/frozen dispositions. Prove terminal fence and no stale callbacks/implicit trust promotion. |
 | eBUS | Native bytes/ACK reconstruction/dedup, identity/address promotion, mux/proxy/B503 session ordering, scans/polling/cache/watch, state revalidation and thermal/native public views. Preserve aliases and write admission. #1021 keeps full request/response bytes and provenance with no automatic qualification. |
 
-Surface fixtures compare actual MCP discovery/schema/envelopes and MCP↔GraphQL parity, GraphQL aliases/subscriptions, Portal catalog/native explorer/action/readiness, setup validation/options/argv, state namespace compatibility, health and exact Prometheus text. New experimental G5 tools compare to the typed internal service, because no GraphQL lifecycle counterpart is introduced there; existing status parity still runs. Consumer fixtures cover HA, secure M2M and Matter feed where used. Close classification coverage gaps rather than assume every `v1` tool is stable.
+Surface fixtures compare actual MCP discovery/schema/envelopes and MCP↔GraphQL parity, GraphQL aliases/subscriptions, Portal catalog/native explorer/action/readiness, setup validation/options/argv, state namespace compatibility, health and exact Prometheus text. G5 tools use the kernel-owned peer-credential socket and compare to the typed internal service; no GraphQL lifecycle counterpart is added. Fallback has no tools; prove service behavior and no exposure. Existing status parity runs. Consumer fixtures cover HA, secure M2M and Matter feed where used. Close classification coverage gaps rather than assume every `v1` tool is stable.
 
 Lifecycle proof boots `runGatewayLifecycle` with no native endpoint, STOPPED, slow/failing starts and two independently failing fixtures. Test direction/collision/ownership, durable receipt/revision replay, shell-first startup, generation-owned tasks, restart non-overlap, stale native callbacks and staged publication rejection. Crash at acceptance/ACTIVE/reservation/submit-result-loss/withdrawal/close; prove exact uncertain bytes and retained snapshots/cursors, not digest reconstruction. `EpochJournal` alone is insufficient. Shared-asset isolation/LIFE-22 has its own accepted prerequisite; G4 one-source assets cannot prove it.
 

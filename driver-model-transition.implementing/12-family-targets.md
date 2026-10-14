@@ -1,6 +1,6 @@
 # Family targets
 
-Canonical-SHA256: `ca9edfc928fe862162c6d349c4f226580aa05145d04ae53c81a0aa557c464a85`
+Canonical-SHA256: `884910a1b7a6bd33f6753d1eeac927658870afc500f0250fa64235e2d98a6def`
 Depends on: [11-extension-and-kernel-boundary.md](./11-extension-and-kernel-boundary.md).
 Scope: Four native family destinations and evidence limits.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
@@ -9,7 +9,7 @@ Coverage: Canonical section 3; all family moves.
 
 ## 3. Target ownership and evidence
 
-All file:line references below are transcribed from the 2026-10-14 [Phase A inventory](./reference-inventory.md), not newly inspected implementation. `GW` is helianthus-ebusgateway at `bf09d80f75cf045b81b906284d24b3c34f3471f2`; native checkouts and gateway dependency pins differ. This is static evidence (230 rows, including 12 baseline rows and 13 census rows), not proof those sibling APIs compile into GW or that any family is live. G4/G5 issue snapshots have different baselines; reconcile in owning repositories before implementation. No other repository was checked out or queried to validate this guide.
+File:line references below come from the 2026-10-14 [Phase A inventory](./reference-inventory.md), not newly inspected implementation. `GW` is helianthus-ebusgateway, G4 PR #1028 head at inventory time (`bf09d80f75cf045b81b906284d24b3c34f3471f2`, unmerged); native checkouts and gateway dependency pins differ. This is static evidence (231 rows, including 12 baseline rows and 13 census rows), not proof those sibling APIs compile into GW or that any family is live. G4/G5 issue snapshots have different baselines; reconcile in owning repositories before implementation. No other repository was checked out or queried to validate this guide.
 
 | Family | Native target and retained evidence | Surfaces/semantics target and known limits |
 |---|---|---|

@@ -221,6 +221,7 @@ issues:
   - O5
   - O6
   - O7
+  - O8
   optional: false
   existing_issue: null
 - id: DM-G5
@@ -229,7 +230,8 @@ issues:
   depends_on:
   - DM-DOC
   - R-G4
-  complexity: 8
+  complexity: 9
+  ordered_pr_split: 'PR 0 only if O2 chooses a new epoch per restart, Cx 5; PR 1 characterization + registration + store + service + eBUS reconciliation, Cx 8; PR 2 kernel boundary + tools, Cx 4'
   author_camp: camp decided at dispatch
   reviewer_camp: opposite author camp
   release: '0.7'
@@ -241,6 +243,7 @@ issues:
   - O5
   - O6
   - O7
+  - O8
   optional: false
   existing_issue: null
 - id: DM-MANAGED-PV

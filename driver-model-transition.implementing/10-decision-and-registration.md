@@ -1,6 +1,6 @@
 # Decision and registration
 
-Canonical-SHA256: `ca9edfc928fe862162c6d349c4f226580aa05145d04ae53c81a0aa557c464a85`
+Canonical-SHA256: `884910a1b7a6bd33f6753d1eeac927658870afc500f0250fa64235e2d98a6def`
 Depends on: None; binding operator decision and Phase A inventory.
 Scope: Decision, identity, direction and managed lifecycle.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
@@ -27,11 +27,11 @@ The direction is reached across 0.7 and 0.8 and must hold before 1.0. The first 
 
 ## 2. Contract implied by the decision
 
-A driver is a registered protocol owner: native transport integration, endpoint/session lifecycle, qualification/profile selection, framing/decoding/FSMs, evidence acquisition, chosen projections and contributed surfaces. Libraries remain in their native repositories; moving gateway bindings into a driver does not copy transport or registry implementations into the kernel. Proposed, pending O8: initially use compiled, typed packages in the gateway repository; separate driver repositories or dynamic loading require a later explicit decision. A directory move alone does not establish ownership.
+A driver is a registered protocol owner: native transport integration, endpoint/session lifecycle, qualification/profile selection, framing/decoding/FSMs, evidence acquisition, chosen projections and contributed surfaces. Libraries remain in their native repositories; moving gateway bindings into a driver does not copy transport or registry implementations into the kernel. Pending O8: compiled typed gateway packages by default; descriptor v1 belongs to the gateway contract, hook schemas to DM-HOOKS. Splits/dynamic loading need a later decision. A directory move alone does not establish ownership.
 
 Northbound means native server/emulator behavior toward an external protocol peer; southbound means acquisition/native operations toward a device. `both` declares supported roles, not permission to forward traffic or assurance that every example is implemented. HTTP/MCP/GraphQL, HA and Matter consumer feeds are separate output bindings. Direction is explicit per registered instance, constrained by its native descriptor and qualified configuration.
 
-Proposed registration descriptor, finalized in DM-G5, carries stable DriverID, direction, enabled/configured disposition, NativeContractRef/version, factory/lifecycle adapter, owned source set, and versioned optional contribution hooks. Multiple instances use distinct DriverIDs. Registration validates ownership/collisions and freezes descriptors without endpoint I/O. SourceID, asset/binding IDs, source epoch, driver generation, transport generation, desired revision, catalog revision and operation/publication sequences remain distinct. Unknown IDs and unavailable hooks fail explicitly; no placeholder accepts a control it cannot execute.
+DM-DOC publishes proposed descriptor v1 before DM-G5 implements it. Amendments use doc-gate companions (docs merge first or together). Fields: stable DriverID, direction, enabled/configured disposition, NativeContractRef/version, factory/lifecycle adapter, owned source set, and versioned optional contribution hooks. Instance DriverIDs are distinct. Registration validates ownership/collisions and freezes descriptors without endpoint I/O. SourceID, asset/binding IDs, source epoch, driver generation, transport generation, desired revision, catalog revision and operation/publication sequences remain distinct. Unknown IDs/unavailable hooks fail explicitly; controls require executable handlers.
 
 G4 is the semantic publication seam; G5 supplies registration and managed lifecycle over the existing DriverManager. Desired intent is durable; observed readiness/admission is current evidence. List/get are cache-only. Start/stop/restart validate trusted authority, deadline, principal-scoped idempotency key and optimistic revision, then atomically persist a receipt before native work. Replay returns that receipt before comparing a newer revision; NO_OP does not reset backoff, repair a generation or increment desired revision. One native retry/drain owner remains per runtime.
 
