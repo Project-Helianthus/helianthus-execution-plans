@@ -1,6 +1,6 @@
 # Extension and kernel boundary
 
-Canonical-SHA256: `9005ab0cbcc166c60c997d787f744db55b0424a69cd12680a012a21e55e34bce`
+Canonical-SHA256: `6ab51b73652cbcd4413b4dfeb4c6afe802e95bb4ba19e3a44b42e43fd7f0cac3`
 Depends on: [10-decision-and-registration.md](./10-decision-and-registration.md).
 Scope: Contribution hooks and retained kernel responsibilities.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
