@@ -1,6 +1,6 @@
 # Decision and registration
 
-Canonical-SHA256: `7d3a421d6a83aefcaa4dffec19b9b719cade6ed2d25702947d676f15b185e4d3`
+Canonical-SHA256: `d7f28882f3b117c568b95c25fbf5a5d44638f465e90d67a1a700c7788b380730`
 Depends on: None; binding operator decision and Phase A inventory.
 Scope: Decision, identity, direction and managed lifecycle.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
