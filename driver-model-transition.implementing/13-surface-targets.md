@@ -1,6 +1,6 @@
 # Surface targets
 
-Canonical-SHA256: `884910a1b7a6bd33f6753d1eeac927658870afc500f0250fa64235e2d98a6def`
+Canonical-SHA256: `b96eea3f98652018dce35d67f0eba633fc7cd04e8da1218564ec483ce16c78a5`
 Depends on: [12-family-targets.md](./12-family-targets.md).
 Scope: MCP, GraphQL, Portal, setup, metrics, state and consumers.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.

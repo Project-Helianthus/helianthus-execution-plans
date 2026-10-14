@@ -1,6 +1,6 @@
 # Release phases
 
-Canonical-SHA256: `884910a1b7a6bd33f6753d1eeac927658870afc500f0250fa64235e2d98a6def`
+Canonical-SHA256: `b96eea3f98652018dce35d67f0eba633fc7cd04e8da1218564ec483ce16c78a5`
 Depends on: [13-surface-targets.md](./13-surface-targets.md).
 Scope: 0.7 seams and ordered 0.8 moves.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
@@ -12,7 +12,7 @@ Coverage: Canonical section 4; 90 and 91 maps.
 ### 0.7 — seams, not full family extraction
 
 1. Retain G4/#1024 semantic hub behavior and characterization-first discipline. Hub then three kernel owners; inventory is unmerged G4 PR #1028 head. Require merged #1024; no live CI claim. Reconcile exact merged contract and its deviations before G5.
-2. Reframe G5 as **Register typed protocol drivers and manage durable lifecycle; first driver ebus.primary** (Cx 9; ordered PR split in O7). G5 descriptor fixtures validate v1 and northbound/southbound/both, without hooks. Production controls initially manage only eBUS. Preserve G5 S1–S6 acceptance, D1–D6 decisions, shell-first startup, lifecycle-only bridge and recovery boundaries; do not expand it into family extraction, thermal cutover or full public lifecycle API.
+2. G5 drivers/durable ebus.primary lifecycle (Cx 9 either way): PR 0a restoration bridge always (Cx 5); PR 0b A2 succession only for O2 new epoch (Cx 5; public docs before/with it); PR 1 goldens/registration/store/service/eBUS/replay/restoration test (Cx 8); PR 2 kernel boundary/tools (Cx 4). O7/90. Keep v1/direction fixtures without hooks, eBUS-only controls, S1–S6/D1–D6, shell-first lifecycle-only recovery; no family extraction, thermal cutover or full public lifecycle API.
 3. Keep four separately scoped managed-runtime adapters: SunSpec TCP, Growatt RTU, eeBUS, Tesla (G5 follow-ups, Cx 7 each). These transfer start/close ownership to the registration service, not whole protocol implementations. A retained-only Tesla adapter reports its actual resource; it does not invent a live writer. No managed placeholder accepts nonfunctional controls.
 4. G6 generic registry becomes **driver composition**: needs G5; named M items gate compositions, native providers/qualification stay in drivers. Compose only profiles admitted by M/C evidence; represent blocked families truthfully. G7 CAN and G7b Tesla outcome producer retain their prerequisites; publication/native operations are not granted by registration.
 5. DM-RAW/#1021 follows DM-G5 and satisfied R-G2C. eBUS owns raw identity/promotion/traffic/specimen stores and provenance via contributed read views. G2’s site smoke is a dispatch-time overlap constraint on the same raw 07 04 identification evidence, not a prerequisite. No bytes move to SemReg or a universal raw schema; wider eBUS extraction waits for 0.8.
