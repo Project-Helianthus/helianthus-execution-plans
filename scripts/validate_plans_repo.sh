@@ -59,4 +59,7 @@ python3 "$PLAN/validate_plan.py" "$PLAN"
 PLAN="$ROOT/software-declarative-08.locked"
 python3 "$PLAN/validate_plan.py" "$PLAN"
 
+PLAN="$ROOT/driver-model-transition.implementing"
+python3 "$PLAN/validate_plan.py" "$PLAN"
+
 python3 -m unittest discover -s "$ROOT/tests" -p "test*.py"

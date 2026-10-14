@@ -1,0 +1,30 @@
+# Northbound and amendments
+
+Canonical-SHA256: `ca9edfc928fe862162c6d349c4f226580aa05145d04ae53c81a0aa557c464a85`
+Depends on: [14-release-phases.md](./14-release-phases.md).
+Scope: Northbound options, pre-1.0 completion and INT-06/07 amendments.
+Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
+Falsifiability gate: Compare pre-move characterization, ownership, parity and applicable transport evidence; unmet decisions stop the affected node.
+Coverage: Canonical sections 4–5; DM-NB, DM-COMPLETE.
+
+### Northbound decision point in 0.8
+
+**Framework only versus framework plus one virtual Modbus smart-meter case.** Recommend the latter, conditional on an admitted emulator profile/map and specified source/freshness policy. A real peer-facing read-only server tests timing, encoding, lifecycle and source-loss behavior that fixtures of a generic registry cannot. Choose TCP first, no writes or control translation, one explicitly qualified dialect/model; do not assume SunSpec meter decoding defines an encoder/map.
+
+Planning cost: framework Cx 7 (one gateway issue, typed binding/selection/lifecycle hooks and two fake output drivers). Concrete case adds three serial cross-repository issues: docs-modbus profile/source-loss contract Cx 4, Modbus transport read-only TCP server/lifecycle Cx 7, modbusreg encoder/profile Cx 6, followed by gateway binding/E2E Cx 6 and add-on setup Cx 3. Approximately five additional PRs plus actual peer qualification, not a calendar estimate. Framework-only costs one framework PR plus docs and proves architecture offline, but leaves native server integration risk open. Neither option promises EV station, Gree battery, Pylontech translation or JKBMS aggregation. Optional concrete nodes are excluded from release dependencies until operator selection; if evidence is absent, stop those nodes and choose framework-only explicitly.
+
+### Before 1.0 — complete ownership, with hardware exception
+
+All four family moves, all contributed surfaces, no mandatory eBUS startup and no protocol-specific kernel policy must be complete and verified before 1.0. DM-COMPLETE audits inventory ownership, no-eBUS operation, integrated parity, upgrade/rollback and exact-BOM evidence. Direction `both` remains conditional per instance on qualified native support; framework-only does not imply emulator delivery.
+
+eBUS northbound is **outside the 1.0 scope unless the real Raspberry Pi UART eBUS hardware/backend exists and is qualified**. Ownership completion and southbound compatibility do not depend on that hardware. Inventory section 5 records: no native serial open (`GW gateway.go:390`, `cmd/gateway/gateway_cli.go:42`); no hardware symbol timestamps/baud proof (`ebusgo transport/baud_observability.go:15`); 15 ms CRC→host ACK-write is BENCH-REPLACE and excludes wire latency (`protocol/responder/timing_harness.go:12,37`); TCP_NODELAY's ~40 ms mitigation is not Wi-Fi qualification (`transport/enh_transport.go:256`); bounded/no-late-response contract is documentation, not measurement (`docs-ebus architecture/local-target-emulation-timing-contract.md:30,62`). UART requires an eBUS electrical frontend, endpoint/responder implementation and actual wire timing/topology/close tests. Modbus RS-485 serial does not satisfy this gate. No hardware was measured here.
+
+## 5. Proposed package amendments and Board disposition
+
+INT-06 replacement text: “Provide protocol-neutral driver registration with explicit northbound/southbound/both roles and versioned optional contribution hooks. Compose G4 semantic publication with G5 durable desired/observed lifecycle over the current manager. First registered production driver is ebus.primary; separately adapt each existing sidecar. Native retry/FSM/qualification/evidence remain driver-owned; shell/health survive stopped or failed drivers. Prove collision rejection, isolation, fence/recovery and extension without protocol branches. Registration does not qualify a profile or complete family extraction.” Retain typed controls/revisions/idempotency and all original acceptance; full consumer projections remain INT-08/10/15.
+
+INT-07 replacement text: “Compose admitted native providers through registered driver instances, replacing central product switching. Each named family has an integrated path or a Board-recorded evidence-blocked disposition. Provider qualification/FSM/decoding/evidence and chosen semantic projections remain driver-owned. CAN acquisition, Tesla producer and each vendor provider retain native prerequisites. Registry/composition closure is not proof of family extraction; full ownership moves complete in 0.8 before 1.0.”
+
+Board decision needed: accept this release split and reconcile both existing guides, INT-06/07 epic closure language and lane G5/G6 text. INT-04 design/INT-05 catalog epic closure remains retained. Item prerequisites: DM-DOC and DM-G5 require merged G4/#1024, not INT-04/INT-05/STD-01; DM-G6 registry needs G5, with named M items on each composition. STD-01 remains a human checkpoint for frozen eeBUS mappings, not G5/G6 dispatch. This is the explicit proposed item-order reconciliation under O1, not an epic waiver. Keep INT-07 full native prerequisites and downstream release chain; distinguish item prerequisites from epic closure. Amend G5 epoch/recovery/bridge contract only after the decisions in section 7. This directory proposes the amendment; it does not edit the existing guides or issue bodies.
+
+G6 amendments to the retained lane: DM-COMP-FRONIUS adds R-FRONIUS revision/pin reconciliation and DM-MANAGED-PV lifecycle integration. The existing qualified card in [inventory](./reference-inventory.md) section 1 (`modbusreg sunspec_fronius_qualification_card.go:21`) suffices in scope; changed scope/revision needs new evidence. DM-COMP-TESLA adds DM-MANAGED-TESLA to M3. Other M inputs remain per composition, not on the registry slice. G7 is re-estimated from combined lane Cx 7 to seam Cx 7 + composition Cx 7; review/integrate separately.
