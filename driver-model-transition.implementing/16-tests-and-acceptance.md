@@ -1,6 +1,6 @@
 # Tests and acceptance
 
-Canonical-SHA256: `b41d25a1fb88f6c6bb3062b4fd4b5bcc1201abdf4a24999ac54cb9b76d157298`
+Canonical-SHA256: `7d3a421d6a83aefcaa4dffec19b9b719cade6ed2d25702947d676f15b185e4d3`
 Depends on: [15-northbound-and-amendments.md](./15-northbound-and-amendments.md).
 Scope: Characterization, parity, transport, lifecycle and rollback proof.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.

@@ -1,6 +1,6 @@
 # Planned issue map
 
-Canonical-SHA256: `b41d25a1fb88f6c6bb3062b4fd4b5bcc1201abdf4a24999ac54cb9b76d157298`
+Canonical-SHA256: `7d3a421d6a83aefcaa4dffec19b9b719cade6ed2d25702947d676f15b185e4d3`
 
 One row per planned owning-repository issue, with a separate PR review and integration boundary. All unnumbered DM IDs are local outline IDs, not filed issues. Existing #126 and #1021 are references only; G4 is an external prerequisite. Opposite-camp review applies per issue: a Codex author receives fresh independent exact-HEAD Claude review, and a Claude author receives fresh independent exact-HEAD Codex review. Authorship does not alternate. Assign authors by complexity and budget pacing; heavy items go to whichever camp is under pace at dispatch time. Except for this Codex-authored DM-PLAN, author camp is decided at dispatch and the reviewer must be in the opposite camp; record actual assignments in the owning issue before work. These are planning assignments, not evidence of execution. No sub-agents or reviews were commissioned in this revision task.
 
