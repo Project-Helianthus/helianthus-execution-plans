@@ -1,6 +1,6 @@
 # Retained acceptance and contract references
 
-Canonical-SHA256: `d7f28882f3b117c568b95c25fbf5a5d44638f465e90d67a1a700c7788b380730`
+Canonical-SHA256: `9cea0312de2ea7431af6828705f6736ad483f17371f71081a15950ef55b35c76`
 
 Retained IDs/versions are traceability, not contract implementation or PASS claims. Exact pins are supplied snapshot evidence and must be reconciled in the code repository. This guide defines no release/admission manifest or attestation.
 

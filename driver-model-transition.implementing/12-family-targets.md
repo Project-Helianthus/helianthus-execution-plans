@@ -1,6 +1,6 @@
 # Family targets
 
-Canonical-SHA256: `d7f28882f3b117c568b95c25fbf5a5d44638f465e90d67a1a700c7788b380730`
+Canonical-SHA256: `9cea0312de2ea7431af6828705f6736ad483f17371f71081a15950ef55b35c76`
 Depends on: [11-extension-and-kernel-boundary.md](./11-extension-and-kernel-boundary.md).
 Scope: Four native family destinations and evidence limits.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
