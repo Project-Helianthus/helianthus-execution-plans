@@ -1,6 +1,6 @@
 # Release phases
 
-Canonical-SHA256: `9cea0312de2ea7431af6828705f6736ad483f17371f71081a15950ef55b35c76`
+Canonical-SHA256: `d0a36bfd392bb82100b40cd6741e6d5116ba708096c5ecae442b41d092d8f997`
 Depends on: [13-surface-targets.md](./13-surface-targets.md).
 Scope: 0.7 seams and ordered 0.8 moves.
 Idempotence contract: Re-reading creates no work; fixtures preserve outputs; lifecycle retries reuse receipts and exact uncertain bytes.
