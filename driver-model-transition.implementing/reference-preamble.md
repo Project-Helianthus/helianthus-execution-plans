@@ -1,6 +1,6 @@
 # Driver-model transition — Phase B, issue #126
 
-Planning revision 8, 2026-10-14. Source discussion: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/126.
+Planning revision 9, 2026-10-14. Source discussion: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/126.
 State label `implementing` follows the existing G4/0.7 workstream and directory format; this new guide is unaccepted planning, not implementation or a resume.
 
 Inputs: [binding decision](./reference-decision.md), [Phase A inventory](./reference-inventory.md) (231 static evidence rows, including 12 baseline rows and 13 census rows), [organization Project #2](https://github.com/orgs/Project-Helianthus/projects/2), [0.7 guide](https://github.com/Project-Helianthus/helianthus-execution-plans/tree/main/software-stabilization-07.implementing), [gateway #1024](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/1024) and [execution-plans #126](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/126). Supplied snapshots are evidence layers, not current remote state; public links are stable references, not queried here. Load-bearing lane scope/order is restated in sections 4–5 and 7. File:line citations come from the supplied inventory/issue evidence. The decision is reproduced verbatim. Issue and milestone detail is in [90](./90-issue-map.md) and [91](./91-milestone-map.md); retained versions in [92](./92-retained-acceptance.md). Reusable contracts and implementation proof remain in owning repositories.
