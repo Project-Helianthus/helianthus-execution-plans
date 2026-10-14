@@ -44,4 +44,4 @@ Hard-stop text mirrored from plan.yaml (structural agreement only):
 | eBUS northbound excluded from 1.0 unless real Pi UART hardware/backend and wire timing are qualified |
 | Fresh exact-HEAD NO_BLOCKING_FINDINGS and applicable code-repository checks before merge |
 | Exact final BOM Daybreak and physical acceptance are not replaced by fixtures or plan validation |
-| If O6 selects the SemReg snapshot-restore alternative, a DAG amendment adding the external SemReg snapshot-restore prerequisite (semreg repository) to DM-G5 precedes any G5 dispatch; until then DM-G5 is not dispatch-ready under the alternative. |
+| If O6 selects the SemReg snapshot-restore alternative, a DAG amendment adding the external SemReg snapshot-restore prerequisite (semreg repository) to DM-G5 and setting DM-G5 complexity to 8 in plan.yaml and the issue map precedes any G5 dispatch; until then DM-G5 is not dispatch-ready under the alternative. |
