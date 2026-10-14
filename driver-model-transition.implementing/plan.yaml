@@ -1,0 +1,858 @@
+schema_version: 1
+slug: driver-model-transition
+title: Driver-model transition — Phase B
+state: implementing
+source_discussion: https://github.com/Project-Helianthus/helianthus-execution-plans/issues/126
+target_repos:
+- helianthus-execution-plans
+- helianthus-ebusgateway
+- helianthus-gateway
+- helianthus-docs-ebus
+- helianthus-docs-modbus
+- helianthus-docs-canbus
+- helianthus-docs-eebus
+- helianthus-docs-semantic
+- helianthus-modbus
+- helianthus-modbusreg
+- helianthus-canbus
+- helianthus-canbusreg
+- helianthus-eebusreg
+- helianthus-ebusgo
+- helianthus-ebusreg
+- helianthus-semreg
+- helianthus-ha-addon
+- helianthus-ha-integration
+knowledge_repo: helianthus-docs-ebus
+canonical_file: 00-canonical.md
+split_index: 01-index.md
+started_on: '2026-10-14'
+current_milestone: PHASE-B
+process_model:
+  authority: guidance_only
+  post_merge_effects: none
+chunks:
+- 10-decision-and-registration.md
+- 11-extension-and-kernel-boundary.md
+- 12-family-targets.md
+- 13-surface-targets.md
+- 14-release-phases.md
+- 15-northbound-and-amendments.md
+- 16-tests-and-acceptance.md
+- 17-operator-decisions.md
+external_prerequisites:
+  R-G2C:
+    release: '0.7'
+    repo: helianthus-ebusgateway
+    description: 'Satisfied: LEGACY-IDENTITY G2c gateway PR #1018 merged 2026-10-14, gateway main 2097c311; supplied review facts'
+  R-G4:
+    release: '0.7'
+    repo: helianthus-ebusgateway
+    description: 'Merged G4 #1024 / PR #1028 baseline and deviations; no INT-04/INT-05/STD-01 closure prerequisite'
+  R-INT21:
+    release: '0.7'
+    repo: helianthus-gateway
+    description: Accepted 0.7 exact-BOM release, INT-21
+  R-M1:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: OutBack selector NO_GO reconciliation; admission evidence still required
+  R-M3:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: Tesla read lifecycle, after M2 and T2a
+  R-M4:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: Tesla typed operation executor, after M3/T1/T2b
+  R-M5A:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: Admissible SmartLogger provider
+  R-M5B-EMMA:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: EMMA provider only after its evidence gate changes
+  R-M5B-SDONGLE:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: S-Dongle provider only after its evidence gate changes
+  R-M5B-GROWATT-II:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: M5b Growatt Protocol II production provider only after M7 and its evidence gate changes
+    depends_on:
+    - R-M7
+  R-M5B-OUTBACK:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: OutBack provider only if selector/evidence admits one
+  R-M6B:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: SUN2000/LUNA2000 provider after M6 profiles
+  R-M7:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: Growatt Protocol II profile after X1 second-site evidence
+  R-FRONIUS:
+    release: '0.7'
+    repo: helianthus-modbusreg
+    description: 'Existing qualified card: reference-inventory.md:49, modbusreg sunspec_fronius_qualification_card.go:21; reconcile exact native revision and gateway pin, not new qualification by default'
+  R-C2:
+    release: '0.7'
+    repo: helianthus-canbusreg
+    description: Growatt V1.04 provider/Gree candidate after C1 disposition
+  R-T2B:
+    release: '0.7'
+    repo: helianthus-modbus
+    description: Private-function state-changing lifecycle after T1/T2a
+  R-NATIVE:
+    release: '0.7'
+    repo: helianthus-execution-plans
+    description: INT-07 full NATIVE-01..07 prerequisites and per-family Board dispositions retained
+  R-G8:
+    release: '0.7'
+    repo: helianthus-ebusgateway
+    description: Accepted eBUS thermal cutover and naming/consumer integration
+  R-G9:
+    release: '0.7'
+    repo: helianthus-ebusgateway
+    description: eeBUS inbound/output mapping disposition and participation contract; freezes need STD-01
+  R-G13G14:
+    release: '0.7'
+    repo: helianthus-ebusgateway
+    description: Portal contribution/config/listener contracts incl. native P1/Matter predecessors
+  R-HARDWARE:
+    release: pre-1.0
+    repo: helianthus-gateway
+    description: Exact final BOM Daybreak and required physical qualification; no plan waiver
+contracts:
+- id: runtime-driver-provider-contract
+  version: v1
+  owner: helianthus-ebusgateway
+  disposition: Proposed implementation contract; retain G4 deviations; O2/O6 amendment pending
+- id: semreg-publication
+  version: v1
+  owner: helianthus-semreg
+  disposition: Canonical meaning stays SemReg; per-asset cursor and fence semantics retained
+- id: portal-contribution
+  version: v1
+  owner: helianthus-ebusgateway
+  disposition: Generation/revision-fenced detached contributions; no claims replace native authority
+- id: participation-contract
+  version: v1
+  owner: helianthus-eebusreg
+  disposition: Configured/applied provenance/loss; concrete wiring not claimed
+- id: LEGACY-PERSIST
+  version: retained-0.7
+  owner: helianthus-ebusgateway
+  disposition: Atomic state/GUID/migration; physical rows retained
+- id: LEGACY-IDENTITY
+  version: retained-0.7
+  owner: helianthus-ebusgateway
+  disposition: 'Keep #23 disposition and P/N acceptance; cache never live authority'
+- id: LEGACY-MUX
+  version: retained-0.7
+  owner: helianthus-ebusgateway
+  disposition: 'Keep #30 unqualified-mode disposition and transport/physical evidence'
+milestones:
+- id: PHASE-B
+  release: planning
+  depends_on: []
+  outcome: Uncommitted guide, local checks and explicit pending Board choices
+- id: DM-07
+  release: '0.7'
+  depends_on:
+  - PHASE-B
+  outcome: 'Registration/lifecycle and provider composition seams; #1021 evidence owner; existing 0.7 integration/release
+    chain retained'
+- id: DM-08-HOOKS
+  release: '0.8'
+  depends_on:
+  - DM-07
+  outcome: After external R-INT21, complete contribution hooks and fixtures
+- id: DM-08-FAMILIES
+  release: '0.8'
+  depends_on:
+  - DM-08-HOOKS
+  outcome: CAN then Modbus then eeBUS then eBUS; packaging/consumer parity
+- id: DM-08-NORTHBOUND
+  release: '0.8'
+  depends_on:
+  - DM-08-HOOKS
+  - DM-08-FAMILIES
+  outcome: Framework mandatory; five virtual meter nodes conditional on O10
+- id: DM-PRE1
+  release: pre-1.0
+  depends_on:
+  - DM-08-FAMILIES
+  - DM-08-NORTHBOUND
+  outcome: Complete ownership and exact-BOM evidence; eBUS northbound excluded unless O12 hardware qualification
+    succeeds
+issues:
+- id: DM-PLAN
+  repo: helianthus-execution-plans
+  title: Phase B driver-model guide and Board package/release split
+  depends_on: []
+  complexity: 4
+  author_camp: Codex
+  reviewer_camp: Claude
+  release: planning
+  milestone: PHASE-B
+  decisions:
+  - O1
+  optional: false
+  existing_issue: 126
+- id: DM-DOC
+  repo: helianthus-docs-ebus
+  title: Publish amended registration/lifecycle and contribution contract
+  depends_on:
+  - DM-PLAN
+  - R-G4
+  complexity: 5
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions:
+  - O2
+  - O3
+  - O4
+  - O5
+  - O6
+  - O7
+  - O8
+  optional: false
+  existing_issue: null
+- id: DM-G5
+  repo: helianthus-ebusgateway
+  title: G5 register typed drivers and manage durable ebus.primary lifecycle
+  depends_on:
+  - DM-DOC
+  - R-G4
+  complexity: 9
+  ordered_pr_split: 'PR 0 only if O2 chooses a new epoch per restart, Cx 5; PR 1 characterization + registration + store + service + eBUS reconciliation, Cx 8; PR 2 kernel boundary + tools, Cx 4'
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions:
+  - O2
+  - O3
+  - O4
+  - O5
+  - O6
+  - O7
+  - O8
+  optional: false
+  existing_issue: null
+- id: DM-MANAGED-PV
+  repo: helianthus-ebusgateway
+  title: 'G5 managed-runtime adapter: SunSpec TCP'
+  depends_on:
+  - DM-G5
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-MANAGED-GROWATT
+  repo: helianthus-ebusgateway
+  title: 'G5 managed-runtime adapter: Growatt RTU'
+  depends_on:
+  - DM-G5
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-MANAGED-EEBUS
+  repo: helianthus-ebusgateway
+  title: 'G5 managed-runtime adapter: eeBUS'
+  depends_on:
+  - DM-G5
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-MANAGED-TESLA
+  repo: helianthus-ebusgateway
+  title: 'G5 managed-runtime adapter: Tesla retained owner'
+  depends_on:
+  - DM-G5
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-G6
+  repo: helianthus-ebusgateway
+  title: G6 replace central provider switch with registered driver composition
+  depends_on:
+  - DM-G5
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-G7-SEAM
+  repo: helianthus-ebusgateway
+  title: G7 CAN acquisition seam; independently reviewed and integrated PR
+  depends_on:
+  - DM-G5
+  - R-C2
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-G7
+  repo: helianthus-ebusgateway
+  title: G7 Growatt BMS CAN and Gree raw/candidate composition; separate reviewed PR after seam integration
+  depends_on:
+  - DM-G7-SEAM
+  - R-C2
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-G7B
+  repo: helianthus-ebusgateway
+  title: G7b completed Tesla outcomes into retained owner; no public/downward API
+  depends_on:
+  - DM-G5
+  - R-T2B
+  - R-M4
+  complexity: 8
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-RAW
+  repo: helianthus-ebusgateway
+  title: Own raw eBUS evidence family under ebus.primary with contributed views
+  depends_on:
+  - DM-G5
+  - R-G2C
+  complexity: 5
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: 1021
+- id: DM-COMP-SMARTLOGGER
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible SmartLogger provider
+  depends_on:
+  - DM-G6
+  - R-M5A
+  complexity: 5
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-FRONIUS
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible Fronius status provider
+  depends_on:
+  - DM-G6
+  - R-FRONIUS
+  - DM-MANAGED-PV
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-TESLA
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible Tesla read-only provider
+  depends_on:
+  - DM-G6
+  - R-M3
+  - DM-MANAGED-TESLA
+  complexity: 6
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-SUN2000
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible SUN2000/LUNA2000 provider
+  depends_on:
+  - DM-G6
+  - R-M6B
+  complexity: 5
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-EMMA
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible EMMA provider
+  depends_on:
+  - DM-G6
+  - R-M5B-EMMA
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-SDONGLE
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible S-Dongle provider
+  depends_on:
+  - DM-G6
+  - R-M5B-SDONGLE
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-GROWATT-II
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible Growatt Protocol II provider
+  depends_on:
+  - DM-G6
+  - R-M5B-GROWATT-II
+  complexity: 5
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-OUTBACK
+  repo: helianthus-ebusgateway
+  title: G6 compose admissible OutBack provider
+  depends_on:
+  - DM-G6
+  - R-M1
+  - R-M5B-OUTBACK
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMP-BLOCKED
+  repo: helianthus-ebusgateway
+  title: G6 candidate/evidence-blocked dispositions for legacy Tesla, Growatt V1.05 and withheld profiles
+  depends_on:
+  - DM-G6
+  - R-NATIVE
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.7'
+  milestone: DM-07
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-HOOKS
+  repo: helianthus-gateway
+  title: Complete typed contribution hooks and direction fixtures without eBUS host dependency
+  depends_on:
+  - R-INT21
+  - DM-G6
+  - DM-RAW
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-HOOKS
+  decisions:
+  - O1
+  - O8
+  optional: false
+  existing_issue: null
+- id: DM-CAN-BASE
+  repo: helianthus-canbus
+  title: Reconcile CAN transport/runtime ownership and qualification boundary
+  depends_on:
+  - DM-HOOKS
+  - R-C2
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions:
+  - O9
+  optional: false
+  existing_issue: null
+- id: DM-DOC-CAN
+  repo: helianthus-docs-canbus
+  title: Publish CAN driver ownership/setup/surface migration contract
+  depends_on:
+  - DM-CAN-BASE
+  complexity: 3
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-CAN
+  repo: helianthus-gateway
+  title: Extract CAN driver composition, DTO and contributed surfaces
+  depends_on:
+  - DM-DOC-CAN
+  - DM-G7
+  complexity: 5
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-DOC-MODBUS
+  repo: helianthus-docs-modbus
+  title: Publish MODBUS driver ownership/setup/surface migration contract
+  depends_on:
+  - DM-CAN
+  complexity: 3
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-MODBUS-RUNTIME
+  repo: helianthus-gateway
+  title: Extract Modbus driver construction/acquisition and publication owners
+  depends_on:
+  - DM-DOC-MODBUS
+  - DM-MANAGED-PV
+  - DM-MANAGED-GROWATT
+  - DM-MANAGED-TESLA
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-MODBUS-SURFACES
+  repo: helianthus-gateway
+  title: Move Modbus MCP/GraphQL/Portal/setup/state/metrics and legacy minters
+  depends_on:
+  - DM-MODBUS-RUNTIME
+  complexity: 6
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-DOC-EEBUS
+  repo: helianthus-docs-eebus
+  title: Publish EEBUS driver ownership/setup/surface migration contract
+  depends_on:
+  - DM-MODBUS-SURFACES
+  complexity: 3
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-NB
+  repo: helianthus-gateway
+  title: Add native northbound binding framework with two fixture outputs
+  depends_on:
+  - DM-HOOKS
+  - DM-MODBUS-SURFACES
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-NORTHBOUND
+  decisions:
+  - O10
+  optional: false
+  existing_issue: null
+- id: DM-EEBUS-RUNTIME
+  repo: helianthus-gateway
+  title: Extract eeBUS runtime/trust/admin/raw evidence ownership
+  depends_on:
+  - DM-DOC-EEBUS
+  - DM-MANAGED-EEBUS
+  - R-G9
+  complexity: 8
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-METER-DOC
+  repo: helianthus-docs-modbus
+  title: Admit exact virtual meter dialect/map/source-loss contract
+  depends_on:
+  - DM-NB
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-NORTHBOUND
+  decisions:
+  - O10
+  optional: true
+  existing_issue: null
+- id: DM-EEBUS-SURFACES
+  repo: helianthus-gateway
+  title: Move eeBUS overlays/participation and contributed surfaces
+  depends_on:
+  - DM-EEBUS-RUNTIME
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-METER-SERVER
+  repo: helianthus-modbus
+  title: Implement bounded read-only TCP server and native lifecycle
+  depends_on:
+  - DM-METER-DOC
+  complexity: 7
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-NORTHBOUND
+  decisions:
+  - O10
+  optional: true
+  existing_issue: null
+- id: DM-DOC-EBUS
+  repo: helianthus-docs-ebus
+  title: Publish EBUS driver ownership/setup/surface migration contract
+  depends_on:
+  - DM-EEBUS-SURFACES
+  complexity: 3
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-METER-ENCODER
+  repo: helianthus-modbusreg
+  title: Implement exact qualified virtual meter profile/encoder
+  depends_on:
+  - DM-METER-DOC
+  - DM-METER-SERVER
+  complexity: 6
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-NORTHBOUND
+  decisions:
+  - O10
+  optional: true
+  existing_issue: null
+- id: DM-EBUS-TRANSPORT
+  repo: helianthus-gateway
+  title: Extract eBUS transport/admission/mux/evidence boundary
+  depends_on:
+  - DM-DOC-EBUS
+  - DM-RAW
+  complexity: 8
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-METER-BINDING
+  repo: helianthus-gateway
+  title: Compose virtual meter source/loss binding and peer E2E
+  depends_on:
+  - DM-METER-ENCODER
+  - DM-METER-SERVER
+  complexity: 6
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-NORTHBOUND
+  decisions:
+  - O10
+  optional: true
+  existing_issue: null
+- id: DM-EBUS-SEMANTICS
+  repo: helianthus-gateway
+  title: Extract eBUS polling/qualification/B503/cache/state and chosen projections
+  depends_on:
+  - DM-EBUS-TRANSPORT
+  - R-G8
+  complexity: 8
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-METER-ADDON
+  repo: helianthus-ha-addon
+  title: Package explicit virtual-meter server setup
+  depends_on:
+  - DM-METER-BINDING
+  complexity: 3
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-NORTHBOUND
+  decisions:
+  - O10
+  optional: true
+  existing_issue: null
+- id: DM-EBUS-SURFACES
+  repo: helianthus-gateway
+  title: Move eBUS MCP/GraphQL/Explorer/setup/metrics contributions
+  depends_on:
+  - DM-EBUS-SEMANTICS
+  - R-G13G14
+  complexity: 8
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-EBUS-DECOUPLE
+  repo: helianthus-gateway
+  title: Remove mandatory eBUS host construction and verify no-eBUS boot
+  depends_on:
+  - DM-EBUS-SURFACES
+  complexity: 6
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-ADDON
+  repo: helianthus-ha-addon
+  title: Package contributed driver options/devices and upgrade/rollback
+  depends_on:
+  - DM-EBUS-DECOUPLE
+  complexity: 5
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-HA-PARITY
+  repo: helianthus-ha-integration
+  title: Verify public consumer parity and identity/availability after moves
+  depends_on:
+  - DM-EBUS-DECOUPLE
+  complexity: 4
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: '0.8'
+  milestone: DM-08-FAMILIES
+  decisions: []
+  optional: false
+  existing_issue: null
+- id: DM-COMPLETE
+  repo: helianthus-gateway
+  title: Audit complete pre-1.0 protocol ownership/parity and exact-BOM rollback evidence
+  depends_on:
+  - DM-EBUS-DECOUPLE
+  - DM-ADDON
+  - DM-HA-PARITY
+  - DM-NB
+  - R-HARDWARE
+  complexity: 6
+  author_camp: camp decided at dispatch
+  reviewer_camp: opposite author camp
+  release: pre-1.0
+  milestone: DM-PRE1
+  decisions:
+  - O10
+  optional: false
+  existing_issue: null
+ordering:
+- - DM-CAN
+  - DM-MODBUS-RUNTIME
+- - DM-MODBUS-SURFACES
+  - DM-EEBUS-RUNTIME
+- - DM-EEBUS-SURFACES
+  - DM-EBUS-TRANSPORT
+- - DM-EBUS-DECOUPLE
+  - DM-COMPLETE
+hard_stops:
+- O1..O12 remain pending; affected nodes require recorded answers in owning issues
+- No native profile admission from registration, decoder presence or retained DTOs
+- No public shape change without goldens/approved contract and applicable parity
+- Unknown semantic outcome or native close proof withholds replacement/admission
+- R-INT21 acceptance precedes all 0.8 moves
+- eBUS northbound excluded from 1.0 unless real Pi UART hardware/backend and wire timing are qualified
+- Fresh exact-HEAD NO_BLOCKING_FINDINGS and applicable code-repository checks before merge
+- Exact final BOM Daybreak and physical acceptance are not replaced by fixtures or plan validation
