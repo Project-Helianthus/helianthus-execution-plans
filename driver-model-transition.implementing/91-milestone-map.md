@@ -1,6 +1,6 @@
 # Milestone map
 
-Canonical-SHA256: `d0a36bfd392bb82100b40cd6741e6d5116ba708096c5ecae442b41d092d8f997`
+Canonical-SHA256: `cd8ea24bb913e17b0f2b0bc0e7b592383d271a1ee5013d20dbfe1486e0475e25`
 
 Milestones describe intended acceptance; no live readiness/completion state is encoded. Issue dependencies are the finer DAG in plan.yaml and 90. Accepted 0.7/INT-21 is external to this guide, not created by its seam milestone.
 
