@@ -144,6 +144,9 @@ def validate(directory):
     docs["reference-preamble.md"] = preamble
     for filename in ("reference-decision.md", "reference-inventory.md"):
         docs[filename] = (directory / filename).read_text()
+    decision = docs["reference-decision.md"].strip()
+    require(decision and docs["10-decision-and-registration.md"].count(decision) == 1
+            and canonical.count(decision) == 1, "binding decision mirror")
     for filename, text in docs.items():
         for link in re.findall(r"\]\(\./([^)#]+)(?:#[^)]*)?\)", text):
             require("/" not in link and (directory / link).is_file(), f"broken/escaping link: {filename}: {link}")
