@@ -1,6 +1,6 @@
 # Northbound and amendments
 
-Canonical-SHA256: `b96eea3f98652018dce35d67f0eba633fc7cd04e8da1218564ec483ce16c78a5`
+Canonical-SHA256: `9005ab0cbcc166c60c997d787f744db55b0424a69cd12680a012a21e55e34bce`
 Depends on: [14-release-phases.md](./14-release-phases.md).
 Scope: Northbound options, pre-1.0 completion and INT-06/07 amendments.
 Idempotence contract: Re-reading creates no work; fixed fixtures preserve outputs, and lifecycle retries reuse receipts and exact uncertain bytes.
