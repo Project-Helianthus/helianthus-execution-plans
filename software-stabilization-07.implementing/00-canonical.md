@@ -82,7 +82,7 @@ Huawei work in this guide is no longer limited to preserving accepted
 qualification outcomes, to public documentation only, or to fixtures without
 captures from real installations. The outcomes recorded for the SmartLogger, EMMA
 and S-Dongle families, and the no-admissible-profile dispositions for the SUN2000
-and LUNA2000 families, are reopened through the program tickets H01 to H12 in the
+and LUNA2000 families, are reopened through the program tickets H01 to H16 in the
 [issue map](./90-issue-map.md).
 
 - Evidence comes from bounded read-only captures on the operator's sites. Raw
