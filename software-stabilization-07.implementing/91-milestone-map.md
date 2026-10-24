@@ -25,7 +25,7 @@ can proceed in parallel under the owning repository workflow.
 | NATIVE-01 | 0.7 | Project-Helianthus/helianthus-ebusreg | VR940f identity and address grouping regression | None |
 | NATIVE-02 | 0.7 | Project-Helianthus/helianthus-eebus-go | SHIP discovery and pending pairing | None |
 | NATIVE-03 | 0.7 | Project-Helianthus/helianthus-modbusreg | SunSpec/Fronius read-only qualification readiness | None |
-| NATIVE-04 | 0.7 | Project-Helianthus/helianthus-modbusreg | Huawei read-only identity, profiles, providers and qualification outcomes (H01, H03-H06, H15-H16) | H06, H15 |
+| NATIVE-04 | 0.7 | Project-Helianthus/helianthus-modbusreg | Huawei read-only identity, profiles, providers and qualification outcomes (H01, H03-H06, H15-H16) | H06 |
 | NATIVE-05 | 0.7 | Project-Helianthus/helianthus-canbusreg | Gree CAN replay and qualification readiness | None |
 | NATIVE-06 | 0.7 | Project-Helianthus/helianthus-canbusreg | Growatt BMS CAN V1.04 readiness | None |
 | NATIVE-07-GROWATT-II | 0.7 | Project-Helianthus/helianthus-modbusreg | Growatt Protocol II readiness | None |
@@ -42,7 +42,7 @@ can proceed in parallel under the owning repository workflow.
 | INT-04 | 0.7 | Project-Helianthus/helianthus-execution-plans | Versioned 0.7 semantic contract design | INT-00, STD-01 |
 | INT-05 | 0.7 | Project-Helianthus/helianthus-semreg | Existing SemReg contract implementation and capability packs | INT-04 |
 | INT-06 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Generic north/south contract and driver extension hooks | INT-04 |
-| INT-07 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Driver composition without native FSM/decoder ownership | INT-05, INT-06, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, H08 |
+| INT-07 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Driver composition without native FSM/decoder ownership | INT-05, INT-06, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK |
 | INT-08 | 0.7 | Project-Helianthus/helianthus-ebusgateway | North/south MCP and GraphQL projections | INT-05, INT-06, INT-07 |
 | INT-09 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Extensible Portal and driver UI contribution design | INT-04, INT-06 |
 | INT-10 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Portal implementation and extensibility proof | INT-08, INT-09 |
@@ -51,8 +51,8 @@ can proceed in parallel under the owning repository workflow.
 | INT-13 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Matter output binding | INT-08 |
 | INT-14 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Gateway rename | INT-10, INT-11, INT-12, INT-13, INT-15 |
 | INT-15 | 0.7 | Project-Helianthus/helianthus-ha-integration | HA GraphQL consumer contract | INT-03, INT-08 |
-| INT-16 | 0.7 | Project-Helianthus/helianthus-ha-addon | Exact-BOM 0.7 candidate package | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, H09, H11, H12, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
-| INT-17 | 0.7 | Project-Helianthus/helianthus-gateway | Offline acceptance and hardware-test preparation | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09 |
+| INT-16 | 0.7 | Project-Helianthus/helianthus-ha-addon | Exact-BOM 0.7 candidate package | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, H10, H11, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
+| INT-17 | 0.7 | Project-Helianthus/helianthus-gateway | Offline acceptance and hardware-test preparation | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09, H12 |
 | INT-19 | 0.7 | Project-Helianthus/helianthus-gateway | Daybreak Blue review of final candidate | INT-17 |
 | INT-20 | 0.7 | Project-Helianthus/helianthus-gateway | Exhaustive real-hardware validation | INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
 | INT-21 | 0.7 | Project-Helianthus/helianthus-gateway | Publish only the final validated 0.7 BOM | INT-20, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
@@ -85,9 +85,10 @@ package. Each ticket is worked in its owning repository; issue links are in the
 runtime state and authorizes no execution.
 
 NATIVE-04 carries the native-side tickets H01, H03 to H06, H15 and H16, depends on
-H06 (the read-only providers) and H15 (the identity slice) and keeps feeding INT-07
-composition and INT-17 offline acceptance. H08 precedes INT-07 composition; H09, H11 and
-H12 precede the INT-16 candidate package, so INT-17 follows every Huawei ticket. The
+H06 (the read-only providers) and keeps feeding INT-07 composition and INT-17 offline
+acceptance; INT-07 itself is unchanged. H10 and H11 are prerequisites of the INT-16
+candidate package and H12 is a prerequisite of INT-17 hardware-test preparation, which
+makes the Huawei program a 0.7 release gate under the 24 October 2026 decision. The
 [driver-model guide](../driver-model-transition.implementing/00-canonical.md) maps
 Huawei to DM-COMP-SMARTLOGGER, DM-COMP-EMMA, DM-COMP-SDONGLE and DM-COMP-SUN2000;
 the Modbus TCP part of DM-G6 is absorbed by H08, which follows the transport ticket
@@ -104,9 +105,9 @@ H13 and its documentation H14.
 | H07 | Semantic documentation gate for H10 and H11 |
 | H08 | DM-G6 (Modbus TCP part), INT-07 |
 | H09 | INT-16 and INT-17 preparation |
-| H10 | DM-COMP-SMARTLOGGER, DM-COMP-SUN2000 (PV) |
-| H11 | DM-COMP-EMMA, DM-COMP-SDONGLE, DM-COMP-SUN2000 (storage) |
-| H12 | INT-15 slice |
+| H10 | DM-COMP-SMARTLOGGER, DM-COMP-SUN2000 (PV); prerequisite of INT-16 |
+| H11 | DM-COMP-EMMA, DM-COMP-SDONGLE, DM-COMP-SUN2000 (storage); prerequisite of INT-16 |
+| H12 | INT-15 slice; prerequisite of INT-17 |
 | H13 | Transport prerequisite of H08 and H10 |
 | H14 | Documentation companion of H13, before the first gateway consumer H08 |
 | H15 | NATIVE-04, identity slice of R-M5B-SDONGLE |

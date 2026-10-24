@@ -109,9 +109,10 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
             self.assertTrue(set(packages[ticket]["depends_on"]) <= set(huawei), ticket)
             self.assertIn(packages[ticket]["owner"], plan["repositories"], ticket)
         self.assertEqual(["H02", "H13", "H14"], packages["H08"]["depends_on"])
-        self.assertEqual(["H06", "H15"], packages["NATIVE-04"]["depends_on"])
-        self.assertIn("H08", packages["INT-07"]["depends_on"])
-        self.assertTrue({"H09", "H11", "H12"} <= set(packages["INT-16"]["depends_on"]))
+        self.assertEqual(["H06"], packages["NATIVE-04"]["depends_on"])
+        self.assertFalse([node for node in packages["INT-07"]["depends_on"] if node in huawei])
+        self.assertTrue({"H10", "H11"} <= set(packages["INT-16"]["depends_on"]))
+        self.assertIn("H12", packages["INT-17"]["depends_on"])
 
         def ancestors(node: str) -> set[str]:
             seen: set[str] = set()
@@ -123,11 +124,9 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
                     stack.extend(packages[current]["depends_on"])
             return seen
 
-        self.assertEqual(set(huawei), set(huawei) & ancestors("INT-17"))
-        for ticket in ("H02", "H08", "H13", "H14"):
-            self.assertIn(ticket, ancestors("INT-07"), ticket)
-        for ticket in ("H01", "H03", "H04", "H05", "H06", "H15", "H16"):
-            self.assertIn(ticket, ancestors("NATIVE-04"), ticket)
+        gated = {f"H{number:02d}" for number in (*range(1, 9), *range(10, 15))}
+        self.assertTrue(gated <= ancestors("INT-17"))
+        self.assertTrue(gated - {"H12"} <= ancestors("INT-16"))
         self.assertEqual(["H13"], packages["H14"]["depends_on"])
         self.assertEqual(["H03", "H16"], packages["H15"]["depends_on"])
         self.assertEqual([], packages["H16"]["depends_on"])
