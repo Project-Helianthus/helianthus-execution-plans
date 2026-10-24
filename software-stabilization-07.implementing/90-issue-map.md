@@ -43,3 +43,27 @@ This is a dated reconciliation, not current GitHub state. Recheck live issues be
 | [helianthus-ha-integration#104](https://github.com/Project-Helianthus/helianthus-ha-integration/issues/104) | META-15/E3: Canonical physical model naming with partNumber | Reconcile acceptance with current code; implement missing proof/fix in owning repository. |
 | [helianthus-ha-integration#105](https://github.com/Project-Helianthus/helianthus-ha-integration/issues/105) | META-16/F1: Adversarial HA integration runtime matrix | Reconcile acceptance with current code; implement missing proof/fix in owning repository. |
 | [helianthus-tinyebus#25](https://github.com/Project-Helianthus/helianthus-tinyebus/issues/25) | epic: audit remediation — 33 findings (TE1–TE33) | Retired not planned; see cleanup readback. No fixed claim. |
+
+## Huawei 0.7 program tickets
+
+Operator decision of 24 October 2026: all Huawei implementations are Release 0.7;
+the [canonical guide](./00-canonical.md) records it and [the milestone map](./91-milestone-map.md)
+places the tickets on the plan nodes. H00 is the decision record itself
+([helianthus-execution-plans#135](https://github.com/Project-Helianthus/helianthus-execution-plans/issues/135)).
+This is a dated reconciliation of scheduling metadata, not current GitHub state:
+recheck live issues before execution. Titles are copied as filed.
+
+| Repository / issue | Title | Disposition |
+|---|---|---|
+| [helianthus-docs-modbus#241](https://github.com/Project-Helianthus/helianthus-docs-modbus/issues/241) | [0.7] Publish the observed Huawei identity, child-routing and applicability contract | H01. Prerequisites: none. |
+| [helianthus-docs-ebus#746](https://github.com/Project-Helianthus/helianthus-docs-ebus/issues/746) | [0.7] Specify several Modbus TCP endpoints with per-endpoint family and driver instances | H02. Prerequisites: none. |
+| [helianthus-modbusreg#347](https://github.com/Project-Helianthus/helianthus-modbusreg/issues/347) | [0.7] Admit observed Huawei identities with clean-room fixtures and qualification cards | H03. Prerequisites: H01 (helianthus-docs-modbus#241). |
+| [helianthus-docs-modbus#242](https://github.com/Project-Helianthus/helianthus-docs-modbus/issues/242) | [0.7] Publish Huawei read-only monitoring, read-pacing and provider-acquisition contracts | H04. Prerequisites: H01 (helianthus-docs-modbus#241). |
+| [helianthus-modbusreg#348](https://github.com/Project-Helianthus/helianthus-modbusreg/issues/348) | [0.7] Add SUN2000, LUNA2000 and Huawei-gateway meter monitoring profiles with capability detection | H05. Prerequisites: H03 (helianthus-modbusreg#347), H04 (helianthus-docs-modbus#242). |
+| [helianthus-modbusreg#349](https://github.com/Project-Helianthus/helianthus-modbusreg/issues/349) | [0.7] Read-only production providers for SmartLogger, EMMA and S-Dongle installations | H06. Prerequisites: H05 (helianthus-modbusreg#348). |
+| [helianthus-docs-semantic#40](https://github.com/Project-Helianthus/helianthus-docs-semantic/issues/40) | [0.7] Map Huawei SUN2000, LUNA2000 and gateway-meter observations to the PV, Storage and Infrastructure packs | H07. Prerequisites: H04 (helianthus-docs-modbus#242), H05 (helianthus-modbusreg#348). |
+| [helianthus-ebusgateway#1362](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/1362) | [0.7] Compose several Modbus TCP endpoints as independently qualified managed driver instances | H08. Prerequisites: H02 (helianthus-docs-ebus#746). |
+| [helianthus-ha-addon#275](https://github.com/Project-Helianthus/helianthus-ha-addon/issues/275) | [0.7] Accept several Modbus TCP endpoints in add-on options and index the Huawei acceptance rows | H09. Prerequisites: H02 (helianthus-docs-ebus#746), H08 (helianthus-ebusgateway#1362). |
+| [helianthus-ebusgateway#1363](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/1363) | [0.7] Run Huawei installations as managed read-only drivers and publish PV facts | H10. Prerequisites: H06 (helianthus-modbusreg#349), H07 (helianthus-docs-semantic#40), H08 (helianthus-ebusgateway#1362). |
+| [helianthus-ebusgateway#1364](https://github.com/Project-Helianthus/helianthus-ebusgateway/issues/1364) | [0.7] Publish Huawei storage and meter facts, contribute Portal views and prove the composed path offline | H11. Prerequisites: H10 (helianthus-ebusgateway#1363). |
+| [helianthus-ha-integration#405](https://github.com/Project-Helianthus/helianthus-ha-integration/issues/405) | [0.7] Show Huawei PV, storage and meter assets through the shared semantic snapshot | H12. Prerequisites: H07 (helianthus-docs-semantic#40). Live confirmation follows H11 (helianthus-ebusgateway#1364). |

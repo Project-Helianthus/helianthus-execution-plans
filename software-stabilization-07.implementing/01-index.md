@@ -1,7 +1,7 @@
 # Guide index
 
 - [Canonical 0.7 release guide](./00-canonical.md)
-- [Historical issue reconciliation](./90-issue-map.md)
+- [Historical issue reconciliation and Huawei program tickets](./90-issue-map.md)
 - [0.7 work-package and dependency map](./91-milestone-map.md)
 - [Retained 0.7 acceptance](./92-retained-acceptance.md)
 - [Semantic-draft reconciliation](./93-semantic-draft-reconciliation.md)
