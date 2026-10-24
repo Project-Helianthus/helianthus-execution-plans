@@ -108,7 +108,26 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         for ticket in huawei:
             self.assertTrue(set(packages[ticket]["depends_on"]) <= set(huawei), ticket)
             self.assertIn(packages[ticket]["owner"], plan["repositories"], ticket)
-        self.assertIn("H13", packages["H08"]["depends_on"])
+        self.assertEqual(["H02", "H13", "H14"], packages["H08"]["depends_on"])
+        self.assertEqual(["H06", "H15"], packages["NATIVE-04"]["depends_on"])
+        self.assertIn("H08", packages["INT-07"]["depends_on"])
+        self.assertTrue({"H09", "H11", "H12"} <= set(packages["INT-16"]["depends_on"]))
+
+        def ancestors(node: str) -> set[str]:
+            seen: set[str] = set()
+            stack = list(packages[node]["depends_on"])
+            while stack:
+                current = stack.pop()
+                if current not in seen:
+                    seen.add(current)
+                    stack.extend(packages[current]["depends_on"])
+            return seen
+
+        self.assertEqual(set(huawei), set(huawei) & ancestors("INT-17"))
+        for ticket in ("H02", "H08", "H13", "H14"):
+            self.assertIn(ticket, ancestors("INT-07"), ticket)
+        for ticket in ("H01", "H03", "H04", "H05", "H06", "H15", "H16"):
+            self.assertIn(ticket, ancestors("NATIVE-04"), ticket)
         self.assertEqual(["H13"], packages["H14"]["depends_on"])
         self.assertEqual(["H03", "H16"], packages["H15"]["depends_on"])
         self.assertEqual([], packages["H16"]["depends_on"])
@@ -117,8 +136,8 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         plan_dir = self.copy_plan("software-stabilization-07.implementing")
         milestone_map = plan_dir / "91-milestone-map.md"
         text = milestone_map.read_text()
-        self.assertEqual(1, text.count("| H02, H13 |"))
-        milestone_map.write_text(text.replace("| H02, H13 |", "| H02 |"))
+        self.assertEqual(1, text.count("| H02, H13, H14 |"))
+        milestone_map.write_text(text.replace("| H02, H13, H14 |", "| H02, H13 |"))
         validator = load_validator(plan_dir)
         with self.assertRaisesRegex(validator.ValidationError, "does not mirror plan.yaml"):
             validator.validate_plan(plan_dir)

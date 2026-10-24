@@ -25,7 +25,7 @@ can proceed in parallel under the owning repository workflow.
 | NATIVE-01 | 0.7 | Project-Helianthus/helianthus-ebusreg | VR940f identity and address grouping regression | None |
 | NATIVE-02 | 0.7 | Project-Helianthus/helianthus-eebus-go | SHIP discovery and pending pairing | None |
 | NATIVE-03 | 0.7 | Project-Helianthus/helianthus-modbusreg | SunSpec/Fronius read-only qualification readiness | None |
-| NATIVE-04 | 0.7 | Project-Helianthus/helianthus-modbusreg | Huawei read-only identity, profiles, providers and qualification outcomes (H01, H03-H06, H15-H16) | None |
+| NATIVE-04 | 0.7 | Project-Helianthus/helianthus-modbusreg | Huawei read-only identity, profiles, providers and qualification outcomes (H01, H03-H06, H15-H16) | H06, H15 |
 | NATIVE-05 | 0.7 | Project-Helianthus/helianthus-canbusreg | Gree CAN replay and qualification readiness | None |
 | NATIVE-06 | 0.7 | Project-Helianthus/helianthus-canbusreg | Growatt BMS CAN V1.04 readiness | None |
 | NATIVE-07-GROWATT-II | 0.7 | Project-Helianthus/helianthus-modbusreg | Growatt Protocol II readiness | None |
@@ -42,7 +42,7 @@ can proceed in parallel under the owning repository workflow.
 | INT-04 | 0.7 | Project-Helianthus/helianthus-execution-plans | Versioned 0.7 semantic contract design | INT-00, STD-01 |
 | INT-05 | 0.7 | Project-Helianthus/helianthus-semreg | Existing SemReg contract implementation and capability packs | INT-04 |
 | INT-06 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Generic north/south contract and driver extension hooks | INT-04 |
-| INT-07 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Driver composition without native FSM/decoder ownership | INT-05, INT-06, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK |
+| INT-07 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Driver composition without native FSM/decoder ownership | INT-05, INT-06, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, H08 |
 | INT-08 | 0.7 | Project-Helianthus/helianthus-ebusgateway | North/south MCP and GraphQL projections | INT-05, INT-06, INT-07 |
 | INT-09 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Extensible Portal and driver UI contribution design | INT-04, INT-06 |
 | INT-10 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Portal implementation and extensibility proof | INT-08, INT-09 |
@@ -51,7 +51,7 @@ can proceed in parallel under the owning repository workflow.
 | INT-13 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Matter output binding | INT-08 |
 | INT-14 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Gateway rename | INT-10, INT-11, INT-12, INT-13, INT-15 |
 | INT-15 | 0.7 | Project-Helianthus/helianthus-ha-integration | HA GraphQL consumer contract | INT-03, INT-08 |
-| INT-16 | 0.7 | Project-Helianthus/helianthus-ha-addon | Exact-BOM 0.7 candidate package | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
+| INT-16 | 0.7 | Project-Helianthus/helianthus-ha-addon | Exact-BOM 0.7 candidate package | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, H09, H11, H12, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
 | INT-17 | 0.7 | Project-Helianthus/helianthus-gateway | Offline acceptance and hardware-test preparation | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09 |
 | INT-19 | 0.7 | Project-Helianthus/helianthus-gateway | Daybreak Blue review of final candidate | INT-17 |
 | INT-20 | 0.7 | Project-Helianthus/helianthus-gateway | Exhaustive real-hardware validation | INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
@@ -63,7 +63,7 @@ can proceed in parallel under the owning repository workflow.
 | H05 | 0.7 | Project-Helianthus/helianthus-modbusreg | SUN2000, LUNA2000 and Huawei-gateway meter monitoring profiles with capability detection | H03, H04 |
 | H06 | 0.7 | Project-Helianthus/helianthus-modbusreg | Read-only production providers for SmartLogger, EMMA and S-Dongle installations | H05 |
 | H07 | 0.7 | Project-Helianthus/helianthus-docs-semantic | Mapping of Huawei SUN2000, LUNA2000 and gateway-meter observations to the PV, Storage and Infrastructure packs | H04, H05 |
-| H08 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Several Modbus TCP endpoints as independently qualified managed driver instances | H02, H13 |
+| H08 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Several Modbus TCP endpoints as independently qualified managed driver instances | H02, H13, H14 |
 | H09 | 0.7 | Project-Helianthus/helianthus-ha-addon | Add-on endpoint-list options and Huawei acceptance rows | H02, H08 |
 | H10 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Managed read-only Huawei driver and PV publication | H06, H07, H08 |
 | H11 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Huawei storage and meter publication, Portal views and composed offline acceptance | H10 |
@@ -84,12 +84,14 @@ package. Each ticket is worked in its owning repository; issue links are in the
 [issue map](./90-issue-map.md). The placement is scheduling metadata: it encodes no
 runtime state and authorizes no execution.
 
-NATIVE-04 carries the native-side tickets H01, H03 to H06, H15 and H16 and keeps
-feeding INT-07 composition and INT-17 offline acceptance. The
+NATIVE-04 carries the native-side tickets H01, H03 to H06, H15 and H16, depends on
+H06 (the read-only providers) and H15 (the identity slice) and keeps feeding INT-07
+composition and INT-17 offline acceptance. H08 precedes INT-07 composition; H09, H11 and
+H12 precede the INT-16 candidate package, so INT-17 follows every Huawei ticket. The
 [driver-model guide](../driver-model-transition.implementing/00-canonical.md) maps
 Huawei to DM-COMP-SMARTLOGGER, DM-COMP-EMMA, DM-COMP-SDONGLE and DM-COMP-SUN2000;
 the Modbus TCP part of DM-G6 is absorbed by H08, which follows the transport ticket
-H13.
+H13 and its documentation H14.
 
 | ID | Plan node |
 |---|---|
@@ -106,7 +108,7 @@ H13.
 | H11 | DM-COMP-EMMA, DM-COMP-SDONGLE, DM-COMP-SUN2000 (storage) |
 | H12 | INT-15 slice |
 | H13 | Transport prerequisite of H08 and H10 |
-| H14 | Documentation companion of H13 |
+| H14 | Documentation companion of H13, before the first gateway consumer H08 |
 | H15 | NATIVE-04, identity slice of R-M5B-SDONGLE |
 | H16 | Documentation companion of H15 |
 
