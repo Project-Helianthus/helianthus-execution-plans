@@ -111,8 +111,10 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         self.assertEqual(["H02", "H13", "H14"], packages["H08"]["depends_on"])
         self.assertEqual(["H06"], packages["NATIVE-04"]["depends_on"])
         self.assertFalse([node for node in packages["INT-07"]["depends_on"] if node in huawei])
-        self.assertTrue({"H10", "H11"} <= set(packages["INT-16"]["depends_on"]))
+        self.assertTrue({"H09", "H10", "H11"} <= set(packages["INT-16"]["depends_on"]))
         self.assertIn("H12", packages["INT-17"]["depends_on"])
+        self.assertEqual(["H05", "H15"], packages["H06"]["depends_on"])
+        self.assertEqual(["H07", "H11"], packages["H12"]["depends_on"])
 
         def ancestors(node: str) -> set[str]:
             seen: set[str] = set()
@@ -124,9 +126,9 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
                     stack.extend(packages[current]["depends_on"])
             return seen
 
-        gated = {f"H{number:02d}" for number in (*range(1, 9), *range(10, 15))}
-        self.assertTrue(gated <= ancestors("INT-17"))
-        self.assertTrue(gated - {"H12"} <= ancestors("INT-16"))
+        self.assertTrue(set(huawei) <= ancestors("INT-17"))
+        self.assertTrue(set(huawei) - {"H12"} <= ancestors("INT-16"))
+        self.assertTrue({"H01", "H03", "H04", "H05", "H06", "H15", "H16"} <= ancestors("NATIVE-04"))
         self.assertEqual(["H13"], packages["H14"]["depends_on"])
         self.assertEqual(["H03", "H16"], packages["H15"]["depends_on"])
         self.assertEqual([], packages["H16"]["depends_on"])

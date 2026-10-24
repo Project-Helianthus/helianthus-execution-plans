@@ -51,7 +51,7 @@ can proceed in parallel under the owning repository workflow.
 | INT-13 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Matter output binding | INT-08 |
 | INT-14 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Gateway rename | INT-10, INT-11, INT-12, INT-13, INT-15 |
 | INT-15 | 0.7 | Project-Helianthus/helianthus-ha-integration | HA GraphQL consumer contract | INT-03, INT-08 |
-| INT-16 | 0.7 | Project-Helianthus/helianthus-ha-addon | Exact-BOM 0.7 candidate package | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, H10, H11, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
+| INT-16 | 0.7 | Project-Helianthus/helianthus-ha-addon | Exact-BOM 0.7 candidate package | INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, H09, H10, H11, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
 | INT-17 | 0.7 | Project-Helianthus/helianthus-gateway | Offline acceptance and hardware-test preparation | INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09, H12 |
 | INT-19 | 0.7 | Project-Helianthus/helianthus-gateway | Daybreak Blue review of final candidate | INT-17 |
 | INT-20 | 0.7 | Project-Helianthus/helianthus-gateway | Exhaustive real-hardware validation | INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX |
@@ -61,13 +61,13 @@ can proceed in parallel under the owning repository workflow.
 | H03 | 0.7 | Project-Helianthus/helianthus-modbusreg | Clean-room Huawei identity fixtures, qualification cards and dispositions | H01 |
 | H04 | 0.7 | Project-Helianthus/helianthus-docs-modbus | Huawei read-only monitoring, read-pacing and provider-acquisition contracts | H01 |
 | H05 | 0.7 | Project-Helianthus/helianthus-modbusreg | SUN2000, LUNA2000 and Huawei-gateway meter monitoring profiles with capability detection | H03, H04 |
-| H06 | 0.7 | Project-Helianthus/helianthus-modbusreg | Read-only production providers for SmartLogger, EMMA and S-Dongle installations | H05 |
+| H06 | 0.7 | Project-Helianthus/helianthus-modbusreg | Read-only production providers for SmartLogger, EMMA and S-Dongle installations | H05, H15 |
 | H07 | 0.7 | Project-Helianthus/helianthus-docs-semantic | Mapping of Huawei SUN2000, LUNA2000 and gateway-meter observations to the PV, Storage and Infrastructure packs | H04, H05 |
 | H08 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Several Modbus TCP endpoints as independently qualified managed driver instances | H02, H13, H14 |
 | H09 | 0.7 | Project-Helianthus/helianthus-ha-addon | Add-on endpoint-list options and Huawei acceptance rows | H02, H08 |
 | H10 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Managed read-only Huawei driver and PV publication | H06, H07, H08 |
 | H11 | 0.7 | Project-Helianthus/helianthus-ebusgateway | Huawei storage and meter publication, Portal views and composed offline acceptance | H10 |
-| H12 | 0.7 | Project-Helianthus/helianthus-ha-integration | Huawei PV, storage and meter assets through the shared semantic snapshot; live confirmation follows H11 | H07 |
+| H12 | 0.7 | Project-Helianthus/helianthus-ha-integration | Huawei PV, storage and meter assets through the shared semantic snapshot; live confirmation follows H11 | H07, H11 |
 | H13 | 0.7 | Project-Helianthus/helianthus-modbus | Tolerant Modbus TCP framing and device-identification decoding for logger-class devices | None |
 | H14 | 0.7 | Project-Helianthus/helianthus-docs-modbus | Tolerant framing and device-identification modes for logger-class devices in the transport contract | H13 |
 | H15 | 0.7 | Project-Helianthus/helianthus-modbusreg | Observed S-Dongle single-inverter identity with clean-room fixtures and a qualification card | H03, H16 |
@@ -86,9 +86,10 @@ runtime state and authorizes no execution.
 
 NATIVE-04 carries the native-side tickets H01, H03 to H06, H15 and H16, depends on
 H06 (the read-only providers) and keeps feeding INT-07 composition and INT-17 offline
-acceptance; INT-07 itself is unchanged. H10 and H11 are prerequisites of the INT-16
-candidate package and H12 is a prerequisite of INT-17 hardware-test preparation, which
-makes the Huawei program a 0.7 release gate under the 24 October 2026 decision. The
+acceptance; INT-07 itself is unchanged. H09, H10 and H11 are prerequisites of the
+INT-16 candidate package and H12 is a prerequisite of INT-17 hardware-test preparation,
+which makes the Huawei program a 0.7 release gate under the 24 October 2026 decision.
+The S-Dongle identity ticket H15 precedes the providers of H06, and H11 precedes H12. The
 [driver-model guide](../driver-model-transition.implementing/00-canonical.md) maps
 Huawei to DM-COMP-SMARTLOGGER, DM-COMP-EMMA, DM-COMP-SDONGLE and DM-COMP-SUN2000;
 the Modbus TCP part of DM-G6 is absorbed by H08, which follows the transport ticket
@@ -101,16 +102,16 @@ H13 and its documentation H14.
 | H03 | NATIVE-04, prerequisite of R-M5A |
 | H04 | Documentation gate for R-M6B |
 | H05 | NATIVE-04, R-M6B |
-| H06 | NATIVE-04, R-M5A, R-M5B-EMMA, R-M5B-SDONGLE |
+| H06 | NATIVE-04, R-M5A, R-M5B-EMMA, R-M5B-SDONGLE; follows the S-Dongle identity ticket H15 |
 | H07 | Semantic documentation gate for H10 and H11 |
 | H08 | DM-G6 (Modbus TCP part), INT-07 |
-| H09 | INT-16 and INT-17 preparation |
+| H09 | INT-16 and INT-17 preparation; prerequisite of INT-16 |
 | H10 | DM-COMP-SMARTLOGGER, DM-COMP-SUN2000 (PV); prerequisite of INT-16 |
 | H11 | DM-COMP-EMMA, DM-COMP-SDONGLE, DM-COMP-SUN2000 (storage); prerequisite of INT-16 |
 | H12 | INT-15 slice; prerequisite of INT-17 |
 | H13 | Transport prerequisite of H08 and H10 |
 | H14 | Documentation companion of H13, before the first gateway consumer H08 |
-| H15 | NATIVE-04, identity slice of R-M5B-SDONGLE |
+| H15 | NATIVE-04, identity slice of R-M5B-SDONGLE; prerequisite of H06 |
 | H16 | Documentation companion of H15 |
 
 ## Boundary and sequencing

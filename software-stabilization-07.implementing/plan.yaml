@@ -76,7 +76,7 @@ packages:
   - {id: INT-13, release: "0.7", owner: Project-Helianthus/helianthus-ebusgateway, depends_on: [INT-08]}
   - {id: INT-14, release: "0.7", owner: Project-Helianthus/helianthus-ebusgateway, depends_on: [INT-10, INT-11, INT-12, INT-13, INT-15]}
   - {id: INT-15, release: "0.7", owner: Project-Helianthus/helianthus-ha-integration, depends_on: [INT-03, INT-08]}
-  - {id: INT-16, release: "0.7", owner: Project-Helianthus/helianthus-ha-addon, depends_on: [INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, H10, H11, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]}
+  - {id: INT-16, release: "0.7", owner: Project-Helianthus/helianthus-ha-addon, depends_on: [INT-01, INT-02, INT-10, INT-11, INT-12, INT-13, INT-14, INT-15, H09, H10, H11, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]}
   - {id: INT-17, release: "0.7", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-16, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX, NATIVE-01, NATIVE-02, NATIVE-03, NATIVE-04, NATIVE-05, NATIVE-06, NATIVE-07-GROWATT-II, NATIVE-07-GROWATT-BMS, NATIVE-07-TESLA-GEN3, NATIVE-07-TESLA-LEGACY, NATIVE-07-OUTBACK, NATIVE-09, H12]}
   - {id: INT-19, release: "0.7", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-17]}
   - {id: INT-20, release: "0.7", owner: Project-Helianthus/helianthus-gateway, depends_on: [INT-19, LEGACY-PERSIST, LEGACY-IDENTITY, LEGACY-MUX]}
@@ -86,13 +86,13 @@ packages:
   - {id: H03, release: "0.7", owner: Project-Helianthus/helianthus-modbusreg, depends_on: [H01]}
   - {id: H04, release: "0.7", owner: Project-Helianthus/helianthus-docs-modbus, depends_on: [H01]}
   - {id: H05, release: "0.7", owner: Project-Helianthus/helianthus-modbusreg, depends_on: [H03, H04]}
-  - {id: H06, release: "0.7", owner: Project-Helianthus/helianthus-modbusreg, depends_on: [H05]}
+  - {id: H06, release: "0.7", owner: Project-Helianthus/helianthus-modbusreg, depends_on: [H05, H15]}
   - {id: H07, release: "0.7", owner: Project-Helianthus/helianthus-docs-semantic, depends_on: [H04, H05]}
   - {id: H08, release: "0.7", owner: Project-Helianthus/helianthus-ebusgateway, depends_on: [H02, H13, H14]}
   - {id: H09, release: "0.7", owner: Project-Helianthus/helianthus-ha-addon, depends_on: [H02, H08]}
   - {id: H10, release: "0.7", owner: Project-Helianthus/helianthus-ebusgateway, depends_on: [H06, H07, H08]}
   - {id: H11, release: "0.7", owner: Project-Helianthus/helianthus-ebusgateway, depends_on: [H10]}
-  - {id: H12, release: "0.7", owner: Project-Helianthus/helianthus-ha-integration, depends_on: [H07]}
+  - {id: H12, release: "0.7", owner: Project-Helianthus/helianthus-ha-integration, depends_on: [H07, H11]}
   - {id: H13, release: "0.7", owner: Project-Helianthus/helianthus-modbus, depends_on: []}
   - {id: H14, release: "0.7", owner: Project-Helianthus/helianthus-docs-modbus, depends_on: [H13]}
   - {id: H15, release: "0.7", owner: Project-Helianthus/helianthus-modbusreg, depends_on: [H03, H16]}
