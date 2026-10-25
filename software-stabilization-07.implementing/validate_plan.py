@@ -31,7 +31,9 @@ MATTER_ANCHOR_MARKDOWN = (
 EXISTING_REPOSITORIES = {
     "Project-Helianthus/.github",
     "Project-Helianthus/helianthus-canbusreg",
+    "Project-Helianthus/helianthus-docs-ebus",
     "Project-Helianthus/helianthus-docs-eebus",
+    "Project-Helianthus/helianthus-docs-modbus",
     "Project-Helianthus/helianthus-docs-semantic",
     "Project-Helianthus/helianthus-ebusgateway",
     "Project-Helianthus/helianthus-eebusreg",
@@ -40,6 +42,7 @@ EXISTING_REPOSITORIES = {
     "Project-Helianthus/helianthus-execution-plans",
     "Project-Helianthus/helianthus-ha-addon",
     "Project-Helianthus/helianthus-ha-integration",
+    "Project-Helianthus/helianthus-modbus",
     "Project-Helianthus/helianthus-modbusreg",
     "Project-Helianthus/helianthus-semreg",
     "Project-Helianthus/helianthus-vrc-explorer",
@@ -134,7 +137,7 @@ def validate_plan(plan_dir: Path) -> dict[str, int]:
     require(repositories.get(RENAMED_GATEWAY) == {"owner_status": "planned", "bootstrap": "INT-14"}, "renamed gateway state is invalid")
 
     records = plan.get("packages")
-    require(isinstance(records, list) and len(records) == 49, "0.7 must retain 41 established packages plus 8 public priorities")
+    require(isinstance(records, list) and len(records) == 65, "0.7 must retain 41 established packages, 8 public priorities and 16 Huawei program tickets")
     packages: dict[str, dict[str, Any]] = {}
     for package in records:
         require(isinstance(package, dict), "each package must be a mapping")

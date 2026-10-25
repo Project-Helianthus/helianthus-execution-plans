@@ -7,10 +7,11 @@ is a separate future program. It may start only after 0.7 is accepted.
 
 ## Outcome and boundary
 
-0.7 closes and integrates already-started software: protocol-native evidence and
-qualification, the existing public Semantic Registry contracts, north--south
-composition, a usable extensible Portal, public bindings, coherent observability,
-the gateway rename, and existing product paths. `helianthus-semreg` is the
+0.7 closes and integrates already-started software and the Huawei implementation
+program recorded below: protocol-native evidence and qualification, the existing
+public Semantic Registry contracts, north--south composition, a usable extensible
+Portal, public bindings, coherent observability, the gateway rename, and existing
+product paths. `helianthus-semreg` is the
 existing public owner of protocol-neutral canonical types and semantic contracts;
 those types do not move into the gateway. `helianthus-ebusreg` remains eBUS-native.
 
@@ -65,7 +66,7 @@ projections with explicit mapping loss.
 
 | Wave | Delivery | Boundary |
 |---|---|---|
-| A | Priority public-proof actions, existing regressions and native evidence | No new product family or private dependency |
+| A | Priority public-proof actions, existing regressions and native evidence | No new product family beyond the Huawei program; no private dependency, and raw captures stay private |
 | B | Existing SemReg contracts, native-driver contracts and gateway composition | Native FSM/decoder ownership stays with the driver; SemReg owns canonical types |
 | C | MCP, GraphQL, Portal, HA, metrics, eeBUS and Matter bindings | Each target declares provenance and projection loss |
 | D | Gateway rename, exact candidate packaging and offline acceptance | Preserve consumer IDs, state, pairing/trust and pins through the cutover |
@@ -73,6 +74,31 @@ projections with explicit mapping loss.
 
 Accepted 0.7 after Wave E is the external prerequisite for the future 0.8 guide.
 The guide is not a 0.7 package, dependency or deliverable.
+
+## Huawei implementation decision
+
+Operator decision, 24 October 2026: all Huawei implementations are Release 0.7.
+Huawei work in this guide is no longer limited to preserving accepted
+qualification outcomes, to public documentation only, or to fixtures without
+captures from real installations. The outcomes recorded for the SmartLogger, EMMA
+and S-Dongle families, and the no-admissible-profile dispositions for the SUN2000
+and LUNA2000 families, are reopened through the program tickets H01 to H16 in the
+[issue map](./90-issue-map.md).
+
+- Evidence comes from bounded read-only captures on the operator's sites. Raw
+  captures stay private; only sanitized, synthetic re-creations reach any repository.
+- The clean-room rule is unchanged. Vendor documents stay inspection-only and are
+  never quoted. The party that inspects a vendor document is kept separate from the
+  author of the CC0 documentation.
+- Writes and controls stay out of scope. Default-deny for every write and private
+  function code is preserved, and no support claim precedes physical validation.
+- Published files name device families only and carry no device identifiers,
+  network coordinates, installation names, captures or commit hashes.
+- Placement: NATIVE-04 feeds INT-07 composition. The
+  [driver-model guide](../driver-model-transition.implementing/00-canonical.md) maps
+  Huawei to DM-COMP-SMARTLOGGER, DM-COMP-EMMA, DM-COMP-SDONGLE and DM-COMP-SUN2000,
+  and the Modbus TCP part of DM-G6 is absorbed by the endpoint composition ticket
+  H08. The [milestone map](./91-milestone-map.md) lists the placement.
 
 ## Acceptance and hard stops
 
