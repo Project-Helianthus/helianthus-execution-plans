@@ -1,5 +1,10 @@
 # AGENTS
 
+> **Deprecated on 2026-10-30.** Do not create new plan directories. Completed plans
+> are closed GitHub Projects listed in `README.md`. Active software planning is
+> GitHub Project #2 (0.7) and Project #4 (0.8). Historical plan text on `main`
+> remains readable. This file does not authorize product work.
+
 This repository is the human-readable planning layer for cross-repository Helianthus
 work. It records architecture, issue IDs, dependencies, repository ownership, retained
 contract IDs/versions, rollback intent, and hard stops.
@@ -17,9 +22,11 @@ contract IDs/versions, rollback intent, and hard stops.
   post-merge proofs.
 - Keep implementation proof in the code repository that owns the behavior.
 
-Normal agents read the merged `main` plan, identify a ready DAG node, and then use the
-normal issue/branch/PR workflow in that node's repository. Repository-local rules remain
-authoritative for code work.
+Do not select or start product work from a plan directory, a DAG node, or `plan.yaml`.
+For 0.7, select work from GitHub Project #2. For 0.8, select work from GitHub
+Project #4. Every other plan directory is historical context and does not authorize
+an issue. Once a Project item is chosen, the code repository's own rules remain
+authoritative for that change.
 
 ## Plan format
 
