@@ -31,7 +31,7 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
     def test_guides_are_valid_and_separate(self) -> None:
         guide_07 = ROOT / "software-stabilization-07.implementing"
         guide_08 = ROOT / "software-declarative-08.locked"
-        self.assertEqual({"packages": 49, "repositories": 15}, load_validator(guide_07).validate_plan(guide_07))
+        self.assertEqual({"packages": 65, "repositories": 18}, load_validator(guide_07).validate_plan(guide_07))
         self.assertEqual({"packages": 5, "repositories": 3}, load_validator(guide_08).validate_plan(guide_08))
 
     def test_07_rejects_future_package(self) -> None:
@@ -99,6 +99,64 @@ class SoftwareReleaseSplitTests(unittest.TestCase):
         validator = load_validator(plan_dir)
         with self.assertRaisesRegex(validator.ValidationError, "INT-14 must remain owned"):
             validator.validate_plan(plan_dir)
+
+    def test_07_huawei_tickets_form_the_declared_subdag(self) -> None:
+        plan = yaml.safe_load((ROOT / "software-stabilization-07.implementing" / "plan.yaml").read_text())
+        packages = {package["id"]: package for package in plan["packages"]}
+        huawei = [f"H{number:02d}" for number in range(1, 17)]
+        self.assertEqual(huawei, [package["id"] for package in plan["packages"] if package["id"] in huawei])
+        for ticket in huawei:
+            self.assertTrue(set(packages[ticket]["depends_on"]) <= set(huawei), ticket)
+            self.assertIn(packages[ticket]["owner"], plan["repositories"], ticket)
+        self.assertEqual(["H02", "H13", "H14"], packages["H08"]["depends_on"])
+        self.assertEqual(["H06"], packages["NATIVE-04"]["depends_on"])
+        self.assertFalse([node for node in packages["INT-07"]["depends_on"] if node in huawei])
+        self.assertTrue({"H09", "H10", "H11"} <= set(packages["INT-16"]["depends_on"]))
+        self.assertIn("H12", packages["INT-17"]["depends_on"])
+        self.assertEqual(["H05", "H15"], packages["H06"]["depends_on"])
+        self.assertEqual(["H07", "H11"], packages["H12"]["depends_on"])
+
+        def ancestors(node: str) -> set[str]:
+            seen: set[str] = set()
+            stack = list(packages[node]["depends_on"])
+            while stack:
+                current = stack.pop()
+                if current not in seen:
+                    seen.add(current)
+                    stack.extend(packages[current]["depends_on"])
+            return seen
+
+        self.assertTrue(set(huawei) <= ancestors("INT-17"))
+        self.assertTrue(set(huawei) - {"H12"} <= ancestors("INT-16"))
+        self.assertTrue({"H01", "H03", "H04", "H05", "H06", "H15", "H16"} <= ancestors("NATIVE-04"))
+        self.assertEqual(["H13"], packages["H14"]["depends_on"])
+        self.assertEqual(["H03", "H16"], packages["H15"]["depends_on"])
+        self.assertEqual([], packages["H16"]["depends_on"])
+
+    def test_07_rejects_huawei_markdown_drift(self) -> None:
+        plan_dir = self.copy_plan("software-stabilization-07.implementing")
+        milestone_map = plan_dir / "91-milestone-map.md"
+        text = milestone_map.read_text()
+        self.assertEqual(1, text.count("| H02, H13, H14 |"))
+        milestone_map.write_text(text.replace("| H02, H13, H14 |", "| H02, H13 |"))
+        validator = load_validator(plan_dir)
+        with self.assertRaisesRegex(validator.ValidationError, "does not mirror plan.yaml"):
+            validator.validate_plan(plan_dir)
+
+    def test_07_rejects_huawei_graph_and_owner_drift(self) -> None:
+        for ticket, field, value, message in (
+            ("H08", "depends_on", ["H02", "H99"], "unknown dependency H99"),
+            ("H13", "depends_on", ["H08"], "must be acyclic"),
+            ("H13", "owner", "Project-Helianthus/helianthus-unknown", "H13 has unknown owner"),
+        ):
+            with self.subTest(ticket=ticket, field=field):
+                plan_dir = self.copy_plan("software-stabilization-07.implementing")
+                plan = yaml.safe_load((plan_dir / "plan.yaml").read_text())
+                next(package for package in plan["packages"] if package["id"] == ticket)[field] = value
+                (plan_dir / "plan.yaml").write_text(yaml.safe_dump(plan, sort_keys=False))
+                validator = load_validator(plan_dir)
+                with self.assertRaisesRegex(validator.ValidationError, message):
+                    validator.validate_plan(plan_dir)
 
     def test_08_rejects_extraction_dependency_and_unknown_owner(self) -> None:
         for field, value, message in (
