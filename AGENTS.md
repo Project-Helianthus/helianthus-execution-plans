@@ -1,5 +1,10 @@
 # AGENTS
 
+> **Deprecated on 2026-10-30.** Do not create new plan directories. Completed plans
+> are closed GitHub Projects listed in `README.md`. Active software planning is
+> GitHub Project #2 (0.7) and Project #4 (0.8). Historical plan text on `main`
+> remains readable. This file does not authorize product work.
+
 This repository is the human-readable planning layer for cross-repository Helianthus
 work. It records architecture, issue IDs, dependencies, repository ownership, retained
 contract IDs/versions, rollback intent, and hard stops.

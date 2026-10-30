@@ -1,5 +1,14 @@
 # Helianthus Execution Plans
 
+> **Deprecated on 2026-10-30.** Do not add plan directories, and do not treat this
+> repository as the planning system. Completed plans are closed GitHub Projects.
+> Active software planning is
+> [Project #2, 0.7 Stabilization](https://github.com/orgs/Project-Helianthus/projects/2)
+> and
+> [Project #4, 0.8 Declarative and Driver Extraction](https://github.com/orgs/Project-Helianthus/projects/4).
+> The markdown in this repository stays as the historical record. This repository
+> is not archived, because the 0.7 and 0.8 guides are still read from `main`.
+
 This repository holds human-readable cross-repository plans for Helianthus. It records
 architecture decisions, issue IDs, dependency graphs, repository boundaries, contract
 IDs/versions, rollback intent, and explicit stop conditions.
@@ -7,15 +16,59 @@ IDs/versions, rollback intent, and explicit stop conditions.
 It is not a product runtime, execution service, repository mutation service, or substitute for
 code-repository issues and pull requests.
 
+## Where completed plans went
+
+Each closed Project below is public, every imported item is Done, and open follow-ups
+were left on their existing issues instead of being marked Done.
+
+| Plan | Project |
+| --- | --- |
+| Superseded 0.7/0.8 combined guide | [#5](https://github.com/orgs/Project-Helianthus/projects/5) |
+| Multi-runtime platform history | [#6](https://github.com/orgs/Project-Helianthus/projects/6) |
+| Superseded Fronius bridge draft | [#7](https://github.com/orgs/Project-Helianthus/projects/7) |
+| Startup admission and discovery | [#8](https://github.com/orgs/Project-Helianthus/projects/8) |
+| Address-table registry | [#9](https://github.com/orgs/Project-Helianthus/projects/9) |
+| Superseded gateway refactor draft | [#10](https://github.com/orgs/Project-Helianthus/projects/10) |
+| Source-address selection | [#11](https://github.com/orgs/Project-Helianthus/projects/11) |
+| Proxy wire-semantics fidelity | [#12](https://github.com/orgs/Project-Helianthus/projects/12) |
+| Adapter hardware telemetry | [#13](https://github.com/orgs/Project-Helianthus/projects/13) |
+| Stable instance identity | [#14](https://github.com/orgs/Project-Helianthus/projects/14) |
+| Gateway-embedded adapter multiplexer | [#15](https://github.com/orgs/Project-Helianthus/projects/15) |
+| eBUS good-citizen network management | [#16](https://github.com/orgs/Project-Helianthus/projects/16) |
+| eBUS standard L7 services | [#17](https://github.com/orgs/Project-Helianthus/projects/17) |
+| Observe-first bus observability | [#18](https://github.com/orgs/Project-Helianthus/projects/18) |
+
+These plans were not closed, because their own status still has unfinished work
+or they never started:
+
+- `software-stabilization-07.implementing` remains the 0.7 guide. Its board is Project #2.
+- `software-declarative-08.locked` remains the 0.8 guide. Its board is Project #4.
+- `driver-model-transition.implementing`
+- `fronius-modbus-multivendor-v3-w29-26.implementing`
+- `fix-p11-midwrite-byte-routing-w21-26.implementing` (stopped at M4 NO_GO)
+- `runtime-state-w19-26.implementing` (M7 live validation)
+- `vaillant-b503-namespace-w17-26.implementing`
+- `multi-runtime-semantic-platform.locked`
+- `writable-installer-maintenance.implementing`
+- `common-firmware-rewrite.locked`
+- `docs-stage1-protocol-architecture-realignment.locked`
+- `energy-v1-split-source-backfill.locked`
+- `ha-hydraulic-visualization-cards.locked`
+- `proxy-v0699-synth-stress-baseline.locked`
+- `eebus-northbound-readonly-profile-poc.draft`
+
 ## Current software release program
 
 The active [0.7 stabilization guide](software-stabilization-07.implementing/00-canonical.md)
 covers present software convergence, public-proof priorities and its Daybreak and
 hardware gates. The separate [0.8 declarative guide](software-declarative-08.locked/00-canonical.md)
-is future work, locked until 0.7 acceptance. Both public software planning tracks
-are context only; a guide merge has no execution side effects.
+is future work, locked until 0.7 acceptance. Track that work on Projects #2 and #4.
+A guide merge has no execution side effects.
 
 ## Normal workflow
+
+The workflow below is frozen. Use it only to read an existing guide. Do not open a
+new plan directory here.
 
 1. Discuss and review a cross-repository plan.
 2. Merge the accepted human-readable plan to `main`.
