@@ -67,20 +67,22 @@ A guide merge has no execution side effects.
 
 ## Normal workflow
 
-The workflow below is frozen. Use it only to read an existing guide. Do not open a
-new plan directory here.
+This section is history. It is not an instruction to start work.
 
-1. Discuss and review a cross-repository plan.
-2. Merge the accepted human-readable plan to `main`.
-3. An agent reads merged `main`.
-4. The agent creates or selects the normal issue, branch, and PR in the code repository
-   that owns the next DAG node.
-5. The code repository proves behavior through its own interfaces/types, golden fixtures,
-   conformance tests, and compatibility tests.
-6. Reusable architecture or protocol knowledge is published in the public docs repo.
+Do not select the next task from a plan directory, a DAG node, or `plan.yaml`.
+Task selection for the active programs comes from GitHub Projects:
 
-Merging a plan has no post-merge effect. It does not create repositories, issues,
-branches, PRs, commits, deployments, or follow-up jobs.
+- 0.7 work is selected from [Project #2](https://github.com/orgs/Project-Helianthus/projects/2).
+- 0.8 work is selected from [Project #4](https://github.com/orgs/Project-Helianthus/projects/4).
+
+The other unfinished directories listed above do not authorize new issues. Ask
+the operator before starting any of them.
+
+Historically, someone discussed a plan, merged the Markdown to `main`, and an
+agent then opened the issue, branch, and pull request in the code repository
+that owned the next node. Proof stayed in that code repository. Merging a plan
+never created repositories, issues, branches, pull requests, commits,
+deployments, or follow-up jobs.
 
 ## Plan contents
 

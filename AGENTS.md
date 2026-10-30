@@ -22,9 +22,11 @@ contract IDs/versions, rollback intent, and hard stops.
   post-merge proofs.
 - Keep implementation proof in the code repository that owns the behavior.
 
-Normal agents read the merged `main` plan, identify a ready DAG node, and then use the
-normal issue/branch/PR workflow in that node's repository. Repository-local rules remain
-authoritative for code work.
+Do not select or start product work from a plan directory, a DAG node, or `plan.yaml`.
+For 0.7, select work from GitHub Project #2. For 0.8, select work from GitHub
+Project #4. Every other plan directory is historical context and does not authorize
+an issue. Once a Project item is chosen, the code repository's own rules remain
+authoritative for that change.
 
 ## Plan format
 
