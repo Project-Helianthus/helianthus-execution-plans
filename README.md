@@ -26,16 +26,16 @@ were left on their existing issues instead of being marked Done.
 | Superseded 0.7/0.8 combined guide | [#5](https://github.com/orgs/Project-Helianthus/projects/5) |
 | Multi-runtime platform history | [#6](https://github.com/orgs/Project-Helianthus/projects/6) |
 | Superseded Fronius bridge draft | [#7](https://github.com/orgs/Project-Helianthus/projects/7) |
-| Startup admission and discovery | [#8](https://github.com/orgs/Project-Helianthus/projects/8) |
-| Address-table registry | [#9](https://github.com/orgs/Project-Helianthus/projects/9) |
+| Startup admission and discovery | [Helianthus Software — 0.5 Startup admission and discovery](https://github.com/orgs/Project-Helianthus/projects/8) |
+| Address-table registry | [Helianthus Software — 0.5 Address-table registry](https://github.com/orgs/Project-Helianthus/projects/9) |
 | Superseded gateway refactor draft | [#10](https://github.com/orgs/Project-Helianthus/projects/10) |
 | Source-address selection | [#11](https://github.com/orgs/Project-Helianthus/projects/11) |
 | Proxy wire-semantics fidelity | [#12](https://github.com/orgs/Project-Helianthus/projects/12) |
 | Adapter hardware telemetry | [#13](https://github.com/orgs/Project-Helianthus/projects/13) |
 | Stable instance identity | [#14](https://github.com/orgs/Project-Helianthus/projects/14) |
-| Gateway-embedded adapter multiplexer | [#15](https://github.com/orgs/Project-Helianthus/projects/15) |
+| Gateway-embedded adapter multiplexer | [Helianthus Software — 0.4 Gateway-embedded adapter multiplexer](https://github.com/orgs/Project-Helianthus/projects/15) |
 | eBUS good-citizen network management | [#16](https://github.com/orgs/Project-Helianthus/projects/16) |
-| eBUS standard L7 services | [#17](https://github.com/orgs/Project-Helianthus/projects/17) |
+| eBUS standard L7 services | [Helianthus Software — 0.5 eBUS Standard L7 services](https://github.com/orgs/Project-Helianthus/projects/17) |
 | Observe-first bus observability | [#18](https://github.com/orgs/Project-Helianthus/projects/18) |
 
 These plans were not closed, because their own status still has unfinished work
